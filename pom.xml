@@ -16,6 +16,12 @@
 	<packaging>pom</packaging>
 	<name>adventuretube-microservice</name>
 	<description>adventuretube-microservice</description>
+	<modules>
+		<module>web</module>
+		<module>postgres</module>
+		<module>mongodb</module>
+		<module>security</module>
+	</modules>
 	<properties>
 		<java.version>17</java.version>
 		<spring.boot.maven.plugin.version>3.2.5</spring.boot.maven.plugin.version>
