@@ -10,6 +10,8 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=mysecretpassword
       - POSTGRES_DB=adventuretube
+    networks:
+      - postgres
   pgadmin:
     container_name: pgadmin
     image: dpage/pgadmin4
@@ -21,6 +23,8 @@ services:
         - pgadmin:/var/lib/pgadmin
     ports:
       - "5050:80"
+    networks:
+      - postgres
     restart: unless-stopped
 
   mongodb:
@@ -46,9 +50,13 @@ services:
       - ME_CONFIG_MONGODB_ADMINPASSWORD=rootpass
       - ME_CONFIG_MONGODB_SERVER=mongodb
 
+networks:
+  postgres:
+    driver: bridge
+  spring:
+    driver: bridge
+
 volumes:
-  mongodb_data:
   postgres:
   pgadmin:
-networks:
-  adventuretube-network:
+  mongodb_data:
