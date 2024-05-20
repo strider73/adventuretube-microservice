@@ -1,0 +1,16 @@
+server:
+  port: 8060
+
+spring:
+  application:
+    name: geospatial-service
+
+
+logging:
+  level:
+    org:
+      hibernate: INFO
+    org.hibernate.SQL: INFO
+    org.hibernate.type.descriptor.sql: TRACE
+    com.zaxxer.hikari: INFO
+    your.package.name: INFO

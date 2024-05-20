@@ -1,0 +1,27 @@
+server:
+  port: 8070
+
+spring:
+  application:
+    name: member-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/adventuretube
+    username: postgres
+    password: mysecretpassword
+  jpa:
+    hibernate:
+      ddl-auto: update
+      show-sql: true
+      properties:
+        hibernate:
+          dialect: org.hibernate.dialect.PostgreSQLDialect
+          format_sql: true
+
+logging:
+  level:
+    org:
+      hibernate: INFO
+    org.hibernate.SQL: INFO
+    org.hibernate.type.descriptor.sql: TRACE
+    com.zaxxer.hikari: INFO
+    your.package.name: INFO
