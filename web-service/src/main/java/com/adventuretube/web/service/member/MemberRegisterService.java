@@ -11,13 +11,14 @@ import org.springframework.web.client.RestTemplate;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("api/memberRegister")
+@RequestMapping("api/web/memberRegister")
 public class MemberRegisterService {
     private final RestTemplate restTemplate;
 
     @PostMapping
     public void registerMemeber(@RequestBody MemberRegistrationRequest memberRegistrationRequest){
-        String url = "http://localhost:8070/api/members";
+        //String url = "http://localhost:8070/api/members";
+        String url = "http://MEMBER-SERVICE/api/members";
         restTemplate.postForObject(url, memberRegistrationRequest, Void.class);
     }
 
