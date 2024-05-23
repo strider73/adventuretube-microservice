@@ -17,8 +17,9 @@ public class MemberRegisterService {
 
     @PostMapping
     public void registerMemeber(@RequestBody MemberRegistrationRequest memberRegistrationRequest){
-        //String url = "http://localhost:8070/api/members";
-        String url = "http://MEMBER-SERVICE/api/members";
+        //String url = "http://localhost:8070/api/members"; without Eureka
+        //String url = "http://MEMBER-SERVICE/api/members"; with Eureka
+        String url = "http://api/member/api/member"; //with Eureka + APIgateWay
         restTemplate.postForObject(url, memberRegistrationRequest, Void.class);
     }
 
