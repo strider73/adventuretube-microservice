@@ -1,8 +1,8 @@
 eureka:
   client:
     service-url:
-      #defaultZone: http://localhost:8761/eureka
-      defaultZone: https://eureka.adventuretube.net/eureka
+      defaultZone: http://localhost:8761/eureka
+      #defaultZone: https://eureka.adventuretube.net/eureka
     fetch-registry: true
     register-with-eureka: true
 spring:
@@ -12,15 +12,15 @@ spring:
     gateway:
       routes:
         - id: member-service
-          uri: lb://member-service
+          uri: lb://MEMBER-SERVICE
           predicates:
-            - Path=/api/member
+            - Path=/member/**
         - id: web-service
-          uri: lb://web-service
+          uri: lb://WEB-SERVICE
           predicates:
-            - Path=/api/web
+            - Path=/web/**
 logging:
   level:
     root: INFO
 server:
-  port: 8010
+  port: 8080

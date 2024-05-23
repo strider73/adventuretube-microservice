@@ -50,14 +50,14 @@ services:
       - ME_CONFIG_MONGODB_ADMINPASSWORD=rootpass
       - ME_CONFIG_MONGODB_SERVER=mongodb
 
-  eureka-server:
-    build: eureka-server
-    container_name: eureka-server
-    ports:
-      - 8761:8761
-    depends_on:
-      - postgres
-      - mongodb
+#  eureka-server:
+#    build: eureka-server
+#    container_name: eureka-server
+#    ports:
+#      - 8761:8761
+#    depends_on:
+#      - postgres
+#      - mongodb
 
 networks:
   postgres:
