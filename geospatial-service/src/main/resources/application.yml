@@ -4,6 +4,17 @@ server:
 spring:
   application:
     name: geospatial-service
+  data:
+    mongodb:
+      authentication-database: admin
+      username: rootuser
+      password: rootpass
+      database: adventuretube
+      port: 27017
+      host: adventuretube.net
+      auto-index-creation: true
+    rest:
+      base-path: /api/rest
 
 eureka:
   client:
