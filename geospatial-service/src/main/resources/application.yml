@@ -17,6 +17,8 @@ spring:
       base-path: /api/rest
 
 eureka:
+  instance:
+    hostname: 192.168.0.8
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka

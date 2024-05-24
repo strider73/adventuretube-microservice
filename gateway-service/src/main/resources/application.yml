@@ -1,8 +1,9 @@
 eureka:
+  instance:
+    hostname: 192.168.0.8
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka
-      #defaultZone: https://eureka.adventuretube.net/eureka
     fetch-registry: true
     register-with-eureka: true
 spring:
@@ -21,6 +22,6 @@ spring:
             - Path=/web/**
 logging:
   level:
-    root: INFO
+    root: DEBUG
 server:
   port: 8080
