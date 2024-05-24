@@ -12,10 +12,10 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @AllArgsConstructor
 @RestController
-@RequestMapping("api/members")
+@RequestMapping("member")
 public class MemberController {
     private final MemberService memberService;
-    @PostMapping
+    @PostMapping("registerMember")
     public void registerMember(@RequestBody MemberRegistrationRequest memberRegistrationRequest){
         log.info("new member registration {}",memberRegistrationRequest);
         memberService.registerMember(memberRegistrationRequest);

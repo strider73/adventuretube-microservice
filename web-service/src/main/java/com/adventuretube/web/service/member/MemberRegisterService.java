@@ -11,15 +11,14 @@ import org.springframework.web.client.RestTemplate;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("api/web/memberRegister")
+@RequestMapping("web/registerMember")
 public class MemberRegisterService {
     private final RestTemplate restTemplate;
 
     @PostMapping
     public void registerMemeber(@RequestBody MemberRegistrationRequest memberRegistrationRequest){
-        //String url = "http://localhost:8070/api/members"; without Eureka
-        //String url = "http://MEMBER-SERVICE/api/members"; with Eureka
-        String url = "http://api/member/api/member"; //with Eureka + APIgateWay
+        String url = "http://MEMBER-SERVICE/member/registerMember"; //with Eureka
+        System.out.println("http://MEMBER-SERVICE/member/registerMember");
         restTemplate.postForObject(url, memberRegistrationRequest, Void.class);
     }
 
