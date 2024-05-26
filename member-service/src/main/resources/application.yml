@@ -10,7 +10,7 @@ spring:
     password: mysecretpassword
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create-drop
       show-sql: true
       properties:
         hibernate:
@@ -18,11 +18,9 @@ spring:
           format_sql: true
 
 eureka:
-  instance:
-    hostname: 192.168.0.8
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka
+      defaultZone: http://192.168.1.106:8761/eureka
     fetch-registry: true
     register-with-eureka: true
     enabled: true
@@ -30,4 +28,4 @@ eureka:
 
 logging:
   level:
-    root: DEBUG
+    root: INFO

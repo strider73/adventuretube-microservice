@@ -6,15 +6,20 @@ spring:
     name: web-service
 
 eureka:
-  instance:
-    hostname: 192.168.0.8
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka
+       defaultZone: http://192.168.1.106:8761/eureka
     fetch-registry: true
     register-with-eureka: true
     enabled: true
-
+#logging:
+#  level:
+#    org:
+#      hibernate: INFO
+#    org.hibernate.SQL: INFO
+#    org.hibernate.type.descriptor.sql: TRACE
+#    com.zaxxer.hikari: INFO
+#    net.adveturetube: INFO
 
 logging:
   level:
