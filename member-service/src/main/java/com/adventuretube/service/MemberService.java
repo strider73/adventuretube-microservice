@@ -15,12 +15,13 @@ public class MemberService {
     private final MemberRepository memberRepository;
     public void registerMember(MemberRegistrationRequest memberRegistrationRequest){
         Member newMember = Member.builder()
-                .name(memberRegistrationRequest.name())
+                .username(memberRegistrationRequest.name())
                 .email(memberRegistrationRequest.email())
                 .channeld(memberRegistrationRequest.channeld())
                 .createAt(LocalDateTime.now())
                 .build();
-
+        //TODO need to add password
+        //TODO need to add JWT token
         memberRepository.save(newMember);
     }
 }
