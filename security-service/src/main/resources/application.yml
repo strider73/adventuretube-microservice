@@ -24,3 +24,6 @@ logging:
     org.hibernate.type.descriptor.sql: TRACE
     com.zaxxer.hikari: INFO
     your.package.name: INFO
+
+
+jwt.secret  : adventuretube

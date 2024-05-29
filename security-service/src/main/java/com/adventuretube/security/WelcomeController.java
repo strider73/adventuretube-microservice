@@ -1,4 +1,4 @@
-package com.adventuretube;
+package com.adventuretube.security;
 
 
 import lombok.Data;
