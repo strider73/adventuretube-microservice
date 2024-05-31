@@ -1,8 +1,7 @@
 package com.adventuretube.apigateway.config;
 
-import com.adventuretube.apigateway.service.JwtUtils;
+import com.adventuretube.apigateway.service.JwtUtil;
 import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
@@ -18,7 +17,7 @@ import reactor.core.publisher.Mono;
 @Component
 public class AuthenticationFiter implements GatewayFilter {
     private final RouterValidator validator;
-    private final JwtUtils jwtUtils;
+    private final JwtUtil jwtUtils;
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
