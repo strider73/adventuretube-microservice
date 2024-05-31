@@ -1,11 +1,12 @@
-package com.adventuretube;
+package com.adventuretube.geospatial;
+
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class SecurityServiceApplication {
+public class GeospatialServiceApplication {
     public static void main(String[] args) {
-        SpringApplication.run(SecurityServiceApplication.class);
+        SpringApplication.run(GeospatialServiceApplication.class);
     }
 }
