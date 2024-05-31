@@ -19,7 +19,13 @@
     </properties>
     <dependencies>
         <!--Error with starter-web dependencies
-        Spring MVC found on classpath, which is incompatible with Spring Cloud Gateway. -->
+        Spring MVC found on classpath, which is incompatible with Spring Cloud Gateway.
+
+        Why this happen ?
+
+         Spring Cloud Gateway is built on Spring WebFlux, which is a reactive programming model,
+         while Spring MVC is part of the traditional, synchronous Spring Web model
+         -->
         <!--dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -33,6 +39,10 @@
             <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
             <version>3.0.3</version>
         </dependency>
+        <!--dependency>  config server does include spring mvc which is not compatible with spring-gateway
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-config-server</artifactId>
+        </dependency-->
         <!--        JWT-->
 
         <dependency>
