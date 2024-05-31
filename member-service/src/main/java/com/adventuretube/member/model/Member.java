@@ -36,6 +36,8 @@ public class Member implements UserDetails {
     private String password;
     private String channeld;
     private String email;
+
+    private String role;
     private LocalDateTime createAt;
 
 

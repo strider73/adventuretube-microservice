@@ -1,7 +1,6 @@
 package com.adventuretube.web.service.member;
 
 
-import com.adventuretube.common.domain.requestmodel.MemberRegistrationRequest;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
