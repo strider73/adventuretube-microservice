@@ -27,4 +27,6 @@ logging:
     your.package.name: INFO
 
 
-jwt.secret  : adventuretube
+jwt:
+  secret: adventuretubeMiAVzqUXy5Tfr1kVIGpPMiAVzqUXy5Tfr1kVIGpP
+  expiration: 86400
