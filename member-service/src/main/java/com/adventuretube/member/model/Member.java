@@ -1,4 +1,4 @@
-package com.adventuretube.model;
+package com.adventuretube.member.model;
 
 
 

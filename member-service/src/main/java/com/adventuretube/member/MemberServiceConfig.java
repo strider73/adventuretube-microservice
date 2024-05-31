@@ -1,4 +1,4 @@
-package com.adventuretube;
+package com.adventuretube.member;
 
 import org.springframework.context.annotation.Configuration;
 

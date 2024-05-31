@@ -1,7 +1,7 @@
-package com.adventuretube.service;
+package com.adventuretube.member.service;
 
-import com.adventuretube.model.Member;
-import com.adventuretube.repo.MemberRepository;
+import com.adventuretube.member.model.Member;
+import com.adventuretube.member.repo.MemberRepository;
 import com.adventuretube.common.domain.requestmodel.MemberRegistrationRequest;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
