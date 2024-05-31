@@ -1,0 +1,23 @@
+server:
+  port: 9297
+
+spring:
+  application:
+    name: config-service
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/strider73/adventuretube-config-server.git
+          clone-on-start: true
+          search-paths: application
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    service-url:
+      defaultZone: https://eureka.adventuretube.net/eureka
+      #defaultZone: http://192.168.1.103:8761/eureka
+    fetch-registry: true
+    register-with-eureka: true
