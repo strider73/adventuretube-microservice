@@ -1,7 +1,6 @@
-package com.adventuretube.apigateway.service;
+package com.adventuretube.security.service;
 
 
-import com.adventuretube.apigateway.exception.AccessDeniedException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -14,13 +13,15 @@ import org.springframework.stereotype.Service;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.Map;
 
 @Service
-public class JwtUtils {
+public class JwtUtil {
 
     @Value("${jwt.secret}")
     private String secret;
-
+    @Value("${jwt.expiration}")
+    private String expiration;
     private Key SECRET_KEY;
 
     @PostConstruct
@@ -44,6 +45,27 @@ public class JwtUtils {
 
     }
 
+    public Date getExpirationDate(String token) {
+        return getClaims(token).getExpiration();
+    }
+
+    public String generate(String userId, String role, String tokenType) {
+        Map<String, String> claims = Map.of("id", userId, "role", role);
+        long expMillis = "ACCESS".equalsIgnoreCase(tokenType)
+                ? Long.parseLong(expiration) * 1000
+                : Long.parseLong(expiration) * 1000 * 5;
+
+        final Date now = new Date();
+        final Date exp = new Date(now.getTime() + expMillis);
+
+        return Jwts.builder()
+                .setClaims(claims)
+                .setSubject(claims.get("id"))
+                .setIssuedAt(now)
+                .setExpiration(exp)
+                .signWith(SECRET_KEY)
+                .compact();
+    }
     public boolean isExpired(String token){
         try{
             return getClaims(token).getExpiration().before(new Date());
