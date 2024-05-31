@@ -24,7 +24,7 @@ public class Member implements UserDetails {
     @Id
     @SequenceGenerator(
             name = "member_sequence",
-            sequenceName = "user_sequence",
+            sequenceName = "member_sequence",
             allocationSize = 1
     )
     @GeneratedValue(
