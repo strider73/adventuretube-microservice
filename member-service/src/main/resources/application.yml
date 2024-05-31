@@ -10,17 +10,19 @@ spring:
     password: mysecretpassword
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
       show-sql: true
       properties:
         hibernate:
           dialect: org.hibernate.dialect.PostgreSQLDialect
+          default_schema: public  # <-- Add this line
           format_sql: true
 
 eureka:
   client:
     service-url:
-      defaultZone: http://192.168.1.106:8761/eureka
+      #defaultZone: http://localhost:8761/eureka
+      defaultZone: https://eureka.adventuretube.net/eureka
     fetch-registry: true
     register-with-eureka: true
     enabled: true
