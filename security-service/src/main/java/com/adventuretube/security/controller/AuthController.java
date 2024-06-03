@@ -1,8 +1,8 @@
 package com.adventuretube.security.controller;
 
 
-import com.adventuretube.common.domain.requestmodel.AuthRequest;
-import com.adventuretube.common.domain.requestmodel.AuthResponse;
+import com.adventuretube.security.model.AuthRequest;
+import com.adventuretube.security.model.AuthResponse;
 import com.adventuretube.security.service.AuthService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;

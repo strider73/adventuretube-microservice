@@ -1,7 +1,6 @@
 package com.adventuretube.member.service;
 
 import com.adventuretube.common.domain.dto.UserDTO;
-import com.adventuretube.common.domain.requestmodel.AuthRequest;
 import com.adventuretube.member.exceptions.DuplicateException;
 import com.adventuretube.member.model.Member;
 import com.adventuretube.member.repo.MemberRepository;
@@ -16,12 +15,12 @@ import java.util.Optional;
 @AllArgsConstructor
 public class MemberService {
     private final MemberRepository memberRepository;
-    public UserDTO registerMember(AuthRequest request){
+    public UserDTO registerMember(UserDTO userDto){
         Member newMember = Member.builder()
-                .username(request.getUsername())
-                .password(request.getPassword())
-                .email(request.getEmail())
-                .channeld(request.getChannelID())
+                .username(userDto.getUsername())
+                .password(userDto.getPassword())
+                .email(userDto.getEmail())
+                .channeld(userDto.getChannelId())
                 .role("USER")
                 .createAt(LocalDateTime.now())
                 .build();
@@ -29,7 +28,7 @@ public class MemberService {
         //TODO need to add JWT token
         Optional<Member>  existingMember = memberRepository.findMemberByEmail(newMember.getEmail());
         if(existingMember.isPresent()){
-            throw new DuplicateException(String.format("User with the email address '%s' already exists.", request.getEmail()));
+            throw new DuplicateException(String.format("User with the email address '%s' already exists.", userDto.getEmail()));
         }
 
 

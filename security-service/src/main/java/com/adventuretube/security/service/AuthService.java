@@ -1,7 +1,7 @@
 package com.adventuretube.security.service;
 
-import com.adventuretube.common.domain.requestmodel.AuthRequest;
-import com.adventuretube.common.domain.requestmodel.AuthResponse;
+import com.adventuretube.security.model.AuthRequest;
+import com.adventuretube.security.model.AuthResponse;
 import com.adventuretube.common.domain.dto.UserDTO;
 import lombok.AllArgsConstructor;
 import org.mindrot.jbcrypt.BCrypt;

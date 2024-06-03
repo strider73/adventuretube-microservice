@@ -1,4 +1,4 @@
-package com.adventuretube.common.domain.requestmodel;
+package com.adventuretube.security.model;
 
 
 import lombok.Data;
