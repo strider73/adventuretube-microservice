@@ -1,6 +1,11 @@
 package com.adventuretube.member;
 
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.web.SecurityFilterChain;
+
+import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 public class MemberServiceConfig {
@@ -11,25 +16,15 @@ public class MemberServiceConfig {
 //    }
 
 
-//    @Bean
-//    CommandLineRunner commandLineRunner(MemberRepository repository){
-//        return args -> {
-//            Member chris = Member.builder()
-//                    .name("Yegun Lee")
-//                    .channeld("https://www.youtube.com/channel/UCMg4QJXtDH-VeoJvlEpfEYg")
-//                    .email("monekey@gmail.com")
-//                    .build();
-//
-//            Member bella = Member.builder()
-//                    .name("Sunhee Mub")
-//                    .channeld("https://www.youtube.com/channel/UCMg4QJXtDH-VeoJvlEpfEYg")
-//                    .email("monekey@gmail.com")
-//                    .build();
-//
-//            repository.saveAll(List.of(chris,bella));
-//
-//        };
-//    }
+    @Bean
+    public SecurityFilterChain apiFilterChain(HttpSecurity http) throws Exception {
+        http
+                .securityMatcher("/security/**")
+                .authorizeHttpRequests(authorize -> authorize.anyRequest().hasRole("ADMIN"))
+                .httpBasic(withDefaults());
+        return http.build();
+    }
+
 
 
 
