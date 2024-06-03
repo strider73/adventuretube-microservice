@@ -1,7 +1,6 @@
 package com.adventuretube.web.service.member;
 
 
-import com.adventuretube.common.domain.requestmodel.AuthRequest;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,11 +14,11 @@ import org.springframework.web.client.RestTemplate;
 public class MemberRegisterService {
     private final RestTemplate restTemplate;
 
-    @PostMapping(value = "/registerMember")
-    public void registerMemeber(@RequestBody AuthRequest request){
-        String url = "http://MEMBER-SERVICE/member/registerMember"; //with Eureka
-        System.out.println("http://MEMBER-SERVICE/member/registerMember");
-        restTemplate.postForObject(url, request, Void.class);
-    }
+//    @PostMapping(value = "/registerMember")
+//    public void registerMemeber(@RequestBody AuthRequest request){
+//        String url = "http://MEMBER-SERVICE/member/registerMember"; //with Eureka
+//        System.out.println("http://MEMBER-SERVICE/member/registerMember");
+//        restTemplate.postForObject(url, request, Void.class);
+//    }
 
 }
