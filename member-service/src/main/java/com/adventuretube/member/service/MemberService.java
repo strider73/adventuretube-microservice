@@ -2,12 +2,14 @@ package com.adventuretube.member.service;
 
 import com.adventuretube.common.domain.dto.UserDTO;
 import com.adventuretube.common.domain.requestmodel.AuthRequest;
+import com.adventuretube.member.exceptions.DuplicateException;
 import com.adventuretube.member.model.Member;
 import com.adventuretube.member.repo.MemberRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 
 @Service
@@ -25,6 +27,12 @@ public class MemberService {
                 .build();
         //TODO need to add password
         //TODO need to add JWT token
+        Optional<Member>  existingMember = memberRepository.findMemberByEmail(newMember.getEmail());
+        if(existingMember.isPresent()){
+            throw new DuplicateException(String.format("User with the email address '%s' already exists.", request.getEmail()));
+        }
+
+
        Member savedMember =  memberRepository.save(newMember);
        UserDTO userDTO = createNormalUserDTO(savedMember);
        return userDTO;

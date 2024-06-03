@@ -20,19 +20,24 @@ public class AuthenticationFiter implements GatewayFilter {
     private final JwtUtil jwtUtils;
 
     @Override
-    public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+    public Mono<Void> filter(ServerWebExchange exchange,
+                             GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
+        //check the request is secured
+        //if yes
         if (validator.isSecured.test(request)) {
-            if (authMissing(request)) {
+            if (authMissing(request)) {//check Authentication header
                 return onError(exchange, HttpStatus.UNAUTHORIZED);
             }
+            //if the authentication header exist , extract the token
             final String token = request.getHeaders().getOrEmpty("Authorization").get(0);
-
+           //and check the expiration
             if(jwtUtils.isExpired(token)){
                 return onError(exchange, HttpStatus.UNAUTHORIZED);
             }
 
         }
+        //if every thing ok continue filter chain
         return chain.filter(exchange);
     }
 

@@ -16,11 +16,15 @@ public class AuthService {
     private final JwtUtil jwtUtil;
 
 
-    public AuthResponse register(AuthRequest request){
+     public AuthResponse register(AuthRequest request){
         request.setPassword(BCrypt.hashpw(request.getPassword(), BCrypt.gensalt()));
 
-        String url = "http://MEMBER-SERVICE/member/registerMember"; //with Eureka
-        UserDTO registeredUser = restTemplate.postForObject(url, request, UserDTO.class);
+//        String urlForEmailCheck = "http://MEMBER-SERVICE/member/emailCheck";
+//        UserDTO emailCheckedUser = restTemplate.postForObject(urlForEmailCheck, request, UserDTO.class);
+
+
+        String urlForRegister = "http://MEMBER-SERVICE/member/registerMember"; //with Eureka
+        UserDTO registeredUser = restTemplate.postForObject(urlForRegister, request, UserDTO.class);
 
 
         String accessToken = jwtUtil.generate(registeredUser.getId().toString(), registeredUser.getRole(), "ACCESS");
