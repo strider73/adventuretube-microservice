@@ -9,9 +9,11 @@ import lombok.AllArgsConstructor;
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 @Service
+@Transactional(readOnly = true)
 @AllArgsConstructor
 public class AuthService {
 
@@ -19,6 +21,7 @@ public class AuthService {
     private final JwtUtil jwtUtil;
 
 
+     @Transactional
      public AuthResponse register(AuthRequest request){
          request.setPassword(BCrypt.hashpw(request.getPassword(), BCrypt.gensalt()));
 
