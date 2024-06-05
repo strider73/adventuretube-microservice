@@ -19,8 +19,11 @@ public class MemberServiceConfig {
     @Bean
     public SecurityFilterChain apiFilterChain(HttpSecurity http) throws Exception {
         http
-                .securityMatcher("/security/**")
-                .authorizeHttpRequests(authorize -> authorize.anyRequest().hasRole("ADMIN"))
+                .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers("/security/**").hasRole("ADMIN")  // Restrict /security/** to ADMIN role
+                        .anyRequest().permitAll()  // Allow all other requests
+                )
+                .csrf(csrf -> csrf.ignoringRequestMatchers("/member/**")) // Disable CSRF for /auth/register
                 .httpBasic(withDefaults());
         return http.build();
     }

@@ -24,13 +24,8 @@ public class MemberService {
                 .role("USER")
                 .createAt(LocalDateTime.now())
                 .build();
-        //TODO need to add password
-        //TODO need to add JWT token
-        Optional<Member>  existingMember = memberRepository.findMemberByEmail(newMember.getEmail());
-        if(existingMember.isPresent()){
-            throw new DuplicateException(String.format("User with the email address '%s' already exists.", userDto.getEmail()));
-        }
-
+//        //TODO need to add password
+//        //TODO need to add JWT token
 
        Member savedMember =  memberRepository.save(newMember);
        UserDTO userDTO = createNormalUserDTO(savedMember);
@@ -45,5 +40,9 @@ public class MemberService {
           userDTO.setPassword(member.getPassword());
           userDTO.setRole(member.getRole());
           return userDTO;
+    }
+
+    public Optional<Member> findEmail(String email) {
+        return memberRepository.findMemberByEmail(email);
     }
 }
