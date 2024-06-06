@@ -12,6 +12,7 @@ public class RouterValidator {
     // list of path that do not require secuirty checks
     public static final List<String> openEndPoints = List.of(
            "/auth/register",
+            "/auth/getToken",
             "/web/registerMember"
 
     );
