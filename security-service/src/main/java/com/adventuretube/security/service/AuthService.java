@@ -4,10 +4,10 @@ import com.adventuretube.security.exceptions.DuplicateException;
 import com.adventuretube.security.model.AuthRequest;
 import com.adventuretube.security.model.AuthResponse;
 import com.adventuretube.common.domain.dto.UserDTO;
-import com.fasterxml.jackson.databind.util.BeanUtil;
 import lombok.AllArgsConstructor;
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.BeanUtils;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
@@ -40,9 +40,19 @@ public class AuthService {
         UserDTO registeredUser = restTemplate.postForObject(urlForRegister, userDTO, UserDTO.class);
 
 
-        String accessToken = jwtUtil.generate(registeredUser.getId().toString(), registeredUser.getRole(), "ACCESS");
-        String refreshToken = jwtUtil.generate(registeredUser.getId().toString(), registeredUser.getRole(), "REFRESH");
+        String accessToken = jwtUtil.generate(registeredUser.getEmail().toString(), registeredUser.getRole(), "ACCESS");
+        String refreshToken = jwtUtil.generate(registeredUser.getEmail().toString(), registeredUser.getRole(), "REFRESH");
 
         return new AuthResponse(accessToken, refreshToken);
     }
+
+
+    public  AuthResponse getToken(UserDetails userDetails){
+
+        String accessToken = jwtUtil.generate(userDetails.getUsername(),userDetails.getAuthorities().toString(), "ACCESS");
+        String refreshToken = jwtUtil.generate(userDetails.getUsername(),userDetails.getAuthorities().toString(), "REFRESH");
+
+
+        return new AuthResponse(accessToken, refreshToken);
+     }
 }

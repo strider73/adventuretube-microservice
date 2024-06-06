@@ -15,32 +15,10 @@ import java.util.Optional;
 @AllArgsConstructor
 public class MemberService {
     private final MemberRepository memberRepository;
-    public UserDTO registerMember(UserDTO userDto){
-        Member newMember = Member.builder()
-                .username(userDto.getUsername())
-                .password(userDto.getPassword())
-                .email(userDto.getEmail())
-                .channeld(userDto.getChannelId())
-                .role("USER")
-                .createAt(LocalDateTime.now())
-                .build();
-//        //TODO need to add password
-//        //TODO need to add JWT token
-
-       Member savedMember =  memberRepository.save(newMember);
-       UserDTO userDTO = createNormalUserDTO(savedMember);
-       return userDTO;
+    public Member registerMember(Member member){
+        return  memberRepository.save(member);
     }
 
-    private UserDTO createNormalUserDTO(Member member){
-        UserDTO userDTO = new UserDTO();
-          userDTO.setId(member.getId());
-          userDTO.setPassword(member.getPassword());
-          userDTO.setEmail(member.getEmail());
-          userDTO.setPassword(member.getPassword());
-          userDTO.setRole(member.getRole());
-          return userDTO;
-    }
 
     public Optional<Member> findEmail(String email) {
         return memberRepository.findMemberByEmail(email);

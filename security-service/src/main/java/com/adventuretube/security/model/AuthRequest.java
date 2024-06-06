@@ -11,5 +11,6 @@ public class AuthRequest {
     private String password;
     private String username;
 
+    private String role;
     private String channelId;
 }
