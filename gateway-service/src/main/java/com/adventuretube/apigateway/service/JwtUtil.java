@@ -21,12 +21,14 @@ public class JwtUtil {
     @Value("${jwt.secret}")
     private String secret;
 
+    @Value("${jwt.expiration}")
+    private String expiration;
     private Key SECRET_KEY;
 
     @PostConstruct
     public void initKey(){
-        //this.SECRET_KEY = Keys.hmacShaKeyFor(secret.getBytes());
-        this.SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256); // or HS384, or HS512
+        this.SECRET_KEY = Keys.hmacShaKeyFor(secret.getBytes());
+        //this.SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256); // or HS384, or HS512
 
 
     }
@@ -43,6 +45,10 @@ public class JwtUtil {
             throw new AccessDeniedException("Access denied: " + e.getMessage());
         }
 
+
+    }
+    public Date getExpirationDate(String token) {
+        return getClaims(token).getExpiration();
     }
 
     //The logic has issue that not able to check empty token
@@ -52,6 +58,10 @@ public class JwtUtil {
         }catch (Exception e){
             return false;
         }
+    }
+
+    public void validateToken(String token) {
+        getClaims(token); // Will throw an exception if invalid
     }
 
 

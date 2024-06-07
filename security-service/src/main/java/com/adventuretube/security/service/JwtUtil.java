@@ -5,6 +5,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 import jakarta.annotation.PostConstruct;
@@ -26,8 +27,8 @@ public class JwtUtil {
 
     @PostConstruct
     public void initKey(){
-        //this.SECRET_KEY = Keys.hmacShaKeyFor(secret.getBytes());
-        this.SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256); // or HS384, or HS512
+        this.SECRET_KEY = Keys.hmacShaKeyFor(secret.getBytes());
+        //this.SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256); // or HS384, or HS512
 
 
     }
@@ -66,6 +67,7 @@ public class JwtUtil {
                 .signWith(SECRET_KEY)
                 .compact();
     }
+
     public boolean isExpired(String token){
         try{
             return getClaims(token).getExpiration().before(new Date());
@@ -74,5 +76,14 @@ public class JwtUtil {
         }
     }
 
+    public void validateToken(String token) {
+        getClaims(token); // Will throw an exception if invalid
+    }
+
+
+    private Key getSignKey() {
+        byte[] keyBytes = Decoders.BASE64.decode(secret);
+        return Keys.hmacShaKeyFor(keyBytes);
+    }
 
 }

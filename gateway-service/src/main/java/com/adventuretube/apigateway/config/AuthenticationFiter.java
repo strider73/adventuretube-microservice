@@ -31,6 +31,12 @@ public class AuthenticationFiter implements GatewayFilter {
             }
             //if the authentication header exist , extract the token
             final String token = request.getHeaders().getOrEmpty("Authorization").get(0);
+            try{
+                jwtUtils.validateToken(token);
+            }catch (Exception e){
+                System.out.println("invalid access...!");
+                throw new RuntimeException("un authorized access to application");
+            }
            //and check the expiration
             if(jwtUtils.isExpired(token)){
                 return onError(exchange, HttpStatus.UNAUTHORIZED);

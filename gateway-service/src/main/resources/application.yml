@@ -27,4 +27,6 @@ logging:
     root: DEBUG
 server:
   port: 8030
-jwt.secret  : adventuretube
+jwt:
+  secret : adventuretubeMiAVzqUXy5Tfr1kVIGpPMiAVzqUXy5Tfr1kVIGpP
+  expiration: 86400
