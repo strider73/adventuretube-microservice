@@ -12,6 +12,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
+
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+
 @Service
 @Transactional(readOnly = true)
 @AllArgsConstructor
@@ -22,7 +27,7 @@ public class AuthService {
 
 
      @Transactional
-     public AuthResponse register(AuthRequest request){
+     public AuthResponse register(AuthRequest request) throws Exception {
          request.setPassword(BCrypt.hashpw(request.getPassword(), BCrypt.gensalt()));
 
          UserDTO userDTO = new UserDTO();
@@ -38,12 +43,16 @@ public class AuthService {
 
         String urlForRegister = "http://MEMBER-SERVICE/member/registerMember"; //with Eureka
         UserDTO registeredUser = restTemplate.postForObject(urlForRegister, userDTO, UserDTO.class);
+        if(registeredUser.getErrorMessage() ==null&& registeredUser.getE()== null) {
 
+            String accessToken = jwtUtil.generate(registeredUser.getEmail().toString(), registeredUser.getRole(), "ACCESS");
+            String refreshToken = jwtUtil.generate(registeredUser.getEmail().toString(), registeredUser.getRole(), "REFRESH");
 
-        String accessToken = jwtUtil.generate(registeredUser.getEmail().toString(), registeredUser.getRole(), "ACCESS");
-        String refreshToken = jwtUtil.generate(registeredUser.getEmail().toString(), registeredUser.getRole(), "REFRESH");
-
-        return new AuthResponse(accessToken, refreshToken);
+            return new AuthResponse(accessToken, refreshToken);
+        }else{
+            String errorMessage = registeredUser.getErrorMessage();
+            throw registeredUser.getE();
+        }
     }
 
 

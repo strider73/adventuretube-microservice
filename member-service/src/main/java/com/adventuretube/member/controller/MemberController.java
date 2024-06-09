@@ -6,6 +6,8 @@ import com.adventuretube.member.service.MemberService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -21,6 +23,7 @@ public class MemberController {
     public UserDTO registerMember(@RequestBody UserDTO userDTO){
         log.info("new member registration {}",userDTO);
         Member newMember = Member.builder()
+                .googleIdToken(userDTO.getGoogleIdToken())
                 .username(userDTO.getUsername())
                 .password(userDTO.getPassword())
                 .email(userDTO.getEmail())
@@ -28,8 +31,19 @@ public class MemberController {
                 .role("USER")
                 .createAt(LocalDateTime.now())
                 .build();
-        Member registeredMember = memberService.registerMember(newMember);
-        return createUserDTO(registeredMember);
+
+
+        try {
+            Member registeredMember = memberService.registerMember(newMember);
+            return createUserDTO(registeredMember);
+        } catch (Exception e) {
+            log.error("Error occurred while registering member", e);
+            return UserDTO.builder()
+                    .errorMessage("Error occurred while registering member")
+                    .e(e)
+                    .build();
+        }
+
     }
 
 
