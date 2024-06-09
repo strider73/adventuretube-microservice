@@ -32,6 +32,9 @@ public class Member implements UserDetails {
             generator = "member_sequence"
     )
     private Long id;
+
+    @Column(length = 2000)
+    private String googleIdToken;
     private String username;
     private String password;
     private String channeld;

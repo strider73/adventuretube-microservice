@@ -33,6 +33,8 @@ public class AuthenticationFiter implements GatewayFilter {
             final String token = request.getHeaders().getOrEmpty("Authorization").get(0);
             try{
                 jwtUtils.validateToken(token);
+                System.out.println("Token has been validate successfully !!!!");
+
             }catch (Exception e){
                 System.out.println("invalid access...!");
                 throw new RuntimeException("un authorized access to application");

@@ -7,6 +7,9 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class AuthRequest {
+
+
+    private String googleIdToken;
     private String email;
     private String password;
     private String username;
