@@ -70,15 +70,3 @@ public class MemberController {
 }
 
 
-    //when I try to copy member to userDTO using a BeanUtils
-    //Id is not copied
-//    private AuthRequestDTO createUserDTO(Member member){
-//        AuthRequestDTO userDTO = new AuthRequestDTO();
-//        userDTO.setId(member.getId());
-//        userDTO.setPassword(member.getPassword());
-//        userDTO.setEmail(member.getEmail());
-//        userDTO.setPassword(member.getPassword());
-//        userDTO.setRole(member.getRole());
-//        return userDTO;
-//    }
-//}
