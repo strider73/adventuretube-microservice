@@ -1,7 +1,7 @@
 package com.adventuretube.member.exceptions;
 
 
-import com.adventuretube.common.error.ErrorResponse;
+import com.adventuretube.common.error.CommonErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -13,26 +13,26 @@ import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(DuplicateException.class)
-    public ResponseEntity<ErrorResponse> handleDuplicationException(DuplicateException ex) {
-        ErrorResponse errorResponse = new ErrorResponse(
+    public ResponseEntity<CommonErrorResponse> handleDuplicationException(DuplicateException ex) {
+        CommonErrorResponse commonErrorResponse = new CommonErrorResponse(
                 ex.getMessage(),
                 "User already exists with the provided email",
                 HttpStatus.CONFLICT.value(),
                 System.currentTimeMillis()
         );
-        return new ResponseEntity<>(errorResponse,HttpStatus.CONFLICT);
+        return new ResponseEntity<>(commonErrorResponse,HttpStatus.CONFLICT);
     }
 
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleUnknownException(Exception ex) {
-        ErrorResponse errorResponse = new ErrorResponse(
+    public ResponseEntity<CommonErrorResponse> handleUnknownException(Exception ex) {
+        CommonErrorResponse commonErrorResponse = new CommonErrorResponse(
                 ex.getMessage(),
                 "Internal Server Error",
                 INTERNAL_SERVER_ERROR.value(),
                 System.currentTimeMillis()
            );
 
-            return new ResponseEntity<>(errorResponse, INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(commonErrorResponse, INTERNAL_SERVER_ERROR);
     }
 }

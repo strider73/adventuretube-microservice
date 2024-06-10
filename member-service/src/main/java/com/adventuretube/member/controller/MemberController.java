@@ -1,6 +1,7 @@
 package com.adventuretube.member.controller;
 
-import com.adventuretube.common.domain.dto.UserDTO;
+import com.adventuretube.common.domain.dto.auth.AuthRequestDTO;
+import com.adventuretube.common.error.CommonErrorResponse;
 import com.adventuretube.member.model.Member;
 import com.adventuretube.member.service.MemberService;
 import lombok.AllArgsConstructor;
@@ -10,7 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Slf4j
@@ -19,38 +19,35 @@ import java.util.Optional;
 @RequestMapping("member")
 public class MemberController {
     private final MemberService memberService;
+
     @PostMapping("registerMember")
-    public UserDTO registerMember(@RequestBody UserDTO userDTO){
-        log.info("new member registration {}",userDTO);
-        Member newMember = Member.builder()
-                .googleIdToken(userDTO.getGoogleIdToken())
-                .username(userDTO.getUsername())
-                .password(userDTO.getPassword())
-                .email(userDTO.getEmail())
-                .channeld(userDTO.getChannelId())
-                .role("USER")
-                .createAt(LocalDateTime.now())
-                .build();
-
-
+    public ResponseEntity<?> registerMember(@RequestBody AuthRequestDTO authRequestDTO) {
+        log.info("new member registration {}", authRequestDTO);
+        Member newMember = new Member();
+        BeanUtils.copyProperties(authRequestDTO, newMember);
         try {
+            //After store in the database nothing but id field will be different
             Member registeredMember = memberService.registerMember(newMember);
-            return createUserDTO(registeredMember);
+            authRequestDTO.setId(registeredMember.getId());
+            return ResponseEntity.ok(authRequestDTO);
         } catch (Exception e) {
             log.error("Error occurred while registering member", e);
-            return UserDTO.builder()
-                    .errorMessage("Error occurred while registering member")
-                    .e(e)
-                    .build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(CommonErrorResponse.builder()
+                    .message("Error occurred while registering member")
+                    .details(e.toString())
+                    .statusCode(500)
+                    .timestamp(System.currentTimeMillis())
+                    .build()
+            );
         }
 
     }
 
 
     @PostMapping("emailDuplicationCheck")
-    public boolean emailDuplicationCheck(@RequestBody String email){
-        Optional<Member>  duplicatedMember = memberService.findEmail(email);
-        if(duplicatedMember.isPresent()){
+    public boolean emailDuplicationCheck(@RequestBody String email) {
+        Optional<Member> duplicatedMember = memberService.findEmail(email);
+        if (duplicatedMember.isPresent()) {
             return true;
         }
         return false;
@@ -58,25 +55,27 @@ public class MemberController {
 
 
     @PostMapping("findMemberByEmail")
-    public UserDTO  findMemberByEmail(@RequestBody String email){
+    public AuthRequestDTO findMemberByEmail(@RequestBody String email) {
         Optional<Member> member = memberService.findEmail(email);
-        if(member.isPresent()){
-            return createUserDTO(member.get());
+        if (member.isPresent()) {
+            AuthRequestDTO authRequestDTO = new AuthRequestDTO();
+            BeanUtils.copyProperties(member, authRequestDTO);
+            return authRequestDTO;
         }
         return null;
     }
-
+}
 
 
     //when I try to copy member to userDTO using a BeanUtils
     //Id is not copied
-    private UserDTO createUserDTO(Member member){
-        UserDTO userDTO = new UserDTO();
-        userDTO.setId(member.getId());
-        userDTO.setPassword(member.getPassword());
-        userDTO.setEmail(member.getEmail());
-        userDTO.setPassword(member.getPassword());
-        userDTO.setRole(member.getRole());
-        return userDTO;
-    }
-}
+//    private AuthRequestDTO createUserDTO(Member member){
+//        AuthRequestDTO userDTO = new AuthRequestDTO();
+//        userDTO.setId(member.getId());
+//        userDTO.setPassword(member.getPassword());
+//        userDTO.setEmail(member.getEmail());
+//        userDTO.setPassword(member.getPassword());
+//        userDTO.setRole(member.getRole());
+//        return userDTO;
+//    }
+//}

@@ -17,6 +17,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jjwt.version>0.12.3</jjwt.version>
         <jbcrypt.version>0.4</jbcrypt.version>
+        <spring-doc.version>2.4.0</spring-doc.version>
     </properties>
 
 
@@ -76,7 +77,12 @@
         <dependency>
             <groupId>com.google.api-client</groupId>
             <artifactId>google-api-client</artifactId>
-            <version>1.33.0</version>
+            <version>1.32.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>${spring-doc.version}</version>
         </dependency>
     </dependencies>
 
