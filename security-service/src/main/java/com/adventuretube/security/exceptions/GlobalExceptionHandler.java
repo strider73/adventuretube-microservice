@@ -1,7 +1,7 @@
 package com.adventuretube.security.exceptions;
 
 
-import com.adventuretube.common.error.CommonErrorResponse;
+import com.adventuretube.common.error.RestAPIErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -21,27 +21,27 @@ public class GlobalExceptionHandler {
 
 
     @ExceptionHandler(GeneralSecurityException.class)
-    public ResponseEntity<CommonErrorResponse> handleGeneralSecurityException(GeneralSecurityException ex){
-        CommonErrorResponse commonErrorResponse = new CommonErrorResponse(
+    public ResponseEntity<RestAPIErrorResponse> handleGeneralSecurityException(GeneralSecurityException ex){
+        RestAPIErrorResponse restAPIErrorResponse = new RestAPIErrorResponse(
                 ex.getMessage(),
                 "Google Id token is not able to verify",
                 HttpStatus.UNAUTHORIZED.value(),
                 System.currentTimeMillis()
         );
-        return new ResponseEntity<>(commonErrorResponse,HttpStatus.UNAUTHORIZED);
+        return new ResponseEntity<>(restAPIErrorResponse,HttpStatus.UNAUTHORIZED);
     }
 
 
     @ExceptionHandler(GoogleIdTokenInvalidException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public ResponseEntity<CommonErrorResponse> handleBadRequestExceptions(GoogleIdTokenInvalidException ex){
-        CommonErrorResponse commonErrorResponse = new CommonErrorResponse(
+    public ResponseEntity<RestAPIErrorResponse> handleBadRequestExceptions(GoogleIdTokenInvalidException ex){
+        RestAPIErrorResponse restAPIErrorResponse = new RestAPIErrorResponse(
                 ex.getMessage(),
                 "Google idToken is not valid",
                 HttpStatus.UNAUTHORIZED.value(),
                 System.currentTimeMillis()
         );
-        return  new ResponseEntity<>(commonErrorResponse,HttpStatus.UNAUTHORIZED);
+        return  new ResponseEntity<>(restAPIErrorResponse,HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -58,25 +58,25 @@ public class GlobalExceptionHandler {
 
 
     @ExceptionHandler(DuplicateException.class)
-    public ResponseEntity<CommonErrorResponse> handleDuplicationException(DuplicateException ex) {
-        CommonErrorResponse commonErrorResponse = new CommonErrorResponse(
+    public ResponseEntity<RestAPIErrorResponse> handleDuplicationException(DuplicateException ex) {
+        RestAPIErrorResponse restAPIErrorResponse = new RestAPIErrorResponse(
                 ex.getMessage(),
                 "User already exists with the provided email",
                 HttpStatus.CONFLICT.value(),
                 System.currentTimeMillis()
         );
-        return new ResponseEntity<>(commonErrorResponse,HttpStatus.CONFLICT);
+        return new ResponseEntity<>(restAPIErrorResponse,HttpStatus.CONFLICT);
     }
 
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<CommonErrorResponse> handleUnknownException(Exception ex) {
-        CommonErrorResponse commonErrorResponse = new CommonErrorResponse(
+    public ResponseEntity<RestAPIErrorResponse> handleUnknownException(Exception ex) {
+        RestAPIErrorResponse restAPIErrorResponse = new RestAPIErrorResponse(
                 ex.getMessage(),
                 "Unknown Error",
                 INTERNAL_SERVER_ERROR.value(),
                 System.currentTimeMillis()
         );
-        return new ResponseEntity<>(commonErrorResponse, INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(restAPIErrorResponse, INTERNAL_SERVER_ERROR);
     }
 }

@@ -1,20 +1,16 @@
 package com.adventuretube.security.controller;
 
 
-import com.adventuretube.common.error.CommonErrorResponse;
-import com.adventuretube.security.exceptions.DuplicateException;
-import com.adventuretube.security.exceptions.GoogleIdTokenInvalidException;
+import com.adventuretube.common.error.RestAPIErrorResponse;
 import com.adventuretube.security.model.AuthRequest;
 import com.adventuretube.security.model.AuthResponse;
 import com.adventuretube.security.service.AuthService;
-import com.adventuretube.security.service.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import lombok.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -39,9 +35,9 @@ public class AuthController {
     @Operation(summary = "Signup user")
     @ApiResponse(responseCode = "201")//created
     //@ApiResponse(responseCode = "404", content = @Content(schema = @Schema(implementation = CommonErrorResponse.class)))
-    @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = CommonErrorResponse.class)))//unauthorized  error
-    @ApiResponse(responseCode = "409", content = @Content(schema = @Schema(implementation = CommonErrorResponse.class)))//conflict error
-    @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = CommonErrorResponse.class)))//internal server error
+    @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = RestAPIErrorResponse.class)))//unauthorized  error
+    @ApiResponse(responseCode = "409", content = @Content(schema = @Schema(implementation = RestAPIErrorResponse.class)))//conflict error
+    @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = RestAPIErrorResponse.class)))//internal server error
     //This logic will be used when user login first time from the ios application
     @PostMapping(value = "/register")
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody AuthRequest request) {

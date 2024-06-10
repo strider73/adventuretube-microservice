@@ -1,7 +1,7 @@
 package com.adventuretube.member.controller;
 
-import com.adventuretube.common.domain.dto.auth.AuthRequestDTO;
-import com.adventuretube.common.error.CommonErrorResponse;
+import com.adventuretube.common.domain.dto.auth.AuthDTO;
+import com.adventuretube.common.error.RestAPIErrorResponse;
 import com.adventuretube.member.model.Member;
 import com.adventuretube.member.service.MemberService;
 import lombok.AllArgsConstructor;
@@ -20,19 +20,22 @@ import java.util.Optional;
 public class MemberController {
     private final MemberService memberService;
 
+    //registerMember's return type for ResponseEntity are  AuthDTO or RestAPIErrorResponse
+    //handle carefully on the caller side not by GlobalException handler in member-service
+    //since these error should be delivered caller side !!!!
     @PostMapping("registerMember")
-    public ResponseEntity<?> registerMember(@RequestBody AuthRequestDTO authRequestDTO) {
-        log.info("new member registration {}", authRequestDTO);
+    public ResponseEntity<?> registerMember(@RequestBody AuthDTO authDTO) {
+        log.info("new member registration {}", authDTO);
         Member newMember = new Member();
-        BeanUtils.copyProperties(authRequestDTO, newMember);
+        BeanUtils.copyProperties(authDTO, newMember);
         try {
             //After store in the database nothing but id field will be different
             Member registeredMember = memberService.registerMember(newMember);
-            authRequestDTO.setId(registeredMember.getId());
-            return ResponseEntity.ok(authRequestDTO);
+            authDTO.setId(registeredMember.getId());
+            return ResponseEntity.ok(authDTO);
         } catch (Exception e) {
             log.error("Error occurred while registering member", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(CommonErrorResponse.builder()
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(RestAPIErrorResponse.builder()
                     .message("Error occurred while registering member")
                     .details(e.toString())
                     .statusCode(500)
@@ -55,12 +58,12 @@ public class MemberController {
 
 
     @PostMapping("findMemberByEmail")
-    public AuthRequestDTO findMemberByEmail(@RequestBody String email) {
+    public AuthDTO findMemberByEmail(@RequestBody String email) {
         Optional<Member> member = memberService.findEmail(email);
         if (member.isPresent()) {
-            AuthRequestDTO authRequestDTO = new AuthRequestDTO();
-            BeanUtils.copyProperties(member, authRequestDTO);
-            return authRequestDTO;
+            AuthDTO authDTO = new AuthDTO();
+            BeanUtils.copyProperties(member, authDTO);
+            return authDTO;
         }
         return null;
     }

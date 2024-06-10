@@ -1,6 +1,6 @@
 package com.adventuretube.security.service;
 
-import com.adventuretube.common.domain.dto.auth.AuthRequestDTO;
+import com.adventuretube.common.domain.dto.auth.AuthDTO;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,9 +19,9 @@ public class CustomUserDetailService implements UserDetailsService {
         String urlForFindUserByEmail = "http://MEMBER-SERVICE/member/findMemberByEmail";
 
         // Fetch user details from the external service
-        AuthRequestDTO userFoundByEmail;
+        AuthDTO userFoundByEmail;
         try {
-            userFoundByEmail = restTemplate.postForObject(urlForFindUserByEmail, email, AuthRequestDTO.class);
+            userFoundByEmail = restTemplate.postForObject(urlForFindUserByEmail, email, AuthDTO.class);
         } catch (Exception e) {
             throw new UsernameNotFoundException("User not found with email: " + email, e);
         }

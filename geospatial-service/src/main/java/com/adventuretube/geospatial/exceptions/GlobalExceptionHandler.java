@@ -1,7 +1,7 @@
 package com.adventuretube.geospatial.exceptions;
 
 
-import com.adventuretube.common.error.CommonErrorResponse;
+import com.adventuretube.common.error.RestAPIErrorResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -14,14 +14,14 @@ public class GlobalExceptionHandler {
 
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<CommonErrorResponse> handleUnknownException(Exception ex) {
-        CommonErrorResponse commonErrorResponse = new CommonErrorResponse(
+    public ResponseEntity<RestAPIErrorResponse> handleUnknownException(Exception ex) {
+        RestAPIErrorResponse restAPIErrorResponse = new RestAPIErrorResponse(
                 ex.getMessage(),
                 "Internal Server Error",
                 INTERNAL_SERVER_ERROR.value(),
                 System.currentTimeMillis()
            );
 
-            return new ResponseEntity<>(commonErrorResponse, INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(restAPIErrorResponse, INTERNAL_SERVER_ERROR);
     }
 }

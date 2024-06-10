@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class CommonErrorResponse {
+public class RestAPIErrorResponse {
     private String message;
     private String details;
     private int statusCode;

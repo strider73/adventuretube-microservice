@@ -1,7 +1,7 @@
 package com.adventuretube.security.service;
 
-import com.adventuretube.common.domain.dto.auth.AuthRequestDTO;
-import com.adventuretube.common.error.CommonErrorResponse;
+import com.adventuretube.common.domain.dto.auth.AuthDTO;
+import com.adventuretube.common.error.RestAPIErrorResponse;
 import com.adventuretube.security.exceptions.DuplicateException;
 import com.adventuretube.security.exceptions.GoogleIdTokenInvalidException;
 import com.adventuretube.security.model.AuthRequest;
@@ -84,17 +84,17 @@ public class AuthService {
          request.setPassword(placeholderPassword);
 
          //Set User Data Transfer Object
-         AuthRequestDTO userDTO =  AuthRequestDTO.builder()
+         AuthDTO authDTO =  AuthDTO.builder()
                                    .googleIdTokenExp(payload.getExpirationTimeSeconds())
                                    .googleIdTokenIat(payload.getIssuedAtTimeSeconds())
                                    .googleIdTokenSub(payload.getSubject())
                                    .googleProfilePicture(payload.get("picture").toString())
                                    .build();
-         BeanUtils.copyProperties(request,userDTO);
+         BeanUtils.copyProperties(request,authDTO);
 
 
         String urlForEmailCheck = "http://MEMBER-SERVICE/member/emailDuplicationCheck";
-        Boolean isUserAlreadyExist  = restTemplate.postForObject(urlForEmailCheck,userDTO.getEmail(),Boolean.class);
+        Boolean isUserAlreadyExist  = restTemplate.postForObject(urlForEmailCheck,authDTO.getEmail(),Boolean.class);
 
         //Check Email duplication
         if(isUserAlreadyExist){
@@ -106,9 +106,9 @@ public class AuthService {
         try{
             //Register Member !!!
             String urlForRegister = "http://MEMBER-SERVICE/member/registerMember"; //with Eureka
-            ResponseEntity<AuthRequestDTO> response = restTemplate.postForEntity(urlForRegister, userDTO, AuthRequestDTO.class);
+            ResponseEntity<AuthDTO> response = restTemplate.postForEntity(urlForRegister, authDTO, AuthDTO.class);
             if (response.getStatusCode() == HttpStatus.OK) {
-                AuthRequestDTO registeredUser = response.getBody();
+                AuthDTO registeredUser = response.getBody();
                     String accessToken = jwtUtil.generate(registeredUser.getEmail(), registeredUser.getRole(), "ACCESS");
                     String refreshToken = jwtUtil.generate(registeredUser.getEmail(), registeredUser.getRole(), "REFRESH");
                     return new AuthResponse(accessToken, refreshToken);
@@ -121,7 +121,7 @@ public class AuthService {
         } catch (HttpClientErrorException | HttpServerErrorException ex) {
             // Parse error response body
             try {
-                CommonErrorResponse errorResponse = new ObjectMapper().readValue(ex.getResponseBodyAsString(), CommonErrorResponse.class);
+                RestAPIErrorResponse errorResponse = new ObjectMapper().readValue(ex.getResponseBodyAsString(), RestAPIErrorResponse.class);
                 logger.error("Member service error: {} - {}", errorResponse.getStatusCode(), errorResponse.getMessage());
                 throw new RuntimeException(errorResponse.getMessage());
             } catch (Exception e) {
