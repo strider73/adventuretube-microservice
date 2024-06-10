@@ -35,6 +35,14 @@ public class Member implements UserDetails {
 
     @Column(length = 2000)
     private String googleIdToken;
+    private Long googleIdTokenExp;
+
+    private Long googleIdTokenIat;
+
+    //A unique string value used to associate a client and mitigate replay attacks
+    private String googleIdTokenSub;
+
+    private String googleProfilePicture;
     private String username;
     private String password;
     private String channeld;
@@ -43,6 +51,10 @@ public class Member implements UserDetails {
     private String role;
     private LocalDateTime createAt;
 
+    @PrePersist
+    protected void onCreate() {
+        createAt = LocalDateTime.now();
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
