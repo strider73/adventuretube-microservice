@@ -4,17 +4,18 @@ server:
 spring:
   application:
     name: config-service
-  cloud:
-    config:
-      server:
-         native:
-           search-locations: classpath:/config
   profiles:
     active: native
+    cloud:
+      config:
+        server:
+          native:
+            search-locations: classpath:/config
 #        git:
 #          uri: https://github.com/strider73/adventuretube-config-server.git
 #          clone-on-start: true
 #          search-paths: application
+#
 
 eureka:
   instance:
@@ -25,6 +26,7 @@ eureka:
       #defaultZone: http://192.168.1.103:8761/eureka
     fetch-registry: true
     register-with-eureka: true
+
 logging:
   level:
-    root: INFO
+    root: DEBUG

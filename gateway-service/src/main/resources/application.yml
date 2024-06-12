@@ -1,32 +1,5 @@
-eureka:
-  instance:
-    prefer-ip-address: true
-  client:
-    service-url:
-      defaultZone: https://eureka.adventuretube.net/eureka
-      #defaultZone: http://192.168.1.103:8761/eureka
-    fetch-registry: true
-    register-with-eureka: true
-
 spring:
   application:
     name: gateway-service
-#  cloud:
-#    gateway:
-#      routes:
-#        - id: member-service
-#          uri: lb://MEMBER-SERVICE
-#          predicates:
-#            - Path=/member/**
-#        - id: web-service
-#          uri: lb://WEB-SERVICE
-#          predicates:
-#            - Path=/web/**
-logging:
-  level:
-    root: DEBUG
-server:
-  port: 8030
-jwt:
-  secret : adventuretubeMiAVzqUXy5Tfr1kVIGpPMiAVzqUXy5Tfr1kVIGpP
-  expiration: 86400
+  config:
+    import: "optional:configserver:http://localhost:9297"
