@@ -15,6 +15,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
@@ -42,6 +43,8 @@ public class AuthService {
     private final RestTemplate restTemplate;
     private final JwtUtil jwtUtil;
     private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
+    private final PasswordEncoder passwordEncoder;
+
 
     @Transactional
      public AuthResponse register(AuthRequest request) {
@@ -75,7 +78,7 @@ public class AuthService {
          String googleId = payload.getSubject();
          String placeholderPassword = null;
          try {
-             placeholderPassword = hashGoogleId(googleId);
+             placeholderPassword = passwordEncoder.encode(googleId);
          } catch (Exception e) {
              throw new RuntimeException(e);
          }
@@ -135,11 +138,11 @@ public class AuthService {
 
     }
 
-    private String hashGoogleId(String googleId) throws Exception {
-        MessageDigest digest = MessageDigest.getInstance("SHA-256");
-        byte[] hash = digest.digest(googleId.getBytes("UTF-8"));
-        return Base64.getEncoder().encodeToString(hash);
-    }
+//    private String hashGoogleId(String googleId) throws Exception {
+//        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+//        byte[] hash = digest.digest(googleId.getBytes("UTF-8"));
+//        return Base64.getEncoder().encodeToString(hash);
+//    }
 
     public  AuthResponse getToken(UserDetails userDetails){
 

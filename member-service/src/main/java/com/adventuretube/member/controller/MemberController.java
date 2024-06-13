@@ -62,7 +62,7 @@ public class MemberController {
         Optional<Member> member = memberService.findEmail(email);
         if (member.isPresent()) {
             AuthDTO authDTO = new AuthDTO();
-            BeanUtils.copyProperties(member, authDTO);
+            BeanUtils.copyProperties(member.get(), authDTO);
             return authDTO;
         }
         return null;

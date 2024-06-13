@@ -1,17 +1,11 @@
 package com.adventuretube.security;
 
+import com.adventuretube.security.provider.CustomAuthenticationProvider;
 import com.adventuretube.security.service.CustomUserDetailService;
 import lombok.AllArgsConstructor;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-//import org.springframework.core.annotation.Order;
-//import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-//import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-//import org.springframework.security.core.userdetails.User;
-//import org.springframework.security.core.userdetails.UserDetailsService;
-//import org.springframework.security.provisioning.InMemoryUserDetailsManager;
-//import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -32,8 +26,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @AllArgsConstructor
 public class SecurityServiceConfig {
 
-    private final CustomUserDetailService userDetailsService;
-
+    private  final CustomUserDetailService userDetailsService;
     @Bean
     @Order(1)
     public SecurityFilterChain apiFilterChain(HttpSecurity httpSecurity) throws  Exception{
@@ -60,22 +53,19 @@ public class SecurityServiceConfig {
         AuthenticationManagerBuilder  authenticationManagerBuilder = httpSecurity.getSharedObject(AuthenticationManagerBuilder.class);
         //declare what type of authenticate provider will be used (userDetailService in our case)
         //and set the password encoder
+//        authenticationManagerBuilder.authenticationProvider(customAuthenticationProvider());
+//        return authenticationManagerBuilder.build();
         authenticationManagerBuilder.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
-        return authenticationManagerBuilder.build();
+        return authenticationManagerBuilder.build(); // and return authenticationManager
 
     }
-//
+
 //    @Bean
-//    @Order(1)
-//    public SecurityFilterChain formLoginFilterChain(HttpSecurity httpSecurity) throws  Exception{
-//        httpSecurity
-//                .authorizeHttpRequests(authorize -> authorize
-//                        .anyRequest().authenticated()
-//                )
-//                .formLogin(withDefaults());
-//
-//        return httpSecurity.build();
-//
+//    public CustomAuthenticationProvider customAuthenticationProvider() {
+//        CustomAuthenticationProvider customAuthenticationProvider = new CustomAuthenticationProvider();
+//        customAuthenticationProvider.setUserDetailsService(userDetailsService);
+//        customAuthenticationProvider.setPasswordEncoder(passwordEncoder());
+//        return customAuthenticationProvider;
 //    }
 
 
