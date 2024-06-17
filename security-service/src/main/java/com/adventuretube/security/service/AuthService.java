@@ -114,7 +114,7 @@ public class AuthService {
                 AuthDTO registeredUser = response.getBody();
                     String accessToken = jwtUtil.generate(registeredUser.getEmail(), registeredUser.getRole(), "ACCESS");
                     String refreshToken = jwtUtil.generate(registeredUser.getEmail(), registeredUser.getRole(), "REFRESH");
-                    return new AuthResponse(accessToken, refreshToken);
+                    return new AuthResponse(authDTO, accessToken, refreshToken);
             } else {
                 // Handle non-200 responses
                 String errorBody = response.hasBody() ? response.getBody().toString() : "No response body";
@@ -148,8 +148,10 @@ public class AuthService {
 
         String accessToken = jwtUtil.generate(userDetails.getUsername(),userDetails.getAuthorities().toString(), "ACCESS");
         String refreshToken = jwtUtil.generate(userDetails.getUsername(),userDetails.getAuthorities().toString(), "REFRESH");
+      
+           AuthDTO authDTO = new AuthDTO();
+           BeanUtils.copyProperties(userDetails, authDTO);
 
-
-        return new AuthResponse(accessToken, refreshToken);
+        return new AuthResponse(authDTO,accessToken, refreshToken);
      }
 }

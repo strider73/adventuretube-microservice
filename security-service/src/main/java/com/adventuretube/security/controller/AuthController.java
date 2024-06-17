@@ -13,6 +13,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import java.net.URI;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -25,6 +28,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 @Slf4j
 @RestController
 @RequestMapping("/auth")
@@ -44,7 +48,8 @@ public class AuthController {
     //This logic will be used when user login first time from the ios application
     @PostMapping(value = "/register")
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody AuthRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(authService.register(request));
+               URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/auth/register").toUriString());
+        return ResponseEntity.created(uri).body(authService.register(request));
     }
 
 
@@ -64,8 +69,9 @@ public class AuthController {
 
             Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-            return ResponseEntity.ok(authService.getToken(userDetails));
+            URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/auth/getToken").toUriString());
 
+            return ResponseEntity.created(uri).body(authService.getToken(userDetails));
     }
 
 }
