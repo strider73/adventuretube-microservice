@@ -9,6 +9,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -16,13 +17,12 @@ import java.security.Key;
 import java.util.Date;
 
 @Service
+@Slf4j
 public class JwtUtil {
 
     @Value("${jwt.secret}")
     private String secret;
 
-    @Value("${jwt.expiration}")
-    private String expiration;
     private Key SECRET_KEY;
 
     @PostConstruct
@@ -42,6 +42,7 @@ public class JwtUtil {
                 .parseSignedClaims(token)
                 .getPayload();
         } catch (SignatureException | ExpiredJwtException e) { // Invalid signature or expired token
+            log.error(e.getMessage());
             throw new AccessDeniedException("Access denied: " + e.getMessage());
         }
 
