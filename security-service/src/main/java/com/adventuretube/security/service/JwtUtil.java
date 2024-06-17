@@ -79,19 +79,12 @@ public class JwtUtil {
                 .compact();
     }
 
-    public boolean isExpired(String token){
-        try{
-            return getClaims(token).getExpiration().before(new Date());
-        }catch (Exception e){
-            return false;
-        }
-    }
     public String extractUsername(String token) {
         return getClaim(token, Claims::getSubject);
     }
     public Boolean validateToken(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername()) && !isExpired(token));
+        return (username.equals(userDetails.getUsername()));
     }
 
 

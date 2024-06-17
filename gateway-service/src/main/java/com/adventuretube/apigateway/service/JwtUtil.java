@@ -33,7 +33,7 @@ public class JwtUtil {
 
     }
 
-
+   // this one already include expiration check
     public Claims getClaims(String token){
         try {
         return Jwts.parser()
@@ -45,20 +45,8 @@ public class JwtUtil {
             throw new AccessDeniedException("Access denied: " + e.getMessage());
         }
 
-
-    }
-    public Date getExpirationDate(String token) {
-        return getClaims(token).getExpiration();
     }
 
-    //The logic has issue that not able to check empty token
-    public boolean isExpired(String token){
-        try{
-            return getClaims(token).getExpiration().before(new Date());
-        }catch (Exception e){
-            return false;
-        }
-    }
 
     public void validateToken(String token) {
         getClaims(token); // Will throw an exception if invalid

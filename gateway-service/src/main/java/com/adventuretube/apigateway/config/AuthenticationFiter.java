@@ -39,10 +39,6 @@ public class AuthenticationFiter implements GatewayFilter {
                 System.out.println("invalid access...!");
                 throw new RuntimeException("un authorized access to application");
             }
-           //and check the expiration
-            if(jwtUtils.isExpired(token)){
-                return onError(exchange, HttpStatus.UNAUTHORIZED);
-            }
 
         }
         //if every thing ok continue filter chain
