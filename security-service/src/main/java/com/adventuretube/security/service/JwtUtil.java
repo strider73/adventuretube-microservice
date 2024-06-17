@@ -4,17 +4,18 @@ package com.adventuretube.security.service;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
 import java.util.Date;
 import java.util.Map;
+import java.util.function.Function;
 
 @Service
 public class JwtUtil {
@@ -45,9 +46,17 @@ public class JwtUtil {
         }
 
     }
+    public <T> T getClaim(String token, Function<Claims, T> claimsResolver) {
+        final Claims claims = getClaims(token);
+        return claimsResolver.apply(claims);
+    }
 
+    public String getUserName(String token){
+        return getClaim(token,Claims::getSubject);
+    }
     public Date getExpirationDate(String token) {
-        return getClaims(token).getExpiration();
+
+        return getClaim(token , Claims::getExpiration);
     }
 
     public String generate(String userId, String role, String tokenType) {
@@ -75,10 +84,14 @@ public class JwtUtil {
             return false;
         }
     }
-
-    public void validateToken(String token) {
-        getClaims(token); // Will throw an exception if invalid
+    public String extractUsername(String token) {
+        return getClaim(token, Claims::getSubject);
     }
+    public Boolean validateToken(String token, UserDetails userDetails) {
+        final String username = extractUsername(token);
+        return (username.equals(userDetails.getUsername()) && !isExpired(token));
+    }
+
 
 
     private Key getSignKey() {
