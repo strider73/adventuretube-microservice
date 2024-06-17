@@ -30,7 +30,7 @@ eureka:
 
 logging:
   level:
-    root: DEBUG
+    root: INFO
 
 jwt:
   secret: adventuretubeMiAVzqUXy5Tfr1kVIGpPMiAVzqUXy5Tfr1kVIGpP
