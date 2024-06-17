@@ -22,8 +22,10 @@ public class JwtUtil {
 
     @Value("${jwt.secret}")
     private String secret;
-    @Value("${jwt.expiration}")
-    private String expiration;
+    @Value("${jwt.expiration.access-token}")
+    private String accessTokenExpiration;
+    @Value("${jwt.expiration.refresh-token}")
+    private String refreshTokenExpiration;
     private Key SECRET_KEY;
 
     @PostConstruct
@@ -62,8 +64,8 @@ public class JwtUtil {
     public String generate(String userId, String role, String tokenType) {
         Map<String, String> claims = Map.of("id", userId, "role", role);
         long expMillis = "ACCESS".equalsIgnoreCase(tokenType)
-                ? Long.parseLong(expiration) * 1000
-                : Long.parseLong(expiration) * 1000 * 5;
+                ? Long.parseLong(accessTokenExpiration) * 1000
+                : Long.parseLong(refreshTokenExpiration) * 1000 ;
 
         final Date now = new Date();
         final Date exp = new Date(now.getTime() + expMillis);
