@@ -1,11 +1,11 @@
 package com.adventuretube.web.service.member;
 
 
+import com.adventuretube.web.model.Webrequest;
 import lombok.AllArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.apache.coyote.Response;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 @RestController
@@ -14,11 +14,12 @@ import org.springframework.web.client.RestTemplate;
 public class MemberRegisterService {
     private final RestTemplate restTemplate;
 
-//    @PostMapping(value = "/registerMember")
-//    public void registerMemeber(@RequestBody AuthRequest request){
-//        String url = "http://MEMBER-SERVICE/member/registerMember"; //with Eureka
-//        System.out.println("http://MEMBER-SERVICE/member/registerMember");
-//        restTemplate.postForObject(url, request, Void.class);
-//    }
+
+       @GetMapping(value = "/testsecurity")
+       public ResponseEntity<String> testSecurity(@RequestParam String storyName , @RequestParam String chapterName){
+           return ResponseEntity.ok("Your request "+storyName+" and  "+chapterName+ "is published");
+       }
+
+
 
 }
