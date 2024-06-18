@@ -34,5 +34,8 @@ logging:
 
 jwt:
   secret: adventuretubeMiAVzqUXy5Tfr1kVIGpPMiAVzqUXy5Tfr1kVIGpP
-  expiration: 86400
+  expiration:
+    access-token: 120
+    refresh-token: 300
+
 
