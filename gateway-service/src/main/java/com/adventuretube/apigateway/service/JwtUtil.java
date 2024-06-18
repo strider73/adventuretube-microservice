@@ -50,10 +50,10 @@ public class JwtUtil {
     }
 
 
-    //TODO: it will required some additional validation
-    public void validateToken(String token)  {
-        getClaims(token); // Will throw an exception if invalid
-    }
+    //This validation is not required in gateway
+//    public void validateToken(String token)  {
+//        getClaims(token); // Will throw an exception if invalid
+//    }
 
 
 }
