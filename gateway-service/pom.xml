@@ -16,6 +16,7 @@
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jjwt.version>0.12.3</jjwt.version>
+        <spring-doc.version>2.4.0</spring-doc.version>
     </properties>
     <dependencies>
         <!--Error with starter-web dependencies
@@ -72,6 +73,11 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>${spring-doc.version}</version>
         </dependency>
     </dependencies>
 

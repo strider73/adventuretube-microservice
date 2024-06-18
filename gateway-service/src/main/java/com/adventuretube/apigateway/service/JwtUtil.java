@@ -2,10 +2,7 @@ package com.adventuretube.apigateway.service;
 
 
 import com.adventuretube.apigateway.exception.AccessDeniedException;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 import jakarta.annotation.PostConstruct;
@@ -41,15 +38,20 @@ public class JwtUtil {
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
-        } catch (SignatureException | ExpiredJwtException e) { // Invalid signature or expired token
-            log.error(e.getMessage());
-            throw new AccessDeniedException("Access denied: " + e.getMessage());
+        } catch (ExpiredJwtException | UnsupportedJwtException | MalformedJwtException | SignatureException e) {
+            // Log the exception or handle it based on your application's requirements
+            log.error("JWT Token validation error :"+e.getMessage());
+            throw  e;
+        } catch (Exception e) {
+            // Handle other unexpected exceptions
+            throw new RuntimeException("Unexpected error while extracting claims from JWT token: " + e.getMessage(), e);
         }
 
     }
 
 
-    public void validateToken(String token) {
+    //TODO: it will required some additional validation
+    public void validateToken(String token)  {
         getClaims(token); // Will throw an exception if invalid
     }
 
