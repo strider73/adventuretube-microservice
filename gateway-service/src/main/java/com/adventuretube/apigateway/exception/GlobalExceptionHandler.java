@@ -18,7 +18,16 @@ import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-
+    @ExceptionHandler(JwtTokenNotExistException.class)
+    public ResponseEntity<RestAPIErrorResponse> handleJwtTokenNotExistexception(JwtTokenNotExistException ex) {
+        RestAPIErrorResponse restAPIErrorResponse = new RestAPIErrorResponse(
+                ex.getMessage(),
+                "JWT token not exist",
+                HttpStatus.UNAUTHORIZED.value(),
+                System.currentTimeMillis()
+        );
+        return new ResponseEntity<>(restAPIErrorResponse, HttpStatus.UNAUTHORIZED);
+    }
 
     @ExceptionHandler(SignatureException.class)
     public ResponseEntity<RestAPIErrorResponse> handleSigniturexception(SignatureException ex) {

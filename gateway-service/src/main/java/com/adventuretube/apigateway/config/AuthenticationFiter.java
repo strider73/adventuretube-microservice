@@ -1,5 +1,6 @@
 package com.adventuretube.apigateway.config;
 
+import com.adventuretube.apigateway.exception.JwtTokenNotExistException;
 import com.adventuretube.apigateway.service.JwtUtil;
 import com.adventuretube.common.error.RestAPIErrorResponse;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -47,8 +48,12 @@ public class AuthenticationFiter implements GatewayFilter {
             }
             //if the authentication header exist , extract the token
             final String token = request.getHeaders().getOrEmpty("Authorization").get(0);
-
-            jwtUtils.validateToken(token);
+            if( token == null || token.length() == 0){
+                throw  new JwtTokenNotExistException("Token is not exist");
+            }
+            //getClaim actually doing all basic validation
+            //like signing expiration
+            jwtUtils.getClaims(token);
             System.out.println("Token has been validate successfully !!!!");
 
 
