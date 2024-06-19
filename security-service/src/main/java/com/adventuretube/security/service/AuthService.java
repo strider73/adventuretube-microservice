@@ -12,7 +12,6 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -30,8 +29,6 @@ import com.google.api.client.json.gson.GsonFactory;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.security.MessageDigest;
-import java.util.Base64;
 import java.util.Collections;
 
 
@@ -45,9 +42,6 @@ public class AuthService {
     private final JwtUtil jwtUtil;
     private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
     private final PasswordEncoder passwordEncoder;
-
-    private final MemberMapper memberMapper;
-
 
     @Transactional
      public AuthResponse register(AuthRequest request) {
@@ -89,16 +83,12 @@ public class AuthService {
          // Set the placeholder password
          request.setPassword(placeholderPassword);
 
-         //Set User Data Transfer Object
-         AuthDTO authDTO =  AuthDTO.builder()
-                                   .googleIdTokenExp(payload.getExpirationTimeSeconds())
-                                   .googleIdTokenIat(payload.getIssuedAtTimeSeconds())
-                                   .googleIdTokenSub(payload.getSubject())
-                                   .googleProfilePicture(payload.get("picture").toString())
-                                   .build();
-         BeanUtils.copyProperties(request,authDTO);
-
-
+        // Set User Data Transfer Object
+        AuthDTO authDTO = MemberMapper.INSTANCE.authRequestToAuthDTO(request);
+        authDTO.setGoogleIdTokenExp(payload.getExpirationTimeSeconds());
+        authDTO.setGoogleIdTokenIat(payload.getIssuedAtTimeSeconds());
+        authDTO.setGoogleIdTokenSub(payload.getSubject());
+        authDTO.setGoogleProfilePicture(payload.get("picture").toString());
 
 
         String urlForEmailCheck = "http://MEMBER-SERVICE/member/emailDuplicationCheck";
@@ -154,7 +144,7 @@ public class AuthService {
         String accessToken = jwtUtil.generate(userDetails.getUsername(),userDetails.getAuthorities().toString(), "ACCESS");
         String refreshToken = jwtUtil.generate(userDetails.getUsername(),userDetails.getAuthorities().toString(), "REFRESH");
 
-        AuthDTO authDTO = memberMapper.INSTANCE.UserDetailToAuthDTO(userDetails);
+        AuthDTO authDTO = MemberMapper.INSTANCE.userDetailToAuthDTO(userDetails);
 
 
 //           AuthDTO authDTO = new AuthDTO();
