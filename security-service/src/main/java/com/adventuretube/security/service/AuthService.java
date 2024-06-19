@@ -84,7 +84,7 @@ public class AuthService {
          request.setPassword(placeholderPassword);
 
         // Set User Data Transfer Object
-        MemberDTO memberDTO = MemberMapper.INSTANCE.authRequestToMemberDTO(request);
+        MemberDTO memberDTO = MemberMapper.INSTANCE.memberRegisterRequestToMemberDTO(request);
         memberDTO.setGoogleIdTokenExp(payload.getExpirationTimeSeconds());
         memberDTO.setGoogleIdTokenIat(payload.getIssuedAtTimeSeconds());
         memberDTO.setGoogleIdTokenSub(payload.getSubject());

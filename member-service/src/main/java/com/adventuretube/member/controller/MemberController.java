@@ -3,6 +3,7 @@ package com.adventuretube.member.controller;
 import com.adventuretube.common.domain.dto.auth.MemberDTO;
 import com.adventuretube.common.error.RestAPIErrorResponse;
 import com.adventuretube.member.model.Member;
+import com.adventuretube.member.model.dto.MemberMapper;
 import com.adventuretube.member.service.MemberService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,8 +27,9 @@ public class MemberController {
     @PostMapping("registerMember")
     public ResponseEntity<?> registerMember(@RequestBody MemberDTO memberDTO) {
         log.info("new member registration {}", memberDTO);
-        Member newMember = new Member();
-        BeanUtils.copyProperties(memberDTO, newMember);
+//        Member newMember = new Member();
+//        BeanUtils.copyProperties(memberDTO, newMember);
+          Member newMember = MemberMapper.INSTANCE.memberDTOtoMember(memberDTO);
         try {
             //After store in the database nothing but id field will be different
             Member registeredMember = memberService.registerMember(newMember);
