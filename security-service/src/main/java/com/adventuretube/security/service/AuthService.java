@@ -6,6 +6,7 @@ import com.adventuretube.security.exceptions.DuplicateException;
 import com.adventuretube.security.exceptions.GoogleIdTokenInvalidException;
 import com.adventuretube.security.model.AuthRequest;
 import com.adventuretube.security.model.AuthResponse;
+import com.adventuretube.security.model.dto.MemberMapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,6 +45,8 @@ public class AuthService {
     private final JwtUtil jwtUtil;
     private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
     private final PasswordEncoder passwordEncoder;
+
+    private final MemberMapper memberMapper;
 
 
     @Transactional
@@ -94,6 +97,8 @@ public class AuthService {
                                    .googleProfilePicture(payload.get("picture").toString())
                                    .build();
          BeanUtils.copyProperties(request,authDTO);
+
+
 
 
         String urlForEmailCheck = "http://MEMBER-SERVICE/member/emailDuplicationCheck";
@@ -148,9 +153,12 @@ public class AuthService {
 
         String accessToken = jwtUtil.generate(userDetails.getUsername(),userDetails.getAuthorities().toString(), "ACCESS");
         String refreshToken = jwtUtil.generate(userDetails.getUsername(),userDetails.getAuthorities().toString(), "REFRESH");
-      
-           AuthDTO authDTO = new AuthDTO();
-           BeanUtils.copyProperties(userDetails, authDTO);
+
+        AuthDTO authDTO = memberMapper.INSTANCE.UserDetailToAuthDTO(userDetails);
+
+
+//           AuthDTO authDTO = new AuthDTO();
+//           BeanUtils.copyProperties(userDetails, authDTO);
 
         return new AuthResponse(authDTO,accessToken, refreshToken);
      }
