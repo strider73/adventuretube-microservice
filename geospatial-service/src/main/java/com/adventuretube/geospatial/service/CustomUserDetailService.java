@@ -1,6 +1,6 @@
 package com.adventuretube.geospatial.service;
 
-import com.adventuretube.common.domain.dto.auth.AuthDTO;
+import com.adventuretube.common.domain.dto.auth.MemberDTO;
 import com.adventuretube.geospatial.exceptions.UserNotFoundException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,9 +25,9 @@ public class CustomUserDetailService implements UserDetailsService {
         String urlForFindUserByEmail = "http://MEMBER-SERVICE/member/findMemberByEmail";
 
         // Fetch user details from the external service
-        AuthDTO userFoundByEmail;
+        MemberDTO userFoundByEmail;
         try {
-            userFoundByEmail = restTemplate.postForObject(urlForFindUserByEmail, email, AuthDTO.class);
+            userFoundByEmail = restTemplate.postForObject(urlForFindUserByEmail, email, MemberDTO.class);
 
             if (userFoundByEmail == null) {
                 throw new UserNotFoundException("User is not exist :  email: " + email);

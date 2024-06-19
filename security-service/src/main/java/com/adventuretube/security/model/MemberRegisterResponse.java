@@ -1,9 +1,7 @@
 package com.adventuretube.security.model;
 
 
-import org.springframework.security.core.userdetails.UserDetails;
-
-import com.adventuretube.common.domain.dto.auth.AuthDTO;
+import com.adventuretube.common.domain.dto.auth.MemberDTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,8 +10,8 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class AuthResponse {
-    private AuthDTO  userDetails;
+public class MemberRegisterResponse {
+    private MemberDTO userDetails;
     private String accessToken;
     private String refreshToken;
 //    public AuthResponse(String accessToken, String refreshToken) {

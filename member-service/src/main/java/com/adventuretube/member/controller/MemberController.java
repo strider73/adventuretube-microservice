@@ -1,6 +1,6 @@
 package com.adventuretube.member.controller;
 
-import com.adventuretube.common.domain.dto.auth.AuthDTO;
+import com.adventuretube.common.domain.dto.auth.MemberDTO;
 import com.adventuretube.common.error.RestAPIErrorResponse;
 import com.adventuretube.member.model.Member;
 import com.adventuretube.member.service.MemberService;
@@ -24,15 +24,15 @@ public class MemberController {
     //handle carefully on the caller side not by GlobalException handler in member-service
     //since these error should be delivered caller side !!!!
     @PostMapping("registerMember")
-    public ResponseEntity<?> registerMember(@RequestBody AuthDTO authDTO) {
-        log.info("new member registration {}", authDTO);
+    public ResponseEntity<?> registerMember(@RequestBody MemberDTO memberDTO) {
+        log.info("new member registration {}", memberDTO);
         Member newMember = new Member();
-        BeanUtils.copyProperties(authDTO, newMember);
+        BeanUtils.copyProperties(memberDTO, newMember);
         try {
             //After store in the database nothing but id field will be different
             Member registeredMember = memberService.registerMember(newMember);
-            authDTO.setId(registeredMember.getId());
-            return ResponseEntity.ok(authDTO);
+            memberDTO.setId(registeredMember.getId());
+            return ResponseEntity.ok(memberDTO);
         } catch (Exception e) {
             log.error("Error occurred while registering member", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(RestAPIErrorResponse.builder()
@@ -58,12 +58,12 @@ public class MemberController {
 
 
     @PostMapping("findMemberByEmail")
-    public AuthDTO findMemberByEmail(@RequestBody String email) {
+    public MemberDTO findMemberByEmail(@RequestBody String email) {
         Optional<Member> member = memberService.findEmail(email);
         if (member.isPresent()) {
-            AuthDTO authDTO = new AuthDTO();
-            BeanUtils.copyProperties(member.get(), authDTO);
-            return authDTO;
+            MemberDTO memberDTO = new MemberDTO();
+            BeanUtils.copyProperties(member.get(), memberDTO);
+            return memberDTO;
         }
         return null;
     }

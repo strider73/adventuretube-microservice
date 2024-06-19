@@ -1,11 +1,11 @@
 package com.adventuretube.security.service;
 
-import com.adventuretube.common.domain.dto.auth.AuthDTO;
+import com.adventuretube.common.domain.dto.auth.MemberDTO;
 import com.adventuretube.common.error.RestAPIErrorResponse;
 import com.adventuretube.security.exceptions.DuplicateException;
 import com.adventuretube.security.exceptions.GoogleIdTokenInvalidException;
-import com.adventuretube.security.model.AuthRequest;
-import com.adventuretube.security.model.AuthResponse;
+import com.adventuretube.security.model.MemberRegisterRequest;
+import com.adventuretube.security.model.MemberRegisterResponse;
 import com.adventuretube.security.model.dto.MemberMapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
@@ -44,7 +44,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
-     public AuthResponse register(AuthRequest request) {
+     public MemberRegisterResponse register(MemberRegisterRequest request) {
 
          // Validate Google ID token
          GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(),GsonFactory.getDefaultInstance())
@@ -84,15 +84,15 @@ public class AuthService {
          request.setPassword(placeholderPassword);
 
         // Set User Data Transfer Object
-        AuthDTO authDTO = MemberMapper.INSTANCE.authRequestToAuthDTO(request);
-        authDTO.setGoogleIdTokenExp(payload.getExpirationTimeSeconds());
-        authDTO.setGoogleIdTokenIat(payload.getIssuedAtTimeSeconds());
-        authDTO.setGoogleIdTokenSub(payload.getSubject());
-        authDTO.setGoogleProfilePicture(payload.get("picture").toString());
+        MemberDTO memberDTO = MemberMapper.INSTANCE.authRequestToMemberDTO(request);
+        memberDTO.setGoogleIdTokenExp(payload.getExpirationTimeSeconds());
+        memberDTO.setGoogleIdTokenIat(payload.getIssuedAtTimeSeconds());
+        memberDTO.setGoogleIdTokenSub(payload.getSubject());
+        memberDTO.setGoogleProfilePicture(payload.get("picture").toString());
 
 
         String urlForEmailCheck = "http://MEMBER-SERVICE/member/emailDuplicationCheck";
-        Boolean isUserAlreadyExist  = restTemplate.postForObject(urlForEmailCheck,authDTO.getEmail(),Boolean.class);
+        Boolean isUserAlreadyExist  = restTemplate.postForObject(urlForEmailCheck, memberDTO.getEmail(),Boolean.class);
 
         //Check Email duplication
         if(isUserAlreadyExist){
@@ -104,12 +104,12 @@ public class AuthService {
         try{
             //Register Member !!!
             String urlForRegister = "http://MEMBER-SERVICE/member/registerMember"; //with Eureka
-            ResponseEntity<AuthDTO> response = restTemplate.postForEntity(urlForRegister, authDTO, AuthDTO.class);
+            ResponseEntity<MemberDTO> response = restTemplate.postForEntity(urlForRegister, memberDTO, MemberDTO.class);
             if (response.getStatusCode() == HttpStatus.OK) {
-                AuthDTO registeredUser = response.getBody();
+                MemberDTO registeredUser = response.getBody();
                     String accessToken = jwtUtil.generate(registeredUser.getEmail(), registeredUser.getRole(), "ACCESS");
                     String refreshToken = jwtUtil.generate(registeredUser.getEmail(), registeredUser.getRole(), "REFRESH");
-                    return new AuthResponse(authDTO, accessToken, refreshToken);
+                    return new MemberRegisterResponse(memberDTO, accessToken, refreshToken);
             } else {
                 // Handle non-200 responses
                 String errorBody = response.hasBody() ? response.getBody().toString() : "No response body";
@@ -139,17 +139,17 @@ public class AuthService {
 //        return Base64.getEncoder().encodeToString(hash);
 //    }
 
-    public  AuthResponse getToken(UserDetails userDetails){
+    public MemberRegisterResponse getToken(UserDetails userDetails){
 
         String accessToken = jwtUtil.generate(userDetails.getUsername(),userDetails.getAuthorities().toString(), "ACCESS");
         String refreshToken = jwtUtil.generate(userDetails.getUsername(),userDetails.getAuthorities().toString(), "REFRESH");
 
-        AuthDTO authDTO = MemberMapper.INSTANCE.userDetailToAuthDTO(userDetails);
+        MemberDTO memberDTO = MemberMapper.INSTANCE.userDetailToMemberDTO(userDetails);
 
 
 //           AuthDTO authDTO = new AuthDTO();
 //           BeanUtils.copyProperties(userDetails, authDTO);
 
-        return new AuthResponse(authDTO,accessToken, refreshToken);
+        return new MemberRegisterResponse(memberDTO,accessToken, refreshToken);
      }
 }

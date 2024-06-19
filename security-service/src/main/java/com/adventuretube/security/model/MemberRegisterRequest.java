@@ -10,7 +10,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class AuthRequest {
+public class MemberRegisterRequest {
 
 
     @Schema(description = "Google ID Token", example = "eyJhbGciOiJSUzI1NiIsImtpZCI6Ij...")
