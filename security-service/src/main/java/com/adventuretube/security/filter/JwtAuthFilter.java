@@ -1,7 +1,8 @@
-package com.adventuretube.geospatial.filter;
+package com.adventuretube.security.filter;
 
-import com.adventuretube.geospatial.service.JwtUtil;
-import com.adventuretube.geospatial.service.CustomUserDetailService;
+
+import com.adventuretube.security.service.CustomUserDetailService;
+import com.adventuretube.security.service.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,22 +26,18 @@ import java.io.IOException;
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
-    private final CustomUserDetailService  customUserDetailService;
+    private final CustomUserDetailService customUserDetailService;
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-       log.info("JwtAuthFilter.doFilterInternal has been called");
-
+        log.info("JwtAuthFilter.doFilterInternal has been called");
         //String token = authHeader.substring(7);//token from header which is issued after sign in or login
 
         try {
             String token = request.getHeader("Authorization");
             //security-service has an exception to deal with null token in
             // JwtAuthfilter for login / signing in request
-
-            //so in geospatial-service there should be token for all reqeuest
-            //but put this in just in case at this moment
             if (token == null) {
                 filterChain.doFilter(request, response);
                 return;
