@@ -83,6 +83,9 @@ public class JwtUtil {
     public Date getExpirationDate(String token) {
         return getClaim(token, Claims::getExpiration);
     }
+    public String extractUserRole(String token) {
+        return getClaim(token, claims -> claims.get("role", String.class));
+    }
 
     public Boolean validateToken(String token, UserDetails userDetails) {
         final String username = extractUsername(token);

@@ -133,11 +133,6 @@ public class AuthService {
 
     }
 
-//    private String hashGoogleId(String googleId) throws Exception {
-//        MessageDigest digest = MessageDigest.getInstance("SHA-256");
-//        byte[] hash = digest.digest(googleId.getBytes("UTF-8"));
-//        return Base64.getEncoder().encodeToString(hash);
-//    }
 
     public MemberRegisterResponse getToken(UserDetails userDetails){
 
@@ -147,9 +142,20 @@ public class AuthService {
         MemberDTO memberDTO = MemberMapper.INSTANCE.userDetailToMemberDTO(userDetails);
 
 
-//           AuthDTO authDTO = new AuthDTO();
-//           BeanUtils.copyProperties(userDetails, authDTO);
 
         return new MemberRegisterResponse(memberDTO,accessToken, refreshToken);
-     }
+    }
+
+    public MemberRegisterResponse getTokenWithoutPassword(String userName,String role){
+
+        String accessToken = jwtUtil.generate(userName,role,"ACCESS");
+        String refreshToken = jwtUtil.generate(userName,role, "REFRESH");
+
+        MemberDTO memberDTO = MemberDTO.builder()
+                .username(userName)
+                .role(role)
+                .build();
+
+        return new MemberRegisterResponse(memberDTO,accessToken, refreshToken);
+    }
 }

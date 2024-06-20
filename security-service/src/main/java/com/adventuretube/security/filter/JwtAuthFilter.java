@@ -42,6 +42,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 return;
             }
 
+            //This logic is about
+            //
             String username = jwtUtil.extractUsername(token);
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 log.info("user name is :" + username + "  hasn't been authenticate yet");

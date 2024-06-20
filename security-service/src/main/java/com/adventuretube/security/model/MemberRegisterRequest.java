@@ -13,9 +13,12 @@ import lombok.Data;
 public class MemberRegisterRequest {
 
 
+
     @Schema(description = "Google ID Token", example = "eyJhbGciOiJSUzI1NiIsImtpZCI6Ij...")
-    @NotBlank(message = "Google ID Token cannot be blank")
     private String googleIdToken;
+
+    @Schema(description = "refreshToken")
+    private String refreshToken;
 
     @Schema(description = "email", example = "strider@gmail.com")
     @NotBlank(message = "Email cannot be blank")
