@@ -141,7 +141,7 @@ public class AuthService {
 
     public MemberRegisterResponse authenticate(MemberRegisterRequest request){
 
-        // Authenticate the user
+        //Authenticate the user
         //Since this request haven't any token to carry
         //it will go through authentication process and issue the tokens
 

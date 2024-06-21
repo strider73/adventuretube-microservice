@@ -1,10 +1,8 @@
 package com.adventuretube.security;
 
 import com.adventuretube.security.filter.JwtAuthFilter;
-import com.adventuretube.security.provider.CustomAuthenticationProvider;
 import com.adventuretube.security.service.CustomUserDetailService;
 import lombok.AllArgsConstructor;
-import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -12,12 +10,10 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.client.RestTemplate;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 //
@@ -52,8 +48,15 @@ public class SecurityServiceConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
+
+    /*
+    This can be used to customize userDetailService
+    This will allow to customize loadUserByUsername
+       at this moment loadUSerByUser name does validate user email address and return  all error accordingly
+     */
     @Bean
-    public AuthenticationManager authenticationManager(HttpSecurity httpSecurity) throws  Exception {
+    public AuthenticationManager customAuthenticationManager(HttpSecurity httpSecurity) throws  Exception {
         AuthenticationManagerBuilder  authenticationManagerBuilder = httpSecurity.getSharedObject(AuthenticationManagerBuilder.class);
         //declare what type of authenticate provider will be used (userDetailService in our case)
         //and set the password encoder
@@ -63,6 +66,11 @@ public class SecurityServiceConfig {
         return authenticationManagerBuilder.build(); // and return authenticationManager
 
     }
+
+
+     /*This can be used for CustomAuthenticationProvider
+      this can allow to  customize authencate() method
+     */
 
 //    @Bean
 //    public CustomAuthenticationProvider customAuthenticationProvider() {
