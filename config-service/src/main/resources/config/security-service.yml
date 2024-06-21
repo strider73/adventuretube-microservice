@@ -36,5 +36,5 @@ jwt:
   secret: adventuretubeMiAVzqUXy5Tfr1kVIGpPMiAVzqUXy5Tfr1kVIGpP
   expiration:
        access-token: 120
-       refresh-token: 300
+       refresh-token: 86400
 

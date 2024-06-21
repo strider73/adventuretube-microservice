@@ -21,7 +21,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -35,9 +34,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 @AllArgsConstructor
 public class AuthController {
     private final AuthService authService;
-    private final AuthenticationManager authenticationManager;
 
-    private final JwtUtil jwtUtil;
 
 
     @Operation(summary = "Signup user")
@@ -63,24 +60,14 @@ public class AuthController {
     //  2. when iOS was reactive
     @Operation(summary = "SignIn user")
     @ApiResponse(responseCode = "200")//success
-    @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = RestAPIErrorResponse.class)))
-//unauthorized  error
-    @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(implementation = RestAPIErrorResponse.class)))
-//not found error
-    @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = RestAPIErrorResponse.class)))
-//internal server error
-    @PostMapping(value = "/getToken")
-    public ResponseEntity<?> getToken(@Valid @RequestBody MemberRegisterRequest request) {
+    @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = RestAPIErrorResponse.class)))//unauthorized  error
+    @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(implementation = RestAPIErrorResponse.class)))//not found error
+    @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = RestAPIErrorResponse.class)))//internal server error
+    @PostMapping(value = "/login")
+    public ResponseEntity<?> login(@Valid @RequestBody MemberRegisterRequest request) {
 
-        // Authenticate the user
-        //Since this request haven't any token to carry
-        //it will go through authentication process and issue the tokens
-
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/auth/getToken").toUriString());
-
-        return ResponseEntity.created(uri).body(authService.getToken(userDetails));
+        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/auth/login").toUriString());
+        return ResponseEntity.created(uri).body(authService.authenticate(request));
     }
 
     @Operation(summary = "Refresh Token")
@@ -91,18 +78,9 @@ public class AuthController {
     @PostMapping(value = "/refreshToken")
     public ResponseEntity<?> refreshToken(HttpServletRequest request) {
 
-       /*TODO List
-       1. get the refresh token
-       2. it been already do basic validate from gateway
-       3. and also did user name check from JwtAuthFilter  since /refreshToken is not an exception from  SecurityServiceConfig
-       4. so get the username and role  from the token and create userDetail
-        */
 
-        String token = request.getHeader("Authorization"); // Assuming the token is passed in the Authorization header
-        String userName = jwtUtil.extractUsername(token);
-        String roles = jwtUtil.extractUserRole(token);
-        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/refreshToken").toUriString());
-        return ResponseEntity.created(uri).body(authService.getTokenWithoutPassword(userName, roles));
+        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/auth/refreshToken").toUriString());
+        return ResponseEntity.created(uri).body(authService.refreshToken(request));
 
 
     }

@@ -37,7 +37,7 @@ public class SecurityServiceConfig {
             .csrf().disable()
             .securityMatcher("/auth/**")
             .authorizeHttpRequests(authorize -> authorize
-                    .requestMatchers("/auth/register","/auth/getToken","/auth/refreshToken").permitAll()
+                    .requestMatchers("/auth/register","/auth/login","/auth/refreshToken").permitAll()
                     .anyRequest().hasRole("ADMIN")
             )
 //            .csrf(csrf -> csrf.ignoringRequestMatchers("/auth/register")) // Disable CSRF for /auth/register

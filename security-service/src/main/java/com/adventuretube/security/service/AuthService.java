@@ -8,12 +8,16 @@ import com.adventuretube.security.model.MemberRegisterRequest;
 import com.adventuretube.security.model.MemberRegisterResponse;
 import com.adventuretube.security.model.dto.MemberMapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -42,6 +46,7 @@ public class AuthService {
     private final JwtUtil jwtUtil;
     private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
     private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
 
     @Transactional
      public MemberRegisterResponse register(MemberRegisterRequest request) {
@@ -134,8 +139,14 @@ public class AuthService {
     }
 
 
-    public MemberRegisterResponse getToken(UserDetails userDetails){
+    public MemberRegisterResponse authenticate(MemberRegisterRequest request){
 
+        // Authenticate the user
+        //Since this request haven't any token to carry
+        //it will go through authentication process and issue the tokens
+
+        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String accessToken = jwtUtil.generate(userDetails.getUsername(),userDetails.getAuthorities().toString(), "ACCESS");
         String refreshToken = jwtUtil.generate(userDetails.getUsername(),userDetails.getAuthorities().toString(), "REFRESH");
 
@@ -146,7 +157,18 @@ public class AuthService {
         return new MemberRegisterResponse(memberDTO,accessToken, refreshToken);
     }
 
-    public MemberRegisterResponse getTokenWithoutPassword(String userName,String role){
+    public MemberRegisterResponse refreshToken (HttpServletRequest httpServletRequest){
+
+               /*TODO List
+       1. get the refresh token
+       2. it been already do basic validate from gateway
+       3. and also did user name check from JwtAuthFilter  since /refreshToken is not an exception from  SecurityServiceConfig
+       4. so get the username and role  from the token and create userDetail
+        */
+
+        String token = httpServletRequest.getHeader("Authorization"); // Assuming the token is passed in the Authorization header
+        String userName = jwtUtil.extractUsername(token);
+        String role = jwtUtil.extractUserRole(token);
 
         String accessToken = jwtUtil.generate(userName,role,"ACCESS");
         String refreshToken = jwtUtil.generate(userName,role, "REFRESH");
