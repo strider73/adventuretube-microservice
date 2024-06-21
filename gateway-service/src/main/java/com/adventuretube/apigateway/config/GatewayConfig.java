@@ -24,7 +24,7 @@ public class GatewayConfig {
                         .uri("lb://web-service"))
                 .route("security-service", r -> r.path("/auth/**")
                         .filters(f -> f.filter(filter))
-                        .uri("lb://security-service"))
+                        .uri("lb://auth-service"))
                 .route("geospatial-service", r -> r.path("/geo/**")
                         .filters(f -> f.filter(filter))
                         .uri("lb://geospatial-service"))
