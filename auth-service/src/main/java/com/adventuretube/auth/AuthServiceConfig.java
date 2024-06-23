@@ -10,6 +10,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -30,13 +31,13 @@ public class AuthServiceConfig {
     @Order(1)
     public SecurityFilterChain apiFilterChain(HttpSecurity httpSecurity) throws  Exception{
     httpSecurity
-            .csrf().disable()
+            .csrf(AbstractHttpConfigurer::disable)
             .securityMatcher("/auth/**")
             .authorizeHttpRequests(authorize -> authorize
                     .requestMatchers("/auth/register","/auth/login","/auth/refreshToken").permitAll()
                     .anyRequest().hasRole("ADMIN")
             )
-//            .csrf(csrf -> csrf.ignoringRequestMatchers("/auth/register")) // Disable CSRF for /auth/register
+            //.authenticationProvider()
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
             .httpBasic(withDefaults());
 
