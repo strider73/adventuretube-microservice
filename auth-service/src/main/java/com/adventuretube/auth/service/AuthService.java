@@ -1,5 +1,6 @@
 package com.adventuretube.auth.service;
 
+import com.adventuretube.auth.mapper.MemberMapper;
 import com.adventuretube.common.domain.dto.member.MemberDTO;
 import com.adventuretube.common.domain.dto.token.TokenDTO;
 import com.adventuretube.common.error.RestAPIErrorResponse;
@@ -7,7 +8,6 @@ import com.adventuretube.auth.exceptions.DuplicateException;
 import com.adventuretube.auth.exceptions.GoogleIdTokenInvalidException;
 import com.adventuretube.auth.model.MemberRegisterRequest;
 import com.adventuretube.auth.model.MemberRegisterResponse;
-import com.adventuretube.auth.mapper.MemberMapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
