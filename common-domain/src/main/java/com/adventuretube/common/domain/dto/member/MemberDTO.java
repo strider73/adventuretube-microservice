@@ -1,4 +1,4 @@
-package com.adventuretube.common.domain.dto.auth;
+package com.adventuretube.common.domain.dto.member;
 
 
 import lombok.AllArgsConstructor;

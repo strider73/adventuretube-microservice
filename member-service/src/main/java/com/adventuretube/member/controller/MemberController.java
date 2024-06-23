@@ -1,9 +1,10 @@
 package com.adventuretube.member.controller;
 
-import com.adventuretube.common.domain.dto.auth.MemberDTO;
+import com.adventuretube.common.domain.dto.member.Member;
+import com.adventuretube.common.domain.dto.member.MemberDTO;
+import com.adventuretube.member.mapper.MemberMapper;
+import com.adventuretube.common.domain.dto.token.TokenDTO;
 import com.adventuretube.common.error.RestAPIErrorResponse;
-import com.adventuretube.member.model.Member;
-import com.adventuretube.member.model.dto.MemberMapper;
 import com.adventuretube.member.service.MemberService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -69,6 +70,14 @@ public class MemberController {
         }
         return null;
     }
+
+    @PostMapping("storeTokens")
+    public Boolean storeToken(@RequestBody TokenDTO tokenDTO){
+        //TODO
+            return memberService.storeToken(tokenDTO);
+    }
 }
+
+
 
 

@@ -1,8 +1,8 @@
-package com.adventuretube.member.model.dto;
+package com.adventuretube.member.mapper;
 
 
-import com.adventuretube.common.domain.dto.auth.MemberDTO;
-import com.adventuretube.member.model.Member;
+import com.adventuretube.common.domain.dto.member.Member;
+import com.adventuretube.common.domain.dto.member.MemberDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
@@ -10,6 +10,7 @@ import org.mapstruct.factory.Mappers;
 public interface MemberMapper {
     MemberMapper INSTANCE = Mappers.getMapper(MemberMapper.class);
     Member memberDTOtoMember(MemberDTO memberDTO);
+
 
 
 }

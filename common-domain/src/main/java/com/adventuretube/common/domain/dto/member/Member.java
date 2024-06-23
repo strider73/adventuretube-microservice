@@ -1,4 +1,4 @@
-package com.adventuretube.member.model;
+package com.adventuretube.common.domain.dto.member;
 
 
 
@@ -45,7 +45,7 @@ public class Member implements UserDetails {
     private String googleProfilePicture;
     private String username;
     private String password;
-    private String channeld;
+    private String channelId;
     private String email;
 
     private String role;

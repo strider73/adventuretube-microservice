@@ -1,12 +1,13 @@
 package com.adventuretube.auth.service;
 
-import com.adventuretube.common.domain.dto.auth.MemberDTO;
+import com.adventuretube.common.domain.dto.member.MemberDTO;
+import com.adventuretube.common.domain.dto.token.TokenDTO;
 import com.adventuretube.common.error.RestAPIErrorResponse;
 import com.adventuretube.auth.exceptions.DuplicateException;
 import com.adventuretube.auth.exceptions.GoogleIdTokenInvalidException;
 import com.adventuretube.auth.model.MemberRegisterRequest;
 import com.adventuretube.auth.model.MemberRegisterResponse;
-import com.adventuretube.auth.model.dto.MemberMapper;
+import com.adventuretube.auth.mapper.MemberMapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
@@ -114,6 +115,30 @@ public class AuthService {
                 MemberDTO registeredUser = response.getBody();
                     String accessToken = jwtUtil.generate(registeredUser.getEmail(), registeredUser.getRole(), "ACCESS");
                     String refreshToken = jwtUtil.generate(registeredUser.getEmail(), registeredUser.getRole(), "REFRESH");
+                    //TODO saveToken and revoke all others
+                     String urlForStoreToken ="http://MEMBER-SERVICE/member/storeTokens";
+                 /*
+                    Member object which implement UserDetail have a issue with serial/deserialization GrantedAuthority Object
+                    so sending MemberDTO instead and convert to Member in member-service
+                  */
+                // Prepare tokens to store
+                TokenDTO tokenToStore = TokenDTO.builder()
+                        .memberDTO(registeredUser)//sending a memberDTO instead Member
+                        .expired(false)
+                        .revoked(false)
+                        .accessToken(accessToken)
+                        .refreshToken(refreshToken) // Set refresh token to null or generate if needed
+                        .build();
+
+
+
+                     Boolean istokenStored = restTemplate.postForObject(urlForStoreToken,tokenToStore, Boolean.class);
+                     if(!istokenStored){
+                         throw new RuntimeException("token store error !!!");
+                     }
+
+
+
                     return new MemberRegisterResponse(memberDTO, accessToken, refreshToken);
             } else {
                 // Handle non-200 responses
@@ -149,6 +174,8 @@ public class AuthService {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String accessToken = jwtUtil.generate(userDetails.getUsername(),userDetails.getAuthorities().toString(), "ACCESS");
         String refreshToken = jwtUtil.generate(userDetails.getUsername(),userDetails.getAuthorities().toString(), "REFRESH");
+
+        //TODO save token and revoke all the others
 
         MemberDTO memberDTO = MemberMapper.INSTANCE.userDetailToMemberDTO(userDetails);
 
