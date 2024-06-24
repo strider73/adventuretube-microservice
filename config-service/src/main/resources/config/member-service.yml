@@ -27,7 +27,6 @@ eureka:
     register-with-eureka: true
     enabled: true
 
-
 logging:
   level:
     root: INFO
