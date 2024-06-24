@@ -33,6 +33,9 @@
 		<spring.boot.dependencies.version>3.2.5</spring.boot.dependencies.version>
 		<spring.cloud-version>2023.0.1</spring.cloud-version>
 		<org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
+		<maven.compiler.source>17</maven.compiler.source>
+		<maven.compiler.target>17</maven.compiler.target>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
 	<dependencyManagement>
