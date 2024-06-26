@@ -10,7 +10,7 @@ import org.mapstruct.factory.Mappers;
 public interface MemberMapper {
     MemberMapper INSTANCE = Mappers.getMapper(MemberMapper.class);
     Member memberDTOtoMember(MemberDTO memberDTO);
-
+    MemberDTO memberToMemberDTO(Member member);
 
 
 }

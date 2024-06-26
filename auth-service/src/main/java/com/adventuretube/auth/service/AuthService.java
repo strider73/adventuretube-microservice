@@ -130,14 +130,10 @@ public class AuthService {
                         .refreshToken(refreshToken) // Set refresh token to null or generate if needed
                         .build();
 
-
-
                      Boolean istokenStored = restTemplate.postForObject(urlForStoreToken,tokenToStore, Boolean.class);
                      if(!istokenStored){
                          throw new RuntimeException("token store error !!!");
                      }
-
-
 
                     return new MemberRegisterResponse(memberDTO, accessToken, refreshToken);
             } else {
@@ -164,7 +160,7 @@ public class AuthService {
     }
 
 
-    public MemberRegisterResponse authenticate(MemberRegisterRequest request){
+    public MemberRegisterResponse loginWithIdAndPassword(MemberRegisterRequest request){
 
         //Authenticate the user
         //Since this request haven't any token to carry
@@ -175,8 +171,21 @@ public class AuthService {
         String accessToken = jwtUtil.generate(userDetails.getUsername(),userDetails.getAuthorities().toString(), "ACCESS");
         String refreshToken = jwtUtil.generate(userDetails.getUsername(),userDetails.getAuthorities().toString(), "REFRESH");
 
-        //TODO save token and revoke all the others
 
+
+        TokenDTO tokenToStore = TokenDTO.builder()
+                .memberDTO(MemberMapper.INSTANCE.userDetailToMemberDTO(userDetails))//sending a memberDTO instead Member
+                .expired(false)
+                .revoked(false)
+                .accessToken(accessToken)
+                .refreshToken(refreshToken) // Set refresh token to null or generate if needed
+                .build();
+
+        String urlForStoreToken ="http://MEMBER-SERVICE/member/storeTokens";
+        Boolean istokenStored = restTemplate.postForObject(urlForStoreToken,tokenToStore, Boolean.class);
+        if(!istokenStored){
+            throw new RuntimeException("token store error !!!");
+        }
         MemberDTO memberDTO = MemberMapper.INSTANCE.userDetailToMemberDTO(userDetails);
 
 
@@ -184,6 +193,21 @@ public class AuthService {
         return new MemberRegisterResponse(memberDTO,accessToken, refreshToken);
     }
 
+
+
+    public Object logout(HttpServletRequest httpServletRequest) {
+        String token = httpServletRequest.getHeader("Authorization"); // Assuming the token is passed in the Authorization header
+        String urlForDeleteToken ="http://MEMBER-SERVICE/member/deleteAllToken";
+        Boolean isLoggedOut  =  restTemplate.postForObject(urlForDeleteToken,token, Boolean.class);
+        if(!isLoggedOut){
+            throw new RuntimeException("token store error !!!");
+        }else{
+            return new String("logout hsa been successes ");
+        }
+
+    }
+
+    @Transactional
     public MemberRegisterResponse refreshToken (HttpServletRequest httpServletRequest){
 
                /*TODO List
@@ -194,6 +218,15 @@ public class AuthService {
         */
 
         String token = httpServletRequest.getHeader("Authorization"); // Assuming the token is passed in the Authorization header
+
+        //check the token for logout
+        String urlForTokenExist ="http://MEMBER-SERVICE/member/findToken";
+        Boolean isTokenFind = restTemplate.postForObject(urlForTokenExist,token, Boolean.class);
+        if(!isTokenFind){
+            throw new RuntimeException("refresh token process has been failed , user has been logged out or use wrong token, please login again ");
+        }
+
+
         String userName = jwtUtil.extractUsername(token);
         String role = jwtUtil.extractUserRole(token);
 
@@ -205,6 +238,23 @@ public class AuthService {
                 .role(role)
                 .build();
 
+
+        TokenDTO tokenToStore = TokenDTO.builder()
+                .memberDTO(memberDTO)//sending a memberDTO instead Member
+                .expired(false)
+                .revoked(false)
+                .accessToken(accessToken)
+                .refreshToken(refreshToken) // Set refresh token to null or generate if needed
+                .build();
+
+        String urlForStoreToken ="http://MEMBER-SERVICE/member/storeTokens";
+        Boolean istokenStored = restTemplate.postForObject(urlForStoreToken,tokenToStore, Boolean.class);
+        if(!istokenStored){
+            throw new RuntimeException("token store error !!!");
+        }
+
         return new MemberRegisterResponse(memberDTO,accessToken, refreshToken);
     }
+
+
 }

@@ -2,6 +2,7 @@ package com.adventuretube.member.controller;
 
 import com.adventuretube.common.domain.dto.member.Member;
 import com.adventuretube.common.domain.dto.member.MemberDTO;
+import com.adventuretube.common.domain.dto.token.Token;
 import com.adventuretube.member.mapper.MemberMapper;
 import com.adventuretube.common.domain.dto.token.TokenDTO;
 import com.adventuretube.common.error.RestAPIErrorResponse;
@@ -28,8 +29,20 @@ public class MemberController {
     @PostMapping("registerMember")
     public ResponseEntity<?> registerMember(@RequestBody MemberDTO memberDTO) {
         log.info("new member registration {}", memberDTO);
-//        Member newMember = new Member();
-//        BeanUtils.copyProperties(memberDTO, newMember);
+
+        /* There is another way to send and receive two or even more different type object using a Map
+        1) sender side :
+           // Create a map to hold the two objects
+                  Map<String, Object> requestMap = new HashMap<>();
+                  requestMap.put("memberDTO", registeredUser);
+                  requestMap.put("tokenDTO", tokenToStore);
+         2) receiver side
+             // Extract objects from the map
+            ObjectMapper objectMapper = new ObjectMapper();
+            MemberDTO memberDTO = objectMapper.convertValue(requestMap.get("memberDTO"), MemberDTO.class);
+            TokenDTO tokenDTO = objectMapper.convertValue(requestMap.get("tokenDTO"), TokenDTO.class);
+
+         */
           Member newMember = MemberMapper.INSTANCE.memberDTOtoMember(memberDTO);
         try {
             //After store in the database nothing but id field will be different
@@ -60,6 +73,7 @@ public class MemberController {
     }
 
 
+
     @PostMapping("findMemberByEmail")
     public MemberDTO findMemberByEmail(@RequestBody String email) {
         Optional<Member> member = memberService.findEmail(email);
@@ -73,8 +87,25 @@ public class MemberController {
 
     @PostMapping("storeTokens")
     public Boolean storeToken(@RequestBody TokenDTO tokenDTO){
-        //TODO
+        //TODO  revoke all token for user
             return memberService.storeToken(tokenDTO);
+    }
+
+    @PostMapping("findToken")
+    public Boolean findToken(@RequestBody String token){
+        Optional<Token> returnedToken = memberService.findToken(token);
+        if(returnedToken.isPresent()){
+            return true;
+        }else{
+            return  false;
+        }
+
+    }
+
+    @PostMapping("deleteAllToken")
+    public Boolean deleteAllToken(@RequestBody String token){
+        //TODO  revoke all token for user
+         return memberService.deleteAllToken(token);
     }
 }
 

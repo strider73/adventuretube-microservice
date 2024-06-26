@@ -34,7 +34,7 @@ public class AuthServiceConfig {
             .csrf(AbstractHttpConfigurer::disable)
             .securityMatcher("/auth/**")
             .authorizeHttpRequests(authorize -> authorize
-                    .requestMatchers("/auth/register","/auth/login","/auth/refreshToken").permitAll()
+                    .requestMatchers("/auth/register","/auth/login","/auth/refreshToken","/auth/logout").permitAll()
                     .anyRequest().hasRole("ADMIN")
             )
             //.authenticationProvider()

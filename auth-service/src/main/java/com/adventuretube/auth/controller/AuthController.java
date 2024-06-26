@@ -35,13 +35,10 @@ public class AuthController {
     @Operation(summary = "Signup user")
     @ApiResponse(responseCode = "201")//created
     //@ApiResponse(responseCode = "404", content = @Content(schema = @Schema(implementation = CommonErrorResponse.class)))
-    @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = RestAPIErrorResponse.class)))
-//unauthorized  error
-    @ApiResponse(responseCode = "409", content = @Content(schema = @Schema(implementation = RestAPIErrorResponse.class)))
-//conflict error
-    @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = RestAPIErrorResponse.class)))
-//internal server error
-    //This logic will be used when user login first time from the ios application
+    @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = RestAPIErrorResponse.class)))//unauthorized  error
+    @ApiResponse(responseCode = "409", content = @Content(schema = @Schema(implementation = RestAPIErrorResponse.class)))//conflict error
+    @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = RestAPIErrorResponse.class)))//internal server error
+    // This logic will be used when user login first time from the ios application
     @PostMapping(value = "/register")
     public ResponseEntity<MemberRegisterResponse> register(@Valid @RequestBody MemberRegisterRequest request) {
         URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/auth/register").toUriString());
@@ -62,7 +59,14 @@ public class AuthController {
     public ResponseEntity<?> login(@Valid @RequestBody MemberRegisterRequest request) {
 
         URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/auth/login").toUriString());
-        return ResponseEntity.created(uri).body(authService.authenticate(request));
+        return ResponseEntity.created(uri).body(authService.loginWithIdAndPassword(request));
+    }
+
+
+    @PostMapping(value = "/logout")
+    public ResponseEntity<?> logout(HttpServletRequest  request){
+        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/auth/logout").toUriString());
+        return ResponseEntity.created(uri).body(authService.logout(request));
     }
 
     @Operation(summary = "Refresh Token")
