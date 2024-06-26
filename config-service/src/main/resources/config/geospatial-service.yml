@@ -26,8 +26,17 @@ spring:
           dialect: org.hibernate.dialect.PostgreSQLDialect
           default_schema: public  # <-- Add this line
           format_sql: true
-
-
+  kafka:
+    consumer:
+      bootstrap-servers: 192.168.1.129:9092
+      group-id: group_id
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    producer:
+      bootstrap-servers: 192.168.1.129:9092
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
 
 eureka:
   client:
