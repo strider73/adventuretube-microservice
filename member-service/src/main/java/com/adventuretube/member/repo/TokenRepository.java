@@ -22,7 +22,7 @@ public interface TokenRepository extends JpaRepository<Token, Integer> {
 
     @Modifying
     @Transactional
-    @Query("delete from Token t where t.accessToken = :token")
+    @Query("delete from Token t where t.accessToken = :token or t.refreshToken = :token")
     int deleteAllTokenByAccessToken(String token);
 
     Optional<Token> findByAccessToken(String accessToken);
