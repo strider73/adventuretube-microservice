@@ -1,7 +1,7 @@
 package com.adventuretube.auth.controller;
 
 
-import com.adventuretube.common.error.RestAPIErrorResponse;
+import com.adventuretube.common.error.RestAPIResponse;
 import com.adventuretube.auth.model.MemberRegisterRequest;
 import com.adventuretube.auth.model.MemberRegisterResponse;
 import com.adventuretube.auth.service.AuthService;
@@ -35,9 +35,9 @@ public class AuthController {
     @Operation(summary = "Signup user")
     @ApiResponse(responseCode = "201")//created
     //@ApiResponse(responseCode = "404", content = @Content(schema = @Schema(implementation = CommonErrorResponse.class)))
-    @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = RestAPIErrorResponse.class)))//unauthorized  error
-    @ApiResponse(responseCode = "409", content = @Content(schema = @Schema(implementation = RestAPIErrorResponse.class)))//conflict error
-    @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = RestAPIErrorResponse.class)))//internal server error
+    @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = RestAPIResponse.class)))//unauthorized  error
+    @ApiResponse(responseCode = "409", content = @Content(schema = @Schema(implementation = RestAPIResponse.class)))//conflict error
+    @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = RestAPIResponse.class)))//internal server error
     // This logic will be used when user login first time from the ios application
     @PostMapping(value = "/register")
     public ResponseEntity<MemberRegisterResponse> register(@Valid @RequestBody MemberRegisterRequest request) {
@@ -52,9 +52,9 @@ public class AuthController {
     //  2. when iOS was reactive
     @Operation(summary = "SignIn user")
     @ApiResponse(responseCode = "200")//success
-    @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = RestAPIErrorResponse.class)))//unauthorized  error
-    @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(implementation = RestAPIErrorResponse.class)))//not found error
-    @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = RestAPIErrorResponse.class)))//internal server error
+    @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = RestAPIResponse.class)))//unauthorized  error
+    @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(implementation = RestAPIResponse.class)))//not found error
+    @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = RestAPIResponse.class)))//internal server error
     @PostMapping(value = "/login")
     public ResponseEntity<?> login(@Valid @RequestBody MemberRegisterRequest request) {
 
@@ -71,9 +71,9 @@ public class AuthController {
 
     @Operation(summary = "Refresh Token")
     @ApiResponse(responseCode = "201")//created
-    @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = RestAPIErrorResponse.class)))//unauthorized  error
-    @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(implementation = RestAPIErrorResponse.class)))//not found error
-    @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = RestAPIErrorResponse.class)))//internal server error
+    @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = RestAPIResponse.class)))//unauthorized  error
+    @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(implementation = RestAPIResponse.class)))//not found error
+    @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = RestAPIResponse.class)))//internal server error
     @PostMapping(value = "/refreshToken")
     public ResponseEntity<?> refreshToken(HttpServletRequest request) {
 

@@ -1,7 +1,7 @@
 package com.adventuretube.geospatial.exceptions;
 
 
-import com.adventuretube.common.error.RestAPIErrorResponse;
+import com.adventuretube.common.error.RestAPIResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -16,8 +16,8 @@ public class GlobalExceptionHandler {
 
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<RestAPIErrorResponse> handleUnknownException(Exception ex) {
-        RestAPIErrorResponse restAPIErrorResponse = new RestAPIErrorResponse(
+    public ResponseEntity<RestAPIResponse> handleUnknownException(Exception ex) {
+        RestAPIResponse restAPIErrorResponse = new RestAPIResponse(
                 ex.getMessage(),
                 "Internal Server Error",
                 INTERNAL_SERVER_ERROR.value(),
@@ -27,8 +27,8 @@ public class GlobalExceptionHandler {
             return new ResponseEntity<>(restAPIErrorResponse, INTERNAL_SERVER_ERROR);
     }
     @ExceptionHandler(UsernameNotFoundException.class)
-    public ResponseEntity<RestAPIErrorResponse> handleUsernameNotFoundException(UsernameNotFoundException ex) {
-        RestAPIErrorResponse restAPIErrorResponse = new RestAPIErrorResponse(
+    public ResponseEntity<RestAPIResponse> handleUsernameNotFoundException(UsernameNotFoundException ex) {
+        RestAPIResponse restAPIErrorResponse = new RestAPIResponse(
                 ex.getMessage(),
                 "User does mot exist",
                 HttpStatus.NOT_FOUND.value(),

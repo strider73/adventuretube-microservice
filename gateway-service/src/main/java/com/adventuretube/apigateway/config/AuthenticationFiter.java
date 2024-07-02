@@ -2,10 +2,7 @@ package com.adventuretube.apigateway.config;
 
 import com.adventuretube.apigateway.exception.JwtTokenNotExistException;
 import com.adventuretube.apigateway.service.JwtUtil;
-import com.adventuretube.common.error.RestAPIErrorResponse;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.UnsupportedJwtException;
+import com.adventuretube.common.error.RestAPIResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -15,14 +12,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
-import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
-
-import java.security.SignatureException;
 
 @RefreshScope
 @AllArgsConstructor
@@ -34,8 +27,8 @@ public class AuthenticationFiter implements GatewayFilter {
 
     @Operation(summary = "Authenticate user")
     @ApiResponse(responseCode = "200", description = "Authentication successful")
-    @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = RestAPIErrorResponse.class)))
-    @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content(schema = @Schema(implementation = RestAPIErrorResponse.class)))
+    @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = RestAPIResponse.class)))
+    @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content(schema = @Schema(implementation = RestAPIResponse.class)))
     @Override
     public Mono<Void> filter(ServerWebExchange exchange,
                              GatewayFilterChain chain) {

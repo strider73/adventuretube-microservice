@@ -5,7 +5,7 @@ import com.adventuretube.common.domain.dto.member.MemberDTO;
 import com.adventuretube.common.domain.dto.token.Token;
 import com.adventuretube.member.mapper.MemberMapper;
 import com.adventuretube.common.domain.dto.token.TokenDTO;
-import com.adventuretube.common.error.RestAPIErrorResponse;
+import com.adventuretube.common.error.RestAPIResponse;
 import com.adventuretube.member.service.MemberService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -51,7 +51,7 @@ public class MemberController {
             return ResponseEntity.ok(memberDTO);
         } catch (Exception e) {
             log.error("Error occurred while registering member", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(RestAPIErrorResponse.builder()
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(RestAPIResponse.builder()
                     .message("Error occurred while registering member")
                     .details(e.toString())
                     .statusCode(500)

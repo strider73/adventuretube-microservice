@@ -3,7 +3,7 @@ package com.adventuretube.auth.service;
 import com.adventuretube.auth.mapper.MemberMapper;
 import com.adventuretube.common.domain.dto.member.MemberDTO;
 import com.adventuretube.common.domain.dto.token.TokenDTO;
-import com.adventuretube.common.error.RestAPIErrorResponse;
+import com.adventuretube.common.error.RestAPIResponse;
 import com.adventuretube.auth.exceptions.DuplicateException;
 import com.adventuretube.auth.exceptions.GoogleIdTokenInvalidException;
 import com.adventuretube.auth.model.MemberRegisterRequest;
@@ -145,7 +145,7 @@ public class AuthService {
         } catch (HttpClientErrorException | HttpServerErrorException ex) {
             // Parse error response body
             try {
-                RestAPIErrorResponse errorResponse = new ObjectMapper().readValue(ex.getResponseBodyAsString(), RestAPIErrorResponse.class);
+                RestAPIResponse errorResponse = new ObjectMapper().readValue(ex.getResponseBodyAsString(), RestAPIResponse.class);
                 logger.error("Member service error: {} - {}", errorResponse.getStatusCode(), errorResponse.getMessage());
                 throw new RuntimeException(errorResponse.getMessage());
             } catch (Exception e) {
@@ -195,14 +195,14 @@ public class AuthService {
 
 
 
-    public Object logout(HttpServletRequest httpServletRequest) {
+    public ResponseEntity<?> logout(HttpServletRequest httpServletRequest) {
         String token = httpServletRequest.getHeader("Authorization"); // Assuming the token is passed in the Authorization header
         String urlForDeleteToken ="http://MEMBER-SERVICE/member/deleteAllToken";
         Boolean isLoggedOut  =  restTemplate.postForObject(urlForDeleteToken,token, Boolean.class);
         if(!isLoggedOut){
             throw new RuntimeException("token store error !!!");
         }else{
-            return new String("logout hsa been successes ");
+            return ResponseEntity.ok("Logout has been successful");
         }
 
     }

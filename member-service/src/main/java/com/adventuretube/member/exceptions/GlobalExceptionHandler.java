@@ -1,7 +1,7 @@
 package com.adventuretube.member.exceptions;
 
 
-import com.adventuretube.common.error.RestAPIErrorResponse;
+import com.adventuretube.common.error.RestAPIResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -13,8 +13,8 @@ import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(DuplicateException.class)
-    public ResponseEntity<RestAPIErrorResponse> handleDuplicationException(DuplicateException ex) {
-        RestAPIErrorResponse restAPIErrorResponse = new RestAPIErrorResponse(
+    public ResponseEntity<RestAPIResponse> handleDuplicationException(DuplicateException ex) {
+        RestAPIResponse restAPIErrorResponse = new RestAPIResponse(
                 ex.getMessage(),
                 "User already exists with the provided email",
                 HttpStatus.CONFLICT.value(),
@@ -25,8 +25,8 @@ public class GlobalExceptionHandler {
 
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<RestAPIErrorResponse> handleUnknownException(Exception ex) {
-        RestAPIErrorResponse restAPIErrorResponse = new RestAPIErrorResponse(
+    public ResponseEntity<RestAPIResponse> handleUnknownException(Exception ex) {
+        RestAPIResponse restAPIErrorResponse = new RestAPIResponse(
                 ex.getMessage(),
                 "Internal Server Error",
                 INTERNAL_SERVER_ERROR.value(),
