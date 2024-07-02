@@ -21,4 +21,13 @@ public class KafkaDataController {
         return ResponseEntity.ok("message :"+message+" has been sent successfully to kafka");
     }
 
+
+    @PostMapping(value = "/publish/repeat")
+    public ResponseEntity<String> sendMessageToKafkaTopicRepeatedly(@RequestParam("message") String message, @RequestParam("count") int count) {
+        for (int i = 0; i < count; i++) {
+            this.producer.sendMessage(message);
+        }
+        return ResponseEntity.ok("Message: " + message + " has been sent " + count + " times successfully to Kafka");
+    }
+
 }
