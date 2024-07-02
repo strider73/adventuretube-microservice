@@ -195,14 +195,19 @@ public class AuthService {
 
 
 
-    public ResponseEntity<?> logout(HttpServletRequest httpServletRequest) {
+    public RestAPIResponse logout(HttpServletRequest httpServletRequest) {
         String token = httpServletRequest.getHeader("Authorization"); // Assuming the token is passed in the Authorization header
         String urlForDeleteToken ="http://MEMBER-SERVICE/member/deleteAllToken";
         Boolean isLoggedOut  =  restTemplate.postForObject(urlForDeleteToken,token, Boolean.class);
         if(!isLoggedOut){
             throw new RuntimeException("token store error !!!");
         }else{
-            return ResponseEntity.ok("Logout has been successful");
+            return  RestAPIResponse.builder()
+                    .message("Logout has been successful")
+                    .details("User has been logged out successfully")
+                    .statusCode(HttpStatus.OK.value())
+                    .timestamp(System.currentTimeMillis())
+                    .build();
         }
 
     }
