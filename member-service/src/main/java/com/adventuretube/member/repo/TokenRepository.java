@@ -2,6 +2,7 @@ package com.adventuretube.member.repo;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import com.adventuretube.common.domain.dto.token.Token;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 public interface TokenRepository extends JpaRepository<Token, Integer> {
 
     @Query("select t from Token t inner join Member m on t.member.id = m.id where m.id = :id and (t.expired = false or t.revoked = false)")
-    List<Token> findAllValidTokenByMember(Long id);
+    List<Token> findAllValidTokenByMember(UUID id);
 
 
 

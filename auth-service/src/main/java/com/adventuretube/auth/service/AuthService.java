@@ -135,7 +135,7 @@ public class AuthService {
                          throw new RuntimeException("token store error !!!");
                      }
 
-                    return new MemberRegisterResponse(memberDTO, accessToken, refreshToken);
+                    return new MemberRegisterResponse(registeredUser, accessToken, refreshToken);
             } else {
                 // Handle non-200 responses
                 String errorBody = response.hasBody() ? response.getBody().toString() : "No response body";

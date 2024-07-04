@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.GenericGenerator;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,6 +15,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.UUID;
 
 @Data
 @Builder
@@ -22,16 +24,13 @@ import java.util.Collection;
 @Entity
 public class Member implements UserDetails {
     @Id
-    @SequenceGenerator(
-            name = "member_sequence",
-            sequenceName = "member_sequence",
-            allocationSize = 1
+    @GeneratedValue(generator = "UUIO")
+    @GenericGenerator(
+            name = "UUID" ,
+            strategy = "org.hibernate.id.UUIDGenerator"
     )
-    @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "member_sequence"
-    )
-    private Long id;
+    @Column(updatable = false , nullable = false)
+    private UUID id;
 
     @Column(length = 2000)
     private String googleIdToken;
