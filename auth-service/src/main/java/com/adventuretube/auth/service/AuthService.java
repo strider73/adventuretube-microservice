@@ -52,7 +52,7 @@ public class AuthService {
     @Transactional
      public MemberRegisterResponse register(MemberRegisterRequest request) {
 
-         // Validate Google ID token
+         // Validate Google ID token  https://developers.google.com/identity/sign-in/ios/backend-auth
          GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(),GsonFactory.getDefaultInstance())
                  .setAudience(Collections.singletonList("657433323337-t5e70nbjmink2ldmt3e34pci55v3sv6k.apps.googleusercontent.com"))
                          .build();
