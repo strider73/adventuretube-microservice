@@ -8,6 +8,7 @@ import com.adventuretube.member.mapper.TokenMapper;
 import com.adventuretube.member.repo.MemberRepository;
 import com.adventuretube.member.repo.TokenRepository;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,6 +17,7 @@ import java.util.Optional;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class MemberService {
     private final MemberRepository memberRepository;
     private final TokenRepository tokenRepository;
@@ -70,6 +72,7 @@ public class MemberService {
     public Boolean deleteAllToken(String token) {
        int deleteCount =  tokenRepository.deleteAllTokenByAccessToken(token);
        if(deleteCount > 0) {
+           log.debug("token delete successfully");
            return true;
        }else{
            return false;
