@@ -24,6 +24,7 @@ eureka:
        defaultZone: http://localhost:8761/eureka
        #defaultZone: https://eureka.adventuretube.net/eureka
        #defaultZone: http://192.168.1.129:8761/eureka
+       #defaultZone: http://192.168.1.106:8761/eureka
     fetch-registry: true
     register-with-eureka: true
 
