@@ -50,7 +50,7 @@ public class AuthController {
     //most time when user was logged out because of
     //  1. token expired
     //  2. when iOS was reactive
-    @Operation(summary = "SignIn user")
+    @Operation(summary = "login user")
     @ApiResponse(responseCode = "200")//success
     @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = RestAPIResponse.class)))//unauthorized  error
     @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(implementation = RestAPIResponse.class)))//not found error
