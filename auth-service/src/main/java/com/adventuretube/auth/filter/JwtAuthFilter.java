@@ -1,6 +1,16 @@
+/*
+The JWT filter is responsible for extracting JWT token(token from adventuretube backend) from the request
+,validating it, and setting the authentication in the security context if token is valid
+
+by the time  the request reaches the 'UsernamePasswordAuthenticationFilter' the JWT filter has already
+authenticated the user based on token.
+
+
+
+
+ */
+
 package com.adventuretube.auth.filter;
-
-
 import com.adventuretube.auth.service.CustomUserDetailService;
 import com.adventuretube.auth.service.JwtUtil;
 import jakarta.servlet.FilterChain;
@@ -17,7 +27,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-
 
 @Slf4j
 @Component
@@ -43,7 +52,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             }
 
             //This logic is about
-            //
             String username = jwtUtil.extractUsername(token);
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 log.info("user name is :" + username + "  hasn't been authenticate yet");

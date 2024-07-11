@@ -32,14 +32,25 @@ public class AuthServiceConfig {
     public SecurityFilterChain apiFilterChain(HttpSecurity httpSecurity) throws  Exception{
     httpSecurity
             .csrf(AbstractHttpConfigurer::disable)
-            .securityMatcher("/auth/**")
+            .securityMatcher("/auth/**")// Applies this security configuration to /auth/** endpoints
             .authorizeHttpRequests(authorize -> authorize
                     .requestMatchers("/auth/register","/auth/login","/auth/refreshToken","/auth/logout").permitAll()
                     .anyRequest().hasRole("ADMIN")
             )
             //.authenticationProvider()
+            /*
+              'JwtAuthFilter' processes the request as first in the auth-service  since it configured with
+              'run  before UsernamePasswordAuthenticationFilter'
+
+              The filter extracts the JWT from the request, validate it and sets the authentication in the
+              'SecurityContextHolder'
+
+
+              and that user info out of authentication will be used for the roll that has been described
+               in upper part
+             */
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-            .httpBasic(withDefaults());
+            .httpBasic(withDefaults());// Use HTTP Basic authentication
 
      return httpSecurity.build();
 
