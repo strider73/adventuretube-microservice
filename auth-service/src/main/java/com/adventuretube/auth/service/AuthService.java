@@ -53,15 +53,8 @@ public class AuthService {
     public MemberRegisterResponse register(MemberRegisterRequest request) {
 
         // MARK: STEP1  Validate Google ID token  https://developers.google.com/identity/sign-in/ios/backend-auth
+        GoogleIdToken idToken = verifyGoogleIdToken(request.getGoogleIdToken());
 
-        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), GsonFactory.getDefaultInstance()).setAudience(Collections.singletonList("657433323337-t5e70nbjmink2ldmt3e34pci55v3sv6k.apps.googleusercontent.com")).build();
-        GoogleIdToken idToken = null;
-        try {
-            idToken = verifier.verify(request.getGoogleIdToken());
-        } catch (GeneralSecurityException | IOException ex) {
-            log.error("Google idToken verify has been failed : " + ex.getMessage());
-            throw new RuntimeException(ex);
-        }
         if (idToken == null) {
             log.error("Google idToken is null");
             throw new GoogleIdTokenInvalidException("Invalid Google ID token.");
@@ -69,27 +62,7 @@ public class AuthService {
 
         // MARK: STEP2 prepare check user email duplication
         GoogleIdToken.Payload payload = idToken.getPayload();
-        String email = payload.getEmail();
-        boolean emailVerified = Boolean.TRUE.equals(payload.getEmailVerified());
-
-        // MARK: STEP3 Generate a placeholder password using a hash of the Google ID token's subject
-        String googleId = payload.getSubject();
-        String placeholderPassword = null;
-        try {
-            placeholderPassword = passwordEncoder.encode(googleId);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
-        request.setPassword(placeholderPassword);
-
-        // MARK: STEP4  Set User Data Transfer Object
-        MemberDTO memberDTO = MemberMapper.INSTANCE.memberRegisterRequestToMemberDTO(request);
-        memberDTO.setGoogleIdTokenExp(payload.getExpirationTimeSeconds());
-        memberDTO.setGoogleIdTokenIat(payload.getIssuedAtTimeSeconds());
-        memberDTO.setGoogleIdTokenSub(payload.getSubject());
-        memberDTO.setGoogleProfilePicture(payload.get("picture").toString());
-
+        MemberDTO memberDTO = buildMemberDTO(payload);
 
         String urlForEmailCheck = "http://MEMBER-SERVICE/member/emailDuplicationCheck";
         Boolean isUserAlreadyExist = restTemplate.postForObject(urlForEmailCheck, memberDTO.getEmail(), Boolean.class);
@@ -125,7 +98,8 @@ public class AuthService {
                     throw new RuntimeException("token store error !!!");
                 }
                 // MARK: STEP9 return result
-                return new MemberRegisterResponse(registeredUser, accessToken, refreshToken);
+
+                return new MemberRegisterResponse(registeredUser.getId(), accessToken, refreshToken);
             } else {
                 // Handle non-200 responses
                 String errorBody = response.hasBody() ? response.getBody().toString() : "No response body";
@@ -152,11 +126,23 @@ public class AuthService {
 
     public MemberRegisterResponse loginWithIdAndPassword(MemberRegisterRequest request) {
 
+        //MARK: STEP1 validate google IdToken
+        GoogleIdToken idToken = verifyGoogleIdToken(request.getGoogleIdToken());
+        if (idToken == null) {
+            log.error("Google idToken is null");
+            throw new GoogleIdTokenInvalidException("Invalid Google ID token.");
+        }
+
+        // MARK: STEP2 prepare check user email duplication
+        GoogleIdToken.Payload payload = idToken.getPayload();
+        String email = payload.getEmail();
+        String googleId = payload.getSubject();
+
         //Authenticate the user
         //Since this request haven't any token to carry
         //it will go through authentication process and issue the tokens
 
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
+        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, googleId));
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String accessToken = jwtUtil.generate(userDetails.getUsername(), userDetails.getAuthorities().toString(), "ACCESS");
         String refreshToken = jwtUtil.generate(userDetails.getUsername(), userDetails.getAuthorities().toString(), "REFRESH");
@@ -171,10 +157,9 @@ public class AuthService {
         if (!istokenStored) {
             throw new RuntimeException("token store error !!!");
         }
-        MemberDTO memberDTO = MemberMapper.INSTANCE.userDetailToMemberDTO(userDetails);
 
 
-        return new MemberRegisterResponse(memberDTO, accessToken, refreshToken);
+        return new MemberRegisterResponse(null, accessToken, refreshToken);
     }
 
 
@@ -229,8 +214,46 @@ public class AuthService {
             throw new RuntimeException("token store error !!!");
         }
 
-        return new MemberRegisterResponse(memberDTO, accessToken, refreshToken);
+        return new MemberRegisterResponse(null, accessToken, refreshToken);
     }
 
+
+
+    private GoogleIdToken verifyGoogleIdToken(String googleIdToken) {
+        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), GsonFactory.getDefaultInstance())
+                .setAudience(Collections.singletonList("657433323337-t5e70nbjmink2ldmt3e34pci55v3sv6k.apps.googleusercontent.com"))
+                .build();
+
+        try {
+            return verifier.verify(googleIdToken);
+        } catch (GeneralSecurityException | IOException ex) {
+            log.error("Google ID token verification failed: {}", ex.getMessage());
+            throw new RuntimeException(ex);
+        }
+    }
+
+    private MemberDTO buildMemberDTO(GoogleIdToken.Payload payload) {
+        String email = payload.getEmail();
+        String googleId = payload.getSubject();
+        String username = (String) payload.get("name");
+
+        if (username == null || username.isEmpty()) {
+            String givenName = (String) payload.get("given_name");
+            String familyName = (String) payload.get("family_name");
+            username = givenName + " " + familyName;
+        }
+
+        return MemberDTO.builder()
+                .email(email)
+                .googleIdToken(payload.toString())
+                .username(username)
+                .password(passwordEncoder.encode(googleId))
+                .googleIdTokenExp(payload.getExpirationTimeSeconds())
+                .googleIdTokenIat(payload.getIssuedAtTimeSeconds())
+                .googleIdTokenSub(googleId)
+                .googleProfilePicture((String) payload.get("picture"))
+                .role("USER")
+                .build();
+    }
 
 }
