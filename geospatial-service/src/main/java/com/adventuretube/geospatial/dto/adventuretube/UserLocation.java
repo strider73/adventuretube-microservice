@@ -1,4 +1,4 @@
-package com.adventuretube.common.domain.dto.adventuretube;
+package com.adventuretube.geospatial.dto.adventuretube;
 
 import lombok.Getter;
 import lombok.Setter;

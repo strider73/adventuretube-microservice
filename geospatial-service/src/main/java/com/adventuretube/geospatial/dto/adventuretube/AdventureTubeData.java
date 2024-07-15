@@ -1,9 +1,8 @@
-package com.adventuretube.common.domain.dto.adventuretube;
+package com.adventuretube.geospatial.dto.adventuretube;
 
 
 import com.fasterxml.jackson.annotation.*;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
