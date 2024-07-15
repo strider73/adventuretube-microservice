@@ -72,10 +72,6 @@ public class AuthService {
         String email = payload.getEmail();
         boolean emailVerified = Boolean.TRUE.equals(payload.getEmailVerified());
 
-        if (!emailVerified || !email.equals(request.getEmail())) {
-            throw new GoogleIdTokenInvalidException("Email in Google ID token does not match the provided email or is not verified.");
-        }
-
         // MARK: STEP3 Generate a placeholder password using a hash of the Google ID token's subject
         String googleId = payload.getSubject();
         String placeholderPassword = null;
