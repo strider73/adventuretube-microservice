@@ -19,7 +19,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<RestAPIResponse> handleUnknownException(Exception ex) {
         RestAPIResponse restAPIErrorResponse = new RestAPIResponse(
                 ex.getMessage(),
-                "Internal Server Error",
+                "Internal Server Error : geospatial-service",
                 INTERNAL_SERVER_ERROR.value(),
                 System.currentTimeMillis()
            );
@@ -30,7 +30,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<RestAPIResponse> handleUsernameNotFoundException(UsernameNotFoundException ex) {
         RestAPIResponse restAPIErrorResponse = new RestAPIResponse(
                 ex.getMessage(),
-                "User does mot exist",
+                "User does mot exist: geospatial-service",
                 HttpStatus.NOT_FOUND.value(),
                 System.currentTimeMillis()
         );

@@ -20,7 +20,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<RestAPIResponse> handleJwtTokenNotExistexception(JwtTokenNotExistException ex) {
         RestAPIResponse restAPIErrorResponse = new RestAPIResponse(
                 ex.getMessage(),
-                "JWT token not exist",
+                "JWT token not exist : gateway -service ",
                 HttpStatus.UNAUTHORIZED.value(),
                 System.currentTimeMillis()
         );
@@ -31,7 +31,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<RestAPIResponse> handleSigniturexception(SignatureException ex) {
         RestAPIResponse restAPIErrorResponse = new RestAPIResponse(
                 ex.getMessage(),
-                "Invalid JWT signature",
+                "Invalid JWT signature: gateway -service",
                 HttpStatus.UNAUTHORIZED.value(),
                 System.currentTimeMillis()
         );
@@ -42,7 +42,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<RestAPIResponse> handleMalformedJwtxception(MalformedJwtException ex) {
         RestAPIResponse restAPIErrorResponse = new RestAPIResponse(
                 ex.getMessage(),
-                "MalformedJwt JWT token",
+                "MalformedJwt JWT token: gateway -service",
                 HttpStatus.UNAUTHORIZED.value(),
                 System.currentTimeMillis()
         );
@@ -54,7 +54,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<RestAPIResponse> handleExpiredJwtException(ExpiredJwtException ex) {
         RestAPIResponse restAPIErrorResponse = new RestAPIResponse(
                 ex.getMessage(),
-                "Expired JWT token",
+                "Expired JWT token: gateway -service",
                 HttpStatus.UNAUTHORIZED.value(),
                 System.currentTimeMillis()
         );
@@ -66,7 +66,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<RestAPIResponse> handleUnknownException(Exception ex) {
         RestAPIResponse restAPIErrorResponse = new RestAPIResponse(
                 ex.getMessage(),
-                "Internal Server Error",
+                "Internal Server Error: gateway -service",
                 INTERNAL_SERVER_ERROR.value(),
                 System.currentTimeMillis()
         );

@@ -16,7 +16,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<RestAPIResponse> handleDuplicationException(DuplicateException ex) {
         RestAPIResponse restAPIErrorResponse = new RestAPIResponse(
                 ex.getMessage(),
-                "User already exists with the provided email",
+                "User already exists with the provided email : member-service",
                 HttpStatus.CONFLICT.value(),
                 System.currentTimeMillis()
         );
@@ -28,7 +28,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<RestAPIResponse> handleUnknownException(Exception ex) {
         RestAPIResponse restAPIErrorResponse = new RestAPIResponse(
                 ex.getMessage(),
-                "Internal Server Error",
+                "Internal Server Error : member-service",
                 INTERNAL_SERVER_ERROR.value(),
                 System.currentTimeMillis()
            );
