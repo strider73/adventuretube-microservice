@@ -6,8 +6,23 @@ eureka:
     registerWithEureka: false
     fetchRegistry: false
     serviceUrl:
-      defaultZone: http://localhost:8761/eureka
+      # for docker-compose
+      defaultZone: http://eureka-server:8761/eureka
 
 spring:
   application:
     name: eureka-server
+# Spring Actuator endpoint for health check
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,refresh
+  health:
+    readiness-state:
+      enabled: true
+    liveness-state:
+      enabled: true
+  endpoint:
+    health:
+      show-details: always

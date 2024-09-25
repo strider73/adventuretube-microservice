@@ -1,0 +1,142 @@
+version: '3.9'
+services:
+  eureka-server:
+    image: eureka-server:latest
+    build:
+      context: ./eureka-server
+      dockerfile: Dockerfile
+    ports:
+      - "8761:8761"
+    environment:
+      - EUREKA_CLIENT_REGISTER_WITH_EUREKA=false
+      - EUREKA_CLIENT_FETCH_REGISTRY=false
+    networks:
+      - adventuretube-net
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://eureka-server:8761/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+
+  config-service:
+    image: config-service:latest
+    build:
+      context: ./config-service
+      dockerfile: Dockerfile
+    ports:
+      - "9297:9297"
+    #environment:
+      #- SPRING_PROFILES_ACTIVE=native
+      # Specify the file system location for config files
+      #- SPRING_CLOUD_CONFIG_SERVER_NATIVE_SEARCH_LOCATIONS=file:/config
+    volumes:
+      # Mount the directory where your config files (e.g., auth-service.yml) are located
+      - ./config-repo:/config
+    networks:
+      - adventuretube-net
+    depends_on:
+#      - eureka-server
+       eureka-server :
+         condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://config-service:9297/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+
+  gateway-service:
+    image: gateway-service:latest
+    build:
+      context: ./gateway-service
+      dockerfile: Dockerfile
+    ports:
+      - "8030:8030"
+    #environment:
+     # - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    networks:
+      - adventuretube-net
+    healthcheck:
+        test: [ "CMD", "curl", "-f", "http://gateway-service:8030/actuator/health" ]
+        interval: 60s   # Interval between health checks
+        timeout: 10s
+        retries: 5      # Maximum retries
+    restart: on-failure
+#    depends_on:
+#      - config-service
+#      - eureka-server
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      config-service:
+        condition: service_healthy
+
+  auth-service:
+    image: auth-service:latest
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
+    ports:
+      - "8010:8010"
+#    environment:
+#      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+#      #- SPRING_PROFILES_ACTIVE=prod
+    networks:
+      - adventuretube-net
+    restart: on-failure
+    depends_on:
+       config-service:
+         condition: service_healthy
+       eureka-server:
+          condition: service_healthy
+       gateway-service:
+         condition: service_healthy
+
+
+  member-service:
+    image: member-service:latest
+    build:
+      context: ./member-service
+      dockerfile: Dockerfile
+    ports:
+      - "8070:8070"
+    #    environment:
+    #      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    #      #- SPRING_PROFILES_ACTIVE=prod
+    networks:
+      - adventuretube-net
+    restart: on-failure
+    depends_on:
+      config-service:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      gateway-service:
+        condition: service_healthy
+
+  geospatial-service:
+    image: geospatial-service:latest
+    build:
+      context: ./geospatial-service
+      dockerfile: Dockerfile
+    ports:
+      - "8060:8060"
+    #    environment:
+    #      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    #      #- SPRING_PROFILES_ACTIVE=prod
+    networks:
+      - adventuretube-net
+    restart: on-failure
+    depends_on:
+      config-service:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      gateway-service:
+        condition: service_healthy
+
+
+networks:
+  adventuretube-net:
+    driver: bridge

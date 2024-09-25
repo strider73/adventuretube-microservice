@@ -1,4 +1,4 @@
-package com.adventuretube.auth.service;
+package com.adventuretube.auth.exceptions;
 
 public class AccessDeniedException extends RuntimeException {
 

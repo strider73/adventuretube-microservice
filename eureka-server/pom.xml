@@ -6,6 +6,7 @@
     <parent>
         <groupId>com.adventuretube</groupId>
         <artifactId>adventuretube-microservice</artifactId>
+        <relativePath>../pom.xml</relativePath>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 

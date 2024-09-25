@@ -1,6 +1,7 @@
 package com.adventuretube.auth.service;
 
 
+import com.adventuretube.auth.exceptions.AccessDeniedException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;

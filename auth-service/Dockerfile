@@ -6,7 +6,7 @@ RUN java -Djarmode=layertools -jar application.jar extract
 FROM openjdk:17-jdk-alpine
 #its essential for helthy check
 RUN apk --no-cache add curl
-EXPOSE 8761
+EXPOSE 8010
 COPY --from=builder dependencies/ ./
 COPY --from=builder snapshot-dependencies/ ./
 COPY --from=builder spring-boot-loader/ ./

@@ -1,39 +1,47 @@
 server:
   port: 9297
-
+  tomcat:
+      apr:
+        enabled:false
 spring:
   application:
     name: config-service
   profiles:
     active: native
-    cloud:
-      config:
-        server:
-          native:
-            search-locations: classpath:/config
-#        git:
-#          uri: https://github.com/strider73/adventuretube-config-server.git
-#          clone-on-start: true
-#          search-paths: application
-#
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/strider73/adventuretube-config-server.git
+          clone-on-start: true
+          search-paths: application
+
+
 
 eureka:
   instance:
     prefer-ip-address: true
   client:
     service-url:
-      #defaultZone: http://strider-pi.local:8761/eureka
-      defaultZone: http://localhost:8761/eureka
-      #defaultZone: http://192.168.1.106:8761/eureka
+      defaultZone: http://eureka-server:8761/eureka
     fetch-registry: true
     register-with-eureka: true
 
-logging:
-  level:
-    root: DEBUG
+#logging:
+#  level:
+#    root: DEBUG
 
 management:
   endpoints:
     web:
       exposure:
-        include: refresh
+        include: health,refresh
+  health:
+    readiness-state:
+      enabled: true
+    liveness-state:
+      enabled: true
+  endpoint:
+    health:
+      show-details: always
+
