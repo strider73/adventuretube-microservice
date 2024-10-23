@@ -1,42 +1,50 @@
 pipeline {
     agent any
-
     stages {
-        stage('Verify tooling') {
+        stage('Clone Repository') {
             steps {
-                sh '''
-                docker version
-                docker info
-                docker compose version
-                curl --version
-                jq --version
-                '''
+                // Pull the latest code from GitHub
+                git 'https://github.com/your-repo/adventuretube-microservice.git'
             }
         }
-
-//         stage('Prune Docker Data') {
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    // Build a new Docker image with the latest code
+                    sh 'docker build -t adventuretube:latest .'
+                }
+            }
+        }
+//         stage('Push Docker Image') {
 //             steps {
-//                 sh 'docker system prune -a --volumes -f'
+//                 script {
+//                     // Optionally push the new Docker image to a Docker registry
+//                     // Add an explicit closure here
+//                     sh {
+//                         '''
+//                         docker tag adventuretube:latest your-docker-repo/adventuretube:latest
+//                         docker push your-docker-repo/adventuretube:latest
+//                         '''
+//                     }
+//                 }
 //             }
 //         }
-//
-//         stage('Start container') {
-//             steps {
-//                 sh 'docker compose build'
-//             }
-//         }
-
-//         stage('Run test against the container') {
-//             steps {
-//                 sh 'curl http://localhost:3000/param?query=demo | jq'
-//             }
-//         }
+        stage('Deploy New Image') {
+            steps {
+                script {
+                    // Deploy the new Docker image on Raspberry Pi
+                    sshagent(['strider_jenkins_key']) {
+                        // SSH into the Raspberry Pi and update the Docker container
+                        sh '''
+                        ssh -o StrictHostKeyChecking=no strider@strider.freeddns.org <<EOF
+                        docker stop adventuretube-microservice
+                        docker rm adventuretube-microservice
+                        docker run -d --name adventuretube-microservice adventuretube:latest
+                        EOF
+                        '''
+                    }
+                }
+            }
+        }
     }
-
-//     post {
-//         always {
-//             sh 'docker compose down --remove-orphans -v'
-//             sh 'docker compose ps'
-//         }
-//     }
 }
