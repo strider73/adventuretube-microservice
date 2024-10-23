@@ -4,7 +4,7 @@ pipeline {
         stage('Clone Repository') {
             steps {
                 // Pull the latest code from GitHub
-                git 'https://github.com/your-repo/adventuretube-microservice.git'
+                git 'git@github.com:strider73/adventuretube-microservice.git'
             }
         }
         stage('Build Docker Image') {
