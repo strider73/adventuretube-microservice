@@ -4,7 +4,7 @@ pipeline {
         stage('Clone Repository') {
             steps {
                 // Pull the latest code from GitHub
-                git 'git@github.com:strider73/adventuretube-microservice.git'
+                git  branch: 'add-kafka', url: 'git@github.com:strider73/adventuretube-microservice.git'
             }
         }
         stage('Build Docker Image') {
