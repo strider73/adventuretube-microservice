@@ -7,6 +7,15 @@ pipeline {
                 git  branch: 'add-kafka', url: 'git@github.com:strider73/adventuretube-microservice.git'
             }
         }
+        stage('Build Package') {
+            steps {
+                script {
+                    // Use Maven wrapper to build the package
+                    sh './mvnw package -DskipTests'
+                }
+            }
+        }
+
         stage('Build Docker Image') {
             steps {
                 script {
