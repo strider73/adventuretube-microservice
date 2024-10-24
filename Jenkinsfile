@@ -38,22 +38,22 @@ pipeline {
 //                 }
 //             }
 //         }
-        stage('Deploy New Image') {
-            steps {
-                script {
-                    // Deploy the new Docker image on Raspberry Pi
-                    sshagent(['strider_jenkins_key']) {
-                        // SSH into the Raspberry Pi and update the Docker container
-                        sh '''
-                        ssh -o StrictHostKeyChecking=no strider@strider.freeddns.org <<EOF
-                        docker stop adventuretube-microservice
-                        docker rm adventuretube-microservice
-                        docker run -d --name adventuretube-microservice adventuretube:latest
-                        EOF
-                        '''
-                    }
-                }
-            }
-        }
+        // stage('Deploy New Image') {
+        //     steps {
+        //         script {
+        //             // Deploy the new Docker image on Raspberry Pi
+        //             sshagent(['strider_jenkins_key']) {
+        //                 // SSH into the Raspberry Pi and update the Docker container
+        //                 sh '''
+        //                 ssh -o StrictHostKeyChecking=no strider@strider.freeddns.org <<EOF
+        //                 docker stop adventuretube-microservice
+        //                 docker rm adventuretube-microservice
+        //                 docker run -d --name adventuretube-microservice adventuretube:latest
+        //                 EOF
+        //                 '''
+        //             }
+        //         }
+        //     }
+        // }
     }
 }
