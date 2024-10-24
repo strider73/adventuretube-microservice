@@ -20,7 +20,7 @@ pipeline {
             steps {
                 script {
                     // Build a new Docker image with the latest code
-                    sh 'docker compose  build '
+                    sh 'docker compose -f docker-compose-pi.yml build '
                 }
             }
         }
