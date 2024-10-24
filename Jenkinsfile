@@ -20,7 +20,7 @@ pipeline {
             steps {
                 script {
                     // Build a new Docker image with the latest code
-                    sh 'docker build -t adventuretube:latest .'
+                    sh 'docker compose  build '
                 }
             }
         }
