@@ -28,7 +28,7 @@ pipeline {
                 script {
                     // List of services to restart after rebuilding
                     def servicesToRestart = [
-                        "adventuretube-microservice-eureka-server-1"
+                        "adventuretube-microservice-eureka-server-1",
                         "adventuretube-microservice-config-service-1",
                         "adventuretube-microservice-gateway-service-1",
                         "adventuretube-microservice-auth-service-1",
