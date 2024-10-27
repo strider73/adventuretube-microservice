@@ -4,17 +4,37 @@ pipeline {
         stage('Clone Repository') {
             steps {
                 // Pull the latest code from GitHub
-                git 'git@github.com:strider73/adventuretube-microservice.git'
+                git  branch: 'add-kafka', url: 'git@github.com:strider73/adventuretube-microservice.git'
             }
+        }
+        stage('Build Package') {
+             steps {
+                  script {
+                       // Use Maven wrapper to build the package
+                        sh './mvnw package -DskipTests'
+                  }
+             }
         }
         stage('Build Docker Image') {
             steps {
                 script {
                     // Build a new Docker image with the latest code
-                    sh 'docker build -t adventuretube:latest .'
+                    sh 'docker compose -f docker-compose-pi.yml build '
                 }
             }
         }
+         stage('Deploy New Image') {
+                    steps {
+                        script {
+                            // Stop and remove any existing container and redeploy the new image
+                            sh '''
+                            docker stop adventuretube-microservice || true
+                            docker rm adventuretube-microservice || true
+                            docker run -d --name adventuretube-microservice adventuretube:latest
+                            '''
+                        }
+                    }
+                }
 //         stage('Push Docker Image') {
 //             steps {
 //                 script {
@@ -29,22 +49,22 @@ pipeline {
 //                 }
 //             }
 //         }
-        stage('Deploy New Image') {
-            steps {
-                script {
-                    // Deploy the new Docker image on Raspberry Pi
-                    sshagent(['strider_jenkins_key']) {
-                        // SSH into the Raspberry Pi and update the Docker container
-                        sh '''
-                        ssh -o StrictHostKeyChecking=no strider@strider.freeddns.org <<EOF
-                        docker stop adventuretube-microservice
-                        docker rm adventuretube-microservice
-                        docker run -d --name adventuretube-microservice adventuretube:latest
-                        EOF
-                        '''
-                    }
-                }
-            }
-        }
+//         stage('Deploy New Image') {
+//             steps {
+//                 script {
+//                     // Deploy the new Docker image on Raspberry Pi
+//                     sshagent(['strider_jenkins_key']) {
+//                         // SSH into the Raspberry Pi and update the Docker container
+//                         sh '''
+//                         ssh -o StrictHostKeyChecking=no strider@strider.freeddns.org <<EOF
+//                         docker stop adventuretube-microservice
+//                         docker rm adventuretube-microservice
+//                         docker run -d --name adventuretube-microservice adventuretube:latest
+//                         EOF
+//                         '''
+//                     }
+//                 }
+//             }
+//         }
     }
 }
