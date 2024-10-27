@@ -24,17 +24,29 @@ pipeline {
             }
         }
          stage('Deploy New Image') {
-                    steps {
-                        script {
-                            // Stop and remove any existing container and redeploy the new image
-                            sh '''
-                            docker stop adventuretube-microservice || true
-                            docker rm adventuretube-microservice || true
-                            docker run -d --name adventuretube-microservice adventuretube:latest
-                            '''
-                        }
-                    }
-                }
+             steps {
+                 script {
+                     // List of services to restart after rebuilding
+                     def servicesToRestart = [
+                         "adventuretube-microservice-geospatial-service-1",
+                         "adventuretube-microservice-member-service-1",
+                         "adventuretube-microservice-auth-service-1",
+                         "adventuretube-microservice-gateway-service-1",
+                         "adventuretube-microservice-config-service-1",
+                         "adventuretube-microservice-eureka-server-1"
+                     ]
+
+                     // Loop through each service and restart it
+                     servicesToRestart.each { serviceName ->
+                         sh """
+                             docker stop ${serviceName} || true
+                             docker rm ${serviceName} || true
+                             docker run -d --name ${serviceName} ${serviceName.split('-')[0]}:latest
+                         """
+                     }
+                 }
+             }
+         }
 //         stage('Push Docker Image') {
 //             steps {
 //                 script {
@@ -66,5 +78,5 @@ pipeline {
 //                 }
 //             }
 //         }
-    }
+
 }
