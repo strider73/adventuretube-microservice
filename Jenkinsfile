@@ -33,7 +33,7 @@ pipeline {
                         "adventuretube-microservice-gateway-service-1",
                         "adventuretube-microservice-auth-service-1",
                         "adventuretube-microservice-member-service-1",
-                        "adventuretube-microservice-geospatial-service-1",
+                        "adventuretube-microservice-geospatial-service-1"
                     ]
 
                     // Loop through each service and restart it
