@@ -15,35 +15,35 @@ pipeline {
                 }
             }
         }
-        stage('Build Docker Image') {
+        stage('Build Docker Images') {
             steps {
                 script {
-                    // Build a new Docker image with the latest code
-                    sh 'docker-compose -f docker-compose-pi.yml build'
+                    // Build new Docker images with the latest code
+                    sh 'docker compose -f docker-compose-pi.yml build'
                 }
             }
         }
         stage('Deploy New Images') {
             steps {
                 script {
-                    // Define the services to restart after rebuilding
+                    // List of services to restart after rebuilding
                     def servicesToRestart = [
-                        "eureka-server",
-                        "config-service",
-                        "gateway-service",
-                        "auth-service",
-                        "member-service",
-                        "geospatial-service"
+                        "adventuretube-microservice-geospatial-service",
+                        "adventuretube-microservice-member-service",
+                        "adventuretube-microservice-auth-service",
+                        "adventuretube-microservice-gateway-service",
+                        "adventuretube-microservice-config-service",
+                        "adventuretube-microservice-eureka-server"
                     ]
 
-                    // SSH into the Raspberry Pi to stop, remove, and restart services
-                     servicesToRestart.each { serviceName ->
-                            sh """
-                                echo "Updating ${serviceName}..."
-                                docker stop ${serviceName} || true
-                                docker rm ${serviceName} || true
-                                docker run -d --name ${serviceName} ${serviceName}:latest
-                            """
+                    // Loop through each service and restart it
+                    servicesToRestart.each { serviceName ->
+                        sh """
+                            echo "Updating ${serviceName}..."
+                            docker stop ${serviceName} || true
+                            docker rm ${serviceName} || true
+                            docker run -d --name ${serviceName} ${serviceName}:latest
+                        """
                     }
                 }
             }
