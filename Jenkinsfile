@@ -38,11 +38,13 @@ pipeline {
 
                     // Loop through each service and restart it
                     servicesToRestart.each { serviceName ->
+                     // Extract the base service name (e.g., config-service)
+                      def baseServiceName = serviceName.split('-')[1..-2].join('-') // Get the second part to second-to-last part and join them with '-'
                         sh """
                             echo "Updating ${serviceName}..."
                             docker stop ${serviceName} || true
                             docker rm ${serviceName} || true
-                            docker run -d --name ${serviceName} ${serviceName}:latest
+                            docker run -d --name ${serviceName} ${baseServiceName}:latest
                         """
                     }
                 }
