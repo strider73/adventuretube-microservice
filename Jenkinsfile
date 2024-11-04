@@ -69,9 +69,8 @@ pipeline {
                 script {
                     // Stop and remove any existing container with the same name
                     sh '''
-                    docker stop adventuretube-microservice || true
-                    docker rm adventuretube-microservice || true
-                    docker run -d --name adventuretube-microservice adventuretube:latest
+                    docker compose -f docker-compose-pi.yml down || true
+                    docker compose -f docker-compose-pi.yml up
                     '''
                 }
             }
