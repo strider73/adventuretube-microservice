@@ -23,45 +23,89 @@ pipeline {
                 }
             }
         }
-        stage('Deploy New Images') {
+    //    stage('Deploy New Images') {
+    //         steps {
+    //             script {
+    //                 // List of services to restart after rebuilding
+    //                 def serviceImageMap = [
+    //                     "adventuretube-microservice-eureka-server-1": ["eureka-server", "8761"],
+    //                     "adventuretube-microservice-config-service-1": ["config-service", "9297"],
+    //                     "adventuretube-microservice-gateway-service-1": ["gateway-service", "8030"],
+    //                     "adventuretube-microservice-auth-service-1": ["auth-service", "8010"],
+    //                     "adventuretube-microservice-member-service-1": ["member-service", "8070"],
+    //                     "adventuretube-microservice-geospatial-service-1": ["geospatial-service", "8060"]
+    //                 ]
+
+    //                 // Loop through each service and restart it
+    //                 serviceImageMap.each { serviceName, details ->
+    //                     def imageName = details[0]
+    //                     def servicePort = details[1]
+    //                     def healthCheckUrl = "http://${imageName}:${servicePort}/actuator/health" // Construct the health check URL
+
+    //                     // Check if the service is healthy
+    //                     def isHealthy = sh(script: "curl -s -o /dev/null -w '%{http_code}' ${healthCheckUrl}", returnStdout: true).trim() == "200"
+
+    //                     // Extract the base service name (e.g., config-service)
+    //                     def baseServiceName = serviceName.split('-')[1..-2].join('-') // Get the second part to second-to-last part and join them with '-'
+
+    //                     // Deploy the service if it is healthy
+    //                     if (isHealthy) {
+    //                         sh """
+    //                             echo "Updating ${serviceName}..."
+    //                             docker stop ${serviceName} || true
+    //                             docker rm ${serviceName} || true
+    //                             docker run -d --name ${serviceName} ${imageName}:latest
+    //                         """
+    //                      } else {
+    //                         echo "${serviceName} is not healthy. Skipping update."
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
+
+        stage('Run New Docker Image') {
             steps {
                 script {
-                    // List of services to restart after rebuilding
-                    def serviceImageMap = [
-                        "adventuretube-microservice-eureka-server-1": ["eureka-server", "8761"],
-                        "adventuretube-microservice-config-service-1": ["config-service", "9297"],
-                        "adventuretube-microservice-gateway-service-1": ["gateway-service", "8030"],
-                        "adventuretube-microservice-auth-service-1": ["auth-service", "8010"],
-                        "adventuretube-microservice-member-service-1": ["member-service", "8070"],
-                        "adventuretube-microservice-geospatial-service-1": ["geospatial-service", "8060"]
-                    ]
-
-                    // Loop through each service and restart it
-                    serviceImageMap.each { serviceName, details ->
-                        def imageName = details[0]
-                        def servicePort = details[1]
-                        def healthCheckUrl = "http://${imageName}:${servicePort}/actuator/health" // Construct the health check URL
-
-                        // Check if the service is healthy
-                        def isHealthy = sh(script: "curl -s -o /dev/null -w '%{http_code}' ${healthCheckUrl}", returnStdout: true).trim() == "200"
-
-                        // Extract the base service name (e.g., config-service)
-                        def baseServiceName = serviceName.split('-')[1..-2].join('-') // Get the second part to second-to-last part and join them with '-'
-
-                        // Deploy the service if it is healthy
-                        if (isHealthy) {
-                            sh """
-                                echo "Updating ${serviceName}..."
-                                docker stop ${serviceName} || true
-                                docker rm ${serviceName} || true
-                                docker run -d --name ${serviceName} ${imageName}:latest
-                            """
-                        } else {
-                            echo "${serviceName} is not healthy. Skipping update."
-                        }
-                    }
+                    // Stop and remove any existing container with the same name
+                    sh '''
+                    docker stop adventuretube-microservice || true
+                    docker rm adventuretube-microservice || true
+                    docker run -d --name adventuretube-microservice adventuretube:latest
+                    '''
                 }
             }
         }
+//         stage('Push Docker Image') {
+//             steps {
+//                 script {
+//                     // Optionally push the new Docker image to a Docker registry
+//                     // Add an explicit closure here
+//                     sh {
+//                         '''
+//                         docker tag adventuretube:latest your-docker-repo/adventuretube:latest
+//                         docker push your-docker-repo/adventuretube:latest
+//                         '''
+//                     }
+//                 }
+//             }
+//         }
+        // stage('Deploy New Image') {
+        //     steps {
+        //         script {
+        //             // Deploy the new Docker image on Raspberry Pi
+        //             sshagent(['strider_jenkins_key']) {
+        //                 // SSH into the Raspberry Pi and update the Docker container
+        //                 sh '''
+        //                 ssh -o StrictHostKeyChecking=no strider@strider.freeddns.org <<EOF
+        //                 docker stop adventuretube-microservice
+        //                 docker rm adventuretube-microservice
+        //                 docker run -d --name adventuretube-microservice adventuretube:latest
+        //                 EOF
+        //                 '''
+        //             }
+        //         }
+        //     }
+        // }
     }
 }

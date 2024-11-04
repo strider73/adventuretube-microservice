@@ -11,7 +11,7 @@ services:
       - POSTGRES_PASSWORD=mysecretpassword
       - POSTGRES_DB=adventuretube
     networks:
-      - postgres
+      - adventuretube-storage-network
   pgadmin:
     container_name: pgadmin
     image: dpage/pgadmin4
@@ -24,7 +24,7 @@ services:
     ports:
       - "5050:80"
     networks:
-      - postgres
+      - adventuretube-storage-network
     restart: unless-stopped
 
   mongodb:
@@ -37,6 +37,8 @@ services:
     environment:
       - MONGO_INITDB_ROOT_USERNAME=rootuser
       - MONGO_INITDB_ROOT_PASSWORD=rootpass
+    networks:
+      - adventuretube-storage-network
   mongo-express:
     image: mongo-express
     container_name: mongo-express
@@ -49,21 +51,17 @@ services:
       - ME_CONFIG_MONGODB_ADMINUSERNAME=rootuser
       - ME_CONFIG_MONGODB_ADMINPASSWORD=rootpass
       - ME_CONFIG_MONGODB_SERVER=mongodb
-
-#  eureka-server:
-#    build: eureka-server
-#    container_name: eureka-server
-#    ports:
-#      - 8761:8761
-#    depends_on:
-#      - postgres
-#      - mongodb
+    networks:
+      - adventuretube-storage-network
 
 networks:
-  postgres:
+  adventuretube-storage-network:
     driver: bridge
-  spring:
-    driver: bridge
+    name : adventuretube-storage-network
+
+
+
+
 
 volumes:
   postgres:
