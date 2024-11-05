@@ -70,6 +70,7 @@ pipeline {
                     // Stop and remove any existing container with the same name
                     sh '''
                     docker compose -f docker-compose-pi.yml down || true
+                    sleep 10  # Wait for a few seconds to ensure containers are fully stopped
                     docker compose -f docker-compose-pi.yml up
                     '''
                 }
