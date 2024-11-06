@@ -139,5 +139,5 @@ services:
 networks:
   adventuretube-jenkins-network:
    driver: bridge
-   name : adventure-jenkins-network
+   name : adventuretube-jenkins-network
 
