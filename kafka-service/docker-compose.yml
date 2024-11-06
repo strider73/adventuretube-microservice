@@ -1,20 +1,32 @@
-version: '3.8'
+
 services:
   zookeeper:
-    image: bitnami/zookeeper:latest
+    image: confluentinc/cp-zookeeper:7.4.4
     environment:
-      - ALLOW_ANONYMOUS_LOGIN=yes
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - adventuretube-jenkins-network
     ports:
-      - '2181:2181'
-
+      - 2181:2181
+  
   kafka:
-    image: bitnami/kafka:latest
-    environment:
-      - KAFKA_ZOOKEEPER_HOSTS=zookeeper:2181
-      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT
-      - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092
-      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092
-    ports:
-      - '9092:9092'
+    image: confluentinc/cp-kafka:7.4.4
     depends_on:
       - zookeeper
+    ports:
+      - 9092:9092
+    networks:
+      - adventuretube-jenkins-network
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://adventuretube.net:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+networks:
+  adventuretube-jenkins-network:
+    driver: bridge
+    name : adventuretube-jenkins-network
