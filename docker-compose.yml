@@ -3,7 +3,7 @@ services:
     image: eureka-server:latest
     build:
       context: ./eureka-server
-      dockerfile:  ${DOCKERFILE_FOR_PI:-Dockerfile.pi}
+      dockerfile:  ${DOCKERFILE:-Dockerfile.pi}
     ports:
       - "8761:8761"
     environment:
@@ -22,7 +22,7 @@ services:
     image: config-service:latest
     build:
       context: ./config-service
-      dockerfile: ${DOCKERFILE_FOR_PI:-Dockerfile.pi}
+      dockerfile: ${DOCKERFILE:-Dockerfile.pi}
     ports:
       - "9297:9297"
     #environment:
@@ -49,7 +49,7 @@ services:
     image: gateway-service:latest
     build:
       context: ./gateway-service
-      dockerfile: ${DOCKERFILE_FOR_PI:-Dockerfile.pi}
+      dockerfile: ${DOCKERFILE:-Dockerfile.pi}
     ports:
       - "8030:8030"
     #environment:
@@ -75,7 +75,7 @@ services:
     image: auth-service:latest
     build:
       context: ./auth-service
-      dockerfile: ${DOCKERFILE_FOR_PI:-Dockerfile.pi}
+      dockerfile: ${DOCKERFILE:-Dockerfile.pi}
     ports:
       - "8010:8010"
 #    environment:
@@ -97,7 +97,7 @@ services:
     image: member-service:latest
     build:
       context: ./member-service
-      dockerfile:  ${DOCKERFILE_FOR_PI:-Dockerfile.pi}
+      dockerfile:  ${DOCKERFILE:-Dockerfile.pi}
     ports:
       - "8070:8070"
     #    environment:
@@ -118,7 +118,7 @@ services:
     image: geospatial-service:latest
     build:
       context: ./geospatial-service
-      dockerfile:  ${DOCKERFILE_FOR_PI:-Dockerfile.pi}
+      dockerfile:  ${DOCKERFILE:-Dockerfile.pi}
     ports:
       - "8060:8060"
     #    environment:
