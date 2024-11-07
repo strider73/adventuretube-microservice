@@ -35,7 +35,7 @@ pipeline {
 
             // Define list of service container names to check
             //def services = ["eureka-server", "config-service", "gateway-service", "auth-service", "member-service", "geospatial-service"]
-            def services = ["eureka-server", "config-service", "gateway-service"]
+            //def services = ["eureka-server", "config-service", "gateway-service"]
 
             // Loop through each service to check if it's healthy
             // services.each { service ->
