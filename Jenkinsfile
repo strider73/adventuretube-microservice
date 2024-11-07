@@ -71,29 +71,29 @@ pipeline {
             sh '''
             docker compose -f docker-compose-pi.yml down || true
             sleep 10  # Wait for a few seconds to ensure containers are fully stopped
-            docker compose -f docker-compose-pi.yml up -d
+            docker compose -f dockcder-compose-pi.yml up -d
             '''
 
             // // Wait for the service to be ready by checking container status
-            // def serviceReady = false
-            // for (int i = 0; i < 10; i++) { // Adjust the loop count and sleep interval as needed
-            //     def status = sh(
-            //         script: "docker inspect --format='{{.State.Health.Status}}' container_name || echo 'unhealthy'",
-            //         returnStdout: true
-            //     ).trim()
+            def serviceReady = false
+            for (int i = 0; i < 10; i++) { // Adjust the loop count and sleep interval as needed
+                def status = sh(
+                    script: "docker inspect --format='{{.State.Health.Status}}' container_name || echo 'unhealthy'",
+                    returnStdout: true
+                ).trim()
 
-            //     if (status == 'healthy') {
-            //         serviceReady = true
-            //         break
-            //     }
+                if (status == 'healthy') {
+                    serviceReady = true
+                    break
+                }
 
-            //     echo "Service is not ready yet. Retrying in 5 seconds..."
-            //     sleep(5)
-            // }
+                echo "Service is not ready yet. Retrying in 5 seconds..."
+                sleep(5)
+            }
 
-            // if (!serviceReady) {
-            //     error("Service did not become ready in the expected time")
-            // }
+            if (!serviceReady) {
+                error("Service did not become ready in the expected time")
+            }
         }
     }
 }
