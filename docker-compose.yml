@@ -3,14 +3,14 @@ services:
     image: eureka-server:latest
     build:
       context: ./eureka-server
-      dockerfile: Dockerfile
+      dockerfile:  ${DOCKERFILE_FOR_PI:-Dockerfile}
     ports:
       - "8761:8761"
     environment:
       - EUREKA_CLIENT_REGISTER_WITH_EUREKA=false
       - EUREKA_CLIENT_FETCH_REGISTRY=false
     networks:
-      - adventuretube-net
+      - adventuretube-jenkins-network
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://eureka-server:8761/actuator/health" ]
       interval: 10s
@@ -22,7 +22,7 @@ services:
     image: config-service:latest
     build:
       context: ./config-service
-      dockerfile: Dockerfile
+      dockerfile: ${DOCKERFILE_FOR_PI:-Dockerfile}
     ports:
       - "9297:9297"
     #environment:
@@ -33,7 +33,7 @@ services:
       # Mount the directory where your config files (e.g., auth-service.yml) are located
       - ./config-repo:/config
     networks:
-      - adventuretube-net
+      - adventuretube-jenkins-network
     depends_on:
 #      - eureka-server
        eureka-server :
@@ -49,13 +49,13 @@ services:
     image: gateway-service:latest
     build:
       context: ./gateway-service
-      dockerfile: Dockerfile
+      dockerfile: ${DOCKERFILE_FOR_PI:-Dockerfile}
     ports:
       - "8030:8030"
     #environment:
      # - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
     networks:
-      - adventuretube-net
+      - adventuretube-jenkins-network
     healthcheck:
         test: [ "CMD", "curl", "-f", "http://gateway-service:8030/actuator/health" ]
         interval: 60s   # Interval between health checks
@@ -75,14 +75,14 @@ services:
     image: auth-service:latest
     build:
       context: ./auth-service
-      dockerfile: Dockerfile
+      dockerfile: ${DOCKERFILE_FOR_PI:-Dockerfile}
     ports:
       - "8010:8010"
 #    environment:
 #      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
 #      #- SPRING_PROFILES_ACTIVE=prod
     networks:
-      - adventuretube-net
+      - adventuretube-jenkins-network
     restart: on-failure
     depends_on:
        config-service:
@@ -97,14 +97,14 @@ services:
     image: member-service:latest
     build:
       context: ./member-service
-      dockerfile: Dockerfile
+      dockerfile:  ${DOCKERFILE_FOR_PI:-Dockerfile}
     ports:
       - "8070:8070"
     #    environment:
     #      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
     #      #- SPRING_PROFILES_ACTIVE=prod
     networks:
-      - adventuretube-net
+      - adventuretube-jenkins-network
     restart: on-failure
     depends_on:
       config-service:
@@ -118,14 +118,14 @@ services:
     image: geospatial-service:latest
     build:
       context: ./geospatial-service
-      dockerfile: Dockerfile
+      dockerfile:  ${DOCKERFILE_FOR_PI:-Dockerfile}
     ports:
       - "8060:8060"
     #    environment:
     #      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
     #      #- SPRING_PROFILES_ACTIVE=prod
     networks:
-      - adventuretube-net
+      - adventuretube-jenkins-network
     restart: on-failure
     depends_on:
       config-service:
@@ -137,5 +137,7 @@ services:
 
 
 networks:
-  adventuretube-net:
-    driver: bridge
+  adventuretube-jenkins-network:
+   driver: bridge
+   name : adventuretube-jenkins-network
+
