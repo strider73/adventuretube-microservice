@@ -32,7 +32,7 @@ pipeline {
             sh '''
             docker compose -f docker-compose-pi.yml down || true
             sleep 10  # Wait for a few seconds to ensure containers are fully stopped
-            docker compose -f dockcder-compose-pi.yml up -d
+            docker compose -f docker-compose-pi.yml up -d
             '''
 
             // // Wait for the service to be ready by checking container status
