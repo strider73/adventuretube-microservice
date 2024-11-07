@@ -11,7 +11,7 @@ public class WelcomeController {
 
     @GetMapping("/")
     public String welcome(WelcomeString welcomeString){
-        welcomeString.serviceName = "index service!!!!";
+        welcomeString.serviceName = "index service!!!XXXX!";
         return welcomeString.getWelcomeString();
     }
 
