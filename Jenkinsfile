@@ -19,7 +19,7 @@ pipeline {
             steps {
                 script {
                     // Build new Docker images with the latest code
-                    sh 'docker compose -f docker-compose.yml build'
+                    sh 'docker compose -f docker-compose-adventuretubes.yml build'
                 }
             }
         }
@@ -28,9 +28,9 @@ pipeline {
         script {
             // Stop and start Docker Compose in detached mode
             sh '''
-            docker compose -f docker-compose.yml down || true
+            docker compose -f docker-compose-adventuretubes.yml down || true
             sleep 10  # Wait for containers to fully stop
-            docker compose -f docker-compose.yml up -d
+            docker compose -f docker-compose-adventuretubes.yml up -d
             '''
 
             // Define list of service container names to check
