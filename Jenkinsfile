@@ -23,46 +23,45 @@ pipeline {
                 }
             }
         }
-    stage('Run New Docker Image') {
-    steps {
-        script {
-            // Stop and start Docker Compose in detached mode
-            sh '''
-            docker compose -f docker-compose-adventuretubes.yml down || true
-            sleep 10  # Wait for containers to fully stop
-            docker compose -f docker-compose-adventuretubes.yml up -d
-            '''
+        stage('Run New Docker Image') {
+            steps {
+                script {
+                    // Stop and start Docker Compose in detached mode
+                    sh '''
+                    docker compose -f docker-compose-adventuretubes.yml down || true
+                    sleep 10  # Wait for containers to fully stop
+                    docker compose -f docker-compose-adventuretubes.yml up -d
+                    '''
 
-            // Define list of service container names to check
-            def services = ["auth-service", "member-service", "geospatial-service"]
+                    // Define list of service container names to check
+                    def services = ["auth-service", "member-service", "geospatial-service"]
 
-            Loop through each service to check if it's healthy
-            services.each { service ->
-                def serviceReady = false
-                for (int i = 0; i < 10; i++) { // Retry loop
-                    def status = sh(
-                        script: "docker inspect --format='{{.State.Health.Status}}' ${service} || echo 'unhealthy'",
-                        returnStdout: true
-                    ).trim()
+                    // Loop through each service to check if it's healthy
+                    services.each { service ->
+                        def serviceReady = false
+                        for (int i = 0; i < 10; i++) { // Retry loop
+                            def status = sh(
+                                script: "docker inspect --format='{{.State.Health.Status}}' ${service} || echo 'unhealthy'",
+                                returnStdout: true
+                            ).trim()
 
-                    if (status == 'healthy') {
-                        serviceReady = true
-                        echo "${service} is healthy."
-                        break
+                            if (status == 'healthy') {
+                                serviceReady = true
+                                echo "${service} is healthy."
+                                break
+                            }
+
+                            echo "${service} is not ready yet. Retrying in 5 seconds..."
+                            sleep(5)
+                        }
+
+                        // If the service did not become healthy in the given time, throw an error
+                        if (!serviceReady) {
+                            error("${service} did not become ready in the expected time")
+                        }
                     }
-
-                    echo "${service} is not ready yet. Retrying in 5 seconds..."
-                    sleep(5)
-                }
-
-                // If the service did not become healthy in the given time, throw an error
-                if (!serviceReady) {
-                    error("${service} did not become ready in the expected time")
                 }
             }
         }
-    }
-}
-
     }
 }
