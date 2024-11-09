@@ -34,33 +34,32 @@ pipeline {
             '''
 
             // Define list of service container names to check
-            //def services = ["eureka-server", "config-service", "gateway-service", "auth-service", "member-service", "geospatial-service"]
-            //def services = ["eureka-server", "config-service", "gateway-service"]
+            def services = ["auth-service", "member-service", "geospatial-service"]
 
-            // Loop through each service to check if it's healthy
-            // services.each { service ->
-            //     def serviceReady = false
-            //     for (int i = 0; i < 10; i++) { // Retry loop
-            //         def status = sh(
-            //             script: "docker inspect --format='{{.State.Health.Status}}' ${service} || echo 'unhealthy'",
-            //             returnStdout: true
-            //         ).trim()
+            Loop through each service to check if it's healthy
+            services.each { service ->
+                def serviceReady = false
+                for (int i = 0; i < 10; i++) { // Retry loop
+                    def status = sh(
+                        script: "docker inspect --format='{{.State.Health.Status}}' ${service} || echo 'unhealthy'",
+                        returnStdout: true
+                    ).trim()
 
-            //         if (status == 'healthy') {
-            //             serviceReady = true
-            //             echo "${service} is healthy."
-            //             break
-            //         }
+                    if (status == 'healthy') {
+                        serviceReady = true
+                        echo "${service} is healthy."
+                        break
+                    }
 
-            //         echo "${service} is not ready yet. Retrying in 5 seconds..."
-            //         sleep(5)
-            //     }
+                    echo "${service} is not ready yet. Retrying in 5 seconds..."
+                    sleep(5)
+                }
 
-            //     // If the service did not become healthy in the given time, throw an error
-            //     if (!serviceReady) {
-            //         error("${service} did not become ready in the expected time")
-            //     }
-            // }
+                // If the service did not become healthy in the given time, throw an error
+                if (!serviceReady) {
+                    error("${service} did not become ready in the expected time")
+                }
+            }
         }
     }
 }
