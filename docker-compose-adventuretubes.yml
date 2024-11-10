@@ -35,7 +35,7 @@ services:
       context: ./web-service
       dockerfile: ${DOCKERFILE:-Dockerfile.pi}
     ports:
-      - "8070:8070"
+      - "8040:8040"
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://web-service:8040/actuator/health" ]
       interval: 10s
