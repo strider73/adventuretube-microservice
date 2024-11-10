@@ -1,0 +1,53 @@
+services:
+  auth-service:
+    image: auth-service:latest
+    build:
+      context: ./auth-service
+      dockerfile: ${DOCKERFILE:-Dockerfile.pi}
+    ports:
+      - "8010:8010"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://auth-service:8010/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - adventuretube-jenkins-network
+    restart: on-failure
+
+  member-service:
+    image: member-service:latest
+    build:
+      context: ./member-service
+      dockerfile: ${DOCKERFILE:-Dockerfile.pi}
+    ports:
+      - "8070:8070"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://member-service:8070/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - adventuretube-jenkins-network
+    restart: on-failure
+
+  geospatial-service:
+    image: geospatial-service:latest
+    build:
+      context: ./geospatial-service
+      dockerfile: ${DOCKERFILE:-Dockerfile.pi}
+    ports:
+      - "8060:8060"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://geospatial-service:8060/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - adventuretube-jenkins-network
+    restart: on-failure
+
+networks:
+  adventuretube-jenkins-network:
+    driver: bridge
+    name: adventuretube-jenkins-network
