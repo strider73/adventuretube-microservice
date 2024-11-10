@@ -28,7 +28,7 @@ pipeline {
                 script {
                     // Stop and start Docker Compose in detached mode
                     sh '''
-                    docker compose -f docker-compose-adventuretubes.yml down --remove-orphans || true
+                    docker compose -f docker-compose-adventuretubes.yml down || true
                     sleep 10  # Wait for containers to fully stop
                     docker compose -f docker-compose-adventuretubes.yml up -d
                     '''
