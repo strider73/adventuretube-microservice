@@ -34,7 +34,7 @@ pipeline {
                     '''
 
                     // Define list of service container names to check
-                    def services = ["adventuretube-microservice-uth-service", "adventuretube-microservice-member-service", "adventuretube-microservice-geospatial-service","adventuretube-microservice-web-service"]
+                    def services = ["adventuretube-microservice-uth-service1", "adventuretube-microservice-member-service1", "adventuretube-microservice-geospatial-service1","adventuretube-microservice-web-service1"]
 
                     // Loop through each service to check if it's healthy
                     services.each { service ->
