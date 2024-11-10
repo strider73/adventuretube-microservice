@@ -12,6 +12,8 @@ services:
       - POSTGRES_DB=adventuretube
     networks:
       - adventuretube-storage-network
+    restart: unless-stopped
+
   pgadmin:
     container_name: pgadmin
     image: dpage/pgadmin4
@@ -39,10 +41,11 @@ services:
       - MONGO_INITDB_ROOT_PASSWORD=rootpass
     networks:
       - adventuretube-storage-network
+    restart: unless-stopped
+
   mongo-express:
     image: mongo-express
     container_name: mongo-express
-    restart: always
     ports:
       - 8081:8081
     links:
@@ -53,6 +56,8 @@ services:
       - ME_CONFIG_MONGODB_SERVER=mongodb
     networks:
       - adventuretube-storage-network
+    restart: unless-stopped
+
 
 networks:
   adventuretube-storage-network:
