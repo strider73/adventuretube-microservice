@@ -11,7 +11,7 @@ services:
       - POSTGRES_PASSWORD=mysecretpassword
       - POSTGRES_DB=adventuretube
     networks:
-      - adventuretube-storage-network
+      - adventuretube-jenkins-network
     restart: unless-stopped
 
   pgadmin:
@@ -26,7 +26,7 @@ services:
     ports:
       - "5050:80"
     networks:
-      - adventuretube-storage-network
+      - adventuretube-jenkins-network
     restart: unless-stopped
 
   mongodb:
@@ -40,7 +40,7 @@ services:
       - MONGO_INITDB_ROOT_USERNAME=rootuser
       - MONGO_INITDB_ROOT_PASSWORD=rootpass
     networks:
-      - adventuretube-storage-network
+      - adventuretube-jenkins-network
     restart: unless-stopped
 
   mongo-express:
@@ -55,14 +55,14 @@ services:
       - ME_CONFIG_MONGODB_ADMINPASSWORD=rootpass
       - ME_CONFIG_MONGODB_SERVER=mongodb
     networks:
-      - adventuretube-storage-network
+      - adventuretube-jenkins-network
     restart: unless-stopped
 
 
 networks:
-  adventuretube-storage-network:
+  adventuretube-jenkins-network:
     driver: bridge
-    name : adventuretube-storage-network
+    name : adventuretube-jenkins-network
 
 
 
