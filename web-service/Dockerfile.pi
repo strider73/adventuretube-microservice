@@ -7,7 +7,7 @@ FROM arm64v8/openjdk:17
 #its essential for helthy check
 #RUN apk --no-cache add curl
 
-EXPOSE 8040
+EXPOSE 8040 5007
 COPY --from=builder dependencies/ ./
 COPY --from=builder snapshot-dependencies/ ./
 COPY --from=builder spring-boot-loader/ ./

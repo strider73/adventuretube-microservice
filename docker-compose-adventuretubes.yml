@@ -6,6 +6,7 @@ services:
       dockerfile: ${DOCKERFILE:-Dockerfile.pi}
     ports:
       - "8010:8010"
+      - "5005:5005"  # Expose debug port for auth-service
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://auth-service:8010/actuator/health" ]
       interval: 10s
@@ -21,6 +22,7 @@ services:
       dockerfile: ${DOCKERFILE:-Dockerfile.pi}
     ports:
       - "8070:8070"
+      - "5006:5006"  # Expose debug port for member-service
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://member-service:8070/actuator/health" ]
       interval: 10s
@@ -36,6 +38,7 @@ services:
       dockerfile: ${DOCKERFILE:-Dockerfile.pi}
     ports:
       - "8040:8040"
+      - "5007:5007"  # Expose debug port for web-service
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://web-service:8040/actuator/health" ]
       interval: 10s
@@ -51,6 +54,7 @@ services:
       dockerfile: ${DOCKERFILE:-Dockerfile.pi}
     ports:
       - "8060:8060"
+      - "5008:5008"  # Expose debug port for geospatial-service
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://geospatial-service:8060/actuator/health" ]
       interval: 10s
