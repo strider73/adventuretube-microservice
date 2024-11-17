@@ -10,8 +10,8 @@ pipeline {
         stage('Build Package') {
             steps {
                 script {
-                    // Use Maven wrapper to build the package, skipping tests
-                    sh './mvnw package -DskipTests'
+                    // Use Maven wrapper to build the specified modules (member-service, auth-service, web-service, geospatial-service)
+                    sh './mvnw clean package -DskipTests -pl member-service,auth-service,web-service,geospatial-service'
                 }
             }
         }
