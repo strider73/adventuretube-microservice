@@ -11,7 +11,7 @@ pipeline {
             steps {
                 script {
                     // Use Maven wrapper to build the specified modules (member-service, auth-service, web-service, geospatial-service)
-                    sh './mvnw clean package -DskipTests -pl member-service,auth-service,web-service,geospatial-service'
+                    sh './mvnw clean package -DskipTests -pl common-domain,member-service,auth-service,web-service,geospatial-service'
                 }
             }
         }
