@@ -3,7 +3,7 @@ server:
 
 spring:
   datasource:
-    url: jdbc:postgresql://192.168.1.101:5432/adventuretube
+    url: jdbc:postgresql://192.168.1.116:5432/adventuretube
     username: postgres
     password: mysecretpassword
     hikari:
@@ -27,7 +27,7 @@ spring:
 eureka:
   client:
     service-url:
-      defaultZone: http://eureka-server:8761/eureka
+      defaultZone: http://192.168.1.116:8761/eureka
     fetch-registry: true
     register-with-eureka: true
     enabled: true
