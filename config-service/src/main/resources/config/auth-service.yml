@@ -10,7 +10,7 @@ spring:
       max-lifetime: 1800000         # Set maxLifetime to 30 minutes (1800000 ms)
       idle-timeout: 600000          # Set idle timeout to 10 minutes (600000 ms)
       validation-timeout: 3000      # Set validation timeout to 3 seconds (3000 ms)
-      minimum-idle: 10               # Minimum number of idle connections
+      minimum-idle: 5               # Minimum number of idle connections
       maximum-pool-size: 10         # Maximum pool size for better performance
   jpa:
     hibernate:
