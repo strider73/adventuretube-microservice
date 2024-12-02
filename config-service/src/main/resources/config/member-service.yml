@@ -30,7 +30,7 @@ logging:
   level:
     root: INFO
     com.netflix.discovery.DiscoveryClient: INFO  # Skip debug messages for DiscoveryClient
-    com.adventuretuebe.member_service: DEBUG  # Ensure debug messages for member-service
+    com.adventuretuebe.member: DEBUG  # Ensure debug messages for member-service
 
 
 jwt:

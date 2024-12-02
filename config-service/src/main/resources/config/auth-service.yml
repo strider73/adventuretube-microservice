@@ -29,7 +29,7 @@ logging:
   level:
     root: INFO
     com.netflix.discovery.DiscoveryClient: INFO  # Skip debug messages for DiscoveryClient
-    com.adventuretuebe.member_service: DEBUG  # Ensure debug messages for member-service
+    com.adventuretube.auth: DEBUG  # Enable debug messages for auth-service
 
 jwt:
   secret: adventuretubeMiAVzqUXy5Tfr1kVIGpPMiAVzqUXy5Tfr1kVIGpP
