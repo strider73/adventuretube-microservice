@@ -13,7 +13,9 @@ public class RouterValidator {
     public static final List<String> openEndPoints = List.of(
            "/auth/register",
             "/auth/login",
-            "/web/registerMember"
+            "/web/registerMember",
+            "/actuator/health", // Allow health check endpoint
+            "/healthcheck"      // Add any custom health check endpoints here
 
     );
 
@@ -21,5 +23,5 @@ public class RouterValidator {
     //checks URI path does not contain any of the open endpoint
     public Predicate<ServerHttpRequest> isSecured =
                      request -> openEndPoints.stream()
-                             .noneMatch(uri -> request.getURI().getPath().contains(uri));
+                             .noneMatch(uri -> request.getURI().getPath().startsWith(uri));
 }

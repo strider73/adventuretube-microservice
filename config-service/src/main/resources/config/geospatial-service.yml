@@ -17,6 +17,13 @@ spring:
     url: jdbc:postgresql://192.168.1.116:5432/adventuretube
     username: postgres
     password: mysecretpassword
+    hikari:
+      maximum-pool-size: 10         # Maximum number of connections in the pool
+      minimum-idle: 5               # Minimum number of idle connections
+      max-lifetime: 2700000         # Max lifetime of a connection in milliseconds (27 minutes)
+      idle-timeout: 600000          # Time that a connection can sit idle in milliseconds (10 minutes)
+      validation-timeout: 5000      # Timeout for connection validation in milliseconds (5 seconds)
+      connection-test-query: SELECT 1  # Query to validate connections
   jpa:
     hibernate:
       ddl-auto: update
@@ -55,7 +62,7 @@ logging:
       hibernate: INFO
     org.hibernate.SQL: INFO
     org.hibernate.type.descriptor.sql: TRACE
-    com.zaxxer.hikari: INFO
+    #com.zaxxer.hikari: INFO
     com.netflix.discovery.DiscoveryClient: INFO  # Skip debug messages for DiscoveryClient
     com.adventuretuebe.geospatial: DEBUG  # Ensure debug messages for member-service
 
