@@ -39,7 +39,7 @@ services:
       eureka-server :
         condition: service_healthy
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://192.168.1.116:9297/actuator/health" ]
+      test: [ "CMD", "curl", "-f", "http://config-service:9297/actuator/health" ]
       interval: 10s
       timeout: 5s
       retries: 5

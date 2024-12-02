@@ -28,7 +28,7 @@ spring:
           format_sql: true
   kafka:
     consumer:
-      bootstrap-servers: 192.168.1.101:29092
+      bootstrap-servers: 192.168.1.116:29092
       group-id: group_id
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
@@ -41,7 +41,7 @@ spring:
 eureka:
   client:
     service-url:
-      defaultZone: http://192.168.1.116:8761/eureka
+      defaultZone:  http://eureka-server:8761/eureka
     fetch-registry: true
     register-with-eureka: true
     enabled: true
