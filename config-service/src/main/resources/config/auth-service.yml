@@ -6,12 +6,6 @@ spring:
     url: jdbc:postgresql://192.168.1.116:5432/adventuretube
     username: postgres
     password: mysecretpassword
-    hikari:
-      max-lifetime: 1200000         # Set maxLifetime to 20 minutes (1800000 ms)
-      idle-timeout: 600000          # Set idle timeout to 10 minutes (600000 ms)
-      validation-timeout: 3000      # Set validation timeout to 3 seconds (3000 ms)
-      minimum-idle: 15               # Minimum number of idle connections
-      maximum-pool-size: 10         # Maximum pool size for better performance
   jpa:
     hibernate:
       ddl-auto: update
@@ -21,8 +15,6 @@ spring:
           dialect: org.hibernate.dialect.PostgreSQLDialect
           default_schema: public  # <-- Add this line
           format_sql: true
-
-
 
 eureka:
   client:
