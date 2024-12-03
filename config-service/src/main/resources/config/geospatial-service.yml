@@ -5,8 +5,8 @@ spring:
   data:
     mongodb:
       authentication-database: admin
-      username: rootuser
-      password: rootpass
+      username: strider
+      password: 5785Ch00
       database: adventuretube
       port: 27017
       host: 192.168.1.116
@@ -16,7 +16,7 @@ spring:
   datasource:
     url: jdbc:postgresql://192.168.1.116:5432/adventuretube
     username: postgres
-    password: mysecretpassword
+    password: 5785Ch00
     hikari:
       maximum-pool-size: 10         # Maximum number of connections in the pool
       minimum-idle: 5               # Minimum number of idle connections
