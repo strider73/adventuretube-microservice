@@ -52,10 +52,14 @@ services:
       dockerfile: ${DOCKERFILE:-Dockerfile.pi}
     ports:
       - "8030:8030"
+      - "5004:5004"
       #environment:
       # - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
     networks:
       - adventuretube-jenkins-network
+    environment:
+      - JAVA_DEBUG_PORT=5004
+      - JAVA_TOOL_OPTIONS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5004"
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://gateway-service:8030/actuator/health" ]
       interval: 60s   # Interval between health checks
