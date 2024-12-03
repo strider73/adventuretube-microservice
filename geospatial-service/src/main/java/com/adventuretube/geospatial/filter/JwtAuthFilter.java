@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.List;
 
 
 @Slf4j
@@ -26,10 +27,27 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     private final CustomUserDetailService  customUserDetailService;
+
+    private static final List<String> OPEN_ENDPOINTS = List.of(
+            "/auth/register",
+            "/auth/login",
+            "/web/registerMember",
+            "/actuator/health",
+            "/healthcheck"
+    );
+
+
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
+        // Skip filtering for open endpoints
+        String path = request.getServletPath();
+        if (OPEN_ENDPOINTS.stream().anyMatch(path::startsWith)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
        log.info("JwtAuthFilter.doFilterInternal has been called");
 
         //String token = authHeader.substring(7);//token from header which is issued after sign in or login
