@@ -40,7 +40,7 @@ logging:
     org.hibernate.SQL: INFO
     org.hibernate.type.descriptor.sql: TRACE
     #com.zaxxer.hikari: INFO
-    com.netflix.discovery.DiscoveryClient: INFO  # Skip debug messages for DiscoveryClient
+    com.netflix.discovery.DiscoveryClient: WARN  # Skip debug messages for DiscoveryClient
     com.adventuretube.auth: DEBUG  # Enable debug messages for auth-service
 
 jwt:

@@ -63,7 +63,7 @@ logging:
     org.hibernate.SQL: INFO
     org.hibernate.type.descriptor.sql: TRACE
     #com.zaxxer.hikari: INFO
-    com.netflix.discovery.DiscoveryClient: INFO  # Skip debug messages for DiscoveryClient
+    com.netflix.discovery.DiscoveryClient: WARN  # Skip debug messages for DiscoveryClient
     com.adventuretuebe.geospatial: DEBUG  # Ensure debug messages for member-service
 
 

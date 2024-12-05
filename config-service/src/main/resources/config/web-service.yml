@@ -13,7 +13,7 @@ eureka:
 logging:
   level:
     root: INFO
-    com.netflix.discovery.DiscoveryClient: INFO  # Skip debug messages for DiscoveryClient
+    com.netflix.discovery.DiscoveryClient: WARN  # Skip debug messages for DiscoveryClient
     com.adventuretuebe.web: DEBUG  # Ensure debug messages for member-service
 
 jwt:
