@@ -129,7 +129,7 @@ public class AuthService {
         //MARK: STEP1 validate google IdToken
         GoogleIdToken idToken = verifyGoogleIdToken(request.getGoogleIdToken());
         if (idToken == null) {
-            log.error("Google idToken is null");
+            log.error("Invalid Google ID token");
             throw new GoogleIdTokenInvalidException("Invalid Google ID token.");
         }
 
