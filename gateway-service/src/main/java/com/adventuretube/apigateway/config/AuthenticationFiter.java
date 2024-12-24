@@ -33,25 +33,26 @@ public class AuthenticationFiter implements GatewayFilter {
     public Mono<Void> filter(ServerWebExchange exchange,
                              GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
-        //check the request is secured
-        //if yes
+
+        // Step 1: Check if the request targets a secured endpoint
         if (validator.isSecured.test(request)) {
-            if (authMissing(request)) {//check Authentication header
+
+            // Step 2: If the Authorization header is missing, throw an exception
+            if (authMissing(request)) {
                 throw new RuntimeException("Authorization header is missing");
             }
-            //if the authentication header exist , extract the token
+            // Step 3: Extract token from Authorization header
             final String token = request.getHeaders().getOrEmpty("Authorization").get(0);
             if( token == null || token.length() == 0){
                 throw  new JwtTokenNotExistException("Token is not exist");
             }
-            //getClaim actually doing all basic validation
-            //like signing expiration
+            // Step 4: Validate the token (signature, expiration, claims)
             jwtUtils.getClaims(token);
             System.out.println("Token has been validate successfully !!!!");
 
 
         }
-        //if every thing ok continue filter chain
+        // Step 5: Continue the filter chain if everything is valid
         return chain.filter(exchange);
     }
 
@@ -62,6 +63,7 @@ public class AuthenticationFiter implements GatewayFilter {
 //        return response.setComplete();
 //    }
 //
+    // Helper method to check for missing Authorization header
     private boolean authMissing(ServerHttpRequest request) {
         return !request.getHeaders().containsKey("Authorization");
     }
