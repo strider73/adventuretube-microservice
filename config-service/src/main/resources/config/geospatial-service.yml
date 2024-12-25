@@ -14,7 +14,7 @@ spring:
     rest:
       base-path: /api/rest
   datasource:
-    url: jdbc:postgresql://192.168.1.116:5432/adventuretube
+    url: jdbc:postgresql://strider-pi.local:5432/adventuretube
     username: postgres
     password: 5785Ch00
     hikari:
@@ -35,7 +35,7 @@ spring:
           format_sql: true
   kafka:
     consumer:
-      bootstrap-servers: 192.168.1.116:29092
+      bootstrap-servers: strider-pi.local:29092
       group-id: group_id
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
@@ -48,7 +48,7 @@ spring:
 eureka:
   client:
     service-url:
-      defaultZone:  http://192.168.1.116:8761/eureka
+      defaultZone:  http://strider-pi.local:8761/eureka
     fetch-registry: true
     register-with-eureka: true
     enabled: true
