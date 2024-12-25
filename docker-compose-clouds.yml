@@ -25,10 +25,10 @@ services:
       dockerfile: ${DOCKERFILE:-Dockerfile.pi}
     ports:
       - "9297:9297"
-      #environment:
-      #- SPRING_PROFILES_ACTIVE=native
-      # Specify the file system location for config files
-      #- SPRING_CLOUD_CONFIG_SERVER_NATIVE_SEARCH_LOCATIONS=file:/config
+    environment:
+      - SPRING_PROFILES_ACTIVE=native
+      #Specify the file system location for config files
+      - SPRING_CLOUD_CONFIG_SERVER_NATIVE_SEARCH_LOCATIONS=file:/config
     volumes:
       # Mount the existing config directory inside the container
       - ./config-service/src/main/resources/config:/config
