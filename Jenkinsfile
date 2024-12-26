@@ -1,10 +1,23 @@
 pipeline {
     agent {label 'jenkins-agent2'}
     stages {
-        stage('Clone Repository') {
+        stage('Source code jog from Git  Repository') {
             steps {
-                // Pull the latest code from GitHub
-                git branch: 'add-kafka', url: 'git@github.com:strider73/adventuretube-microservice.git'
+                script {
+                       // Check if the repo already exists
+                       if (fileExists('adventuretube-microservice')) {
+                           dir('adventuretube-microservice') {
+                               sh 'git reset --hard'  // Discard local changes
+                               sh 'git clean -fd'    // Remove untracked files
+                               sh 'git fetch --all'  // Fetch latest from remote
+                               sh 'git checkout add-kafka'
+                               sh 'git pull'         // Pull latest changes
+                           }
+                       } else {
+                           // Fresh clone if directory doesn't exist
+                           git branch: 'add-kafka', url: 'git@github.com:strider73/adventuretube-microservice.git'
+                       }
+                   }
             }
         }
         stage('Build Package') {
