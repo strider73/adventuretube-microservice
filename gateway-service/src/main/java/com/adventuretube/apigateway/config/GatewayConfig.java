@@ -22,7 +22,7 @@ public class GatewayConfig {
                 .route("web-service", r -> r.path("/web/**")
                         .filters(f -> f.filter(filter))
                         .uri("lb://web-service"))
-                .route("security-service", r -> r.path("/auth/**")
+                .route("auth-service", r -> r.path("/auth/**")
                         .filters(f -> f.filter(filter))
                         .uri("lb://auth-service"))
                 .route("geospatial-service", r -> r.path("/geo/**")
