@@ -1,5 +1,5 @@
 pipeline {
-    agent {label 'jenkins-agent1'}
+    agent {label 'jenkins-agent'}
     stages {
         stage('Source code checkout from Git Repository') {
             steps {
