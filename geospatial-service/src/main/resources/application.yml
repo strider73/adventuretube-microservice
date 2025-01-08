@@ -4,5 +4,5 @@ spring:
   application:
     name: geospatial-service
   config:
-    import:  "optional:configserver:http://192.168.1.116:9297"
+    import:  "optional:configserver:http://config.adventuretube.net"
 
