@@ -13,7 +13,7 @@ pipeline {
                             sh 'git pull'
                         }
                     } else {
-                        git branch: 'main', url: 'git@github.com:strider73/adventuretube-microservice.git'
+                           git branch: 'add-kafka', url: 'git@github.com:strider73/adventuretube-microservice.git'
                     }
                 }
             }
