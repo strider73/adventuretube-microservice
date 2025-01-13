@@ -11,14 +11,14 @@ echo "Cleaning and building Maven project..."
 
 # Step 3: Build the Docker image
 echo "Building Docker image..."
-docker-compose -f docker-compose-clouds.yml build
+docker compose -f docker-compose-clouds.yml build
 
 # Step 4: Stop and remove existing Docker containers (if any)
 echo "Stopping and removing existing Docker containers..."
-docker-compose -f docker-compose-clouds.yml down
+docker compose -f docker-compose-clouds.yml down
 
 # Step 5: Start the Docker container with the new image
 echo "Starting the Docker container..."
-docker-compose -f docker-compose-clouds.yml up -d
+docker compose -f docker-compose-clouds.yml up -d
 
 echo "Build and deployment completed successfully!"
