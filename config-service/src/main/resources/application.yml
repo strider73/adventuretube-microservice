@@ -11,10 +11,15 @@ spring:
   cloud:
     config:
       server:
-        git:
-          uri: https://github.com/strider73/adventuretube-config-server.git
-          clone-on-start: true
-          search-paths: application
+        native:
+          search-locations: classpath:/config
+#  cloud:
+#    config:
+#      server:
+#        git:
+#          uri: https://github.com/strider73/adventuretube-config-server.git
+#          clone-on-start: true
+#          search-paths: application
 
 
 
