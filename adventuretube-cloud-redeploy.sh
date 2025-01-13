@@ -7,7 +7,7 @@ git pull origin add-kafka
 
 # Step 2: Clean and build Maven project
 echo "Cleaning and building Maven project..."
-./mvnw clean package -DskipTests -pl eureka-service,config-service,gateway-service
+./mvnw clean package -DskipTests -pl eureka-server,config-service,gateway-service
 
 # Step 3: Build the Docker image
 echo "Building Docker image..."
