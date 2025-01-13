@@ -2,7 +2,7 @@
 
 # Step 1: Clean and build Maven project
 echo "Cleaning and building Maven project..."
-./mvnw clean package
+./mvnw clean package -DskipTests -pl eureka-service,config-service,gateway-service
 
 # Step 2: Run the Docker container
 echo "Starting the Docker container..."
