@@ -28,7 +28,7 @@ pipeline {
         stage('Build Docker Images') {
             steps {
                 script {
-                    sh 'docker compose -f docker-compose-cloud.yml build'
+                    sh 'docker compose -f docker-compose-clouds.yml build'
                 }
             }
         }
@@ -36,8 +36,8 @@ pipeline {
             steps {
                 script {
                     sh '''
-                    docker compose -f docker-compose-cloud.yml down || true
-                    docker compose -f docker-compose-cloud.yml up -d
+                    docker compose -f docker-compose-clouds.yml down || true
+                    docker compose -f docker-compose-clouds.yml up -d
                     '''
 
                     def services = ["adventuretube-microservice-gateway-service-1",
