@@ -1,4 +1,6 @@
 server:
+  profiles:
+     active: native
   port: 8761
 
 eureka:
