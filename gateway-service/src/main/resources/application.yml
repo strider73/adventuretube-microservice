@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: native
+    active: prod
   application:
     name: gateway-service
   config:

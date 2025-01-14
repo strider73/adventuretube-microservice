@@ -1,6 +1,6 @@
 server:
   profiles:
-     active: native
+     active: prod
   port: 8761
 
 eureka:
