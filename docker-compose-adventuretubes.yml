@@ -4,6 +4,7 @@ services:
   auth-service:
     build:
       context: ./auth-service
+      dockerfile: ../Dockerfile
       args:
         BASE_IMAGE: ${BASE_IMAGE:-openjdk:17-jdk-alpine}
         MODULE_NAME: auth-service
@@ -28,6 +29,7 @@ services:
   member-service:
     build:
       context: ./member-service
+      dockerfile: ../Dockerfile
       args:
         BASE_IMAGE: ${BASE_IMAGE:-openjdk:17-jdk-alpine}
         MODULE_NAME: member-service
@@ -52,6 +54,7 @@ services:
   web-service:
     build:
       context: ./web-service
+      dockerfile: ../Dockerfile
       args:
         BASE_IMAGE: ${BASE_IMAGE:-openjdk:17-jdk-alpine}
         MODULE_NAME: web-service
@@ -76,6 +79,7 @@ services:
   geospatial-service:
     build:
       context: ./geospatial-service
+      dockerfile: ../Dockerfile
       args:
         BASE_IMAGE: ${BASE_IMAGE:-openjdk:17-jdk-alpine}
         MODULE_NAME: geospatial-service
