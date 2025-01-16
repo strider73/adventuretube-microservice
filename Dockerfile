@@ -12,7 +12,7 @@ COPY ${JAR_FILE} application.jar
 RUN java -Djarmode=layertools -jar application.jar extract
 
 # Stage 2: Runtime
-StaFROM ${BASE_IMAGE}
+FROM ${BASE_IMAGE}
 # Install required tools for health checks
 RUN apk --no-cache add curl
 
