@@ -8,6 +8,7 @@ services:
       - "8010:8010"
       - "5005:5005"  # Expose debug port for auth-service
     environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
       - JAVA_DEBUG_PORT=5005
       - JAVA_TOOL_OPTIONS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
     healthcheck:
