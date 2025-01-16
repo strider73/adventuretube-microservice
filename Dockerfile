@@ -13,8 +13,8 @@ RUN java -Djarmode=layertools -jar application.jar extract
 
 # Stage 2: Runtime
 FROM ${BASE_IMAGE}
-# Install required tools for health checks
-RUN apk --no-cache add curl
+# Install required tools for health checks using apt-get for Debian-based images
+RUN apt-get update && apt-get install -y --no-install-recommends curl && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Add a non-root user for enhanced security
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
