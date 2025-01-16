@@ -17,7 +17,7 @@ FROM ${BASE_IMAGE}
 RUN apt-get update && apt-get install -y --no-install-recommends curl && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Add a non-root user for enhanced security
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+RUN groupadd --system appgroup && useradd --system --gid appgroup --home-dir /home/appuser appuser
 USER appuser
 
 # Expose application and debug ports
