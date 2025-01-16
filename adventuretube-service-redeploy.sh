@@ -51,7 +51,7 @@ fi
 
 # Step 7: Start the Docker containers with the new images
 echo "$(date) - Starting the Docker containers..."
-docker compose --env-file $ENV_FILE -f docker-compose-adventuretubes.yml up -d
+docker compose --env-file $ENV_FILE -f docker-compose-adventuretubes.yml up
 if [ $? -ne 0 ]; then
     echo "$(date) - Docker container start failed."
     exit 1
