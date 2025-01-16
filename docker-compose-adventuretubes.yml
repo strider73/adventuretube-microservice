@@ -1,75 +1,95 @@
+version: "3.9"
+
 services:
   auth-service:
-    image: auth-service:latest
     build:
       context: ./auth-service
-      dockerfile: ${DOCKERFILE:-Dockerfile.pi}
+      args:
+        BASE_IMAGE: ${BASE_IMAGE:-openjdk:17-jdk-alpine}
+        MODULE_NAME: auth-service
+        APP_PORT: ${AUTH_SERVICE_PORT}
+        DEBUG_PORT: ${AUTH_DEBUG_PORT}
     ports:
-      - "8010:8010"
-      - "5005:5005"  # Expose debug port for auth-service
+      - "${AUTH_SERVICE_PORT}:${AUTH_SERVICE_PORT}"
+      - "${AUTH_DEBUG_PORT}:${AUTH_DEBUG_PORT}"
     environment:
       - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
-      - JAVA_DEBUG_PORT=5005
-      - JAVA_TOOL_OPTIONS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
+      - JAVA_DEBUG_PORT=${AUTH_DEBUG_PORT}
+      - JAVA_TOOL_OPTIONS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:${AUTH_DEBUG_PORT}"
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://auth-service:8010/actuator/health" ]
+      test: ["CMD", "curl", "-f", "http://auth-service:${AUTH_SERVICE_PORT}/actuator/health"]
       interval: 10s
       timeout: 5s
       retries: 5
     networks:
       - adventuretube-jenkins-network
     restart: no
+
   member-service:
-    image: member-service:latest
     build:
       context: ./member-service
-      dockerfile: ${DOCKERFILE:-Dockerfile.pi}
+      args:
+        BASE_IMAGE: ${BASE_IMAGE:-openjdk:17-jdk-alpine}
+        MODULE_NAME: member-service
+        APP_PORT: ${MEMBER_SERVICE_PORT}
+        DEBUG_PORT: ${MEMBER_DEBUG_PORT}
     ports:
-      - "8070:8070"
-      - "5006:5006"  # Expose debug port for member-service
+      - "${MEMBER_SERVICE_PORT}:${MEMBER_SERVICE_PORT}"
+      - "${MEMBER_DEBUG_PORT}:${MEMBER_DEBUG_PORT}"
     environment:
-      - JAVA_DEBUG_PORT=5006
-      - JAVA_TOOL_OPTIONS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5006"
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+      - JAVA_DEBUG_PORT=${MEMBER_DEBUG_PORT}
+      - JAVA_TOOL_OPTIONS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:${MEMBER_DEBUG_PORT}"
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://member-service:8070/actuator/health" ]
+      test: ["CMD", "curl", "-f", "http://member-service:${MEMBER_SERVICE_PORT}/actuator/health"]
       interval: 10s
       timeout: 5s
       retries: 5
     networks:
       - adventuretube-jenkins-network
     restart: no
+
   web-service:
-    image: web-service:latest
     build:
       context: ./web-service
-      dockerfile: ${DOCKERFILE:-Dockerfile.pi}
+      args:
+        BASE_IMAGE: ${BASE_IMAGE:-openjdk:17-jdk-alpine}
+        MODULE_NAME: web-service
+        APP_PORT: ${WEB_SERVICE_PORT}
+        DEBUG_PORT: ${WEB_DEBUG_PORT}
     ports:
-      - "8040:8040"
-      - "5007:5007"  # Expose debug port for web-service
-    environment: # From https://blairnangle.com/blog/spring-boot-docker-compose-debug
-      - JAVA_DEBUG_PORT=5007
-      - JAVA_TOOL_OPTIONS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5007"
+      - "${WEB_SERVICE_PORT}:${WEB_SERVICE_PORT}"
+      - "${WEB_DEBUG_PORT}:${WEB_DEBUG_PORT}"
+    environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+      - JAVA_DEBUG_PORT=${WEB_DEBUG_PORT}
+      - JAVA_TOOL_OPTIONS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:${WEB_DEBUG_PORT}"
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://web-service:8040/actuator/health" ]
+      test: ["CMD", "curl", "-f", "http://web-service:${WEB_SERVICE_PORT}/actuator/health"]
       interval: 10s
       timeout: 5s
       retries: 5
     networks:
       - adventuretube-jenkins-network
     restart: no
+
   geospatial-service:
-    image: geospatial-service:latest
     build:
       context: ./geospatial-service
-      dockerfile: ${DOCKERFILE:-Dockerfile.pi}
+      args:
+        BASE_IMAGE: ${BASE_IMAGE:-openjdk:17-jdk-alpine}
+        MODULE_NAME: geospatial-service
+        APP_PORT: ${GEOSPATIAL_SERVICE_PORT}
+        DEBUG_PORT: ${GEOSPATIAL_DEBUG_PORT}
     ports:
-      - "8060:8060"
-      - "5008:5008"  # Expose debug port for geospatial-service
+      - "${GEOSPATIAL_SERVICE_PORT}:${GEOSPATIAL_SERVICE_PORT}"
+      - "${GEOSPATIAL_DEBUG_PORT}:${GEOSPATIAL_DEBUG_PORT}"
     environment:
-      - JAVA_DEBUG_PORT=5008
-      - JAVA_TOOL_OPTIONS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5008"
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+      - JAVA_DEBUG_PORT=${GEOSPATIAL_DEBUG_PORT}
+      - JAVA_TOOL_OPTIONS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:${GEOSPATIAL_DEBUG_PORT}"
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://geospatial-service:8060/actuator/health" ]
+      test: ["CMD", "curl", "-f", "http://geospatial-service:${GEOSPATIAL_SERVICE_PORT}/actuator/health"]
       interval: 10s
       timeout: 5s
       retries: 5

@@ -1,11 +1,15 @@
+version: "3.9"
+
 services:
   eureka-server:
-    image: eureka-server:latest
     build:
       context: ./eureka-server
-      dockerfile:  ${DOCKERFILE:-Dockerfile.pi}
+      args:
+        BASE_IMAGE: ${BASE_IMAGE:-openjdk:17-jdk-alpine}
+        MODULE_NAME: eureka-server
+        APP_PORT: ${EUREKA_PORT}
     ports:
-      - "8761:8761"
+      - "${EUREKA_PORT}:${EUREKA_PORT}"
     environment:
       - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
       - EUREKA_CLIENT_REGISTER_WITH_EUREKA=false
@@ -13,69 +17,66 @@ services:
     networks:
       - adventuretube-jenkins-network
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://eureka-server:8761/actuator/health" ]
+      test: ["CMD", "curl", "-f", "http://eureka-server:${EUREKA_PORT}/actuator/health"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-
   config-service:
-    image: config-service:latest
     build:
       context: ./config-service
-      dockerfile: ${DOCKERFILE:-Dockerfile.pi}
+      args:
+        BASE_IMAGE: ${BASE_IMAGE:-openjdk:17-jdk-alpine}
+        MODULE_NAME: config-service
+        APP_PORT: ${CONFIG_PORT}
     ports:
-      - "9297:9297"
+      - "${CONFIG_PORT}:${CONFIG_PORT}"
     environment:
       - SPRING_PROFILES_ACTIVE=native
-      #Specify the file system location for config files
       - SPRING_CLOUD_CONFIG_SERVER_NATIVE_SEARCH_LOCATIONS=file:/config
     volumes:
-      # Mount the existing config directory inside the container
       - ./config-service/src/main/resources/config:/config
     networks:
       - adventuretube-jenkins-network
     depends_on:
-      #      - eureka-server
-      eureka-server :
+      eureka-server:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://config-service:9297/actuator/health" ]
+      test: ["CMD", "curl", "-f", "http://config-service:${CONFIG_PORT}/actuator/health"]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 60s
 
   gateway-service:
-    image: gateway-service:latest
     build:
       context: ./gateway-service
-      dockerfile: ${DOCKERFILE:-Dockerfile.pi}
+      args:
+        BASE_IMAGE: ${BASE_IMAGE:-openjdk:17-jdk-alpine}
+        MODULE_NAME: gateway-service
+        APP_PORT: ${GATEWAY_PORT}
+        DEBUG_PORT: ${GATEWAY_DEBUG_PORT}
     ports:
-      - "8030:8030"
-      - "5004:5004"
-      #environment:
-      # - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - "${GATEWAY_PORT}:${GATEWAY_PORT}"
+      - "${GATEWAY_DEBUG_PORT}:${GATEWAY_DEBUG_PORT}"
+    environment:
+      - JAVA_DEBUG_PORT=${GATEWAY_DEBUG_PORT}
+      - JAVA_TOOL_OPTIONS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:${GATEWAY_DEBUG_PORT}"
     networks:
       - adventuretube-jenkins-network
-    environment:
-      - JAVA_DEBUG_PORT=5004
-      - JAVA_TOOL_OPTIONS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5004"
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://gateway-service:8030/actuator/health" ]
-      interval: 60s   # Interval between health checks
-      timeout: 10s
-      retries: 5      # Maximum retries
-    restart: on-failure
-    #    depends_on:
-    #      - config-service
-    #      - eureka-server
     depends_on:
       eureka-server:
         condition: service_healthy
       config-service:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://gateway-service:${GATEWAY_PORT}/actuator/health"]
+      interval: 60s
+      timeout: 10s
+      retries: 5
+    restart: on-failure
+
 networks:
   adventuretube-jenkins-network:
     driver: bridge
-    name : adventuretube-jenkins-network
+    name: adventuretube-jenkins-network
