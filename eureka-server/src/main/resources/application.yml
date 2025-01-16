@@ -1,6 +1,6 @@
 server:
   profiles:
-     active: prod
+     active:  ${SPRING_PROFILES_ACTIVE:dev}
   port: 8761
 
 eureka:
