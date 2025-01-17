@@ -1,9 +1,8 @@
 server:
   port: 9297
   tomcat:
-    apr:
-      enabled: false
-
+      apr:
+        enabled:false
 spring:
   application:
     name: config-service
@@ -12,16 +11,13 @@ spring:
   cloud:
     config:
       server:
-        git:
-          uri: git@github.com:strider73/adventuretube-microservice.git
-          clone-on-start: true
-          search-paths: config-service/src/main/resources/config
-          default-label: add-kafka
+        native:
+          search-locations: classpath:/config
   logging:
     level:
       org.springframework.cloud.config.server: DEBUG
       org.springframework.cloud.config: DEBUG
-      org.eclipse.jgit: DEBUG
+
 
 eureka:
   instance:
@@ -36,15 +32,13 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,refresh,env,configprops
+        include: health,refresh
   health:
     readiness-state:
       enabled: true
     liveness-state:
       enabled: true
   endpoint:
-    env:
-      show-details: always
     health:
       show-details: always
 

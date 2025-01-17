@@ -35,12 +35,9 @@ services:
       - "${CONFIG_PORT}:${CONFIG_PORT}"
     environment:
       - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
-      - SPRING_CLOUD_CONFIG_SERVER_GIT_URI=git@github.com:strider73/adventuretube-microservice.git
-      - SPRING_CLOUD_CONFIG_SERVER_GIT_CLONE-ON-START=true
-      - SPRING_CLOUD_CONFIG_SERVER_GIT_SEARCH_PATHS=config-service/src/main/resources/config
-      - SPRING_CLOUD_CONFIG_SERVER_GIT_DEFAULT_LABEL=add-kafka
-#    volumes:
-#      - ./config-service/src/main/resources/config:/config
+      - SPRING_CLOUD_CONFIG_SERVER_NATIVE_SEARCH_LOCATIONS=file:/config
+    volumes:
+      - ./config-service/src/main/resources/config:/config
     networks:
       - adventuretube-jenkins-network
     depends_on:
@@ -66,6 +63,7 @@ services:
       - "${GATEWAY_PORT}:${GATEWAY_PORT}"
       - "${GATEWAY_DEBUG_PORT}:${GATEWAY_DEBUG_PORT}"
     environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
       - JAVA_DEBUG_PORT=${GATEWAY_DEBUG_PORT}
       - JAVA_TOOL_OPTIONS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:${GATEWAY_DEBUG_PORT}"
     networks:
