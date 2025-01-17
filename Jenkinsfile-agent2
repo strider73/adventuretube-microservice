@@ -1,62 +1,36 @@
 pipeline {
-    agent {label 'jenkins-agent2'}
+    agent { label 'jenkins-agent2' }
+    environment {
+        ENVIRONMENT = "dev" // Set the environment dynamically if needed
+    }
     stages {
-        stage('Source code jog from Git  Repository') {
+        stage('Run Deployment Script') {
             steps {
                 script {
-                       // Check if the repo already exists
-                       if (fileExists('adventuretube-microservice')) {
-                           dir('adventuretube-microservice') {
-                               sh 'git reset --hard'  // Discard local changes
-                               sh 'git clean -fd'    // Remove untracked files
-                               sh 'git fetch --all'  // Fetch latest from remote
-                               sh 'git checkout add-kafka'
-                               sh 'git pull'         // Pull latest changes
-                           }
-                       } else {
-                           // Fresh clone if directory doesn't exist
-                           git branch: 'add-kafka', url: 'git@github.com:strider73/adventuretube-microservice.git'
-                       }
-                   }
-            }
-        }
-        stage('Build Package') {
-            steps {
-                script {
-                    // Use Maven wrapper to build the specified modules (member-service, auth-service, web-service, geospatial-service)
-                    sh './mvnw clean package -DskipTests -pl common-domain,member-service,auth-service,web-service,geospatial-service'
+                    // Execute the deployment shell script for service modules
+                    sh """
+                    chmod +x adventuretube-service-redeploy.sh
+                    ./adventuretube-service-redeploy.sh ${ENVIRONMENT}
+                    """
                 }
             }
         }
-        stage('Build Docker Images') {
+
+        stage('Check Docker Container Health') {
             steps {
                 script {
-                    // Build new Docker images with the latest code
-                    sh 'docker compose -f docker-compose-adventuretubes.yml build'
-                }
-            }
-        }
-        stage('Run New Docker Image') {
-            steps {
-                script {
-                    // Stop and start Docker Compose in detached mode
-                    sh '''
-                    docker compose -f docker-compose-adventuretubes.yml down || true
-                    docker compose -f docker-compose-adventuretubes.yml up -d
-                    '''
+                    // List of service containers to check
+                    def services = [
+                        "adventuretube-microservice-auth-service-1",
+                        "adventuretube-microservice-member-service-1",
+                        "adventuretube-microservice-web-service-1",
+                        "adventuretube-microservice-geospatial-service-1"
+                    ]
 
-                    // Define list of service container names to check
-                    def services = ["adventuretube-microservice-web-service-1",
-                                    "adventuretube-microservice-auth-service-1",
-                                    "adventuretube-microservice-geospatial-service-1",
-                                    "adventuretube-microservice-member-service-1"]
-
-
-
-                    // Loop through each service to check if it's healthy
+                    // Check health for each container
                     services.each { service ->
                         def serviceReady = false
-                        for (int i = 0; i < 10; i++) { // Retry loop
+                        for (int i = 0; i < 10; i++) {
                             def status = sh(
                                 script: "docker inspect --format='{{.State.Health.Status}}' ${service} || echo 'unhealthy'",
                                 returnStdout: true
@@ -72,7 +46,6 @@ pipeline {
                             sleep(5)
                         }
 
-                        // If the service did not become healthy in the given time, throw an error
                         if (!serviceReady) {
                             error("${service} did not become ready in the expected time")
                         }
