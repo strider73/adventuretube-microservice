@@ -51,7 +51,7 @@ fi
 
 # Step 7: Start the Docker container with the new image
 echo "$(date) - Starting the Docker container..."
-docker compose --env-file $ENV_FILE -f docker-compose-clouds.yml up -d
+docker compose --env-file $ENV_FILE -f docker-compose-clouds.yml up
 if [ $? -ne 0 ]; then
     echo "$(date) - Docker container start failed."
     exit 1
