@@ -8,19 +8,20 @@ spring:
     name: config-service
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:dev}
-
   cloud:
     config:
       server:
-        native:
-          search-locations: classpath:/config
+        git:
+          uri: https://github.com/strider73/adventuretube-config-server.git
+          clone-on-start: true
+          search-paths: config-service/src/main/resources/config
+          default-label: add-kafka
 #  cloud:
 #    config:
 #      server:
-#        git:
-#          uri: https://github.com/strider73/adventuretube-config-server.git
-#          clone-on-start: true
-#          search-paths: application
+#        native:
+#          search-locations: classpath:/config
+
 
 
 
