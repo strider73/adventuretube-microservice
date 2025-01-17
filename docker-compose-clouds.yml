@@ -34,7 +34,7 @@ services:
     ports:
       - "${CONFIG_PORT}:${CONFIG_PORT}"
     environment:
-      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+      - SPRING_PROFILES_ACTIVE=native
       - SPRING_CLOUD_CONFIG_SERVER_NATIVE_SEARCH_LOCATIONS=file:/config
     volumes:
       - ./config-service/src/main/resources/config:/config
