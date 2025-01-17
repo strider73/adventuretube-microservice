@@ -1,8 +1,9 @@
 server:
   port: 9297
   tomcat:
-      apr:
-        enabled:false
+    apr:
+      enabled: false
+
 spring:
   application:
     name: config-service
@@ -16,14 +17,11 @@ spring:
           clone-on-start: true
           search-paths: config-service/src/main/resources/config
           default-label: add-kafka
-#  cloud:
-#    config:
-#      server:
-#        native:
-#          search-locations: classpath:/config
-
-
-
+  logging:
+    level:
+      org.springframework.cloud.config.server: DEBUG
+      org.springframework.cloud.config: DEBUG
+      org.eclipse.jgit: DEBUG
 
 eureka:
   instance:
@@ -34,21 +32,19 @@ eureka:
     fetch-registry: true
     register-with-eureka: true
 
-#logging:
-#  level:
-#    root: DEBUG
-
 management:
   endpoints:
     web:
       exposure:
-        include: health,refresh
+        include: health,refresh,env,configprops
   health:
     readiness-state:
       enabled: true
     liveness-state:
       enabled: true
   endpoint:
+    env:
+      show-details: always
     health:
       show-details: always
 
