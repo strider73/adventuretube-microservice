@@ -6,3 +6,6 @@
 4) spring-jdbc
 
 
+update the application.properties file with the following properties
+
+```properties
