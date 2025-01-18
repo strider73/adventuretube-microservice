@@ -42,8 +42,8 @@ pipeline {
                                 break
                             }
 
-                            echo "${service} is not ready yet. Retrying in 5 seconds..."
-                            sleep(5)
+                            echo "${service} is not ready yet. Retrying in 30 seconds..."
+                            sleep(30)
                         }
 
                         if (!serviceReady) {
