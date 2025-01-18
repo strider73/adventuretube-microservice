@@ -23,8 +23,8 @@ spring:
 #          search-locations: classpath:/config
   logging:
     level:
-      org.springframework.cloud.config.server: DEBUG
-      org.springframework.cloud.config: DEBUG
+      org.springframework.cloud.config.server: INFO
+      org.springframework.cloud.config: INFO
 
 
 eureka:
