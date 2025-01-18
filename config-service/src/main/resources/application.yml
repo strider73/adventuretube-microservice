@@ -8,11 +8,16 @@ spring:
     name: config-service
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:dev}
-  cloud:
-    config:
-      server:
-        native:
-          search-locations: classpath:/config
+    cloud:
+      config:
+        server:
+          git:
+            uri: https://github.com/strider73/adventuretube-microservice.git
+#  cloud:
+#    config:
+#      server:
+#        native:
+#          search-locations: classpath:/config
   logging:
     level:
       org.springframework.cloud.config.server: DEBUG
