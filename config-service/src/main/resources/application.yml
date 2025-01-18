@@ -13,6 +13,9 @@ spring:
         server:
           git:
             uri: https://github.com/strider73/adventuretube-microservice.git
+            clone-on-start: true
+            search-paths: config-module/**
+            default-label: add-kafka
 #  cloud:
 #    config:
 #      server:
