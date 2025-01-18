@@ -1,0 +1,22 @@
+server:
+  port: 8040
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://adventuretube.net:8761/eureka
+    fetch-registry: true
+    register-with-eureka: true
+    enabled: true
+
+
+logging:
+  level:
+    root: INFO
+    com.netflix.discovery.DiscoveryClient: WARN  # Skip debug messages for DiscoveryClient
+    com.adventuretuebe.web: DEBUG  # Ensure debug messages for member-service
+
+jwt:
+  secret: adventuretubeMiAVzqUXy5Tfr1kVIGpPMiAVzqUXy5Tfr1kVIGpP
+
+

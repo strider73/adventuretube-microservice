@@ -1,0 +1,51 @@
+server:
+  port: 8010
+
+spring:
+  datasource:
+    url: jdbc:postgresql://adventuretube.net:5432/adventuretube
+    username: postgres
+    password: 5785Ch00
+    hikari:
+      maximum-pool-size: 10         # Maximum number of connections in the pool
+      minimum-idle: 5               # Minimum number of idle connections
+      max-lifetime: 2700000         # Max lifetime of a connection in milliseconds (27 minutes)
+      idle-timeout: 600000          # Time that a connection can sit idle in milliseconds (10 minutes)
+      validation-timeout: 5000      # Timeout for connection validation in milliseconds (5 seconds)
+      connection-test-query: SELECT 1  # Query to validate connections
+  jpa:
+    hibernate:
+      ddl-auto: update
+      show-sql: true
+      properties:
+        hibernate:
+          dialect: org.hibernate.dialect.PostgreSQLDialect
+          default_schema: public  # <-- Add this line
+          format_sql: true
+
+eureka: 
+  client:
+    service-url:
+      defaultZone: http://adventuretube.net:8761/eureka
+    fetch-registry: true
+    register-with-eureka: true
+    enabled: true
+
+
+logging:
+  level:
+    root: INFO
+    org:
+      hibernate: INFO
+    org.hibernate.SQL: INFO
+    org.hibernate.type.descriptor.sql: TRACE
+    #com.zaxxer.hikari: INFO
+    com.netflix.discovery.DiscoveryClient: WARN  # Skip debug messages for DiscoveryClient
+    com.adventuretube.auth: DEBUG  # Enable debug messages for auth-service
+
+jwt:
+  secret: adventuretubeMiAVzqUXy5Tfr1kVIGpPMiAVzqUXy5Tfr1kVIGpP
+  expiration:
+       access-token: 120
+       refresh-token: 86400
+
