@@ -16,9 +16,9 @@ FROM ${BASE_IMAGE}
 # Install required tools for health checks using apt-get for Debian-based images
 RUN apt-get update && apt-get install -y --no-install-recommends curl && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Add a non-root user for enhanced security
-RUN groupadd --system appgroup && useradd --system --gid appgroup --home-dir /home/appuser appuser
-USER appuser
+# Add a jenkins user for enhanced security
+RUN groupadd --system jenkinsgroup && useradd --system --gid jenkinsgroup --home-dir /home/jenkins jenkins
+USER jenkins
 
 # Expose application and debug ports
 EXPOSE ${APP_PORT} ${DEBUG_PORT}
