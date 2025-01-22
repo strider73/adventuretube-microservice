@@ -17,7 +17,11 @@ FROM ${BASE_IMAGE}
 RUN apt-get update && apt-get install -y --no-install-recommends curl && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Add a jenkins user for enhanced security
-RUN groupadd --system jenkinsgroup && useradd --system --gid jenkinsgroup --home-dir /home/jenkins jenkins
+RUN groupadd --system jenkinsgroup && \
+    useradd --system --gid jenkinsgroup --home-dir /home/jenkins --create-home jenkins && \
+    mkdir -p /home/jenkins/.config/jgit && \
+    chown -R jenkins:jenkinsgroup /home/jenkins && \
+    chmod -R 755 /home/jenkins
 USER jenkins
 
 # Expose application and debug ports
