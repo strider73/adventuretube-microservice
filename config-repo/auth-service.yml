@@ -26,7 +26,7 @@ spring:
 eureka: 
   client:
     service-url:
-      defaultZone: http://adventuretube.net:8761/eureka
+      defaultZone: http://192.168.1.101:8761/eureka
     fetch-registry: true
     register-with-eureka: true
     enabled: true
