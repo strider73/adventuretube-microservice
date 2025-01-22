@@ -1,33 +1,19 @@
 server:
   port: 9297
-  tomcat:
-      apr:
-        enabled:false
+
 spring:
   application:
     name: config-service
   profiles:
-    active: ${SPRING_PROFILES_ACTIVE:dev}
-    cloud:
-      config:
-        server:
-          git:
-            uri: https://github.com/strider73/adventuretube-microservice.git
-            clone-on-start: true
-            search-paths:
-                - config-repo
-            default-label:
-                - add-kafka
-#  cloud:
-#    config:
-#      server:
-#        native:
-#          search-locations: classpath:/config
-  logging:
-    level:
-      org.springframework.cloud.config.server: DEBUG
-      org.springframework.cloud.config: DEBUG
-
+    active: git
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/strider73/adventuretube-microservice.git
+          clone-on-start: true
+          search-paths: config-repo
+          default-label: add-kafka
 
 eureka:
   instance:
@@ -48,7 +34,3 @@ management:
       enabled: true
     liveness-state:
       enabled: true
-  endpoint:
-    health:
-      show-details: always
-

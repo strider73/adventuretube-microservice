@@ -4,4 +4,4 @@ spring:
   application:
     name: member-service
   config:
-    import:  "optional:configserver:http://config.adventuretube.net"
+    import:  "optional:configserver:http://192.168.1.101:9297"

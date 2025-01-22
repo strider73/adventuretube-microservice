@@ -9,7 +9,7 @@ eureka:
     fetchRegistry: false
     serviceUrl:
       # for docker-compose
-      defaultZone: http://eureka-server:8761/eureka
+      defaultZone: http://localhost:8761/eureka
 
 spring:
   application:
