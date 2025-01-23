@@ -18,7 +18,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends curl && apt-get
 
 # Add a jenkins user for enhanced security
 RUN groupadd --system jenkins && \
-    useradd --system --gid jenkins --home-dir /home/jenkins --create-home jenkins && \
+    useradd --system --gid jenkins --home-dir /home/jenkins --create-home jenkins &&
 #    mkdir -p /home/jenkins/.config/jgit && \
 #    chown -R jenkins:jenkins /home/jenkins && \
 #    chmod -R 755 /home/jenkins
