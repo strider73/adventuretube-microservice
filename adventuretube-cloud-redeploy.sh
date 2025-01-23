@@ -33,7 +33,15 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-# Step 5: Build the Docker image
+# Step 5: Clean up Docker system (pruning)
+echo "$(date) - Pruning Docker system..."
+docker system prune -af --volumes
+if [ $? -ne 0 ]; then
+    echo "$(date) - Docker system prune failed."
+    exit 1
+fi
+
+# Step 6: Build the Docker image
 echo "$(date) - Building Docker image..."
 docker compose --env-file $ENV_FILE -f docker-compose-clouds.yml build
 if [ $? -ne 0 ]; then
@@ -41,7 +49,7 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-# Step 6: Stop and remove existing Docker containers (if any)
+# Step 7: Stop and remove existing Docker containers (if any)
 echo "$(date) - Stopping and removing existing Docker containers..."
 docker compose --env-file $ENV_FILE -f docker-compose-clouds.yml down
 if [ $? -ne 0 ]; then
@@ -49,7 +57,7 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-# Step 7: Start the Docker container with the new image
+# Step 8: Start the Docker container with the new image
 echo "$(date) - Starting the Docker container..."
 docker compose --env-file $ENV_FILE -f docker-compose-clouds.yml up -d
 if [ $? -ne 0 ]; then
