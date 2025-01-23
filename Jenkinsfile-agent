@@ -12,8 +12,8 @@ pipeline {
         stage('Check Docker Container Health') {
             steps {
                 script {
-                    def services = ["adventuretube-microservice-eureka-service-1",
-                                    "adventuretube-microservice-config-server-1",
+                    def services = ["adventuretube-microservice-eureka-server-1",
+                                    "adventuretube-microservice-config-service-1",
                                     "adventuretube-microservice-gateway-service-1"]
 
                     services.each { service ->
