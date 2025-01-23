@@ -18,7 +18,7 @@ pipeline {
 
                     services.each { service ->
                         def serviceReady = false
-                        for (int i = 0; i < 10; i++) {
+                        for (int i = 0; i < 5; i++) {
                             def status = sh(
                                 script: "docker inspect --format='{{.State.Health.Status}}' ${service} || echo 'unhealthy'",
                                 returnStdout: true
@@ -30,8 +30,8 @@ pipeline {
                                 break
                             }
 
-                            echo "${service} is not ready yet. Retrying in 5 seconds..."
-                            sleep(5)
+                            echo "${service} is not ready yet. Retrying in 30 seconds..."
+                            sleep(30)
                         }
 
                         if (!serviceReady) {
