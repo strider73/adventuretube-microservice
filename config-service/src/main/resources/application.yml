@@ -1,11 +1,6 @@
-server:
-  port: 9297
-
 spring:
   application:
     name: config-service
-  profiles:
-    active: git
   cloud:
     config:
       server:
@@ -14,15 +9,19 @@ spring:
           clone-on-start: true
           search-paths: config-service/src/main/resources/config
           default-label: add-kafka
+  profiles:
+    active: git  # Default profile for Git backend
 
+server:
+  port: 9297
 eureka:
   instance:
     prefer-ip-address: true
   client:
-    service-url:
-      defaultZone: http://192.168.1.116:8761/eureka
     fetch-registry: true
     register-with-eureka: true
+    service-url:
+      defaultZone: ${EUREKA_SERVER_URL}
 
 management:
   endpoints:

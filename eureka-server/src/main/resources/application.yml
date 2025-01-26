@@ -1,20 +1,19 @@
-server:
-  profiles:
-     active:  ${SPRING_PROFILES_ACTIVE:dev}
-  port: 8761
-
-eureka:
-  client:
-    registerWithEureka: false
-    fetchRegistry: false
-    serviceUrl:
-      # for docker-compose
-      defaultZone: http://localhost:8761/eureka
-
 spring:
   application:
     name: eureka-server
-# Spring Actuator endpoint for health check
+
+server:
+  port: 8761  # Default port for all environments unless overridden
+
+eureka:
+  instance:
+    hostname: localhost
+  client:
+    serviceUrl:
+      defaultZone: ${EUREKA_SERVER_URL}  # Assuming hostname resolution is set up
+    registerWithEureka: false
+    fetchRegistry: false
+
 management:
   endpoints:
     web:
@@ -28,3 +27,9 @@ management:
   endpoint:
     health:
       show-details: always
+
+logging:
+  level:
+    root: INFO  # Set the logging level for the entire application
+    com.adventuretube: DEBUG  # More detailed logging for your application's package
+    com.adventuretube.config.DotenvEnvironmentPostProcessor: INFO
