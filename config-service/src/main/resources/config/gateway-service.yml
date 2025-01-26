@@ -20,7 +20,7 @@ eureka:
     prefer-ip-address: true
   client:
     service-url:
-       defaultZone: ${EUREKA_SERVER_URL}
+       defaultZone: ${EUREKA_SERVER_URLdd}
     fetch-registry: true
     register-with-eureka: true
 
