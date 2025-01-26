@@ -2,7 +2,7 @@
 
 # Step 1: Check if the environment argument is provided
 if [ -z "$1" ]; then
-    echo "Please specify the environment (dev or prod)."
+    echo "Please specify the environment (pi or mac)."
     exit 1
 fi
 
@@ -16,12 +16,12 @@ if [ $? -ne 0 ]; then
 fi
 
 # Step 3: Set the environment file based on the argument (dev or prod)
-if [ "$1" == "prod" ]; then
-    export ENV_FILE=env.prod
-    echo "$(date) - Using 'env.prod' configuration"
+if [ "$1" == "pi" ]; then
+    export ENV_FILE=env.pi
+    echo "$(date) - Using 'env.pi' configuration"
 else
-    export ENV_FILE=env.dev
-    echo "$(date) - Using 'env.dev' configuration"
+    export ENV_FILE=env.mac
+    echo "$(date) - Using 'env.mac' configuration"
 fi
 
 # Step 4: Clean and build Maven project
