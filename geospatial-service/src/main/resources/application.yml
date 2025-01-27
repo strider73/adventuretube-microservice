@@ -2,5 +2,5 @@ spring:
   application:
     name: geospatial-service
   config:
-    import:  "optional:configserver:${CONFIG_SERVER_URL}"
+    import: "optional:configserver:${CONFIG_SERVER_URL}"
 
