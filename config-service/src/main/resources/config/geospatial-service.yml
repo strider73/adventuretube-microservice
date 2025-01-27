@@ -5,7 +5,7 @@ spring:
   data:
     mongodb:
       authentication-database: ${MONGO_AUTH_DB}
-      username: strider
+      username: ${MONGO_USERNAME}
       password: 5785Ch00
       database: ${MONGO_DB}
       port: ${MONGO_PORT}
