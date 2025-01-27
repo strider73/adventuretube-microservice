@@ -1,8 +1,6 @@
 spring:
-  profiles:
-    active:  ${SPRING_PROFILES_ACTIVE:dev}
   application:
     name: geospatial-service
   config:
-    import:  "optional:configserver:http://192.168.1.116:9297"
+    import:  "optional:configserver:${CONFIG_SERVER_URL}"
 
