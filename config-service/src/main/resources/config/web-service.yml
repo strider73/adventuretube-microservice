@@ -1,5 +1,5 @@
 server:
-  port: 8040
+  port: ${WEB_SERVICE_PORT}
 
 eureka:
   client:

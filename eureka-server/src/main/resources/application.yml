@@ -3,7 +3,7 @@ spring:
     name: eureka-server
 
 server:
-  port: 8761  # Default port for all environments unless overridden
+  port: ${EUREKA_PORT}  # Default port for all environments unless overridden
 
 eureka:
   instance:

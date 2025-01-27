@@ -13,7 +13,7 @@ spring:
     active: git  # Default profile for Git backend
 
 server:
-  port: 9297
+  port: ${CONFIG_PORT}
 eureka:
   instance:
     prefer-ip-address: true
