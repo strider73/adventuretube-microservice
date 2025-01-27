@@ -59,6 +59,6 @@ logging:
   level:
     root: INFO
 jwt:
-  secret : ${JWT_SECRET}
+  secret : adventuretubeMiAVzqUXy5Tfr1kVIGpPMiAVzqUXy5Tfr1kVIGpP
 
 
