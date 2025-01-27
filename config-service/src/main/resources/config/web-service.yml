@@ -4,7 +4,7 @@ server:
 eureka:
   client:
     service-url:
-      defaultZone: http://192.168.1.116:8761/eureka
+      defaultZone: ${EUREKA_SERVER_URL}
     fetch-registry: true
     register-with-eureka: true
     enabled: true
@@ -17,6 +17,6 @@ logging:
     com.adventuretuebe.web: DEBUG  # Ensure debug messages for member-service
 
 jwt:
-  secret: adventuretubeMiAVzqUXy5Tfr1kVIGpPMiAVzqUXy5Tfr1kVIGpP
+  secret: ${JWT_SECRET}
 
 

@@ -26,7 +26,7 @@ spring:
 eureka: 
   client:
     service-url:
-      defaultZone: http://192.168.1.116:8761/eureka
+      defaultZone:  ${EUREKA_SERVER_URL}
     fetch-registry: true
     register-with-eureka: true
     enabled: true
@@ -44,8 +44,8 @@ logging:
     com.adventuretube.auth: DEBUG  # Enable debug messages for auth-service
 
 jwt:
-  secret: adventuretubeMiAVzqUXy5Tfr1kVIGpPMiAVzqUXy5Tfr1kVIGpP
+  secret: ${JWT_SECRET}
   expiration:
-       access-token: 120
-       refresh-token: 86400
+       access-token: ${ACCESS_TOKEN_EXPIRATION}
+       refresh-token: ${REFRESH_TOKEN_EXPIRATION}
 

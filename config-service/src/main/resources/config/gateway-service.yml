@@ -1,5 +1,5 @@
 server:
-  port: ${GATEWAY_PORT:8030}
+  port: ${GATEWAY_PORT}
 
 spring:
   application:
@@ -30,4 +30,4 @@ logging:
     level:
       root: INFO
 jwt:
-  secret : adventuretubeMiAVzqUXy5Tfr1kVIGpPMiAVzqUXy5Tfr1kVIGpP
+  secret : ${JWT_SECRET}}
