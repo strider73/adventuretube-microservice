@@ -7,7 +7,7 @@ spring:
       authentication-database: admin
       username: strider
       password: 5785Ch00
-      database: adventuretube
+      database: ${MONGO_DB}
       port: ${MONGO_PORT}
       host: ${MONGO_HOST}
       auto-index-creation: true
