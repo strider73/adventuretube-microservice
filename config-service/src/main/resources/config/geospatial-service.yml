@@ -5,8 +5,8 @@ spring:
   data:
     mongodb:
       authentication-database: admin
-      username: ${MONGO_INITDB_ROOT_USERNAME}
-      password: ${MONGO_INITDB_ROOT_PASSWORD}}
+      username: strider
+      password: 5785Ch00
       database: adventuretube
       port: ${MONGO_PORT}
       host: ${MONGO_HOST}
