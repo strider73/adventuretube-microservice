@@ -58,17 +58,7 @@ eureka:
 logging:
   level:
     root: INFO
-    org:
-      hibernate: INFO
-    org.hibernate.SQL: INFO
-    org.hibernate.type.descriptor.sql: TRACE
-    #com.zaxxer.hikari: INFO
-    com.netflix.discovery.DiscoveryClient: WARN  # Skip debug messages for DiscoveryClient
-    com.adventuretuebe.geospatial: DEBUG  # Ensure debug messages for member-service
-
-
-
 jwt:
-  secret: ${JWT_SECRET}
+  secret : ${JWT_SECRET}
 
 
