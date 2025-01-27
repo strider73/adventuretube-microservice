@@ -45,8 +45,7 @@ logging:
     com.adventuretuebe.member: DEBUG  # Ensure debug messages for member-service
 
 
-jwt:
-  secret: ${JWT_SECRET}
+
 
 
 

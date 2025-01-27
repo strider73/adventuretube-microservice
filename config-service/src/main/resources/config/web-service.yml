@@ -16,7 +16,6 @@ logging:
     com.netflix.discovery.DiscoveryClient: WARN  # Skip debug messages for DiscoveryClient
     com.adventuretuebe.web: DEBUG  # Ensure debug messages for member-service
 
-jwt:
-  secret: ${JWT_SECRET}
+
 
 
