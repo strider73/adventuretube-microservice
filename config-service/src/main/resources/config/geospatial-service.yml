@@ -4,7 +4,7 @@ server:
 spring:
   data:
     mongodb:
-      authentication-database: admin
+      authentication-database: ${MONGO_AUTH_DB}
       username: strider
       password: 5785Ch00
       database: ${MONGO_DB}
