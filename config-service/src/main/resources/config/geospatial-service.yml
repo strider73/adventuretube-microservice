@@ -1,22 +1,22 @@
 server:
-  port: 8060
+  port: ${GEOSPATIAL_SERVICE_PORT}
 
 spring:
   data:
     mongodb:
       authentication-database: admin
-      username: strider
-      password: 5785Ch00
+      username: ${MONGO_INITDB_ROOT_USERNAME}
+      password: ${MONGO_INITDB_ROOT_PASSWORD}}
       database: adventuretube
-      port: 27017
-      host: adventuretube.net
+      port: ${MONGO_PORT}
+      host: ${MONGO_HOST}
       auto-index-creation: true
     rest:
       base-path: /api/rest
   datasource:
-    url: jdbc:postgresql://adventuretube.net:5432/adventuretube
-    username: postgres
-    password: 5785Ch00
+    url: jdbc:postgresql:${POSTGRES_HOST}}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
     hikari:
       maximum-pool-size: 10         # Maximum number of connections in the pool
       minimum-idle: 5               # Minimum number of idle connections
