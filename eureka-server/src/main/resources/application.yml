@@ -32,4 +32,4 @@ logging:
   level:
     root: INFO  # Set the logging level for the entire application
     com.adventuretube: DEBUG  # More detailed logging for your application's package
-    com.adventuretube.config.DotenvEnvironmentPostProcessor: INFO
+

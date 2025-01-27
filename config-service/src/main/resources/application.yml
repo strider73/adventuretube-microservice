@@ -33,3 +33,7 @@ management:
       enabled: true
     liveness-state:
       enabled: true
+logging:
+  level:
+    root: INFO  # Set the logging level for the entire application
+    com.adventuretube: DEBUG  # More detailed logging for your application's package
