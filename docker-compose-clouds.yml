@@ -4,7 +4,7 @@ services:
   eureka-server:
     build:
       context: ./eureka-server # Context points to the module folder
-      dockerfile: ../Dockerfile # Unified Dockerfile located in the root directory
+      dockerfile: ../${Dockerfile} # Unified Dockerfile located in the root directory
       args:
         BASE_IMAGE: ${BASE_IMAGE:-openjdk:17-jdk-alpine}
         MODULE_NAME: eureka-server
@@ -26,7 +26,7 @@ services:
   config-service:
     build:
       context: ./config-service # Context points to the module folder
-      dockerfile: ../Dockerfile # Unified Dockerfile located in the root directory
+      dockerfile: ../${Dockerfile} # Unified Dockerfile located in the root directory
       args:
         BASE_IMAGE: ${BASE_IMAGE:-openjdk:17-jdk-alpine}
         MODULE_NAME: config-service
@@ -53,7 +53,7 @@ services:
   gateway-service:
     build:
       context: ./gateway-service # Context points to the module folder
-      dockerfile: ../Dockerfile # Unified Dockerfile located in the root directory
+      dockerfile: ../${Dockerfile} # Unified Dockerfile located in the root directory
       args:
         BASE_IMAGE: ${BASE_IMAGE:-openjdk:17-jdk-alpine}
         MODULE_NAME: gateway-service
