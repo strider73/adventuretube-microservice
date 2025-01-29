@@ -1,7 +1,7 @@
 pipeline {
     agent { label 'jenkins-agent2' }
     environment {
-        ENVIRONMENT = "dev" // Set the environment dynamically if needed
+        ENVIRONMENT = "pi" // Set the environment dynamically if needed
     }
     stages {
         stage('Run Deployment Script') {
