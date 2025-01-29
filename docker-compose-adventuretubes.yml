@@ -3,10 +3,10 @@ version: "3.9"
 services:
   auth-service:
     build:
-      context: ./auth-service
-      dockerfile: ../Dockerfile
+      context: . # Context points to the module folder
+      dockerfile: ${Dockerfile} # Unified Dockerfile.mac located in the root directory
       args:
-        BASE_IMAGE: ${BASE_IMAGE:-openjdk:17-jdk-alpine}
+        BASE_IMAGE: ${BASE_IMAGE}
         MODULE_NAME: auth-service
         APP_PORT: ${AUTH_SERVICE_PORT}
         DEBUG_PORT: ${AUTH_DEBUG_PORT}
@@ -16,6 +16,7 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
       - JAVA_DEBUG_PORT=${AUTH_DEBUG_PORT}
+      - CONFIG_SERVER_URL=${CONFIG_SERVER_URL}
       - JAVA_TOOL_OPTIONS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:${AUTH_DEBUG_PORT}"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://auth-service:${AUTH_SERVICE_PORT}/actuator/health"]
@@ -28,10 +29,10 @@ services:
 
   member-service:
     build:
-      context: ./member-service
-      dockerfile: ../Dockerfile
+      context: . # Context points to the module folder
+      dockerfile: ${Dockerfile} # Unified Dockerfile.mac located in the root directory
       args:
-        BASE_IMAGE: ${BASE_IMAGE:-openjdk:17-jdk-alpine}
+        BASE_IMAGE: ${BASE_IMAGE}
         MODULE_NAME: member-service
         APP_PORT: ${MEMBER_SERVICE_PORT}
         DEBUG_PORT: ${MEMBER_DEBUG_PORT}
@@ -41,6 +42,7 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
       - JAVA_DEBUG_PORT=${MEMBER_DEBUG_PORT}
+      - CONFIG_SERVER_URL=${CONFIG_SERVER_URL}
       - JAVA_TOOL_OPTIONS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:${MEMBER_DEBUG_PORT}"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://member-service:${MEMBER_SERVICE_PORT}/actuator/health"]
@@ -53,10 +55,10 @@ services:
 
   web-service:
     build:
-      context: ./web-service
-      dockerfile: ../Dockerfile
+      context: . # Context points to the module folder
+      dockerfile: ${Dockerfile} # Unified Dockerfile.mac located in the root directory
       args:
-        BASE_IMAGE: ${BASE_IMAGE:-openjdk:17-jdk-alpine}
+        BASE_IMAGE: ${BASE_IMAGE}
         MODULE_NAME: web-service
         APP_PORT: ${WEB_SERVICE_PORT}
         DEBUG_PORT: ${WEB_DEBUG_PORT}
@@ -66,6 +68,7 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
       - JAVA_DEBUG_PORT=${WEB_DEBUG_PORT}
+      - CONFIG_SERVER_URL=${CONFIG_SERVER_URL}
       - JAVA_TOOL_OPTIONS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:${WEB_DEBUG_PORT}"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://web-service:${WEB_SERVICE_PORT}/actuator/health"]
@@ -78,10 +81,10 @@ services:
 
   geospatial-service:
     build:
-      context: ./geospatial-service
-      dockerfile: ../Dockerfile
+      context: . # Context points to the module folder
+      dockerfile: ${Dockerfile} # Unified Dockerfile.mac located in the root directory
       args:
-        BASE_IMAGE: ${BASE_IMAGE:-openjdk:17-jdk-alpine}
+        BASE_IMAGE: ${BASE_IMAGE}
         MODULE_NAME: geospatial-service
         APP_PORT: ${GEOSPATIAL_SERVICE_PORT}
         DEBUG_PORT: ${GEOSPATIAL_DEBUG_PORT}
@@ -91,6 +94,7 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
       - JAVA_DEBUG_PORT=${GEOSPATIAL_DEBUG_PORT}
+      - CONFIG_SERVER_URL=${CONFIG_SERVER_URL}
       - JAVA_TOOL_OPTIONS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:${GEOSPATIAL_DEBUG_PORT}"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://geospatial-service:${GEOSPATIAL_SERVICE_PORT}/actuator/health"]
