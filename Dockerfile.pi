@@ -15,7 +15,7 @@ RUN java -Djarmode=layertools -jar application.jar extract
 FROM ${BASE_IMAGE}
 # Install curl for health check (using a Debian-based package manager since the image is Debian-based)
 # Install essential tools for health checks
-RUN apk --no-cache add curl
+#
 # Add a jenkins user for enhanced security
 RUN groupadd --system jenkins && \
     useradd --system --gid jenkins --home-dir /home/jenkins --create-home jenkins
