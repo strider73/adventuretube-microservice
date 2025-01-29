@@ -1,6 +1,6 @@
 # Stage 1: Build
 # Use platform-specific base images
-ARG BASE_IMAGE=arm64v8/openjdk:17
+ARG BASE_IMAGE
 FROM ${BASE_IMAGE} as builder
 
 
@@ -32,6 +32,9 @@ COPY --from=builder dependencies/ ./
 COPY --from=builder snapshot-dependencies/ ./
 COPY --from=builder spring-boot-loader/ ./
 COPY --from=builder application/ ./
+
+# Copy environment files into the container
+COPY env.mac env.pi env.prod /home/jenkins/
 
 # Define the entry point to run the Spring Boot application
 ENTRYPOINT ["java", "org.springframework.boot.loader.launch.JarLauncher"]
