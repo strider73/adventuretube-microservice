@@ -3,9 +3,9 @@
 ARG BASE_IMAGE
 FROM ${BASE_IMAGE} as builder
 
-
+ARG MODULE_NAME
 # Specify the JAR file location dynamically
-ARG JAR_FILE=target/*.jar
+ARG JAR_FILE=${MODULE_NAME}/target/*.jar
 # Copy the application JAR file into the build image
 COPY ${JAR_FILE} application.jar
 # Use Spring Boot's layertools to extract layers for optimized builds
