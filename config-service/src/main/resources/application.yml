@@ -15,8 +15,6 @@ spring:
 server:
   port: ${CONFIG_PORT}
 eureka:
-  instance:
-    prefer-ip-address: true
   client:
     fetch-registry: true
     register-with-eureka: true
