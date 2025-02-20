@@ -1,4 +1,4 @@
-\# AdventureTube - Microservices Backend
+# AdventureTube - Microservices Backend
 
 ## 1. Project Overview
 [AdventureTube](https://adventuretube.net/) is a personal project designed to showcase a comprehensive mobile system that can be used in many cases.
@@ -38,9 +38,10 @@ The second layer comprises several distinct services:
 ### 3. Database Layer
 This layer manages data persistence and consists of database systems that support the functionality of the above services.
 
-These components are organized into **six submodules** within **three different Docker Compose configurations**, enhancing maintainability and simplifying deployment. This structured separation allows for easier management and debugging, preventing the complexities that would arise if all submodules were contained within a single Docker configuration. This systematic division helps streamline development and ensures each part can be independently managed and scaled as needed.
+## 3. Conclusion
+The microservices architecture is organized into **six submodules** within **three different Docker Compose configurations**, enhancing maintainability and simplifying deployment. This structured separation allows for easier management and debugging, preventing the complexities that would arise if all submodules were contained within a single Docker configuration. This systematic division helps streamline development and ensures each part can be independently managed and scaled as needed.
 
-## 3. Technology Stack
+## 4. Technology Stack
 The AdventureTube microservices backend is a content management system that processes external requests to access user content through robust authentication and authorization mechanisms.
 
 ### Security Infrastructure
@@ -63,7 +64,7 @@ The AdventureTube microservices backend is a content management system that proc
 - **Spring Cloud**: Enhances microservice scalability with features like service discovery and centralized configuration.
 - **Jenkins**: Automates CI/CD pipeline for continuous integration and deployment.
 
-## 4. Deployment - CI/CD Process
+## 5. Deployment - CI/CD Process
 For a detailed breakdown of the **CI/CD process**, including source code management, testing, quality assurance, integration, and deployment, refer to the **Jenkins Deployment Repository**:
 
 ➡️ **[Jenkins-Docker-Compose on GitHub](https://github.com/strider73/jenkins-docker-compose)**
