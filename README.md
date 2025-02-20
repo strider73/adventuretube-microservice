@@ -1,7 +1,8 @@
 # AdventureTube - Microservices Backend
 
 ## 1. Project Overview
-AdventureTube is a personal project designed to showcase a comprehensive mobile system, supported by a Java Spring framework. It spans from a user-facing frontend to the server-side backend, functioning as a foundational framework suitable for various commercial applications in the mobile ecosystem.
+[AdventureTube](https://adventuretube.net/) is a personal project designed to showcase a comprehensive mobile system that can be use in many case,
+AdventureTube - Backend is a Java Spring framework to support  Adventuretube as backbone system. It spans from a user-facing frontend to the server-side backend, functioning as a foundational framework suitable for various commercial applications in the mobile ecosystem.
 
 ### AdventureTube Microservices
 This backend system has been developed using the **Java Spring Framework**, complemented by **Spring Cloud**, and utilizes a **dual-database system**, incorporating **MongoDB** and **PostgreSQL**.
