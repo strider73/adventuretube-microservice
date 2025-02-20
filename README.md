@@ -9,7 +9,7 @@ This backend system has been developed using the **Java Spring Framework**, comp
 
 - **MongoDB** is employed for managing JSON-styled and geographical data, providing excellent support for geolocation queries essential for pinpointing specific locations on user interfaces.
 
-  <img src="https://adventuretube.net/wp-content/uploads/2024/05/StoryMap11.png" alt="Story Map" width="400"/>
+  <img src="https://adventuretube.net/wp-content/uploads/2024/05/StoryMap11.png" alt="Story Map" width="200"/>
 
 - **PostgreSQL** handles traditional relational database management tasks.
 
