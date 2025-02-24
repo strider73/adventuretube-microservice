@@ -23,7 +23,9 @@ Finally, the infrastructure is orchestrated using **Docker Compose**.
 
 ## 2. Microservices Architecture
 
-The administrative microservices architecture is divided into three main layers, each with its specific functions:
+The microservices architecture is organized into six submodules within three different Docker Compose configurations, enhancing maintainability and simplifying deployment. 
+This structured separation allows for easier management and debugging, preventing the complexities that would arise if all submodules were contained within a single Docker configuration.
+This systematic division helps streamline development and ensures each part can be independently managed and scaled as needed.
 
 ### 1. Configuration and Messaging System
 
@@ -50,13 +52,8 @@ This layer manages data persistence and consists of database systems that suppor
 
 ---
 
-## 3. Conclusion
 
-The microservices architecture is organized into **six submodules** within **three different Docker Compose configurations**, enhancing maintainability and simplifying deployment. This structured separation allows for easier management and debugging, preventing the complexities that would arise if all submodules were contained within a single Docker configuration. This systematic division helps streamline development and ensures each part can be independently managed and scaled as needed.
-
----
-
-## 4. Technology Stack
+## 3. Technology Stack
 
 The AdventureTube microservices backend is a content management system that processes external requests to access user content through robust authentication and authorization mechanisms.
 
@@ -81,7 +78,7 @@ The AdventureTube microservices backend is a content management system that proc
 
 ---
 
-## 5. Infrastructure & Deployment
+## 4. Infrastructure & Deployment
 
 - **[Docker & Docker Compose](https://github.com/strider73/jenkins-docker-compose)**: Simplifies containerized deployments and service orchestration.
 - **[Spring Cloud](https://github.com/strider73/jenkins-docker-compose)**: Enhances microservice scalability with features like service discovery and centralized configuration.
@@ -89,7 +86,7 @@ The AdventureTube microservices backend is a content management system that proc
 
 ---
 
-## 6. Deployment - CI/CD Process
+## 5. Deployment - CI/CD Process
 
 For a detailed breakdown of the **CI/CD process**, including source code management, testing, quality assurance, integration, and deployment, refer to the **Jenkins Deployment Repository**:
 
