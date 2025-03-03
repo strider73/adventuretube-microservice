@@ -34,7 +34,7 @@ COPY --from=builder spring-boot-loader/ ./
 COPY --from=builder application/ ./
 
 # Copy environment files into the container
-COPY env.mac env.pi env.prod ./
+COPY env.pi env.pi2  ./
 
 # Define the entry point to run the Spring Boot application
 ENTRYPOINT ["java", "org.springframework.boot.loader.launch.JarLauncher"]
