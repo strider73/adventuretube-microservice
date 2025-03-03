@@ -19,10 +19,17 @@ fi
 if [ "$1" == "pi" ]; then
     export ENV_FILE=env.pi
     echo "$(date) - Using 'env.pi' configuration"
+elif [ "$1" == "pi2" ]; then
+    export ENV_FILE=env.pi2
+    echo "$(date) - Using 'env.pi2' configuration"
+elif [ "$1" == "prod" ]; then
+    export ENV_FILE=env.prod
+    echo "$(date) - Using 'env.prod' configuration"
 else
     export ENV_FILE=env.mac
     echo "$(date) - Using 'env.mac' configuration"
 fi
+
 
 # Step 4: Clean and build Maven project
 echo "$(date) - Cleaning and building Maven project..."
