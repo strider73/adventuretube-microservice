@@ -30,8 +30,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 public class AuthController {
     private final AuthService authService;
 
-
-
     @Operation(summary = "Signup user")
     @ApiResponse(responseCode = "201")//created
     //@ApiResponse(responseCode = "404", content = @Content(schema = @Schema(implementation = CommonErrorResponse.class)))
