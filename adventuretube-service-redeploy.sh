@@ -48,7 +48,15 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-# Step 6: Build the Docker images
+# Step 6: Stop and remove existing Docker containers (if any)
+echo "$(date) - Stopping and removing existing Docker containers..."
+docker compose --env-file $ENV_FILE -f docker-compose-adventuretubes.yml down
+if [ $? -ne 0 ]; then
+    echo "$(date) - Failed to stop and remove Docker containers."
+    exit 1
+fi
+
+# Step 7: Build the Docker images
 echo "$(date) - Building Docker images..."
 docker compose --env-file $ENV_FILE -f docker-compose-adventuretubes.yml build
 if [ $? -ne 0 ]; then
@@ -56,13 +64,7 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-# Step 7: Stop and remove existing Docker containers (if any)
-echo "$(date) - Stopping and removing existing Docker containers..."
-docker compose --env-file $ENV_FILE -f docker-compose-adventuretubes.yml down
-if [ $? -ne 0 ]; then
-    echo "$(date) - Failed to stop and remove Docker containers."
-    exit 1
-fi
+
 
 # Step 8: Start the Docker containers with the new images
 echo "$(date) - Starting the Docker containers..."
