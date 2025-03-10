@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
@@ -16,7 +16,6 @@
 	<packaging>pom</packaging>
 	<name>adventuretube-microservice</name>
 	<description>adventuretube-microservice</description>
-
 	<modules>
 		<module>web-service</module>
 		<module>auth-service</module>
@@ -24,9 +23,9 @@
 		<module>member-service</module>
 		<module>common-domain</module>
 		<module>eureka-server</module>
-		<module>gateway-service</module>
-		<module>config-service</module>
-	</modules>
+        <module>gateway-service</module>
+        <module>config-service</module>
+    </modules>
 
 	<properties>
 		<java.version>17</java.version>
@@ -62,13 +61,10 @@
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
-			<version>1.18.28</version> <!-- Added explicit version -->
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -88,17 +84,6 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
-		</dependency>
-		<!-- ✅ Updated to latest secure version -->
-		<dependency>
-			<groupId>net.minidev</groupId>
-			<artifactId>json-smart</artifactId>
-			<version>2.5.2</version>
-		</dependency>
-		<dependency>
-			<groupId>ch.qos.logback</groupId>
-			<artifactId>logback-core</artifactId>
-			<version>1.5.13</version>
 		</dependency>
 		<!-- Maven dependency for dotenv -->
 		<dependency>
@@ -130,6 +115,13 @@
 				</configuration>
 			</plugin>
 		</plugins>
+
 	</build>
 
 </project>
+
+
+
+
+
+
