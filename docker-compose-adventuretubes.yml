@@ -17,7 +17,7 @@ services:
       - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
       - JAVA_DEBUG_PORT=${AUTH_DEBUG_PORT}
       - CONFIG_SERVER_URL=${CONFIG_SERVER_URL}
-      - JAVA_TOOL_OPTIONS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
+      - JAVA_TOOL_OPTIONS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
 
     healthcheck:
       test: ["CMD", "curl", "-f", "http://auth-service:${AUTH_SERVICE_PORT}/actuator/health"]
@@ -44,7 +44,7 @@ services:
       - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
       - JAVA_DEBUG_PORT=${MEMBER_DEBUG_PORT}
       - CONFIG_SERVER_URL=${CONFIG_SERVER_URL}
-      - JAVA_TOOL_OPTIONS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:${MEMBER_DEBUG_PORT}"
+      - JAVA_TOOL_OPTIONS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:${MEMBER_DEBUG_PORT}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://member-service:${MEMBER_SERVICE_PORT}/actuator/health"]
       interval: 10s
@@ -70,7 +70,7 @@ services:
       - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
       - JAVA_DEBUG_PORT=${WEB_DEBUG_PORT}
       - CONFIG_SERVER_URL=${CONFIG_SERVER_URL}
-      - JAVA_TOOL_OPTIONS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:${WEB_DEBUG_PORT}"
+      - JAVA_TOOL_OPTIONS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:${WEB_DEBUG_PORT}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://web-service:${WEB_SERVICE_PORT}/actuator/health"]
       interval: 10s
@@ -96,7 +96,7 @@ services:
       - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
       - JAVA_DEBUG_PORT=${GEOSPATIAL_DEBUG_PORT}
       - CONFIG_SERVER_URL=${CONFIG_SERVER_URL}
-      - JAVA_TOOL_OPTIONS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:${GEOSPATIAL_DEBUG_PORT}"
+      - JAVA_TOOL_OPTIONS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:${GEOSPATIAL_DEBUG_PORT}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://geospatial-service:${GEOSPATIAL_SERVICE_PORT}/actuator/health"]
       interval: 10s
