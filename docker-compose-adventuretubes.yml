@@ -17,7 +17,8 @@ services:
       - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
       - JAVA_DEBUG_PORT=${AUTH_DEBUG_PORT}
       - CONFIG_SERVER_URL=${CONFIG_SERVER_URL}
-      - JAVA_TOOL_OPTIONS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:${AUTH_DEBUG_PORT}"
+      - JAVA_TOOL_OPTIONS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
+
     healthcheck:
       test: ["CMD", "curl", "-f", "http://auth-service:${AUTH_SERVICE_PORT}/actuator/health"]
       interval: 10s
