@@ -4,7 +4,7 @@ pipeline {
         stage('Run Deployment Script') {
             steps {
                 script {
-                   sh './adventuretube-cloud-redeploy.sh pi'
+                   sh './adventuretube-cloud-redeploy.sh pi2'
                 }
             }
         }
