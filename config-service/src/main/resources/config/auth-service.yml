@@ -23,7 +23,11 @@ spring:
           default_schema: public  # <-- Add this line
           format_sql: true
 
-eureka: 
+eureka:
+  instance:
+    prefer-ip-address: true
+    ip-address: ${CLOUD_IP_ADDRESS}
+    hostname: ${CLOUD_IP_ADDRESS}
   client:
     service-url:
       defaultZone:  ${EUREKA_SERVER_URL}
