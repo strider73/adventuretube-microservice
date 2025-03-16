@@ -24,10 +24,6 @@ spring:
           format_sql: true
 
 eureka:
-  instance:
-    prefer-ip-address: true
-    ip-address: ${CLOUD_IP_ADDRESS}
-    hostname: ${CLOUD_IP_ADDRESS}
   client:
     service-url:
       defaultZone:  ${EUREKA_SERVER_URL}
