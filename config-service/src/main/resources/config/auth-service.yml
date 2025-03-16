@@ -24,10 +24,6 @@ spring:
           format_sql: true
 
 eureka:
-  instance:
-    prefer-ip-address: true   # Forces Eureka to use IP instead of hostname
-    ip-address: ${CLOUD_IP_ADDRESS}  # Replace with Mac's actual local network IP
-    hostname: ${CLOUD_IP_ADDRESS}   # Ensure consistency
   client:
     service-url:
       defaultZone:  ${EUREKA_SERVER_URL}
