@@ -2,6 +2,10 @@ server:
   port: ${WEB_SERVICE_PORT}
 
 eureka:
+  instance:
+    prefer-ip-address: true   # Forces Eureka to use IP instead of hostname
+    ip-address: ${HOST_IP}  # Replace with Mac's actual local network IP
+    hostname: ${HOST_IP}    # Ensure consistency
   client:
     service-url:
       defaultZone: ${EUREKA_SERVER_URL}
