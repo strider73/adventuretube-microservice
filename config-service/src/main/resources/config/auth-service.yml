@@ -24,6 +24,8 @@ spring:
           format_sql: true
 
 eureka:
+  instance:
+    prefer-ip-address: false
   client:
     service-url:
       defaultZone:  ${EUREKA_SERVER_URL}
