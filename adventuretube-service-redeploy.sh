@@ -8,8 +8,8 @@ fi
 
 # Step 2: Pull the latest updates from the 'add-kafka' branch
 echo "$(date) - Pulling latest updates from 'add-kafka' branch..."
-git checkout add-kafka
-git pull origin add-kafka
+git checkout main
+git pull origin main
 if [ $? -ne 0 ]; then
     echo "$(date) - Failed to pull latest updates from 'add-kafka' branch."
     exit 1
