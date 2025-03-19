@@ -8,7 +8,7 @@ spring:
           uri: https://github.com/strider73/adventuretube-microservice.git
           clone-on-start: true
           search-paths: config-service/src/main/resources/config
-          default-label: add-kafka
+          default-label: main
   profiles:
     active: git  # Default profile for Git backend
 

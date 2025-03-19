@@ -6,12 +6,12 @@ if [ -z "$1" ]; then
     exit 1
 fi
 
-# Step 2: Pull the latest updates from the 'add-kafka' branch
-echo "$(date) - Pulling latest updates from 'add-kafka' branch..."
+# Step 2: Pull the latest updates from the 'main' branch
+echo "$(date) - Pulling latest updates from 'main' branch..."
 git checkout main
 git pull origin main
 if [ $? -ne 0 ]; then
-    echo "$(date) - Failed to pull latest updates from 'add-kafka' branch."
+    echo "$(date) - Failed to pull latest updates from 'main' branch."
     exit 1
 fi
 
