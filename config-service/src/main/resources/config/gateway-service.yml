@@ -24,6 +24,18 @@ eureka:
     fetch-registry: true
     register-with-eureka: true
 
+springdoc:
+  swagger-ui:
+    urls:
+      - name: Auth Service
+        url: http://${CLOUD_IP_ADDRESS}:${AUTH_SERVICE_PORT}/v3/api-docs
+      - name: Member Service
+        url: http://${CLOUD_IP_ADDRESS}:${MEMBER_SERVICE_PORT}/v3/api-docs
+      - name: Web Service
+        url: http://${CLOUD_IP_ADDRESS}:${WEB_SERVICE_PORT}/v3/api-docs
+      - name: Geospatial Service
+        url: http://${CLOUD_IP_ADDRESS}:${GEOSPATIAL_SERVICE_PORT}/v3/api-docs
+
 
 
 logging:
