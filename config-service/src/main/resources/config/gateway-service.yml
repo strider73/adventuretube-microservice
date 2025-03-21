@@ -24,19 +24,34 @@ eureka:
     fetch-registry: true
     register-with-eureka: true
 
+#springdoc:
+#  swagger-ui:
+#    enabled: true
+#    path: /swagger-ui.html
+#    urls:
+#      - name: Auth Service
+#        url: http://${CLOUD_IP_ADDRESS}:${GATEWAY_PORT}/auth/v3/api-docs
+#      - name: Member Service
+#        url: http://${CLOUD_IP_ADDRESS}:${GATEWAY_PORT}/member/v3/api-docs
+#      - name: Web Service
+#        url: http://${CLOUD_IP_ADDRESS}:${GATEWAY_PORT}/web/v3/api-docs
+#      - name: Geospatial Service
+#        url: http://${CLOUD_IP_ADDRESS}:${GATEWAY_PORT}/geospatial/v3/api-docs
+#  api-docs:
+#    enabled: true
 springdoc:
   swagger-ui:
     enabled: true
     path: /swagger-ui.html
     urls:
       - name: Auth Service
-        url: http://${CLOUD_IP_ADDRESS}:${GATEWAY_PORT}/auth/v3/api-docs
+        url: http://192.168.1.105:8010/auth/v3/api-docs
       - name: Member Service
-        url: http://${CLOUD_IP_ADDRESS}:${GATEWAY_PORT}/member/v3/api-docs
+        url: http://192.168.1.105:8070/member/v3/api-docs
       - name: Web Service
-        url: http://${CLOUD_IP_ADDRESS}:${GATEWAY_PORT}/web/v3/api-docs
+        url: http://192.168.1.105:8040/web/v3/api-docs
       - name: Geospatial Service
-        url: http://${CLOUD_IP_ADDRESS}:${GATEWAY_PORT}/geospatial/v3/api-docs
+        url: http://192.168.1.105:8060/geospatial/v3/api-docs
   api-docs:
     enabled: true
 
