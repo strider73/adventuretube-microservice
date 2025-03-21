@@ -15,7 +15,11 @@ public class RouterValidator {
             "/auth/login",
             "/web/registerMember",
             "/actuator/health", // Allow health check endpoint
-            "/healthcheck"      // Add any custom health check endpoints here
+            "/healthcheck",      // Add any custom health check endpoints here
+            "/swagger-ui.html",   // Allow Swagger UI
+            "/swagger-ui/**",      // Allow Swagger static resources
+            "/v3/api-docs/**",     // Allow OpenAPI documentation
+            "/v3/api-docs"         // Allow direct API docs access
 
     );
 
