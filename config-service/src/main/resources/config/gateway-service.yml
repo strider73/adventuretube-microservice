@@ -30,13 +30,13 @@ springdoc:
     path: /swagger-ui.html
     urls:
       - name: Auth Service
-        url: http://${CLOUD_IP_ADDRESS}:${GATEWAY_PORT}/auth-service/v3/api-docs
+        url: http://${CLOUD_IP_ADDRESS}:${GATEWAY_PORT}/auth/v3/api-docs
       - name: Member Service
-        url: http://${CLOUD_IP_ADDRESS}:${GATEWAY_PORT}/member-service/v3/api-docs
+        url: http://${CLOUD_IP_ADDRESS}:${GATEWAY_PORT}/member/v3/api-docs
       - name: Web Service
-        url: http://${CLOUD_IP_ADDRESS}:${GATEWAY_PORT}/web-service/v3/api-docs
+        url: http://${CLOUD_IP_ADDRESS}:${GATEWAY_PORT}/web/v3/api-docs
       - name: Geospatial Service
-        url: http://${CLOUD_IP_ADDRESS}:${GATEWAY_PORT}/geospatial-service/v3/api-docs
+        url: http://${CLOUD_IP_ADDRESS}:${GATEWAY_PORT}/geospatial/v3/api-docs
   api-docs:
     enabled: true
 
