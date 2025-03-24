@@ -53,3 +53,8 @@ jwt:
        access-token: ${ACCESS_TOKEN_EXPIRATION}
        refresh-token: ${REFRESH_TOKEN_EXPIRATION}
 
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
