@@ -17,32 +17,18 @@ public class GatewayConfig {
     public RouteLocator routes(RouteLocatorBuilder builder){
         return builder.routes()
 
-                // API routes (with filter)
+        // Swagger docs (❗ without filters)
+        .route("auth-docs", r -> r.path("/auth/v3/api-docs").uri("lb://auth-service"))
+        .route("member-docs", r -> r.path("/member/v3/api-docs").uri("lb://member-service"))
+        .route("geo-docs", r -> r.path("/geo/v3/api-docs").uri("lb://geospatial-service"))
+        .route("web-docs", r -> r.path("/web/v3/api-docs").uri("lb://web-service"))
 
-                .route("member-service",r -> r.path("/member/**")
-                        .filters(f -> f.filter(filter))
-                        .uri("lb://member-service"))
-                .route("web-service", r -> r.path("/web/**")
-                        .filters(f -> f.filter(filter))
-                        .uri("lb://web-service"))
-                .route("auth-service", r -> r.path("/auth/**")
-                        .filters(f -> f.filter(filter))
-                        .uri("lb://auth-service"))
-                .route("geospatial-service", r -> r.path("/geo/**")
-                        .filters(f -> f.filter(filter))
-                        .uri("lb://geospatial-service"))
+        // API routes (with filters)
+        .route("auth-service", r -> r.path("/auth/**").filters(f -> f.filter(filter)).uri("lb://auth-service"))
+        .route("member-service", r -> r.path("/member/**").filters(f -> f.filter(filter)).uri("lb://member-service"))
+        .route("geo-service", r -> r.path("/geo/**").filters(f -> f.filter(filter)).uri("lb://geospatial-service"))
+        .route("web-service", r -> r.path("/web/**").filters(f -> f.filter(filter)).uri("lb://web-service"))
 
-                // Swagger routes (no filter)
-                //Why no filter? Because Swagger UI in the gateway needs to fetch docs without hitting auth filters.
-                .route("auth-docs", r -> r.path("/auth-service/v3/api-docs")
-                        .uri("lb://auth-service"))
-                .route("member-docs", r -> r.path("/member-service/v3/api-docs")
-                        .uri("lb://member-service"))
-                .route("geo-docs", r -> r.path("/geospatial-service/v3/api-docs")
-                        .uri("lb://geospatial-service"))
-                .route("web-docs", r -> r.path("/web-service/v3/api-docs")
-                        .uri("lb://web-service"))
-
-                .build();
+        .build();
     }
 }
