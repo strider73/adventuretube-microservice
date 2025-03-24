@@ -12,10 +12,7 @@
 
     <artifactId>gateway-service</artifactId>
 
-    <properties>
-        <jjwt.version>0.12.3</jjwt.version>
-        <spring-doc.version>2.4.0</spring-doc.version>
-    </properties>
+
     <dependencies>
         <!--Error with starter-web dependencies
         Spring MVC found on classpath, which is incompatible with Spring Cloud Gateway.
