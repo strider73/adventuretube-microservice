@@ -21,5 +21,9 @@ logging:
     com.adventuretube.member: DEBUG  # Ensure debug messages for member-service
 
 
-
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
 
