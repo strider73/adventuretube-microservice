@@ -16,6 +16,9 @@ public class GatewayConfig {
     @Bean
     public RouteLocator routes(RouteLocatorBuilder builder){
         return builder.routes()
+
+                // API routes (with filter)
+
                 .route("member-service",r -> r.path("/member/**")
                         .filters(f -> f.filter(filter))
                         .uri("lb://member-service"))
@@ -28,6 +31,18 @@ public class GatewayConfig {
                 .route("geospatial-service", r -> r.path("/geo/**")
                         .filters(f -> f.filter(filter))
                         .uri("lb://geospatial-service"))
+
+                // Swagger routes (no filter)
+                //Why no filter? Because Swagger UI in the gateway needs to fetch docs without hitting auth filters.
+                .route("auth-docs", r -> r.path("/auth-service/v3/api-docs")
+                        .uri("lb://auth-service"))
+                .route("member-docs", r -> r.path("/member-service/v3/api-docs")
+                        .uri("lb://member-service"))
+                .route("geo-docs", r -> r.path("/geospatial-service/v3/api-docs")
+                        .uri("lb://geospatial-service"))
+                .route("web-docs", r -> r.path("/web-service/v3/api-docs")
+                        .uri("lb://web-service"))
+
                 .build();
     }
 }
