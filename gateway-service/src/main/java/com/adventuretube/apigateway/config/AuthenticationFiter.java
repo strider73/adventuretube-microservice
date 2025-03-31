@@ -52,7 +52,7 @@ public class AuthenticationFiter implements GatewayFilter {
 
 
         }
-        // Step 5: Continue the filter chain if everything is valid
+        // Step 5: Continue the  Gateway filter chain Not Spring security filter  if everything is valid
         return chain.filter(exchange);
     }
 

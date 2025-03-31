@@ -34,7 +34,11 @@ public class AuthServiceConfig {
             .csrf(AbstractHttpConfigurer::disable)
             .securityMatcher("/auth/**")// Applies this security configuration to /auth/** endpoints
             .authorizeHttpRequests(authorize -> authorize
-                    .requestMatchers("/auth/register","/auth/login","/auth/refreshToken","/auth/logout").permitAll()
+                    .requestMatchers("/auth/register",
+                                     "/auth/login",
+                                     "/auth/refreshToken",
+                                     "/auth/logout")
+                    .permitAll()
                     .anyRequest().hasRole("ADMIN")
             )
             //.authenticationProvider()
@@ -49,8 +53,8 @@ public class AuthServiceConfig {
               and that user info out of authentication will be used for the roll that has been described
                in upper part
              */
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-            .httpBasic(withDefaults());// Use HTTP Basic authentication
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+            //.httpBasic(withDefaults());// Use HTTP Basic authentication
 
      return httpSecurity.build();
 

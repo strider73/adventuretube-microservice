@@ -31,13 +31,13 @@ springdoc:
     path: /swagger-ui.html
     urls:
       - name: Auth Service
-        url: /auth/v3/api-docs
+        url: /auth-service/v3/api-docs
       - name: Member Service
-        url: /member/v3/api-docs
+        url: /member-service/v3/api-docs
       - name: Web Service
-        url: /web/v3/api-docs
+        url: /web-service/v3/api-docs
       - name: Geospatial Service
-        url: /geo/v3/api-docs
+        url: /geo-service/v3/api-docs
   api-docs:
     enabled: true
 
