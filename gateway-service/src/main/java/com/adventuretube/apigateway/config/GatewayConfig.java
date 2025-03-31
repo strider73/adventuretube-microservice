@@ -18,10 +18,10 @@ public class GatewayConfig {
         return builder.routes()
 
         // Swagger docs (❗ without filters)
-        .route("auth-docs", r -> r.path("/auth/v3/api-docs").uri("lb://auth-service"))
-        .route("member-docs", r -> r.path("/member/v3/api-docs").uri("lb://member-service"))
-        .route("geo-docs", r -> r.path("/geo/v3/api-docs").uri("lb://geospatial-service"))
-        .route("web-docs", r -> r.path("/web/v3/api-docs").uri("lb://web-service"))
+        .route("auth-docs", r -> r.path("/auth-service/v3/api-docs").uri("lb://auth-service"))
+        .route("member-docs", r -> r.path("/member-service/v3/api-docs").uri("lb://member-service"))
+        .route("geo-docs", r -> r.path("/geo-service/v3/api-docs").uri("lb://geospatial-service"))
+        .route("web-docs", r -> r.path("/web-service/v3/api-docs").uri("lb://web-service"))
 
         // API routes (with filters)
         .route("auth-service", r -> r.path("/auth/**").filters(f -> f.filter(filter)).uri("lb://auth-service"))

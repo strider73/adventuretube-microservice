@@ -20,10 +20,10 @@ public class RouterValidator {
         // Swagger & OpenAPI
         "^/swagger-ui\\.html.*",
         "^/swagger-ui/.*",
-        "^/auth/v3/api-docs.*",
-        "^/member/v3/api-docs.*",
-        "^/web/v3/api-docs.*",
-        "^/geo/v3/api-docs.*"
+        "^/auth-service/v3/api-docs.*",
+        "^/member-service/v3/api-docs.*",
+        "^/web-service/v3/api-docs.*",
+        "^/geo-service/v3/api-docs.*"
     );
 
     // Predicate to check if request requires authentication
