@@ -22,13 +22,13 @@ public class GatewayConfig {
                         .filters(f -> f.stripPrefix(1))// 👈 this removes "/auth-service"
                         .uri("lb://auth-service"))
                 .route("member-docs", r -> r.path("/member-service/v3/api-docs")
-                        .filters(f -> f.stripPrefix(1))// 👈 this removes "/auth-service"
+                        .filters(f -> f.stripPrefix(1))// 👈 this removes "/member-service"
                         .uri("lb://member-service"))
                 .route("web-docs", r -> r.path("/web-service/v3/api-docs")
-                        .filters(f -> f.stripPrefix(1))// 👈 this removes "/auth-service"
+                        .filters(f -> f.stripPrefix(1))// 👈 this removes "/web-service"
                         .uri("lb://web-service"))
                 .route("geo-docs", r -> r.path("/geo-service/v3/api-docs")
-                        .filters(f -> f.stripPrefix(1))// 👈 this removes "/auth-service"
+                        .filters(f -> f.stripPrefix(1))// 👈 this removes "/geo-service"
                         .uri("lb://geospatial-service"))
 
 

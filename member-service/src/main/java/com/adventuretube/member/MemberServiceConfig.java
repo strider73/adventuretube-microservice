@@ -20,7 +20,16 @@ public class MemberServiceConfig {
     public SecurityFilterChain apiFilterChain(HttpSecurity http) throws Exception {
             http.csrf().disable()//RestAPI with JWT doen't require csrf protection
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/security/**").hasRole("ADMIN")  // Restrict /security/** to ADMIN role
+                        // ✅ Public: Swagger + OpenAPI access
+                        .requestMatchers(
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html"
+                        ).permitAll()
+                        .requestMatchers(
+                                "/security/**"
+                        )
+                        .hasRole("ADMIN")  // Restrict /security/** to ADMIN role
                         .anyRequest().permitAll()  // Allow all other requests
                 )
 //                .csrf(csrf -> csrf.ignoringRequestMatchers("/member/**")) // Disable CSRF for /auth/register
