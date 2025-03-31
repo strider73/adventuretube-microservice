@@ -34,10 +34,16 @@ public class AuthServiceConfig {
             .csrf(AbstractHttpConfigurer::disable)
             .securityMatcher("/auth/**")// Applies this security configuration to /auth/** endpoints
             .authorizeHttpRequests(authorize -> authorize
-                    .requestMatchers("/auth/register",
-                                     "/auth/login",
-                                     "/auth/refreshToken",
-                                     "/auth/logout")
+                    .requestMatchers(
+                            "/auth/register",
+                            "/auth/login",
+                            "/auth/refreshToken",
+                            "/auth/logout",
+                            "/swagger-ui.html",
+                            "/swagger-ui/**",
+                            "/v3/api-docs",
+                            "/v3/api-docs/**"
+                    )
                     .permitAll()
                     .anyRequest().hasRole("ADMIN")
             )
