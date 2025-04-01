@@ -60,4 +60,7 @@ springdoc:
     path: /swagger-ui.html
   default-produces-media-type: application/json
   default-consumes-media-type: application/json
-  server-url: https://api.adventuretube.net/auth-service
+  use-management-port: true  # optional, for actuator separation
+  show-actuator: false
+  override-with-gateway-url: true  # <—— force the server-url below
+  server-url: https://api.adventuretube.net/member-service
