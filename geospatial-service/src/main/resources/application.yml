@@ -3,4 +3,6 @@ spring:
     name: geospatial-service
   config:
     import: "optional:configserver:${CONFIG_SERVER_URL}"
-
+  devtools:
+    restart:
+      enabled: true
