@@ -22,11 +22,6 @@ public class MemberServiceConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         // ✅ Public: Swagger + OpenAPI access
                         .requestMatchers(
-                                "/v3/api-docs/**",
-                                "/swagger-ui/**",
-                                "/swagger-ui.html"
-                        ).permitAll()
-                        .requestMatchers(
                                 "/security/**"
                         )
                         .hasRole("ADMIN")  // Restrict /security/** to ADMIN role

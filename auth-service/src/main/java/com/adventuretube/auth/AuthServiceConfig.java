@@ -16,10 +16,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import static org.springframework.security.config.Customizer.withDefaults;
-//
-//import static org.springframework.security.config.Customizer.withDefaults;
 
+/**
+ * Security filter chain for endpoints under /auth/**
+ * - Applies only to /auth/** routes.
+ * - Public access for login, registration, token refresh, logout, and Swagger-related paths.
+ * - ADMIN role required for any other /auth/** endpoints.
+ * - Integrates a custom JwtAuthFilter to process JWT tokens before default auth mechanisms.
+ */
 @Configuration
 @EnableWebSecurity
 @AllArgsConstructor
@@ -48,16 +52,16 @@ public class AuthServiceConfig {
                     .anyRequest().hasRole("ADMIN")
             )
             //.authenticationProvider()
-            /*
-              'JwtAuthFilter' processes the request as first in the auth-service  since it configured with
-              'run  before UsernamePasswordAuthenticationFilter'
-
-              The filter extracts the JWT from the request, validate it and sets the authentication in the
-              'SecurityContextHolder'
-
-
-              and that user info out of authentication will be used for the roll that has been described
-               in upper part
+            /**
+             * Integrates a custom JwtAuthFilter to handle token-based authentication.
+             *
+             * - This filter is executed before the default UsernamePasswordAuthenticationFilter.
+             * - It extracts the JWT from the Authorization header, validates it,
+             *   and populates the SecurityContextHolder with the authenticated user's details.
+             *   in the JwtAuthFilter class
+             *
+             * - The authenticated user's roles are then used for access control
+             *   based on the rules defined in the authorizeHttpRequests block above.
              */
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
             //.httpBasic(withDefaults());// Use HTTP Basic authentication
