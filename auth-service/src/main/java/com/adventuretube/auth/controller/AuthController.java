@@ -7,6 +7,7 @@ import com.adventuretube.auth.model.MemberRegisterResponse;
 import com.adventuretube.auth.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,7 +31,29 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 public class AuthController {
     private final AuthService authService;
 
-    @Operation(summary = "Signup user")
+
+    @Operation(
+            summary = "Signup user",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    name = "Signup Example",
+                                    value = """
+                {
+                  "googleIdToken": "eyJhbGciOiJSUzI1NiIsImtpZCI6IjgyMWYzYmM2NmYwNzUxZjc4NDA2MDY3OTliMWFkZjllOWZiNjBkZmIiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhenAiOiI2NTc0MzMzMjMzMzctN2dlMzc1ODBsZGtqczNpMTNycW4ycGMydmFmNjFrcGQuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJhdWQiOiI2NTc0MzMzMjMzMzctN2dlMzc1ODBsZGtqczNpMTNycW4ycGMydmFmNjFrcGQuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJzdWIiOiIxMTA4MTQ5NzI0OTUwMjgwOTM1NDkiLCJlbWFpbCI6InN0cmlkZXIubGVlQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJhdF9oYXNoIjoiR21KVzJaNWh2WTVULTA1UXMwZlRLZyIsIm5hbWUiOiJDaHJpcyBMZWUiLCJwaWN0dXJlIjoiaHR0cHM6Ly9saDMuZ29vZ2xldXNlcmNvbnRlbnQuY29tL2EvQUNnOG9jSmx4TUoyR1JpOVZuZzJvYk9aTF92cy1jSzhhVzZvdVh3Wmhsc1c2eFQ0c1hrVTdjbDh4QT1zOTYtYyIsImdpdmVuX25hbWUiOiJDaHJpcyIsImZhbWlseV9uYW1lIjoiTGVlIiwiaWF0IjoxNzQzNTc1NjI2LCJleHAiOjE3NDM1NzkyMjZ9.ZhBBS6k9ZDTGqkXJMEbTEEwvxpdNOKXC5byH6uuoiU3oO_TIedL2lm05YdSXHQnG-vbJ9LVc3LFgcmqPT-DQ59i71y0jvCFMQP5DlcfUV0dq7AA1RZv_pwFFGgNqgSpUifzmrrV9VpKr7xMjwhPNSfNRx3EdNogzjKEZPcFfCz777auqPVC8KJgpUp3Pa7GhPRsLdGmH3QACpNaw1ilQx7YPuz6_5tyT86JAvn7LH9F86_1ceju1-ynPEAeFLWgsFe2DFOMonwwUQnx3c-RTJGyKTwZiFwb-ssBWHJGacvCx3Xr29aHhoXb5FCYK3Yf9rpgCrEStmNYoCAWkDjayZQ",
+                  "refreshToken": "ref-token",
+                  "email": "strider@gmail.com",
+                  "password": "123456",
+                  "username": "striderlee",
+                  "role": "USER",
+                  "channelId": "UC_x5XG..."
+                }
+                """
+                            )
+                    )
+            )
+    )
     @ApiResponse(responseCode = "201")//created
     //@ApiResponse(responseCode = "404", content = @Content(schema = @Schema(implementation = CommonErrorResponse.class)))
     @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = RestAPIResponse.class)))//unauthorized  error
