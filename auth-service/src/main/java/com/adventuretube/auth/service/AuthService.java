@@ -1,5 +1,6 @@
 package com.adventuretube.auth.service;
 
+import com.adventuretube.auth.config.google.GoogleTokenCredentialProperties;
 import com.adventuretube.auth.mapper.MemberMapper;
 import com.adventuretube.common.domain.dto.member.MemberDTO;
 import com.adventuretube.common.domain.dto.token.TokenDTO;
@@ -42,12 +43,10 @@ import java.util.Collections;
 @Service
 @Slf4j
 @Transactional(readOnly = true)
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class AuthService {
 
-    @Value("${google.clientId}")
-    private String googleClientId;
-
+    private final GoogleTokenCredentialProperties googleTokenCredentialProperties;
     private final RestTemplate restTemplate;
     private final JwtUtil jwtUtil;
     private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
@@ -226,7 +225,7 @@ public class AuthService {
 
     private GoogleIdToken verifyGoogleIdToken(String googleIdToken) {
         GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), GsonFactory.getDefaultInstance())
-                .setAudience(Collections.singletonList("657433323337-t5e70nbjmink2ldmt3e34pci55v3sv6k.apps.googleusercontent.com"))
+                .setAudience(Collections.singletonList(googleTokenCredentialProperties.getClientId()))
                 .build();
 
         try {
