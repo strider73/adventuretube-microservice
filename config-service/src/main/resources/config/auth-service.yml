@@ -59,6 +59,7 @@ google:
 
 springdoc:
   api-docs:
+    version: 3.0.3
     path: /v3/api-docs
   swagger-ui:
     path: /swagger-ui.html
