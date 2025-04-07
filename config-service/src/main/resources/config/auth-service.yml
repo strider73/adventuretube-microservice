@@ -65,5 +65,5 @@ springdoc:
     path: /swagger-ui.html
   info:
     title: AdventureTube API
-    version: 1.0.0
+    version: v1.0.0
     description: API documentation for Adventuretube microservices.
