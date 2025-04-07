@@ -59,11 +59,6 @@ google:
 
 springdoc:
   api-docs:
-    version: OPENAPI_3_0
     path: /v3/api-docs
   swagger-ui:
     path: /swagger-ui.html
-  info:
-    title: AdventureTube API
-    version: v1.0.0
-    description: API documentation for Adventuretube microservices.
