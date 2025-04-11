@@ -12,7 +12,6 @@ import com.adventuretube.auth.model.MemberRegisterResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +27,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.beans.factory.annotation.Value;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
@@ -54,9 +52,9 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
 
     @Transactional
-    public MemberRegisterResponse register(MemberRegisterRequest request) {
+    public MemberRegisterResponse signup(MemberRegisterRequest request) {
 
-        // MARK: STEP1  Validate Google ID token  https://developers.google.com/identity/sign-in/ios/backend-auth
+        // MARK:   Validate Google ID token  https://developers.google.com/identity/sign-in/ios/backend-auth
         GoogleIdToken idToken = verifyGoogleIdToken(request.getGoogleIdToken());
 
         if (idToken == null) {
@@ -64,25 +62,35 @@ public class AuthService {
             throw new GoogleIdTokenInvalidException("Invalid Google ID token.");
         }
 
-        // MARK: STEP2 prepare check user email duplication
+
         GoogleIdToken.Payload payload = idToken.getPayload();
+        // MARK:  compare email address that in the request with payload
+        String email = request.getEmail();
+        String tokenEmail = payload.getEmail();
+
+        if (!email.equals(tokenEmail)) {
+            throw new GoogleIdTokenInvalidException("Email address does not match the email address in the ID token.");
+        }
+
+
+        // MARK:  prepare check user email duplication
         MemberDTO memberDTO = buildMemberDTO(payload);
 
         String urlForEmailCheck = "http://MEMBER-SERVICE/member/emailDuplicationCheck";
         Boolean isUserAlreadyExist = restTemplate.postForObject(urlForEmailCheck, memberDTO.getEmail(), Boolean.class);
 
-        // MAKRL: STEP5 Check Email duplication
+        // MARK:  Check Email duplication
         if (isUserAlreadyExist) {
             throw new DuplicateException(String.format("User with the email address '%s' already exists.", request.getEmail()));
         }
 
 
         try {
-            // MARK: STEP6 Register Member !!!
+            // MARK:  Register Member !!!
             String urlForRegister = "http://MEMBER-SERVICE/member/registerMember"; //with Eureka
             ResponseEntity<MemberDTO> response = restTemplate.postForEntity(urlForRegister, memberDTO, MemberDTO.class);
             if (response.getStatusCode() == HttpStatus.OK) {
-                // MAKR: STEP7 create JWT token
+                // MARK:  create JWT token
                 MemberDTO registeredUser = response.getBody();
                 String accessToken = jwtUtil.generate(registeredUser.getEmail(), registeredUser.getRole(), "ACCESS");
                 String refreshToken = jwtUtil.generate(registeredUser.getEmail(), registeredUser.getRole(), "REFRESH");
@@ -92,7 +100,7 @@ public class AuthService {
                     Member object which implement UserDetail have a issue with serial/deserialization GrantedAuthority Object
                     so sending MemberDTO instead and convert to Member in member-service
                   */
-                // MARK: STEP8  store token to database
+                // MARK:   store token to database
                 TokenDTO tokenToStore = TokenDTO.builder().memberDTO(registeredUser)//sending a memberDTO instead Member
                         .expired(false).revoked(false).accessToken(accessToken).refreshToken(refreshToken) // Set refresh token to null or generate if needed
                         .build();
@@ -101,7 +109,7 @@ public class AuthService {
                 if (!istokenStored) {
                     throw new RuntimeException("token store error !!!");
                 }
-                // MARK: STEP9 return result
+                // MARK:  return result
 
                 return new MemberRegisterResponse(registeredUser.getId(), accessToken, refreshToken);
             } else {
