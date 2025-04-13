@@ -38,7 +38,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     private final CustomUserDetailService customUserDetailService;
     // List of endpoints to skip JWT validation
     private static final List<String> OPEN_ENDPOINTS = List.of(
-            "/auth/register",
+            "/auth/signup",
             "/auth/login",
             "/web/registerMember",
             "/actuator/health",
@@ -49,9 +49,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             "/v3/api-docs"         // Allow direct API docs access
     );
 
-
-
-
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
@@ -60,11 +57,13 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         // Skip filtering for open endpoints
         String path = request.getServletPath();
         if (OPEN_ENDPOINTS.stream().anyMatch(path::startsWith)) {
+            log.info("JWT Token validation will not progress for path: " + path);
+
             filterChain.doFilter(request, response);
             return;
         }
 
-        log.info("JwtAuthFilter.doFilterInternal has been called");
+        log.info("JWT Token validation in progress for path: " + path);
         //String token = authHeader.substring(7);//token from header which is issued after sign in or login
 
         try {

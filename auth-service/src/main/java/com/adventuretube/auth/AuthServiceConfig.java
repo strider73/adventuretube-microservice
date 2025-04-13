@@ -39,7 +39,7 @@ public class AuthServiceConfig {
             .securityMatcher("/auth/**")// Applies this security configuration to /auth/** endpoints
             .authorizeHttpRequests(authorize -> authorize
                     .requestMatchers(
-                            "/auth/register",
+                            "/auth/signup",
                             "/auth/login",
                             "/auth/refreshToken",
                             "/auth/logout",
