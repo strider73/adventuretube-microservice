@@ -38,8 +38,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     private final CustomUserDetailService customUserDetailService;
     // List of endpoints to skip JWT validation
     private static final List<String> OPEN_ENDPOINTS = List.of(
-            "/auth/signup",
-            "/auth/login",
+            "/auth/users",
             "/web/registerMember",
             "/actuator/health",
             "/healthcheck",

@@ -39,8 +39,7 @@ public class AuthServiceConfig {
             .securityMatcher("/auth/**")// Applies this security configuration to /auth/** endpoints
             .authorizeHttpRequests(authorize -> authorize
                     .requestMatchers(
-                            "/auth/signup",
-                            "/auth/login",
+                            "/auth/users",
                             "/auth/refreshToken",
                             "/auth/logout",
                             "/swagger-ui.html",

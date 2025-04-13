@@ -82,10 +82,14 @@ public class AuthController {
             )
     })
     // This logic will be used when user logs in for the first time from the iOS application
-    @PostMapping(value = "/signup")
-    public ResponseEntity<MemberRegisterResponse> signup(@Valid @RequestBody MemberRegisterRequest request) {
-        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/auth/signup").toUriString());
-        return ResponseEntity.created(uri).body(authService.signup(request));
+    @PostMapping(value = "/users")
+    public ResponseEntity<MemberRegisterResponse> createUser(@Valid @RequestBody MemberRegisterRequest request) {
+        MemberRegisterResponse response = authService.createUser(request); // 🔥 renamed here too
+        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath()
+                       .path("/users/{id}")
+                          .buildAndExpand(response.getUserId())
+                        .toUriString());
+        return ResponseEntity.created(uri).body(response);
     }
 
 

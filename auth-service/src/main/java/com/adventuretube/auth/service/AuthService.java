@@ -52,7 +52,7 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
 
     @Transactional
-    public MemberRegisterResponse signup(MemberRegisterRequest request) {
+    public MemberRegisterResponse createUser(MemberRegisterRequest request) {
 
         // MARK:   Validate Google ID token  https://developers.google.com/identity/sign-in/ios/backend-auth
         GoogleIdToken idToken = verifyGoogleIdToken(request.getGoogleIdToken());

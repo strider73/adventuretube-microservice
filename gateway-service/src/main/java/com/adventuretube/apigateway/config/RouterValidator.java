@@ -12,8 +12,7 @@ public class RouterValidator {
     // List of public (non-secured) endpoint patterns
     public static final List<String> openEndPoints = List.of(
             "^0-.*",
-            "^/auth/signup.*",
-        "^/auth/login.*",
+            "^/auth/users.*",
         "^/web/registerMember.*",
         "^/actuator/health.*",
         "^/healthcheck.*",
