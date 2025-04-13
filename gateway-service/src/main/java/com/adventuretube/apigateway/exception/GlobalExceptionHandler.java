@@ -17,10 +17,10 @@ import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(JwtTokenNotExistException.class)
-    public ResponseEntity<RestAPIResponse> handleJwtTokenNotExistexception(JwtTokenNotExistException ex) {
+    public ResponseEntity<RestAPIResponse> handleJwtTokenNotExistException(JwtTokenNotExistException ex) {
         RestAPIResponse restAPIErrorResponse = new RestAPIResponse(
                 ex.getMessage(),
-                "JWT token not exist : gateway -service ",
+                "JWT token not exist : gateway-service ",
                 HttpStatus.UNAUTHORIZED.value(),
                 System.currentTimeMillis()
         );
@@ -28,10 +28,10 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(SignatureException.class)
-    public ResponseEntity<RestAPIResponse> handleSigniturexception(SignatureException ex) {
+    public ResponseEntity<RestAPIResponse> handleSigniturException(SignatureException ex) {
         RestAPIResponse restAPIErrorResponse = new RestAPIResponse(
                 ex.getMessage(),
-                "Invalid JWT signature: gateway -service",
+                "Invalid JWT signature: gateway-service",
                 HttpStatus.UNAUTHORIZED.value(),
                 System.currentTimeMillis()
         );
@@ -39,10 +39,10 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MalformedJwtException.class)
-    public ResponseEntity<RestAPIResponse> handleMalformedJwtxception(MalformedJwtException ex) {
+    public ResponseEntity<RestAPIResponse> handleMalformedJwtException(MalformedJwtException ex) {
         RestAPIResponse restAPIErrorResponse = new RestAPIResponse(
                 ex.getMessage(),
-                "MalformedJwt JWT token: gateway -service",
+                "MalformedJwt JWT token: gateway-service",
                 HttpStatus.UNAUTHORIZED.value(),
                 System.currentTimeMillis()
         );
@@ -54,7 +54,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<RestAPIResponse> handleExpiredJwtException(ExpiredJwtException ex) {
         RestAPIResponse restAPIErrorResponse = new RestAPIResponse(
                 ex.getMessage(),
-                "Expired JWT token: gateway -service",
+                "Expired JWT token: gateway-service",
                 HttpStatus.UNAUTHORIZED.value(),
                 System.currentTimeMillis()
         );
@@ -66,7 +66,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<RestAPIResponse> handleUnknownException(Exception ex) {
         RestAPIResponse restAPIErrorResponse = new RestAPIResponse(
                 ex.getMessage(),
-                "Internal Server Error: gateway -service",
+                "Internal Server Error: gateway-service",
                 INTERNAL_SERVER_ERROR.value(),
                 System.currentTimeMillis()
         );
