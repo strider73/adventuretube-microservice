@@ -39,6 +39,7 @@ public class AuthenticationFiter implements GatewayFilter {
 
         // Step 1: Check if the request targets a secured endpoint
         if (validator.isSecured.test(request)) {
+            log.info("request need a valid token");
 
             // Step 2: If the Authorization header is missing, throw an exception
             if (authMissing(request)) {
@@ -51,10 +52,11 @@ public class AuthenticationFiter implements GatewayFilter {
             }
             // Step 4: Validate the token (signature, expiration, claims)
             jwtUtils.getClaims(token);
-            System.out.println("Token has been validate successfully !!!!");
+            log.info("Token has been validate successfully !!!!");
 
 
         }
+        log.info("request doesn't need a valid token");
         // Step 5: Continue the  Gateway filter chain Not Spring security filter  if everything is valid
         return chain.filter(exchange);
     }
