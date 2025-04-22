@@ -87,8 +87,8 @@ public class AuthController {
         MemberRegisterResponse response = authService.createUser(request); // 🔥 renamed here too
         URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath()
                        .path("/users/{id}")
-                          .buildAndExpand(response.getUserId())
-                        .toUriString());
+                       .buildAndExpand(response.getUserId())
+                       .toUriString());
         return ResponseEntity.created(uri).body(response);
     }
 

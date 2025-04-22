@@ -1,6 +1,7 @@
 package com.adventuretube.auth;
 
 import com.adventuretube.auth.filter.JwtAuthFilter;
+import com.adventuretube.auth.provider.CustomAuthenticationProvider;
 import com.adventuretube.auth.service.CustomUserDetailService;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -29,7 +30,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @AllArgsConstructor
 public class AuthServiceConfig {
 
-    private  final CustomUserDetailService userDetailsService;
+    private  final CustomUserDetailService customUserDetailService;
     private  final JwtAuthFilter jwtAuthFilter;
     @Bean
     @Order(1)
@@ -52,16 +53,15 @@ public class AuthServiceConfig {
             )
             //.authenticationProvider()
             /**
-             * Integrates a custom JwtAuthFilter to handle token-based authentication.
-             *
-             * - This filter is executed before the default UsernamePasswordAuthenticationFilter.
-             * - It extracts the JWT from the Authorization header, validates it,
-             *   and populates the SecurityContextHolder with the authenticated user's details.
-             *   in the JwtAuthFilter class
-             *
-             * - The authenticated user's roles are then used for access control
-             *   based on the rules defined in the authorizeHttpRequests block above.
-             */
+            // * Integrates a custom JwtAuthFilter to handle token-based authentication.
+            // *
+            // * - This filter is executed before Spring Security's default UsernamePasswordAuthenticationFilter.
+            // * - It extracts the JWT from the Authorization header, validates its signature and expiration,
+            // *   and sets the Authentication object in the SecurityContextHolder.
+            // *
+            // * - This Authentication object includes the user's roles, which are then used by Spring Security
+            // *   to enforce access control based on the rules defined in the authorizeHttpRequests block above.
+            // */
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
             //.httpBasic(withDefaults());// Use HTTP Basic authentication
 
@@ -83,27 +83,26 @@ public class AuthServiceConfig {
     @Bean
     public AuthenticationManager customAuthenticationManager(HttpSecurity httpSecurity) throws  Exception {
         AuthenticationManagerBuilder  authenticationManagerBuilder = httpSecurity.getSharedObject(AuthenticationManagerBuilder.class);
+        authenticationManagerBuilder.authenticationProvider(customAuthenticationProvider());
         //declare what type of authenticate provider will be used (userDetailService in our case)
         //and set the password encoder
-//        authenticationManagerBuilder.authenticationProvider(customAuthenticationProvider());
-//        return authenticationManagerBuilder.build();
-        authenticationManagerBuilder.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
+        //authenticationManagerBuilder.userDetailsService(customUserDetailService).passwordEncoder(passwordEncoder());
         return authenticationManagerBuilder.build(); // and return authenticationManager
 
     }
 
 
      /*This can be used for CustomAuthenticationProvider
-      this can allow to  customize authencate() method
+      this can allow to  customize authenticate() method
      */
 
-//    @Bean
-//    public CustomAuthenticationProvider customAuthenticationProvider() {
-//        CustomAuthenticationProvider customAuthenticationProvider = new CustomAuthenticationProvider();
-//        customAuthenticationProvider.setUserDetailsService(userDetailsService);
-//        customAuthenticationProvider.setPasswordEncoder(passwordEncoder());
-//        return customAuthenticationProvider;
-//    }
+    @Bean
+    public CustomAuthenticationProvider customAuthenticationProvider() {
+        CustomAuthenticationProvider customAuthenticationProvider = new CustomAuthenticationProvider();
+        customAuthenticationProvider.setUserDetailsService(customUserDetailService);
+        customAuthenticationProvider.setPasswordEncoder(passwordEncoder());
+        return customAuthenticationProvider;
+    }
 
 
 }
