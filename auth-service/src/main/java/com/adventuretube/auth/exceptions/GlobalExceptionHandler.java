@@ -22,107 +22,72 @@ import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-
-    @ExceptionHandler(GeneralSecurityException.class)
-    public ResponseEntity<RestAPIResponse> handleGeneralSecurityException(GeneralSecurityException ex){
-        RestAPIResponse restAPIErrorResponse = new RestAPIResponse(
-                ex.getMessage(),
-                "Google Id token is not able to verify",
-                HttpStatus.UNAUTHORIZED.value(),
-                System.currentTimeMillis()
-        );
-        return new ResponseEntity<>(restAPIErrorResponse,HttpStatus.UNAUTHORIZED);
+    private ResponseEntity<RestAPIResponse> buildErrorResponse(AuthErrorCode errorCode) {
+        RestAPIResponse response = RestAPIResponse.builder()
+                .message(errorCode.getMessage())
+                .statusCode(errorCode.getHttpStatus().value())
+                .timestamp(System.currentTimeMillis())
+                .build();
+        return new ResponseEntity<>(response, errorCode.getHttpStatus());
     }
 
+    @ExceptionHandler(DuplicateException.class)
+    public ResponseEntity<RestAPIResponse> handleDuplicationException(DuplicateException ex) {
+        return buildErrorResponse(ex.getErrorCode());
+    }
 
     @ExceptionHandler(GoogleIdTokenInvalidException.class)
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public ResponseEntity<RestAPIResponse> handleBadRequestExceptions(GoogleIdTokenInvalidException ex){
-        RestAPIResponse restAPIErrorResponse = new RestAPIResponse(
-                ex.getMessage(),
-                "Google idToken is not valid",
-                HttpStatus.UNAUTHORIZED.value(),
-                System.currentTimeMillis()
-        );
-        return  new ResponseEntity<>(restAPIErrorResponse,HttpStatus.UNAUTHORIZED);
+    public ResponseEntity<RestAPIResponse> handleGoogleIdTokenInvalidException(GoogleIdTokenInvalidException ex) {
+        return buildErrorResponse(ex.getErrorCode());
+    }
+
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public ResponseEntity<RestAPIResponse> handleUsernameNotFoundException(UsernameNotFoundException ex) {
+        return buildErrorResponse(AuthErrorCode.USER_NOT_FOUND);
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<RestAPIResponse> handleBadCredentialsException(BadCredentialsException ex) {
+        return buildErrorResponse(AuthErrorCode.USER_CREDENTIALS_INVALID);
+    }
+
+    @ExceptionHandler(InternalAuthenticationServiceException.class)
+    public ResponseEntity<RestAPIResponse> handleInternalAuthenticationServiceException(InternalAuthenticationServiceException ex) {
+        return buildErrorResponse(AuthErrorCode.USER_DOES_NOT_EXIST);
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<RestAPIResponse> handleIllegalStateException(IllegalStateException ex) {
+        return buildErrorResponse(AuthErrorCode.SERVER_NOT_AVAILABLE);
+    }
+
+    @ExceptionHandler(GeneralSecurityException.class)
+    public ResponseEntity<RestAPIResponse> handleGeneralSecurityException(GeneralSecurityException ex) {
+        return buildErrorResponse(AuthErrorCode.GOOGLE_TOKEN_MALFORMED);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+    public ResponseEntity<RestAPIResponse> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getAllErrors().forEach((error) -> {
             String fieldName = ((FieldError) error).getField();
             String errorMessage = error.getDefaultMessage();
             errors.put(fieldName, errorMessage);
         });
-        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
-    }
 
+        RestAPIResponse response = RestAPIResponse.builder()
+                .message(AuthErrorCode.VALIDATION_FAILED.getMessage())
+                .details(errors.toString())
+                .statusCode(AuthErrorCode.VALIDATION_FAILED.getHttpStatus().value())
+                .timestamp(System.currentTimeMillis())
+                .build();
 
-    @ExceptionHandler(DuplicateException.class)
-    public ResponseEntity<RestAPIResponse> handleDuplicationException(DuplicateException ex) {
-        RestAPIResponse restAPIErrorResponse = new RestAPIResponse(
-                ex.getMessage(),
-                "User already exists with the provided email",
-                HttpStatus.CONFLICT.value(),
-                System.currentTimeMillis()
-        );
-        return new ResponseEntity<>(restAPIErrorResponse,HttpStatus.CONFLICT);
-    }
-
-    @ExceptionHandler(UsernameNotFoundException.class)
-    public ResponseEntity<RestAPIResponse> handleUsernameNotFoundException(UsernameNotFoundException ex) {
-        RestAPIResponse restAPIErrorResponse = new RestAPIResponse(
-                ex.getMessage(),
-                "User does mot exist",
-                HttpStatus.NOT_FOUND.value(),
-                System.currentTimeMillis()
-        );
-        return new ResponseEntity<>(restAPIErrorResponse, HttpStatus.NOT_FOUND);
-    }
-    @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<RestAPIResponse> handleBadCredentialsException(BadCredentialsException ex) {
-        RestAPIResponse restAPIErrorResponse = new RestAPIResponse(
-                ex.getMessage(),
-                "Invalid username or password",
-                HttpStatus.UNAUTHORIZED.value(),
-                System.currentTimeMillis()
-        );
-        return new ResponseEntity<>(restAPIErrorResponse, HttpStatus.UNAUTHORIZED);
-    }
-    @ExceptionHandler(IllegalStateException.class)
-    public ResponseEntity<RestAPIResponse> handleRestClientException(IllegalStateException ex) {
-        RestAPIResponse restAPIErrorResponse = new RestAPIResponse(
-                ex.getMessage(),
-                "Server is not available",
-                INTERNAL_SERVER_ERROR.value(),
-                System.currentTimeMillis()
-        );
-        return new ResponseEntity<>(restAPIErrorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    @ExceptionHandler(InternalAuthenticationServiceException.class)
-    public ResponseEntity<RestAPIResponse> handleInternalAuthenticationServiceException(InternalAuthenticationServiceException ex) {
-        RestAPIResponse restAPIErrorResponse = new RestAPIResponse(
-                ex.getMessage(),
-                "User is not exist",
-                HttpStatus.NOT_FOUND.value(),
-                System.currentTimeMillis()
-        );
-        return new ResponseEntity<>(restAPIErrorResponse,  HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(response, AuthErrorCode.VALIDATION_FAILED.getHttpStatus());
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<RestAPIResponse> handleUnknownException(Exception ex) {
-        RestAPIResponse restAPIErrorResponse = new RestAPIResponse(
-                ex.getMessage(),
-                "Unknown Error",
-                INTERNAL_SERVER_ERROR.value(),
-                System.currentTimeMillis()
-        );
-        return new ResponseEntity<>(restAPIErrorResponse, INTERNAL_SERVER_ERROR);
+        return buildErrorResponse(AuthErrorCode.INTERNAL_ERROR);
     }
-
-
 }

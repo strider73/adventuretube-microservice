@@ -1,6 +1,7 @@
 package com.adventuretube.auth.service;
 
 import com.adventuretube.auth.config.google.GoogleTokenCredentialProperties;
+import com.adventuretube.auth.exceptions.AuthErrorCode;
 import com.adventuretube.auth.mapper.MemberMapper;
 import com.adventuretube.common.domain.dto.member.MemberDTO;
 import com.adventuretube.common.domain.dto.token.TokenDTO;
@@ -59,7 +60,7 @@ public class AuthService {
 
         if (idToken == null) {
             log.error("Google idToken is null");
-            throw new GoogleIdTokenInvalidException("Invalid Google ID token.");
+            throw new GoogleIdTokenInvalidException(AuthErrorCode.GOOGLE_TOKEN_INVALID);
         }
 
 
@@ -69,7 +70,7 @@ public class AuthService {
         String tokenEmail = payload.getEmail();
 
         if (!email.equals(tokenEmail)) {
-            throw new GoogleIdTokenInvalidException("Email address does not match the email address in the ID token.");
+            throw new GoogleIdTokenInvalidException(AuthErrorCode.GOOGLE_EMAIL_MISMATCH);
         }
 
 
@@ -81,7 +82,7 @@ public class AuthService {
 
         // MARK:  Check Email duplication
         if (isUserAlreadyExist) {
-            throw new DuplicateException(String.format("User with the email address '%s' already exists.", request.getEmail()));
+            throw new DuplicateException(AuthErrorCode.USER_EMAIL_DUPLICATE);
         }
 
 
@@ -142,7 +143,7 @@ public class AuthService {
         GoogleIdToken idToken = verifyGoogleIdToken(request.getGoogleIdToken());
         if (idToken == null) {
             log.error("Invalid Google ID token");
-            throw new GoogleIdTokenInvalidException("Invalid Google ID token.");
+            throw new GoogleIdTokenInvalidException(AuthErrorCode.GOOGLE_TOKEN_INVALID);
         }
 
         // MARK: STEP2 prepare check user email duplication

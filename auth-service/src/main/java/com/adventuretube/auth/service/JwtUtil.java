@@ -2,6 +2,7 @@ package com.adventuretube.auth.service;
 
 
 import com.adventuretube.auth.exceptions.AccessDeniedException;
+import com.adventuretube.auth.exceptions.AuthErrorCode;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -48,7 +49,7 @@ public class JwtUtil {
                     .getPayload();
         } catch (SignatureException | ExpiredJwtException e) { // Invalid signature or expired token
             log.error(e.getMessage());
-            throw new AccessDeniedException("Access denied: " + e.getMessage());
+            throw new AccessDeniedException(AuthErrorCode.valueOf("Access denied: " + e.getMessage()));
         }
 
     }

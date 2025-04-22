@@ -1,5 +1,6 @@
 package com.adventuretube.auth.service;
 
+import com.adventuretube.auth.exceptions.AuthErrorCode;
 import com.adventuretube.auth.exceptions.UserNotFoundException;
 import com.adventuretube.common.domain.dto.member.MemberDTO;
 import lombok.AllArgsConstructor;
@@ -30,7 +31,7 @@ public class CustomUserDetailService implements UserDetailsService {
             userFoundByEmail = restTemplate.postForObject(urlForFindUserByEmail, email, MemberDTO.class);
 
             if (userFoundByEmail == null) {
-                throw new UserNotFoundException("User is not exist :  email: " + email);
+                throw new UserNotFoundException(AuthErrorCode.USER_NOT_FOUND);
             }
             // Check that userFoundByEmail has the necessary properties
             if (userFoundByEmail.getEmail() == null || userFoundByEmail.getPassword() == null) {
