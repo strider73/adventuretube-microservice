@@ -11,11 +11,11 @@ public class RouterValidator {
 
     // List of public (non-secured) endpoint patterns
     public static final List<String> openEndPoints = List.of(
-            "^0-.*",
-            "^/auth/users.*",
-        "^/web/registerMember.*",
-        "^/actuator/health.*",
-        "^/healthcheck.*",
+            "^/auth/users.*",             // signup
+            "^/auth/token.*",              // ✅ login, refresh, revoke
+            "^/web/registerMember.*",      // web signup (member service)
+            "^/actuator/health.*",          // actuator health check
+            "^/healthcheck.*",              // custom healthcheck
 
         // Swagger & OpenAPI
         "^/swagger-ui\\.html.*",
