@@ -1,6 +1,7 @@
 package com.adventuretube.auth.controller;
 
 
+import com.adventuretube.auth.model.MemberLoginRequest;
 import com.adventuretube.common.error.RestAPIResponse;
 import com.adventuretube.auth.model.MemberRegisterRequest;
 import com.adventuretube.auth.model.MemberRegisterResponse;
@@ -34,7 +35,7 @@ public class AuthController {
 
 
     @Operation(
-            summary = "Signup  new user",
+            summary = "Create  new user and issue id and refresh token",
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     content = @Content(
                             mediaType = "application/json",
@@ -83,7 +84,7 @@ public class AuthController {
     })
     // This logic will be used when user logs in for the first time from the iOS application
     @PostMapping(value = "/users")
-    public ResponseEntity<MemberRegisterResponse> createUser(@Valid @RequestBody MemberRegisterRequest request) {
+    public ResponseEntity<MemberRegisterResponse> registerUser(@Valid @RequestBody MemberRegisterRequest request) {
         MemberRegisterResponse response = authService.createUser(request); // 🔥 renamed here too
         URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath()
                        .path("/users/{id}")
@@ -97,23 +98,22 @@ public class AuthController {
     //most time when user was logged out because of
     //  1. token expired
     //  2. when iOS was reactive
-    @Operation(summary = "login user")
+    @Operation(summary = "Issues access and refresh tokens for the user")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200"),//success
             @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = RestAPIResponse.class))),//unauthorized  error
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(implementation = RestAPIResponse.class))),//not found error
             @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = RestAPIResponse.class)))//internal server error
     })
-    @PostMapping(value = "/login")
-    public ResponseEntity<?> login(@Valid @RequestBody MemberRegisterRequest request) {
+    @PostMapping(value = "/token")
+    public ResponseEntity<?> issueToken(@Valid @RequestBody MemberLoginRequest request) {
 
-        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/auth/login").toUriString());
-        return ResponseEntity.created(uri).body(authService.loginWithIdAndPassword(request));
+        return ResponseEntity.ok(authService.issueToken(request));
     }
 
 
     @PostMapping(value = "/logout")
-    public ResponseEntity<?> logout(HttpServletRequest request) {
+    public ResponseEntity<?> revokeRefreshToken(HttpServletRequest request) {
         URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/auth/logout").toUriString());
         return ResponseEntity.created(uri).body(authService.logout(request));
     }
@@ -126,7 +126,7 @@ public class AuthController {
             @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = RestAPIResponse.class)))//internal server error
     })
     @PostMapping(value = "/refreshToken")
-    public ResponseEntity<?> refreshToken(HttpServletRequest request) {
+    public ResponseEntity<?> refreshAccessToken(HttpServletRequest request) {
 
 
         URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/auth/refreshToken").toUriString());

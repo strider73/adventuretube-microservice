@@ -3,6 +3,7 @@ package com.adventuretube.auth.service;
 import com.adventuretube.auth.config.google.GoogleTokenCredentialProperties;
 import com.adventuretube.auth.exceptions.AuthErrorCode;
 import com.adventuretube.auth.mapper.MemberMapper;
+import com.adventuretube.auth.model.MemberLoginRequest;
 import com.adventuretube.common.domain.dto.member.MemberDTO;
 import com.adventuretube.common.domain.dto.token.TokenDTO;
 import com.adventuretube.common.error.RestAPIResponse;
@@ -137,7 +138,7 @@ public class AuthService {
     }
 
 
-    public MemberRegisterResponse loginWithIdAndPassword(MemberRegisterRequest request) {
+    public MemberRegisterResponse issueToken(MemberLoginRequest request) {
 
         //MARK: STEP1 validate google IdToken
         GoogleIdToken idToken = verifyGoogleIdToken(request.getGoogleIdToken());
@@ -151,10 +152,10 @@ public class AuthService {
         String email = payload.getEmail();
         String googleId = payload.getSubject();
 
-        //Authenticate the user
-        //Since this request haven't any token to carry
-        //it will go through authentication process and issue the tokens
-
+        //MARK: STEP3 compare email address that in the request with payload
+        //Since this request does not yet have a JWT token, it goes through authentication process.
+        //and issue the tokens if the  email and googleId are matched using CustomUserDetailsService,
+        //which is registered through Security configuration (AuthServiceConfig in this case).
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, googleId));
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String accessToken = jwtUtil.generate(userDetails.getUsername(), userDetails.getAuthorities().toString(), "ACCESS");
