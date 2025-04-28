@@ -27,7 +27,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
+
+import static com.adventuretube.auth.config.SecurityConstants.OPEN_ENDPOINTS;
 
 @Slf4j
 @Component
@@ -36,17 +39,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     private final CustomUserDetailService customUserDetailService;
-    // List of endpoints to skip JWT validation
-    private static final List<String> OPEN_ENDPOINTS = List.of(
-            "/auth/users",
-            "/web/registerMember",
-            "/actuator/health",
-            "/healthcheck",
-            "/swagger-ui.html",   // Allow Swagger UI
-            "/swagger-ui/**",      // Allow Swagger static resources
-            "/v3/api-docs/**",     // Allow OpenAPI documentation
-            "/v3/api-docs"         // Allow direct API docs access
-    );
+
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -55,7 +48,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         // Skip filtering for open endpoints
         String path = request.getServletPath();
-        if (OPEN_ENDPOINTS.stream().anyMatch(path::startsWith)) {
+        if (Arrays.stream(OPEN_ENDPOINTS).anyMatch(path::startsWith)) {
             log.info("JWT Token validation will not progress for path: " + path);
 
             filterChain.doFilter(request, response);

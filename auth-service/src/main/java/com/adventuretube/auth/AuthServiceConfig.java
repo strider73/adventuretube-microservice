@@ -16,6 +16,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import static com.adventuretube.auth.config.SecurityConstants.OPEN_ENDPOINTS;
 
 
 /**
@@ -35,18 +36,14 @@ public class AuthServiceConfig {
     @Bean
     @Order(1)
     public SecurityFilterChain apiFilterChain(HttpSecurity httpSecurity) throws  Exception{
-    httpSecurity
+
+
+        httpSecurity
             .csrf(AbstractHttpConfigurer::disable)
             .securityMatcher("/auth/**")// Applies this security configuration to /auth/** endpoints
             .authorizeHttpRequests(authorize -> authorize
                     .requestMatchers(
-                            "/auth/users",
-                            "/auth/refreshToken",
-                            "/auth/logout",
-                            "/swagger-ui.html",
-                            "/swagger-ui/**",
-                            "/v3/api-docs",
-                            "/v3/api-docs/**"
+                       OPEN_ENDPOINTS // Public endpoints
                     )
                     .permitAll()
                     .anyRequest().hasRole("ADMIN")
@@ -98,11 +95,6 @@ public class AuthServiceConfig {
 
     @Bean
     public CustomAuthenticationProvider customAuthenticationProvider() {
-        CustomAuthenticationProvider customAuthenticationProvider = new CustomAuthenticationProvider();
-        customAuthenticationProvider.setUserDetailsService(customUserDetailService);
-        customAuthenticationProvider.setPasswordEncoder(passwordEncoder());
-        return customAuthenticationProvider;
+        return new CustomAuthenticationProvider(customUserDetailService, passwordEncoder());
     }
-
-
 }
