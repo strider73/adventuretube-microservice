@@ -2,11 +2,14 @@ package com.adventuretube.auth.controller;
 
 
 import com.adventuretube.auth.model.MemberLoginRequest;
+import com.adventuretube.auth.model.MemberLoginResponse;
 import com.adventuretube.common.error.RestAPIResponse;
 import com.adventuretube.auth.model.MemberRegisterRequest;
 import com.adventuretube.auth.model.MemberRegisterResponse;
 import com.adventuretube.auth.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -45,7 +48,7 @@ public class AuthController {
                                             {
                                               "googleIdToken": "eyJhbGciOiJSUzI1NiIsImtpZCI6IjgyMWYzYmM2NmYwNzUxZjc4NDA2MDY3OTliMWFkZjllOWZiNjBkZmIiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhenAiOiI2NTc0MzMzMjMzMzctN2dlMzc1ODBsZGtqczNpMTNycW4ycGMydmFmNjFrcGQuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJhdWQiOiI2NTc0MzMzMjMzMzctN2dlMzc1ODBsZGtqczNpMTNycW4ycGMydmFmNjFrcGQuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJzdWIiOiIxMTA4MTQ5NzI0OTUwMjgwOTM1NDkiLCJlbWFpbCI6InN0cmlkZXIubGVlQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJhdF9oYXNoIjoiR21KVzJaNWh2WTVULTA1UXMwZlRLZyIsIm5hbWUiOiJDaHJpcyBMZWUiLCJwaWN0dXJlIjoiaHR0cHM6Ly9saDMuZ29vZ2xldXNlcmNvbnRlbnQuY29tL2EvQUNnOG9jSmx4TUoyR1JpOVZuZzJvYk9aTF92cy1jSzhhVzZvdVh3Wmhsc1c2eFQ0c1hrVTdjbDh4QT1zOTYtYyIsImdpdmVuX25hbWUiOiJDaHJpcyIsImZhbWlseV9uYW1lIjoiTGVlIiwiaWF0IjoxNzQzNTc1NjI2LCJleHAiOjE3NDM1NzkyMjZ9.ZhBBS6k9ZDTGqkXJMEbTEEwvxpdNOKXC5byH6uuoiU3oO_TIedL2lm05YdSXHQnG-vbJ9LVc3LFgcmqPT-DQ59i71y0jvCFMQP5DlcfUV0dq7AA1RZv_pwFFGgNqgSpUifzmrrV9VpKr7xMjwhPNSfNRx3EdNogzjKEZPcFfCz777auqPVC8KJgpUp3Pa7GhPRsLdGmH3QACpNaw1ilQx7YPuz6_5tyT86JAvn7LH9F86_1ceju1-ynPEAeFLWgsFe2DFOMonwwUQnx3c-RTJGyKTwZiFwb-ssBWHJGacvCx3Xr29aHhoXb5FCYK3Yf9rpgCrEStmNYoCAWkDjayZQ",
                                               "refreshToken": "ref-token",
-                                              "email": "strider@gmail.com",
+                                              "email": "strider.lee@gmail.com",
                                               "password": "123456",
                                               "username": "striderlee",
                                               "role": "USER",
@@ -94,16 +97,44 @@ public class AuthController {
     }
 
 
-    // This is method have same function of login()
-    //most time when user was logged out because of
-    //  1. token expired
-    //  2. when iOS was reactive
-    @Operation(summary = "Issues access and refresh tokens for the user")
+    @Operation(
+            summary = "Authenticate user and issue access and refresh tokens",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    name = "Login Example",
+                                    value = """
+                        {
+                          "email": "strider@gmail.com",
+                          "password": "123456",
+                          "googleIdToken": "eyJhbGciOiJSUzI1NiIsImtpZCI6I..."
+                        }
+                        """
+                            )
+                    )
+            )
+    )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200"),//success
-            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = RestAPIResponse.class))),//unauthorized  error
-            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(implementation = RestAPIResponse.class))),//not found error
-            @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = RestAPIResponse.class)))//internal server error
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Tokens issued successfully."
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized - Invalid credentials or expired Google ID token.",
+                    content = @Content(schema = @Schema(implementation = RestAPIResponse.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "User not found.",
+                    content = @Content(schema = @Schema(implementation = RestAPIResponse.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal Server Error - Unexpected authentication error.",
+                    content = @Content(schema = @Schema(implementation = RestAPIResponse.class))
+            )
     })
     @PostMapping(value = "/token")
     public ResponseEntity<?> issueToken(@Valid @RequestBody MemberLoginRequest request) {
@@ -118,21 +149,50 @@ public class AuthController {
         return ResponseEntity.created(uri).body(authService.logout(request));
     }
 
-    @Operation(summary = "Refresh Token")
+    @Operation(
+            summary = "Refresh access token using a valid refresh token",
+            description = """
+                  This endpoint accepts a valid refresh token via the Authorization header.
+                  It verifies the token against the token store in the MEMBER-SERVICE.
+                  If valid, it issues a new access token and a new refresh token.
+        
+                   This should be called when an access token is expired but the refresh token is still active.
+             """,
+            parameters = {
+                    @Parameter(
+                            name = "Authorization",
+                            description = "Refresh token in the format: Bearer {refresh_token}",
+                            required = true,
+                            in = ParameterIn.HEADER,
+                            example = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                    )
+            }
+    )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201"),//created
-            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = RestAPIResponse.class))),//unauthorized  error
-            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(implementation = RestAPIResponse.class))),//not found error
-            @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = RestAPIResponse.class)))//internal server error
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Access token refreshed successfully.",
+                    content = @Content(schema = @Schema(implementation = MemberLoginResponse.class))
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized - Refresh token is missing, invalid, or expired.",
+                    content = @Content(schema = @Schema(implementation = RestAPIResponse.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "User not found.",
+                    content = @Content(schema = @Schema(implementation = RestAPIResponse.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal Server Error - Unexpected failure during token refresh.",
+                    content = @Content(schema = @Schema(implementation = RestAPIResponse.class))
+            )
     })
     @PostMapping(value = "/refreshToken")
     public ResponseEntity<?> refreshAccessToken(HttpServletRequest request) {
-
-
-        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/auth/refreshToken").toUriString());
-        return ResponseEntity.created(uri).body(authService.refreshToken(request));
-
-
+        return ResponseEntity.ok(authService.refreshToken(request));
     }
 
 
