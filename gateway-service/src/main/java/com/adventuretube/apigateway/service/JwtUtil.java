@@ -28,9 +28,13 @@ public class JwtUtil {
 
     public Claims getClaims(String token) {
         try {
-            // Strip "Bearer " prefix if present
-            if (token.startsWith("Bearer ")) {
-                token = token.substring(7);
+            if (token == null || token.isBlank()) {
+                throw new IllegalArgumentException("JWT token is null or empty");
+            }
+
+            token = token.trim();
+            if (token.toLowerCase().startsWith("bearer ")) {
+                token = token.substring(7).trim();
             }
 
             return Jwts.parser()
@@ -39,12 +43,13 @@ public class JwtUtil {
                     .parseSignedClaims(token)
                     .getPayload();
         } catch (ExpiredJwtException | UnsupportedJwtException | MalformedJwtException | SignatureException e) {
-            log.error("JWT Token validation error :"+e.getMessage());
+            log.error("JWT Token validation error: " + e.getMessage());
             throw e;
         } catch (Exception e) {
             throw new RuntimeException("Unexpected error while extracting claims: " + e.getMessage(), e);
         }
     }
+
 
 }
 
