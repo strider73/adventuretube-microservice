@@ -51,7 +51,12 @@ public class AuthenticationFiter implements GatewayFilter {
                 throw  new JwtTokenNotExistException("Token is not exist");
             }
             // Step 4: Validate the token (signature, expiration, claims)
-            jwtUtils.getClaims(token);
+            var claims = jwtUtils.getClaims(token);
+            log.info("✅ Token validated successfully");
+            log.info("📦 JWT Claims: {}", claims);
+            // You can also log individual claims if needed:
+            log.info("User ID: {}", claims.get("id"));
+            log.info("User Role: {}", claims.get("role"));
             log.info("Token has been validate successfully !!!!");
 
 
