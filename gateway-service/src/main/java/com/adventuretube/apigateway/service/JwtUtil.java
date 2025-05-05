@@ -1,10 +1,8 @@
 package com.adventuretube.apigateway.service;
 
-
-import com.adventuretube.apigateway.exception.AccessDeniedException;
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import io.jsonwebtoken.security.SignatureException;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,15 +21,12 @@ public class JwtUtil {
     private Key SECRET_KEY;
 
     @PostConstruct
-    public void initKey(){
-        this.SECRET_KEY = Keys.hmacShaKeyFor(secret.getBytes());
-        //this.SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256); // or HS384, or HS512
-
-
+    public void initKey() {
+        byte[] keyBytes = Decoders.BASE64.decode(secret);
+        this.SECRET_KEY = Keys.hmacShaKeyFor(keyBytes);
     }
 
-   // this one already include expiration check
-    public Claims getClaims(String token){
+    public Claims getClaims(String token) {
         try {
         return Jwts.parser()
                 .setSigningKey(SECRET_KEY)
@@ -43,13 +38,8 @@ public class JwtUtil {
             log.error("JWT Token validation error :"+e.getMessage());
             throw  e;
         } catch (Exception e) {
-            // Handle other unexpected exceptions
-            throw new RuntimeException("Unexpected error while extracting claims from JWT token: " + e.getMessage(), e);
+            throw new RuntimeException("Unexpected error while extracting claims: " + e.getMessage(), e);
         }
-
     }
-
-
-
-
 }
+
