@@ -28,18 +28,23 @@ public class JwtUtil {
 
     public Claims getClaims(String token) {
         try {
-        return Jwts.parser()
-                .setSigningKey(SECRET_KEY)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
+            // Strip "Bearer " prefix if present
+            if (token.startsWith("Bearer ")) {
+                token = token.substring(7);
+            }
+
+            return Jwts.parser()
+                    .setSigningKey(SECRET_KEY)
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
         } catch (ExpiredJwtException | UnsupportedJwtException | MalformedJwtException | SignatureException e) {
-            // Log the exception or handle it based on your application's requirements
             log.error("JWT Token validation error :"+e.getMessage());
-            throw  e;
+            throw e;
         } catch (Exception e) {
             throw new RuntimeException("Unexpected error while extracting claims: " + e.getMessage(), e);
         }
     }
+
 }
 
