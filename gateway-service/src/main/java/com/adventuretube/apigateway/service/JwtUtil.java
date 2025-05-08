@@ -34,7 +34,7 @@ public class JwtUtil {
 
             token = token.trim();
             if (token.toLowerCase().startsWith("Bearer ")) {
-                token = token.substring(7).trim();
+                token = token.replaceFirst("(?i)^\\s*Bearer\\s+", "").trim();
             }
 
             return Jwts.parser()
