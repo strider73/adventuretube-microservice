@@ -33,7 +33,7 @@ public class JwtUtil {
             }
 
             token = token.trim();
-            if (token.toLowerCase().startsWith("bearer ")) {
+            if (token.toLowerCase().startsWith("Bearer ")) {
                 token = token.substring(7).trim();
             }
 
