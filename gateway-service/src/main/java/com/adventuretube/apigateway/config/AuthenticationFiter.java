@@ -60,8 +60,9 @@ public class AuthenticationFiter implements GatewayFilter {
             log.info("Token has been validate successfully !!!!");
 
 
+        }else{
+            log.info("request doesn't need a valid token");
         }
-        log.info("request doesn't need a valid token");
         // Step 5: Continue the  Gateway filter chain Not Spring security filter  if everything is valid
         return chain.filter(exchange);
     }
