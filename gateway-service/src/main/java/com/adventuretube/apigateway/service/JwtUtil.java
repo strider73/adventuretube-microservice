@@ -34,7 +34,7 @@ public class JwtUtil {
 
             System.out.println("Raw token: [" + token + "]");
 
-            token = token.replaceFirst("(?i)^\\s*Bearer\\s+", "").trim();
+            token = TokenSanitizer.sanitize(token);
 
             return Jwts.parser()
                     .setSigningKey(SECRET_KEY)

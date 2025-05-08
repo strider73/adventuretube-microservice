@@ -199,7 +199,7 @@ public class AuthService {
        4. so get the username and role  from the token and create userDetail
         */
 
-        String token = httpServletRequest.getHeader("Authorization"); // Assuming the token is passed in the Authorization header
+        String token = TokenSanitizer.sanitize(httpServletRequest.getHeader("Authorization")); // Assuming the token is passed in the Authorization header
 
         //check the token for logout
         String urlForTokenExist = "http://MEMBER-SERVICE/member/findToken";
