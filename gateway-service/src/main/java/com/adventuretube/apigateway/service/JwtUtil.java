@@ -32,10 +32,9 @@ public class JwtUtil {
                 throw new IllegalArgumentException("JWT token is null or empty");
             }
 
-            token = token.trim();
-            if (token.toLowerCase().startsWith("Bearer ")) {
-                token = token.replaceFirst("(?i)^\\s*Bearer\\s+", "").trim();
-            }
+            System.out.println("Raw token: [" + token + "]");
+
+            token = token.replaceFirst("(?i)^\\s*Bearer\\s+", "").trim();
 
             return Jwts.parser()
                     .setSigningKey(SECRET_KEY)
