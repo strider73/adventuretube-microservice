@@ -20,9 +20,9 @@ public enum AuthErrorCode {
     SERVER_NOT_AVAILABLE("Server is not available", HttpStatus.INTERNAL_SERVER_ERROR),
     INTERNAL_ERROR("Unknown error", HttpStatus.INTERNAL_SERVER_ERROR),
     VALIDATION_FAILED("Validation failed", HttpStatus.BAD_REQUEST),
-    USER_DOES_NOT_EXIST("User does not exist", HttpStatus.NOT_FOUND);
-    
+    USER_DOES_NOT_EXIST("User does not exist", HttpStatus.NOT_FOUND),
     //JWT Exceptions
+    TOKEN_DELETION_FAILED("Failed to delete token during logout", HttpStatus.INTERNAL_SERVER_ERROR);
 
 
     private final String message;

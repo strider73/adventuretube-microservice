@@ -86,6 +86,11 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, AuthErrorCode.VALIDATION_FAILED.getHttpStatus());
     }
 
+    @ExceptionHandler(TokenDeletionException.class)
+    public ResponseEntity<RestAPIResponse> handleTokenDeletionException(TokenDeletionException ex) {
+        return buildErrorResponse(ex.getErrorCode());
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<RestAPIResponse> handleUnknownException(Exception ex) {
         return buildErrorResponse(AuthErrorCode.INTERNAL_ERROR);

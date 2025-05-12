@@ -2,6 +2,7 @@ package com.adventuretube.auth.service;
 
 import com.adventuretube.auth.config.google.GoogleTokenCredentialProperties;
 import com.adventuretube.auth.exceptions.AuthErrorCode;
+import com.adventuretube.auth.exceptions.TokenDeletionException;
 import com.adventuretube.auth.mapper.MemberMapper;
 import com.adventuretube.auth.model.MemberLoginRequest;
 import com.adventuretube.common.domain.dto.member.MemberDTO;
@@ -178,11 +179,11 @@ public class AuthService {
 
 
     public RestAPIResponse logout(HttpServletRequest httpServletRequest) {
-        String token = httpServletRequest.getHeader("Authorization"); // Assuming the token is passed in the Authorization header
+        String token = TokenSanitizer.sanitize(httpServletRequest.getHeader("Authorization")); // Assuming the token is passed in the Authorization header
         String urlForDeleteToken = "http://MEMBER-SERVICE/member/deleteAllToken";
         Boolean isLoggedOut = restTemplate.postForObject(urlForDeleteToken, token, Boolean.class);
         if (!isLoggedOut) {
-            throw new RuntimeException("token delete error !!!");
+            throw new TokenDeletionException(AuthErrorCode.TOKEN_DELETION_FAILED);
         } else {
             return RestAPIResponse.builder().message("Logout has been successful").details("User has been logged out successfully").statusCode(HttpStatus.OK.value()).timestamp(System.currentTimeMillis()).build();
         }

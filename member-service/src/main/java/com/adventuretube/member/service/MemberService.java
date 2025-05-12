@@ -75,6 +75,7 @@ public class MemberService {
            log.debug("token delete successfully");
            return true;
        }else{
+           log.warn("Token deletion failed for access token: {}", token);
            return false;
        }
     }
