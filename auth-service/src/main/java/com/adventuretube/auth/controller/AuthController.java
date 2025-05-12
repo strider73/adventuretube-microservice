@@ -145,8 +145,7 @@ public class AuthController {
 
     @PostMapping(value = "/logout")
     public ResponseEntity<?> revokeRefreshToken(HttpServletRequest request) {
-        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/auth/logout").toUriString());
-        return ResponseEntity.created(uri).body(authService.logout(request));
+        return ResponseEntity.ok(authService.logout(request));
     }
 
     @Operation(
