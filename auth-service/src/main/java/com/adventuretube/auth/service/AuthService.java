@@ -1,15 +1,13 @@
 package com.adventuretube.auth.service;
 
 import com.adventuretube.auth.config.google.GoogleTokenCredentialProperties;
-import com.adventuretube.auth.exceptions.AuthErrorCode;
-import com.adventuretube.auth.exceptions.TokenDeletionException;
+import com.adventuretube.auth.exceptions.*;
+import com.adventuretube.auth.exceptions.code.AuthErrorCode;
 import com.adventuretube.auth.mapper.MemberMapper;
 import com.adventuretube.auth.model.MemberLoginRequest;
 import com.adventuretube.common.domain.dto.member.MemberDTO;
 import com.adventuretube.common.domain.dto.token.TokenDTO;
 import com.adventuretube.common.error.RestAPIResponse;
-import com.adventuretube.auth.exceptions.DuplicateException;
-import com.adventuretube.auth.exceptions.GoogleIdTokenInvalidException;
 import com.adventuretube.auth.model.MemberRegisterRequest;
 import com.adventuretube.auth.model.MemberRegisterResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -59,29 +57,21 @@ public class AuthService {
 
         // MARK:   Validate Google ID token  https://developers.google.com/identity/sign-in/ios/backend-auth
         GoogleIdToken idToken = verifyGoogleIdToken(request.getGoogleIdToken());
-
         if (idToken == null) {
             log.error("Google idToken is null");
             throw new GoogleIdTokenInvalidException(AuthErrorCode.GOOGLE_TOKEN_INVALID);
         }
-
-
         GoogleIdToken.Payload payload = idToken.getPayload();
         // MARK:  compare email address that in the request with payload
-        String email = request.getEmail();
-        String tokenEmail = payload.getEmail();
-
-        if (!email.equals(tokenEmail)) {
+        if (!request.getEmail().equals(payload.getEmail())) {
             throw new GoogleIdTokenInvalidException(AuthErrorCode.GOOGLE_EMAIL_MISMATCH);
         }
 
 
         // MARK:  prepare check user email duplication
         MemberDTO memberDTO = buildMemberDTO(payload);
-
         String urlForEmailCheck = "http://MEMBER-SERVICE/member/emailDuplicationCheck";
         Boolean isUserAlreadyExist = restTemplate.postForObject(urlForEmailCheck, memberDTO.getEmail(), Boolean.class);
-
         // MARK:  Check Email duplication
         if (isUserAlreadyExist) {
             throw new DuplicateException(AuthErrorCode.USER_EMAIL_DUPLICATE);
@@ -92,48 +82,60 @@ public class AuthService {
             // MARK:  Register Member !!!
             String urlForRegister = "http://MEMBER-SERVICE/member/registerMember"; //with Eureka
             ResponseEntity<MemberDTO> response = restTemplate.postForEntity(urlForRegister, memberDTO, MemberDTO.class);
-            if (response.getStatusCode() == HttpStatus.OK) {
-                // MARK:  create JWT token
-                MemberDTO registeredUser = response.getBody();
-                String accessToken = jwtUtil.generate(registeredUser.getEmail(), registeredUser.getRole(), "ACCESS");
-                String refreshToken = jwtUtil.generate(registeredUser.getEmail(), registeredUser.getRole(), "REFRESH");
-                //TODO saveToken and revoke all others
-                String urlForStoreToken = "http://MEMBER-SERVICE/member/storeTokens";
+            if (!response.getStatusCode().is2xxSuccessful()) {
+                throw new MemberServiceException(AuthErrorCode.INTERNAL_ERROR);
+            }
+
+            // MARK:  create JWT token
+            MemberDTO registeredUser = response.getBody();
+            String accessToken = jwtUtil.generate(registeredUser.getEmail(), registeredUser.getRole(), "ACCESS");
+            String refreshToken = jwtUtil.generate(registeredUser.getEmail(), registeredUser.getRole(), "REFRESH");
+            //TODO saveToken and revoke all others
+            String urlForStoreToken = "http://MEMBER-SERVICE/member/storeTokens";
                  /*
                     Member object which implement UserDetail have a issue with serial/deserialization GrantedAuthority Object
                     so sending MemberDTO instead and convert to Member in member-service
                   */
-                // MARK:   store token to database
-                TokenDTO tokenToStore = TokenDTO.builder().memberDTO(registeredUser)//sending a memberDTO instead Member
-                        .expired(false).revoked(false).accessToken(accessToken).refreshToken(refreshToken) // Set refresh token to null or generate if needed
-                        .build();
+            // MARK:   store token to database
+            TokenDTO tokenToStore = TokenDTO.builder()
+                    .memberDTO(registeredUser)//sending a memberDTO instead Member
+                    .expired(false)
+                    .revoked(false)
+                    .accessToken(accessToken)
+                    .refreshToken(refreshToken) // Set refresh token to null or generate if needed
+                    .build();
 
-                Boolean istokenStored = restTemplate.postForObject(urlForStoreToken, tokenToStore, Boolean.class);
-                if (!istokenStored) {
-                    throw new RuntimeException("token store error !!!");
-                }
-                // MARK:  return result
+            Boolean istokenStored = restTemplate.postForObject(urlForStoreToken, tokenToStore, Boolean.class);
+            if (!istokenStored) {
+                throw new TokenSaveFailedException(AuthErrorCode.TOKEN_SAVE_FAILED);
+            }
+            // MARK:  return result
 
-                return new MemberRegisterResponse(registeredUser.getId(), accessToken, refreshToken);
-            } else {
-                // Handle non-200 responses
-                String errorBody = response.hasBody() ? response.getBody().toString() : "No response body";
-                logger.error("Member service returned an error: HTTP {} - {}", response.getStatusCode(), errorBody);
-                throw new RuntimeException("Member service error: " + response.getStatusCode());
-            }//handle 4XX Client error  and 5XX  Server Error
+            return new MemberRegisterResponse(registeredUser.getId(), accessToken, refreshToken);
+
         } catch (HttpClientErrorException | HttpServerErrorException ex) {
             // Parse error response body
             try {
                 RestAPIResponse errorResponse = new ObjectMapper().readValue(ex.getResponseBodyAsString(), RestAPIResponse.class);
                 logger.error("Member service error: {} - {}", errorResponse.getStatusCode(), errorResponse.getMessage());
                 throw new RuntimeException(errorResponse.getMessage());
+                //TODO:  need to create a switch exception for each error code after add errorCode property to RestAPIResponse
+                /*
+                switch (code) {
+                case USER_EMAIL_DUPLICATE -> throw new DuplicateException(code);
+                case TOKEN_SAVE_FAILED     -> throw new TokenSaveFailedException(code);
+                case GOOGLE_TOKEN_INVALID,
+                     GOOGLE_EMAIL_MISMATCH -> throw new GoogleIdTokenInvalidException(code);
+                default                    -> throw new MemberServiceException(code);
+                }
+                 */
             } catch (Exception e) {
                 logger.error("Error parsing error response", e);
-                throw new RuntimeException("Member service error: " + ex.getStatusCode(), ex);
+                throw new MemberServiceException(AuthErrorCode.INTERNAL_ERROR);
             }
         } catch (Exception ex) {
             logger.error("An unexpected error occurred during member registration", ex);
-            throw new RuntimeException("An unexpected error occurred during member registration", ex);
+            throw new MemberServiceException(AuthErrorCode.INTERNAL_ERROR);
         }
 
     }
@@ -233,11 +235,8 @@ public class AuthService {
     }
 
 
-
     private GoogleIdToken verifyGoogleIdToken(String googleIdToken) {
-        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), GsonFactory.getDefaultInstance())
-                .setAudience(Collections.singletonList(googleTokenCredentialProperties.getClientId()))
-                .build();
+        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), GsonFactory.getDefaultInstance()).setAudience(Collections.singletonList(googleTokenCredentialProperties.getClientId())).build();
 
         try {
             return verifier.verify(googleIdToken);
@@ -258,17 +257,7 @@ public class AuthService {
             username = givenName + " " + familyName;
         }
 
-        return MemberDTO.builder()
-                .email(email)
-                .googleIdToken(payload.toString())
-                .username(username)
-                .password(passwordEncoder.encode(googleId))
-                .googleIdTokenExp(payload.getExpirationTimeSeconds())
-                .googleIdTokenIat(payload.getIssuedAtTimeSeconds())
-                .googleIdTokenSub(googleId)
-                .googleProfilePicture((String) payload.get("picture"))
-                .role("USER")
-                .build();
+        return MemberDTO.builder().email(email).googleIdToken(payload.toString()).username(username).password(passwordEncoder.encode(googleId)).googleIdTokenExp(payload.getExpirationTimeSeconds()).googleIdTokenIat(payload.getIssuedAtTimeSeconds()).googleIdTokenSub(googleId).googleProfilePicture((String) payload.get("picture")).role("USER").build();
     }
 
 }
