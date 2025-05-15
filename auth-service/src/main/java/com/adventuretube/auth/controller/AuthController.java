@@ -90,9 +90,9 @@ public class AuthController {
     public ResponseEntity<MemberRegisterResponse> registerUser(@Valid @RequestBody MemberRegisterRequest request) {
         MemberRegisterResponse response = authService.createUser(request); // 🔥 renamed here too
         URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath()
-                       .path("/users/{id}")
-                       .buildAndExpand(response.getUserId())
-                       .toUriString());
+                .path("/users/{id}")
+                .buildAndExpand(response.getUserId())
+                .toUriString());
         return ResponseEntity.created(uri).body(response);
     }
 
@@ -105,12 +105,12 @@ public class AuthController {
                             examples = @ExampleObject(
                                     name = "Login Example",
                                     value = """
-                        {
-                          "email": "strider@gmail.com",
-                          "password": "123456",
-                          "googleIdToken": "eyJhbGciOiJSUzI1NiIsImtpZCI6I..."
-                        }
-                        """
+                                            {
+                                              "email": "strider@gmail.com",
+                                              "password": "123456",
+                                              "googleIdToken": "eyJhbGciOiJSUzI1NiIsImtpZCI6I..."
+                                            }
+                                            """
                             )
                     )
             )
@@ -151,12 +151,12 @@ public class AuthController {
     @Operation(
             summary = "Refresh access token using a valid refresh token",
             description = """
-                  This endpoint accepts a valid refresh token via the Authorization header.
-                  It verifies the token against the token store in the MEMBER-SERVICE.
-                  If valid, it issues a new access token and a new refresh token.
-        
-                   This should be called when an access token is expired but the refresh token is still active.
-             """,
+                         This endpoint accepts a valid refresh token via the Authorization header.
+                         It verifies the token against the token store in the MEMBER-SERVICE.
+                         If valid, it issues a new access token and a new refresh token.
+                            
+                          This should be called when an access token is expired but the refresh token is still active.
+                    """,
             parameters = {
                     @Parameter(
                             name = "Authorization",
