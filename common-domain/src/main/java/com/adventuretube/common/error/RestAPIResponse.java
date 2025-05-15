@@ -14,4 +14,5 @@ public class RestAPIResponse {
     private String details;
     private int statusCode;
     private long timestamp;
+    //TODO: errorCode , originService
 }
