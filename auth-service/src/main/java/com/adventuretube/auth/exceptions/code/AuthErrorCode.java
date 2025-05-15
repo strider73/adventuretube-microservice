@@ -1,4 +1,4 @@
-package com.adventuretube.auth.exceptions;
+package com.adventuretube.auth.exceptions.code;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
@@ -22,8 +22,11 @@ public enum AuthErrorCode {
     VALIDATION_FAILED("Validation failed", HttpStatus.BAD_REQUEST),
     USER_DOES_NOT_EXIST("User does not exist", HttpStatus.NOT_FOUND),
     //JWT Exceptions
-    TOKEN_DELETION_FAILED("Failed to delete token during logout", HttpStatus.INTERNAL_SERVER_ERROR);
+    TOKEN_DELETION_FAILED("Failed to delete token during logout", HttpStatus.INTERNAL_SERVER_ERROR),
+    TOKEN_SAVE_FAILED("Failed to save token during login", HttpStatus.INTERNAL_SERVER_ERROR),
 
+    //Member Service Exceptions
+    MEMBER_REGISTRATION_FAILED("Failed to register member", HttpStatus.INTERNAL_SERVER_ERROR);
 
     private final String message;
     private final HttpStatus httpStatus;

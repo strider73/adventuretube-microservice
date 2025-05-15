@@ -2,10 +2,11 @@ package com.adventuretube.auth.exceptions;
 
 import com.adventuretube.auth.exceptions.code.AuthErrorCode;
 
-public class UserNotFoundException extends RuntimeException{
+public class MemberServiceException extends RuntimeException {
+
     private final AuthErrorCode errorCode;
 
-    public UserNotFoundException(AuthErrorCode errorCode) {
+    public MemberServiceException(AuthErrorCode errorCode) {
         super(errorCode.getMessage());
         this.errorCode = errorCode;
     }

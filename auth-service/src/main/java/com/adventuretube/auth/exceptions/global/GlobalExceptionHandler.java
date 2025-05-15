@@ -1,6 +1,8 @@
-package com.adventuretube.auth.exceptions;
+package com.adventuretube.auth.exceptions.global;
 
 
+import com.adventuretube.auth.exceptions.*;
+import com.adventuretube.auth.exceptions.code.AuthErrorCode;
 import com.adventuretube.common.error.RestAPIResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,8 +18,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import java.security.GeneralSecurityException;
 import java.util.HashMap;
 import java.util.Map;
-
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -66,6 +66,31 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(AuthErrorCode.GOOGLE_TOKEN_MALFORMED);
     }
 
+    @ExceptionHandler(TokenDeletionException.class)
+    public ResponseEntity<RestAPIResponse> handleTokenDeletionException(TokenDeletionException ex) {
+        return buildErrorResponse(ex.getErrorCode());
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<RestAPIResponse> handleUnknownException(Exception ex) {
+        return buildErrorResponse(AuthErrorCode.INTERNAL_ERROR);
+    }
+
+    @ExceptionHandler(TokenSaveFailedException.class)
+    public ResponseEntity<RestAPIResponse> handleTokenStoreException(TokenSaveFailedException ex) {
+        return buildErrorResponse(ex.getErrorCode());
+    }
+
+    @ExceptionHandler(MemberServiceException.class)
+    public ResponseEntity<RestAPIResponse> handleMemberServiceException(MemberServiceException ex) {
+        return buildErrorResponse(ex.getErrorCode());
+    }
+
+    @ExceptionHandler(InternalServerException.class)
+    public ResponseEntity<RestAPIResponse> handleInternalServerException(InternalServerException ex) {
+        return buildErrorResponse(ex.getErrorCode());
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<RestAPIResponse> handleValidationExceptions(MethodArgumentNotValidException ex) {
@@ -84,15 +109,5 @@ public class GlobalExceptionHandler {
                 .build();
 
         return new ResponseEntity<>(response, AuthErrorCode.VALIDATION_FAILED.getHttpStatus());
-    }
-
-    @ExceptionHandler(TokenDeletionException.class)
-    public ResponseEntity<RestAPIResponse> handleTokenDeletionException(TokenDeletionException ex) {
-        return buildErrorResponse(ex.getErrorCode());
-    }
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<RestAPIResponse> handleUnknownException(Exception ex) {
-        return buildErrorResponse(AuthErrorCode.INTERNAL_ERROR);
     }
 }

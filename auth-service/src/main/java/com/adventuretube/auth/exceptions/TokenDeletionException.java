@@ -1,5 +1,7 @@
 package com.adventuretube.auth.exceptions;
 
+import com.adventuretube.auth.exceptions.code.AuthErrorCode;
+
 public class TokenDeletionException extends RuntimeException {
     private final AuthErrorCode errorCode;
 
