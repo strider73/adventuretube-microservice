@@ -165,8 +165,12 @@ public class AuthService {
         String refreshToken = jwtUtil.generate(userDetails.getUsername(), userDetails.getAuthorities().toString(), "REFRESH");
 
 
-        TokenDTO tokenToStore = TokenDTO.builder().memberDTO(MemberMapper.INSTANCE.userDetailToMemberDTO(userDetails))//sending a memberDTO instead Member
-                .expired(false).revoked(false).accessToken(accessToken).refreshToken(refreshToken) // Set refresh token to null or generate if needed
+        TokenDTO tokenToStore = TokenDTO.builder()
+                .memberDTO(MemberMapper.INSTANCE.userDetailToMemberDTO(userDetails))//sending a memberDTO instead Member
+                .expired(false)
+                .revoked(false)
+                .accessToken(accessToken)
+                .refreshToken(refreshToken) // Set refresh token to null or generate if needed
                 .build();
 
         String urlForStoreToken = "http://MEMBER-SERVICE/member/storeTokens";
@@ -182,6 +186,7 @@ public class AuthService {
 
     public RestAPIResponse logout(HttpServletRequest httpServletRequest) {
         String token = TokenSanitizer.sanitize(httpServletRequest.getHeader("Authorization")); // Assuming the token is passed in the Authorization header
+        //using access token for logout
         String urlForDeleteToken = "http://MEMBER-SERVICE/member/deleteAllToken";
         Boolean isLoggedOut = restTemplate.postForObject(urlForDeleteToken, token, Boolean.class);
         if (!isLoggedOut) {
@@ -208,7 +213,7 @@ public class AuthService {
         String urlForTokenExist = "http://MEMBER-SERVICE/member/findToken";
         Boolean isTokenFind = restTemplate.postForObject(urlForTokenExist, token, Boolean.class);
         if (!isTokenFind) {
-            throw new RuntimeException("refresh token process has been failed , user has been logged out or use wrong token, please login again ");
+            throw new TokenNotFoundException(AuthErrorCode.TOKEN_NOT_FOUND);
         }
 
 
