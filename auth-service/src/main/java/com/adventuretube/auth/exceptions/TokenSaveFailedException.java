@@ -1,14 +1,13 @@
 package com.adventuretube.auth.exceptions;
 
+import com.adventuretube.auth.exceptions.base.BaseServiceException;
 import com.adventuretube.auth.exceptions.code.AuthErrorCode;
 
-public class TokenSaveFailedException extends RuntimeException {
-    private final AuthErrorCode errorCode;
-    public TokenSaveFailedException(AuthErrorCode authErrorCode) {
-        super(authErrorCode.getMessage());
-        this.errorCode = authErrorCode;
+public class TokenSaveFailedException extends BaseServiceException {
+    public TokenSaveFailedException(AuthErrorCode errorCode) {
+        super(errorCode);
     }
-    public AuthErrorCode getErrorCode() {
-        return errorCode;
-    }
+
+
+
 }

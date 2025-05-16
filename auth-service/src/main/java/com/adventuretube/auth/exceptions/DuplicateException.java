@@ -1,17 +1,12 @@
 package com.adventuretube.auth.exceptions;
 
+import com.adventuretube.auth.exceptions.base.BaseServiceException;
 import com.adventuretube.auth.exceptions.code.AuthErrorCode;
 
-public class DuplicateException extends RuntimeException {
-
-    private final AuthErrorCode errorCode;
+public class DuplicateException extends BaseServiceException {
 
     public DuplicateException(AuthErrorCode errorCode) {
-        super(errorCode.getMessage());
-        this.errorCode = errorCode;
+        super(errorCode);
     }
 
-    public AuthErrorCode getErrorCode() {
-        return errorCode;
-    }
 }

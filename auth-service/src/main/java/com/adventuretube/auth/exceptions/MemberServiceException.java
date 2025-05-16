@@ -1,17 +1,11 @@
 package com.adventuretube.auth.exceptions;
 
+import com.adventuretube.auth.exceptions.base.BaseServiceException;
 import com.adventuretube.auth.exceptions.code.AuthErrorCode;
 
-public class MemberServiceException extends RuntimeException {
-
-    private final AuthErrorCode errorCode;
-
+public class MemberServiceException extends BaseServiceException {
     public MemberServiceException(AuthErrorCode errorCode) {
-        super(errorCode.getMessage());
-        this.errorCode = errorCode;
+        super(errorCode);
     }
 
-    public AuthErrorCode getErrorCode() {
-        return errorCode;
-    }
 }
