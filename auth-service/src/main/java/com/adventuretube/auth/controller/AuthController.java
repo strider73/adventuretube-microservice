@@ -36,7 +36,9 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 public class AuthController {
     private final AuthService authService;
 
-
+    // =========================
+    // 🔐 Registration Endpoint
+    // =========================
     @Operation(
             summary = "Create  new user and issue id and refresh token",
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -96,7 +98,9 @@ public class AuthController {
         return ResponseEntity.created(uri).body(response);
     }
 
-
+    // =========================
+    // 🔑 Login Endpoint
+    // =========================
     @Operation(
             summary = "Authenticate user and issue access and refresh tokens",
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -142,12 +146,9 @@ public class AuthController {
         return ResponseEntity.ok(authService.issueToken(request));
     }
 
-
-    @PostMapping(value = "/logout")
-    public ResponseEntity<?> revokeRefreshToken(HttpServletRequest request) {
-        return ResponseEntity.ok(authService.logout(request));
-    }
-
+    // =========================
+    // 🔄 Refresh Token Endpoint
+    // =========================
     @Operation(
             summary = "Refresh access token using a valid refresh token",
             description = """
@@ -195,4 +196,50 @@ public class AuthController {
     }
 
 
+    // =========================
+    // 🚪 Logout Endpoint
+    // =========================
+    @Operation(
+            summary = "Logout user and revoke refresh token",
+            description = """
+                    This endpoint handles user logout.
+
+                    It expects the refresh token in the `Authorization` header and performs:
+                    - validation of the token
+                    - deletion of the refresh token from the MEMBER-SERVICE
+                    - revocation of all active tokens for the user
+
+                    The request is authenticated via JWT by the API Gateway before reaching this method.
+                    """,
+            parameters = {
+                    @Parameter(
+                            name = "Authorization",
+                            description = "Refresh token in the format: Bearer {refresh_token}",
+                            required = true,
+                            in = ParameterIn.HEADER,
+                            example = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                    )
+            }
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "User successfully logged out. Refresh token deleted.",
+                    content = @Content(schema = @Schema(implementation = RestAPIResponse.class))
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized - Invalid or missing refresh token.",
+                    content = @Content(schema = @Schema(implementation = RestAPIResponse.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal Server Error - Token revocation failed.",
+                    content = @Content(schema = @Schema(implementation = RestAPIResponse.class))
+            )
+    })
+    @PostMapping(value = "/logout")
+    public ResponseEntity<?> revokeRefreshToken(HttpServletRequest request) {
+        return ResponseEntity.ok(authService.logout(request));
+    }
 }
