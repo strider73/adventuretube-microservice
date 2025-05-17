@@ -1,8 +1,8 @@
 package com.adventuretube.apigateway.config;
 
+import com.adventuretube.apigateway.common.response.RestAPIResponse;
 import com.adventuretube.apigateway.exception.JwtTokenNotExistException;
 import com.adventuretube.apigateway.service.JwtUtil;
-import com.adventuretube.common.error.RestAPIResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;

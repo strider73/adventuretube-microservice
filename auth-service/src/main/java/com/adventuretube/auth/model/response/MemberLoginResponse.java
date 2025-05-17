@@ -1,4 +1,4 @@
-package com.adventuretube.auth.model;
+package com.adventuretube.auth.model.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

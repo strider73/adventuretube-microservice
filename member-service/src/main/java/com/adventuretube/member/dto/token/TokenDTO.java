@@ -1,7 +1,6 @@
-package com.adventuretube.common.domain.dto.token;
+package com.adventuretube.member.dto.token;
 
-import com.adventuretube.common.domain.dto.member.Member;
-import com.adventuretube.common.domain.dto.member.MemberDTO;
+import com.adventuretube.member.dto.member.MemberDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

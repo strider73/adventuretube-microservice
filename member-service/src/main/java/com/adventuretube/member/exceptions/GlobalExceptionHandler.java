@@ -1,7 +1,7 @@
 package com.adventuretube.member.exceptions;
 
 
-import com.adventuretube.common.error.RestAPIResponse;
+import com.adventuretube.member.exceptions.error.RestAPIResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;

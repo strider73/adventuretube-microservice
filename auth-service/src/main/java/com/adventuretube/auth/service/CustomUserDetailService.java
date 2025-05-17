@@ -2,7 +2,7 @@ package com.adventuretube.auth.service;
 
 import com.adventuretube.auth.exceptions.code.AuthErrorCode;
 import com.adventuretube.auth.exceptions.UserNotFoundException;
-import com.adventuretube.common.domain.dto.member.MemberDTO;
+import com.adventuretube.auth.model.dto.member.MemberDTO;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.BadCredentialsException;

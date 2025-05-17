@@ -1,7 +1,7 @@
 package com.adventuretube.apigateway.exception;
 
 
-import com.adventuretube.common.error.RestAPIResponse;
+import com.adventuretube.apigateway.common.response.RestAPIResponse;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import org.springframework.http.HttpStatus;

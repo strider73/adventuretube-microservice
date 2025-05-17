@@ -1,8 +1,8 @@
 package com.adventuretube.auth.mapper;
 
 
-import com.adventuretube.auth.model.MemberRegisterRequest;
-import com.adventuretube.common.domain.dto.member.MemberDTO;
+import com.adventuretube.auth.model.request.MemberRegisterRequest;
+import com.adventuretube.auth.model.dto.member.MemberDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 import org.springframework.security.core.userdetails.UserDetails;

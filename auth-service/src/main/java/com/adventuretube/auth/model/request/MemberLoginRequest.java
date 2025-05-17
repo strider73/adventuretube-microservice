@@ -1,4 +1,4 @@
-package com.adventuretube.auth.model;
+package com.adventuretube.auth.model.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;

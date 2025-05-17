@@ -1,8 +1,9 @@
 package com.adventuretube.member.service;
 
-import com.adventuretube.common.domain.dto.member.Member;
-import com.adventuretube.common.domain.dto.token.Token;
-import com.adventuretube.common.domain.dto.token.TokenDTO;
+
+import com.adventuretube.member.dto.member.Member;
+import com.adventuretube.member.dto.token.Token;
+import com.adventuretube.member.dto.token.TokenDTO;
 import com.adventuretube.member.mapper.MemberMapper;
 import com.adventuretube.member.mapper.TokenMapper;
 import com.adventuretube.member.repo.MemberRepository;

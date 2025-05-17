@@ -1,11 +1,11 @@
 package com.adventuretube.auth.controller;
 
 
-import com.adventuretube.auth.model.MemberLoginRequest;
-import com.adventuretube.auth.model.MemberLoginResponse;
-import com.adventuretube.common.error.RestAPIResponse;
-import com.adventuretube.auth.model.MemberRegisterRequest;
-import com.adventuretube.auth.model.MemberRegisterResponse;
+import com.adventuretube.auth.model.request.MemberLoginRequest;
+import com.adventuretube.auth.model.response.MemberLoginResponse;
+import com.adventuretube.auth.common.response.RestAPIResponse;
+import com.adventuretube.auth.model.request.MemberRegisterRequest;
+import com.adventuretube.auth.model.response.MemberRegisterResponse;
 import com.adventuretube.auth.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

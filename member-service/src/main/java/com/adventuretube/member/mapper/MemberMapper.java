@@ -1,8 +1,8 @@
 package com.adventuretube.member.mapper;
 
 
-import com.adventuretube.common.domain.dto.member.Member;
-import com.adventuretube.common.domain.dto.member.MemberDTO;
+import com.adventuretube.member.dto.member.Member;
+import com.adventuretube.member.dto.member.MemberDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 

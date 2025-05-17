@@ -1,7 +1,6 @@
-package com.adventuretube.auth.model;
+package com.adventuretube.auth.model.response;
 
 
-import com.adventuretube.common.domain.dto.member.MemberDTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
