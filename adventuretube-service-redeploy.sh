@@ -33,7 +33,7 @@ fi
 
 # Step 4: Clean and build Maven project
 echo "$(date) - Cleaning and building Maven project..."
-MODULES=${2:-common-domain,auth-service,member-service,web-service,geospatial-service}
+MODULES=${2:-auth-service,member-service,web-service,geospatial-service}
 ./mvnw clean package -DskipTests -pl $MODULES
 if [ $? -ne 0 ]; then
     echo "$(date) - Maven build failed."
