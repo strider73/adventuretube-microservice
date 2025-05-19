@@ -3,7 +3,7 @@ package com.adventuretube.auth.service;
 import com.adventuretube.auth.config.google.GoogleTokenCredentialProperties;
 import com.adventuretube.auth.exceptions.*;
 import com.adventuretube.auth.exceptions.code.AuthErrorCode;
-import com.adventuretube.auth.mapper.MemberMapper;
+import com.adventuretube.auth.model.mapper.MemberMapper;
 import com.adventuretube.auth.model.request.MemberLoginRequest;
 import com.adventuretube.auth.common.response.RestAPIResponse;
 import com.adventuretube.auth.model.request.MemberRegisterRequest;
@@ -192,7 +192,11 @@ public class AuthService {
         if (!isLoggedOut) {
             throw new TokenDeletionException(AuthErrorCode.TOKEN_DELETION_FAILED);
         } else {
-            return RestAPIResponse.builder().message("Logout has been successful").details("User has been logged out successfully").statusCode(HttpStatus.OK.value()).timestamp(System.currentTimeMillis()).build();
+            return RestAPIResponse.builder()
+                    .message("Logout has been successful")
+                    .details("AuthService.logout() : auth-service ")
+                    .statusCode(HttpStatus.OK.value())
+                    .timestamp(System.currentTimeMillis()).build();
         }
 
     }
@@ -226,8 +230,12 @@ public class AuthService {
         MemberDTO memberDTO = MemberDTO.builder().username(userName).role(role).build();
 
 
-        TokenDTO tokenToStore = TokenDTO.builder().memberDTO(memberDTO)//sending a memberDTO instead Member
-                .expired(false).revoked(false).accessToken(accessToken).refreshToken(refreshToken) // Set refresh token to null or generate if needed
+        TokenDTO tokenToStore = TokenDTO.builder()
+                .memberDTO(memberDTO)//sending a memberDTO instead Member
+                .expired(false)
+                .revoked(false)
+                .accessToken(accessToken)
+                .refreshToken(refreshToken) // Set refresh token to null or generate if needed
                 .build();
 
         String urlForStoreToken = "http://MEMBER-SERVICE/member/storeTokens";
@@ -262,7 +270,16 @@ public class AuthService {
             username = givenName + " " + familyName;
         }
 
-        return MemberDTO.builder().email(email).googleIdToken(payload.toString()).username(username).password(passwordEncoder.encode(googleId)).googleIdTokenExp(payload.getExpirationTimeSeconds()).googleIdTokenIat(payload.getIssuedAtTimeSeconds()).googleIdTokenSub(googleId).googleProfilePicture((String) payload.get("picture")).role("USER").build();
+        return MemberDTO.builder()
+                .email(email)
+                .googleIdToken(payload.toString())
+                .username(username)
+                .password(passwordEncoder.encode(googleId))
+                .googleIdTokenExp(payload.getExpirationTimeSeconds())
+                .googleIdTokenIat(payload.getIssuedAtTimeSeconds())
+                .googleIdTokenSub(googleId)
+                .googleProfilePicture((String) payload.get("picture")).role("USER")
+                .build();
     }
 
 }
