@@ -1,6 +1,5 @@
-package com.adventuretube.geospatial.dto.token;
+package com.adventuretube.geospatial.model.dto;
 
-import com.adventuretube.geospatial.dto.member.MemberDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

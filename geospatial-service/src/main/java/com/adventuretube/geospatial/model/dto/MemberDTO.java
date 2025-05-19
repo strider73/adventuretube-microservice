@@ -1,4 +1,4 @@
-package com.adventuretube.geospatial.dto.member;
+package com.adventuretube.geospatial.model.dto;
 
 
 import lombok.AllArgsConstructor;

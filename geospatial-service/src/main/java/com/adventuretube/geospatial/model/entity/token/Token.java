@@ -1,7 +1,7 @@
-package com.adventuretube.geospatial.dto.token;
+package com.adventuretube.geospatial.model.entity.token;
 
 
-import com.adventuretube.geospatial.dto.member.Member;
+import com.adventuretube.geospatial.model.entity.member.Member;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

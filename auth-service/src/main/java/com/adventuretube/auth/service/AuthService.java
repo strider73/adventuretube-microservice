@@ -51,6 +51,7 @@ public class AuthService {
     private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    private final MemberMapper memberMapper;
 
     @Transactional
     public MemberRegisterResponse createUser(MemberRegisterRequest request) {
@@ -166,7 +167,7 @@ public class AuthService {
 
 
         TokenDTO tokenToStore = TokenDTO.builder()
-                .memberDTO(MemberMapper.INSTANCE.userDetailToMemberDTO(userDetails))//sending a memberDTO instead Member
+                .memberDTO(memberMapper.userDetailToMemberDTO(userDetails))//sending a memberDTO instead Member
                 .expired(false)
                 .revoked(false)
                 .accessToken(accessToken)

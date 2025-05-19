@@ -1,4 +1,4 @@
-package com.adventuretube.geospatial.dto.adventuretube;
+package com.adventuretube.geospatial.model.entity.adventuretube;
 
 
 

@@ -1,6 +1,6 @@
 package com.adventuretube.geospatial.service;
 
-import com.adventuretube.geospatial.dto.member.MemberDTO;
+import com.adventuretube.geospatial.model.dto.MemberDTO;
 import com.adventuretube.geospatial.exceptions.UserNotFoundException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
