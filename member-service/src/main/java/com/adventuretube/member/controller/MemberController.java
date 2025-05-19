@@ -1,12 +1,12 @@
 package com.adventuretube.member.controller;
 
 
-import com.adventuretube.member.dto.member.Member;
-import com.adventuretube.member.dto.member.MemberDTO;
-import com.adventuretube.member.dto.token.Token;
-import com.adventuretube.member.dto.token.TokenDTO;
-import com.adventuretube.member.exceptions.error.RestAPIResponse;
-import com.adventuretube.member.mapper.MemberMapper;
+import com.adventuretube.member.model.entity.Member;
+import com.adventuretube.member.model.dto.member.MemberDTO;
+import com.adventuretube.member.model.entity.Token;
+import com.adventuretube.member.model.dto.token.TokenDTO;
+import com.adventuretube.member.common.response.RestAPIResponse;
+import com.adventuretube.member.model.mapper.MemberMapper;
 import com.adventuretube.member.service.MemberService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

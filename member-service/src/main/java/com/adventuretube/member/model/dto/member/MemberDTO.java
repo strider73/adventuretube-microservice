@@ -1,4 +1,4 @@
-package com.adventuretube.member.dto.member;
+package com.adventuretube.member.model.dto.member;
 
 
 import lombok.AllArgsConstructor;

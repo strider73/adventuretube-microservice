@@ -1,4 +1,4 @@
-package com.adventuretube.auth.mapper;
+package com.adventuretube.auth.model.mapper;
 
 
 import com.adventuretube.auth.model.request.MemberRegisterRequest;

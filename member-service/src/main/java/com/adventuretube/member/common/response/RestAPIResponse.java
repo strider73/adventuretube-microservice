@@ -1,4 +1,4 @@
-package com.adventuretube.member.exceptions.error;
+package com.adventuretube.member.common.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

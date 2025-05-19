@@ -1,7 +1,7 @@
 package com.adventuretube.member.repo;
 
 
-import com.adventuretube.member.dto.member.Member;
+import com.adventuretube.member.model.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

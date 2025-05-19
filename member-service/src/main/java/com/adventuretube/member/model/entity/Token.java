@@ -1,7 +1,6 @@
-package com.adventuretube.member.dto.token;
+package com.adventuretube.member.model.entity;
 
 
-import com.adventuretube.member.dto.member.Member;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

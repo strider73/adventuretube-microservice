@@ -1,4 +1,4 @@
-package com.adventuretube.member.dto.member;
+package com.adventuretube.member.model.entity;
 
 
 
@@ -24,7 +24,7 @@ import java.util.UUID;
 @Entity
 public class Member implements UserDetails {
     @Id
-    @GeneratedValue(generator = "UUIO")
+    @GeneratedValue(generator = "UUID")
     @GenericGenerator(
             name = "UUID" ,
             strategy = "org.hibernate.id.UUIDGenerator"

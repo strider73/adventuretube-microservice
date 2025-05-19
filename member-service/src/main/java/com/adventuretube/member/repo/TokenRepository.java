@@ -5,7 +5,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 
-import com.adventuretube.member.dto.token.Token;
+import com.adventuretube.member.model.entity.Token;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

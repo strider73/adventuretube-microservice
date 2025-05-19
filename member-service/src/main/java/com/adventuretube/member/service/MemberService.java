@@ -1,11 +1,12 @@
 package com.adventuretube.member.service;
 
 
-import com.adventuretube.member.dto.member.Member;
-import com.adventuretube.member.dto.token.Token;
-import com.adventuretube.member.dto.token.TokenDTO;
-import com.adventuretube.member.mapper.MemberMapper;
-import com.adventuretube.member.mapper.TokenMapper;
+
+import com.adventuretube.member.model.dto.token.TokenDTO;
+import com.adventuretube.member.model.entity.Member;
+import com.adventuretube.member.model.entity.Token;
+import com.adventuretube.member.model.mapper.MemberMapper;
+import com.adventuretube.member.model.mapper.TokenMapper;
 import com.adventuretube.member.repo.MemberRepository;
 import com.adventuretube.member.repo.TokenRepository;
 import lombok.AllArgsConstructor;
