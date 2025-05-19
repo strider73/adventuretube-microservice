@@ -23,6 +23,9 @@ import java.util.Optional;
 public class MemberService {
     private final MemberRepository memberRepository;
     private final TokenRepository tokenRepository;
+    private final MemberMapper memberMapper;
+    private final TokenMapper tokenMapper;
+
     public Member registerMember(Member member){
         return  memberRepository.save(member);
     }
@@ -55,15 +58,15 @@ public class MemberService {
         if(tokenDTO.memberDTO.getId() == null){
           Optional<Member> member =  memberRepository.findMemberByEmail(tokenDTO.memberDTO.getUsername());
           if(member.isPresent()){
-              tokenDTO.setMemberDTO(MemberMapper.INSTANCE.memberToMemberDTO(member.get()));
+              tokenDTO.setMemberDTO(memberMapper.memberToMemberDTO(member.get()));
           }else{
               throw new RuntimeException("User email "+tokenDTO.memberDTO.getEmail() + " is not a Member");
           }
         }
-        Token token = TokenMapper.INSTANCE.tokenDTOToToken(tokenDTO);
+        Token token = tokenMapper.tokenDTOToToken(tokenDTO);
         List<Token> tokens = tokenRepository.findAllValidTokenByMember(tokenDTO.memberDTO.getId());
         tokens.forEach(tokenRepository::delete);
-        tokenRepository.save(TokenMapper.INSTANCE.tokenDTOToToken(tokenDTO));
+        tokenRepository.save(token);
         return true;
     }
 

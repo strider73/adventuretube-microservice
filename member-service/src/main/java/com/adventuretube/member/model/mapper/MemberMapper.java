@@ -6,9 +6,8 @@ import com.adventuretube.member.model.dto.member.MemberDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface MemberMapper {
-    MemberMapper INSTANCE = Mappers.getMapper(MemberMapper.class);
     Member memberDTOtoMember(MemberDTO memberDTO);
     MemberDTO memberToMemberDTO(Member member);
 

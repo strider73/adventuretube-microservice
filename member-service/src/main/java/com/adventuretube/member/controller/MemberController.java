@@ -23,6 +23,7 @@ import java.util.Optional;
 @RequestMapping("member")
 public class MemberController {
     private final MemberService memberService;
+    private final MemberMapper memberMapper;
 
     //registerMember's return type for ResponseEntity are  AuthDTO or RestAPIErrorResponse
     //handle carefully on the caller side not by GlobalException handler in member-service
@@ -44,7 +45,7 @@ public class MemberController {
             TokenDTO tokenDTO = objectMapper.convertValue(requestMap.get("tokenDTO"), TokenDTO.class);
 
          */
-          Member newMember = MemberMapper.INSTANCE.memberDTOtoMember(memberDTO);
+          Member newMember = memberMapper.memberDTOtoMember(memberDTO);
         try {
             //After store in the database nothing but id field will be different
             Member registeredMember = memberService.registerMember(newMember);

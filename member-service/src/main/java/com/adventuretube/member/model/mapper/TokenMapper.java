@@ -9,9 +9,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
-@Mapper(uses = MemberMapper.class)
+@Mapper(componentModel = "spring", uses = MemberMapper.class)
 public interface TokenMapper {
-    TokenMapper INSTANCE = Mappers.getMapper(TokenMapper.class);
     @Mapping(source = "memberDTO", target = "member")
     Token tokenDTOToToken(TokenDTO tokenDTO);
 }

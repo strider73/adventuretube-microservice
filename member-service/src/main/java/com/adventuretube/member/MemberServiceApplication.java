@@ -12,7 +12,7 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
                 @Server(url = "https://api.adventuretube.net", description = "member Service API")
         }
 )
-@EntityScan(basePackages = {"com.adventuretube.member.model.entity"})
+@EntityScan(basePackages = {"com.adventuretube.member.model"})
 public class MemberServiceApplication {
     public static void main(String[] args) {
         System.out.println("MemberServiceApplication!");
