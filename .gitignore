@@ -4,6 +4,13 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+### macOS system files ###
+.DS_Store
+**/.DS_Store
+
+### Java error logs ###
+hs_err_pid*.log
+
 ### STS ###
 .apt_generated
 .classpath
@@ -31,7 +38,6 @@ build/
 
 ### VS Code ###
 .vscode/
-
 
 #### Database ####
 data/
