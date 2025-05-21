@@ -14,12 +14,61 @@ import java.util.UUID;
 @NoArgsConstructor
 public class TokenDTO {
 
-    public UUID id;
-    public String accessToken;
-    public String refreshToken;
+    private UUID id;
+    private String accessToken;
+    private String refreshToken;
 
-    public boolean revoked;
+    private boolean revoked;
 
-    public boolean expired;
-    public MemberDTO memberDTO;
+    private boolean expired;
+    private MemberDTO memberDTO;
+
+
+    public UUID getId() {
+        return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
+    public String getAccessToken() {
+        return accessToken;
+    }
+
+    public void setAccessToken(String accessToken) {
+        this.accessToken = accessToken;
+    }
+
+    public String getRefreshToken() {
+        return refreshToken;
+    }
+
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
+    }
+
+    public boolean isRevoked() {
+        return revoked;
+    }
+
+    public void setRevoked(boolean revoked) {
+        this.revoked = revoked;
+    }
+
+    public boolean isExpired() {
+        return expired;
+    }
+
+    public void setExpired(boolean expired) {
+        this.expired = expired;
+    }
+
+    public MemberDTO getMemberDTO() {
+        return memberDTO;
+    }
+
+    public void setMemberDTO(MemberDTO memberDTO) {
+        this.memberDTO = memberDTO;
+    }
 }

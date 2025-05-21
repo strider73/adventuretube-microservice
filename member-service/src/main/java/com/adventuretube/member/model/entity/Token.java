@@ -19,15 +19,63 @@ public class Token {
 
     @Id
     @GeneratedValue
-    public UUID id;
+    private UUID id;
 
     @Column(unique = true)
-    public String accessToken;
+    private String accessToken;
     @Column(unique = true)
-    public String refreshToken;
-    public boolean revoked;
+    private String refreshToken;
+    private boolean revoked;
 
-    public boolean expired;
+    public UUID getId() {
+        return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
+    public String getAccessToken() {
+        return accessToken;
+    }
+
+    public void setAccessToken(String accessToken) {
+        this.accessToken = accessToken;
+    }
+
+    public String getRefreshToken() {
+        return refreshToken;
+    }
+
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
+    }
+
+    public boolean isRevoked() {
+        return revoked;
+    }
+
+    public void setRevoked(boolean revoked) {
+        this.revoked = revoked;
+    }
+
+    public boolean isExpired() {
+        return expired;
+    }
+
+    public void setExpired(boolean expired) {
+        this.expired = expired;
+    }
+
+    public LocalDateTime getCreateAt() {
+        return createAt;
+    }
+
+    public void setCreateAt(LocalDateTime createAt) {
+        this.createAt = createAt;
+    }
+
+    private boolean expired;
 
     private LocalDateTime createAt;
 
@@ -36,7 +84,15 @@ public class Token {
         createAt = LocalDateTime.now();
     }
 
+    public Member getMember() {
+        return member;
+    }
+
+    public void setMember(Member member) {
+        this.member = member;
+    }
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
-    public Member member;
+    private Member member;
 }

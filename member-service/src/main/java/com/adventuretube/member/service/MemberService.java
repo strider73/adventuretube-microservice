@@ -55,16 +55,17 @@ public class MemberService {
         //this will be the case for
         //       1. login process ::  authenticate
         //       2. refresh token process
-        if(tokenDTO.memberDTO.getId() == null){
-          Optional<Member> member =  memberRepository.findMemberByEmail(tokenDTO.memberDTO.getUsername());
+        if(tokenDTO.getMemberDTO().getId() == null){
+          Optional<Member> member =  memberRepository.findMemberByEmail(tokenDTO.getMemberDTO().getUsername());
           if(member.isPresent()){
               tokenDTO.setMemberDTO(memberMapper.memberToMemberDTO(member.get()));
           }else{
-              throw new RuntimeException("User email "+tokenDTO.memberDTO.getEmail() + " is not a Member");
+              throw new RuntimeException("User email "+tokenDTO
+                      .getMemberDTO().getEmail() + " is not a Member");
           }
         }
         Token token = tokenMapper.tokenDTOToToken(tokenDTO);
-        List<Token> tokens = tokenRepository.findAllValidTokenByMember(tokenDTO.memberDTO.getId());
+        List<Token> tokens = tokenRepository.findAllValidTokenByMember(tokenDTO.getMemberDTO().getId());
         tokens.forEach(tokenRepository::delete);
         tokenRepository.save(token);
         return true;
