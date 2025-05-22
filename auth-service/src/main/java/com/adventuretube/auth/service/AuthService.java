@@ -185,7 +185,7 @@ public class AuthService {
     }
 
 
-    public RestAPIResponse logout(HttpServletRequest httpServletRequest) {
+    public RestAPIResponse revokeToken(HttpServletRequest httpServletRequest) {
         String token = TokenSanitizer.sanitize(httpServletRequest.getHeader("Authorization")); // Assuming the token is passed in the Authorization header
         //using access token for logout
         String urlForDeleteToken = "http://MEMBER-SERVICE/member/deleteAllToken";

@@ -190,8 +190,8 @@ public class AuthController {
                     content = @Content(schema = @Schema(implementation = RestAPIResponse.class))
             )
     })
-    @PostMapping(value = "/refreshToken")
-    public ResponseEntity<?> refreshAccessToken(HttpServletRequest request) {
+    @PostMapping(value = "/token/refresh")
+    public ResponseEntity<?> refreshToken(HttpServletRequest request) {
         return ResponseEntity.ok(authService.refreshToken(request));
     }
 
@@ -238,8 +238,8 @@ public class AuthController {
                     content = @Content(schema = @Schema(implementation = RestAPIResponse.class))
             )
     })
-    @PostMapping(value = "/logout")
-    public ResponseEntity<?> revokeRefreshToken(HttpServletRequest request) {
-        return ResponseEntity.ok(authService.logout(request));
+    @PostMapping(value = "/token/revoke")
+    public ResponseEntity<?> revokeToken(HttpServletRequest request) {
+        return ResponseEntity.ok(authService.revokeToken(request));
     }
 }
