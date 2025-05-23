@@ -27,7 +27,6 @@ import java.util.Map;
  * then in the current directory if not found.
  */
 public class DotenvEnvironmentPostProcessor implements EnvironmentPostProcessor {
-    private static final String DOTENV_PROPERTY_SOURCE_NAME = "dotenvProperties";
 
     @Override
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
