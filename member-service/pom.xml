@@ -59,5 +59,21 @@
         </dependency>
     </dependencies>
 
+    <build>
+        <plugins>
+            <!-- Plugin to provide environment variables during test phase (for local config and profile) -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.1.2</version>
+                <configuration>
+                    <environmentVariables>
+                        <SPRING_PROFILES_ACTIVE>mac</SPRING_PROFILES_ACTIVE>
+                        <CONFIG_SERVER_URL>http://192.168.1.105:9297</CONFIG_SERVER_URL>
+                    </environmentVariables>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
