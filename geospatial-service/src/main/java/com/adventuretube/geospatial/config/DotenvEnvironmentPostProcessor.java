@@ -1,14 +1,31 @@
 package com.adventuretube.geospatial.config;
 
+import com.adventuretube.geospatial.exceptions.EnvFileException;
 import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.couchbase.CouchbaseProperties;
 import org.springframework.boot.env.EnvironmentPostProcessor;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MapPropertySource;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
-
+/**
+ * Loads environment variables from a .env file based on the active Spring profile.
+ *
+ * Priority:
+ *  1. Parent directory of the current working directory (e.g., project root in multi-module setups)
+ *  2. Current working directory (fallback if parent not found)
+ *
+ * This ensures submodules can share a central .env configuration file located
+ * in the root project directory, avoiding duplication across modules.
+ *
+ * Example: if the active profile is 'mac', this looks for 'env.mac' in the parent first,
+ * then in the current directory if not found.
+ */
 public class DotenvEnvironmentPostProcessor implements EnvironmentPostProcessor {
     private static final String DOTENV_PROPERTY_SOURCE_NAME = "dotenvProperties";
 
@@ -16,21 +33,48 @@ public class DotenvEnvironmentPostProcessor implements EnvironmentPostProcessor 
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
         String activeProfile = environment.getActiveProfiles().length > 0 ? environment.getActiveProfiles()[0] : "default";
         String envFilename = "env." + activeProfile;
+        Dotenv dotenv = null;
         System.out.println("Loading environment variables from: " + envFilename);
 
-        try {
-            Dotenv dotenv = Dotenv.configure().filename(envFilename).load();
-            Map<String, Object> dotenvProperties = new HashMap<>();
-            dotenv.entries().forEach(entry -> {
-                dotenvProperties.put(entry.getKey(), entry.getValue());
-                System.out.println("Loaded " + entry.getKey() + " = " + entry.getValue());
-            });
 
-            MapPropertySource propertySource = new MapPropertySource(DOTENV_PROPERTY_SOURCE_NAME, dotenvProperties);
-            environment.getPropertySources().addFirst(propertySource);
-            System.out.println("Successfully loaded environment variables from " + envFilename + " into Spring Environment");
-        } catch (Exception e) {
+
+        try {
+            Path workingDir = Paths.get(System.getProperty("user.dir"));
+            Path parentDir = workingDir.getParent();
+
+            // Try parent directory first
+            Path parentEnvPath = parentDir.resolve(envFilename);
+            if (Files.exists(parentEnvPath)) {
+                System.out.println("Loading env from parent dir: " + parentEnvPath);
+                dotenv = Dotenv.configure()
+                        .directory(parentDir.toString())
+                        .filename(envFilename)
+                        .load();
+            } else {
+                // Fallback to working directory
+                Path workingEnvPath = workingDir.resolve(envFilename);
+                if (Files.exists(workingEnvPath)) {
+                    System.out.println("Loading env from working dir: " + workingEnvPath);
+                    dotenv = Dotenv.configure()
+                            .directory(workingDir.toString())
+                            .filename(envFilename)
+                            .load();
+                }
+            }
+            if (dotenv != null) {
+                Map<String, Object> dotenvProperties = new HashMap<>();
+                dotenv.entries().forEach(entry -> {
+                    dotenvProperties.put(entry.getKey(), entry.getValue());
+                    System.out.println("Loaded " + entry.getKey() + "=" + entry.getValue());
+                });
+                environment.getPropertySources().addFirst(new MapPropertySource("dotenvProperties", dotenvProperties));
+            } else {
+                System.out.println("No env file found in parent or working directory.");
+            }
+
+        } catch (EnvFileException e) {
             System.out.println("Failed to load .env file from path: " + envFilename + " due to " + e);
         }
     }
 }
+
