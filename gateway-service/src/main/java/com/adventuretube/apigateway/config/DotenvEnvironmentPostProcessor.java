@@ -35,21 +35,24 @@ public class DotenvEnvironmentPostProcessor implements EnvironmentPostProcessor 
         System.out.println("Loading environment variables from: " + envFilename);
 
 
-
         try {
             Path workingDir = Paths.get(System.getProperty("user.dir"));
             Path parentDir = workingDir.getParent();
 
-            // Try parent directory first
-            Path parentEnvPath = parentDir.resolve(envFilename);
-            if (Files.exists(parentEnvPath)) {
-                System.out.println("Loading env from parent dir: " + parentEnvPath);
-                dotenv = Dotenv.configure()
-                        .directory(parentDir.toString())
-                        .filename(envFilename)
-                        .load();
-            } else {
-                // Fallback to working directory
+            // Try parent dir first (if available)
+            if (parentDir != null) {
+                Path parentEnvPath = parentDir.resolve(envFilename);
+                if (Files.exists(parentEnvPath)) {
+                    System.out.println("Loading env from parent dir: " + parentEnvPath);
+                    dotenv = Dotenv.configure()
+                            .directory(parentDir.toString())
+                            .filename(envFilename)
+                            .load();
+                }
+            }
+
+            // Fallback to working dir
+            if (dotenv == null) {
                 Path workingEnvPath = workingDir.resolve(envFilename);
                 if (Files.exists(workingEnvPath)) {
                     System.out.println("Loading env from working dir: " + workingEnvPath);
@@ -58,16 +61,6 @@ public class DotenvEnvironmentPostProcessor implements EnvironmentPostProcessor 
                             .filename(envFilename)
                             .load();
                 }
-            }
-            if (dotenv != null) {
-                Map<String, Object> dotenvProperties = new HashMap<>();
-                dotenv.entries().forEach(entry -> {
-                    dotenvProperties.put(entry.getKey(), entry.getValue());
-                    System.out.println("Loaded " + entry.getKey() + "=" + entry.getValue());
-                });
-                environment.getPropertySources().addFirst(new MapPropertySource("dotenvProperties", dotenvProperties));
-            } else {
-                System.out.println("No env file found in parent or working directory.");
             }
 
         } catch (Exception e) {
