@@ -28,6 +28,7 @@ import java.util.Map;
  */
 public class DotenvEnvironmentPostProcessor implements EnvironmentPostProcessor {
 
+
     @Override
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
         String activeProfile = environment.getActiveProfiles().length > 0 ? environment.getActiveProfiles()[0] : "default";
@@ -40,7 +41,7 @@ public class DotenvEnvironmentPostProcessor implements EnvironmentPostProcessor 
             Path workingDir = Paths.get(System.getProperty("user.dir"));
             Path parentDir = workingDir.getParent();
 
-            // Try parent dir first (if available)
+            //This will cover when the application is run as a jar and need to cover both working dir and parent dir
             if (parentDir != null) {
                 Path parentEnvPath = parentDir.resolve(envFilename);
                 if (Files.exists(parentEnvPath)) {
@@ -49,19 +50,28 @@ public class DotenvEnvironmentPostProcessor implements EnvironmentPostProcessor 
                             .directory(parentDir.toString())
                             .filename(envFilename)
                             .load();
+                }else{
+                    // Fallback to working directory
+                    Path workingEnvPath = workingDir.resolve(envFilename);
+                    if (Files.exists(workingEnvPath)) {
+                        System.out.println("Loading env from working dir: " + workingEnvPath);
+                        dotenv = Dotenv.configure()
+                                .directory(workingDir.toString())
+                                .filename(envFilename)
+                                .load();
+                    }
                 }
-            }
-
-            // Fallback to working dir
-            if (dotenv == null) {
-                Path workingEnvPath = workingDir.resolve(envFilename);
-                if (Files.exists(workingEnvPath)) {
-                    System.out.println("Loading env from working dir: " + workingEnvPath);
+            }else{//This will cover when the application is run as a docker container and just need to load from parent dir.
+                  //but since docker run from the parent dir, we need to load from the working dir!!!!!
+                Path parentEnvPath = workingDir.resolve(envFilename);
+                if (Files.exists(parentEnvPath)) {
+                    System.out.println("Loading env from parent dir: " + parentEnvPath);
                     dotenv = Dotenv.configure()
                             .directory(workingDir.toString())
                             .filename(envFilename)
                             .load();
                 }
+
             }
 
         } catch (Exception e) {
@@ -69,4 +79,3 @@ public class DotenvEnvironmentPostProcessor implements EnvironmentPostProcessor 
         }
     }
 }
-
