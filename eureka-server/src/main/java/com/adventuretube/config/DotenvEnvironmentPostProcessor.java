@@ -2,7 +2,6 @@ package com.adventuretube.config;
 
 import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.couchbase.CouchbaseProperties;
 import org.springframework.boot.env.EnvironmentPostProcessor;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MapPropertySource;
@@ -15,33 +14,34 @@ import java.util.Map;
 
 /**
  * Loads environment variables from a .env file based on the active Spring profile.
- * <p>
+ *
  * Priority:
  * 1. Parent directory of the current working directory (e.g., project root in multi-module setups)
- * 2. Current working directory (fallback if parent not found)
- * <p>
- * This ensures submodules can share a central .env configuration file located
- * in the root project directory, avoiding duplication across modules.
- * <p>
- * Example: if the active profile is 'mac', this looks for 'env.mac' in the parent first,
- * then in the current directory if not found.
+ * 2. Current working directory (fallback if not found in parent)
+ *
+ * Docker-specific:
+ * When running in Docker, parentDir may be null (depending on container mount),
+ * so the working directory is treated as the root source for .env.
+ *
+ * Example: if the active profile is 'mac', this looks for 'env.mac' in that order.
  */
 public class DotenvEnvironmentPostProcessor implements EnvironmentPostProcessor {
 
+    private static final String DOTENV_PROPERTY_SOURCE_NAME = "dotenvProperties";
 
     @Override
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
         String activeProfile = environment.getActiveProfiles().length > 0 ? environment.getActiveProfiles()[0] : "default";
         String envFilename = "env." + activeProfile;
         Dotenv dotenv = null;
-        System.out.println("Loading environment variables from: " + envFilename);
 
+        System.out.println("Loading environment variables from: " + envFilename);
 
         try {
             Path workingDir = Paths.get(System.getProperty("user.dir"));
             Path parentDir = workingDir.getParent();
 
-            //This will cover when the application is run as a jar and need to cover both working dir and parent dir
+            // Case 1: Parent exists (normal run)
             if (parentDir != null) {
                 Path parentEnvPath = parentDir.resolve(envFilename);
                 if (Files.exists(parentEnvPath)) {
@@ -50,8 +50,8 @@ public class DotenvEnvironmentPostProcessor implements EnvironmentPostProcessor 
                             .directory(parentDir.toString())
                             .filename(envFilename)
                             .load();
-                }else{
-                    // Fallback to working directory
+                } else {
+                    // Case 2: fallback to working dir
                     Path workingEnvPath = workingDir.resolve(envFilename);
                     if (Files.exists(workingEnvPath)) {
                         System.out.println("Loading env from working dir: " + workingEnvPath);
@@ -61,17 +61,32 @@ public class DotenvEnvironmentPostProcessor implements EnvironmentPostProcessor 
                                 .load();
                     }
                 }
-            }else{//This will cover when the application is run as a docker container and just need to load from parent dir.
-                  //but since docker run from the parent dir, we need to load from the working dir!!!!!
-                Path parentEnvPath = workingDir.resolve(envFilename);
-                if (Files.exists(parentEnvPath)) {
-                    System.out.println("Loading env from parent dir: " + parentEnvPath);
+            }
+            // Case 3: No parent — running inside Docker or packaged JAR
+            else {
+                Path workingEnvPath = workingDir.resolve(envFilename);
+                if (Files.exists(workingEnvPath)) {
+                    System.out.println("Loading env from Docker working dir: " + workingEnvPath);
                     dotenv = Dotenv.configure()
                             .directory(workingDir.toString())
                             .filename(envFilename)
                             .load();
                 }
+            }
 
+            // Apply loaded dotenv to Spring Environment
+            if (dotenv != null) {
+                Map<String, Object> dotenvProperties = new HashMap<>();
+                dotenv.entries().forEach(entry -> {
+                    dotenvProperties.put(entry.getKey(), entry.getValue());
+                    System.out.println("Loaded " + entry.getKey() + "=" + entry.getValue());
+                });
+
+                environment.getPropertySources().addFirst(
+                        new MapPropertySource(DOTENV_PROPERTY_SOURCE_NAME, dotenvProperties)
+                );
+            } else {
+                System.out.println("No .env file found in parent or working directory.");
             }
 
         } catch (Exception e) {
