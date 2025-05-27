@@ -1,12 +1,10 @@
-package com.adventuretube.auth.config;
+package com.adventuretube.auth.config.security;
 
-
-import java.util.List;
 
 public class SecurityConstants {
     public static final String[] OPEN_ENDPOINTS = {
             "/auth/users",
-            "/auth/token",
+            "/auth/token/**",
             "/auth/refreshToken",
             "/auth/logout",
             "/swagger-ui.html",

@@ -1,4 +1,4 @@
-package com.adventuretube.auth;
+package com.adventuretube.auth.config.security;
 
 import com.adventuretube.auth.filter.JwtAuthFilter;
 import com.adventuretube.auth.provider.CustomAuthenticationProvider;
@@ -16,7 +16,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import static com.adventuretube.auth.config.SecurityConstants.OPEN_ENDPOINTS;
+import static com.adventuretube.auth.config.security.SecurityConstants.OPEN_ENDPOINTS;
 
 
 /**

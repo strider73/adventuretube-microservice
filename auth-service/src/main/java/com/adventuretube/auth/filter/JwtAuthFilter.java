@@ -28,9 +28,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.List;
 
-import static com.adventuretube.auth.config.SecurityConstants.OPEN_ENDPOINTS;
+import static com.adventuretube.auth.config.security.SecurityConstants.OPEN_ENDPOINTS;
 
 @Slf4j
 @Component

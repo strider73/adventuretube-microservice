@@ -1,4 +1,4 @@
-package com.adventuretube.auth;
+package com.adventuretube.auth.config;
 
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
