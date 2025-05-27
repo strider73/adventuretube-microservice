@@ -110,7 +110,7 @@ public class AuthController {
                                     name = "Login Example",
                                     value = """
                                             {
-                                              "email": "strider@gmail.com",
+                                              "email": "strider.lee@gmail.com",
                                               "password": "123456",
                                               "googleIdToken": "eyJhbGciOiJSUzI1NiIsImtpZCI6I..."
                                             }
