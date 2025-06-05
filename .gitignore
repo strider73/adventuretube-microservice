@@ -41,3 +41,6 @@ build/
 
 #### Database ####
 data/
+
+###environment variables###
+env.*
