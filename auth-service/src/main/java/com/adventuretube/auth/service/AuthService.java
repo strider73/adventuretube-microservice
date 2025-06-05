@@ -10,6 +10,7 @@ import com.adventuretube.auth.model.request.MemberRegisterRequest;
 import com.adventuretube.auth.model.response.MemberRegisterResponse;
 import com.adventuretube.auth.model.dto.member.MemberDTO;
 import com.adventuretube.auth.model.dto.token.TokenDTO;
+import com.adventuretube.common.api.response.ServiceResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
@@ -72,9 +73,23 @@ public class AuthService {
         // MARK:  prepare check user email duplication
         MemberDTO memberDTO = buildMemberDTO(payload);
         String urlForEmailCheck = "http://MEMBER-SERVICE/member/emailDuplicationCheck";
-        Boolean isUserAlreadyExist = restTemplate.postForObject(urlForEmailCheck, memberDTO.getEmail(), Boolean.class);
+        ResponseEntity<ServiceResponse<Boolean>> response = restTemplate.exchange(
+                urlForEmailCheck,
+                org.springframework.http.HttpMethod.POST,
+                new org.springframework.http.HttpEntity<>(memberDTO.getEmail()),
+                new org.springframework.core.ParameterizedTypeReference<ServiceResponse<Boolean>>() {
+                }
+        );
+
+        ServiceResponse<Boolean> body = response.getBody();
+        if(!response.getStatusCode().is2xxSuccessful()
+                || body == null
+                || !body.isSuccess()) {
+            logger.error("Failed to check email duplication: {}", response.getStatusCode());
+            throw new MemberServiceException(AuthErrorCode.INTERNAL_ERROR);
+        }
         // MARK:  Check Email duplication
-        if (isUserAlreadyExist) {
+        if (Boolean.TRUE.equals(response.getBody().getData())) {
             throw new DuplicateException(AuthErrorCode.USER_EMAIL_DUPLICATE);
         }
 
@@ -82,13 +97,20 @@ public class AuthService {
         try {
             // MARK:  Register Member !!!
             String urlForRegister = "http://MEMBER-SERVICE/member/registerMember"; //with Eureka
-            ResponseEntity<MemberDTO> response = restTemplate.postForEntity(urlForRegister, memberDTO, MemberDTO.class);
+            ResponseEntity<ServiceResponse<MemberDTO>> registerMemberResponse = restTemplate.exchange(
+                    urlForRegister
+                    , org.springframework.http.HttpMethod.POST,
+                    new org.springframework.http.HttpEntity<>(memberDTO),
+                    new org.springframework.core.ParameterizedTypeReference<ServiceResponse<MemberDTO>>() {
+                    }
+            );
             if (!response.getStatusCode().is2xxSuccessful()) {
                 throw new MemberServiceException(AuthErrorCode.INTERNAL_ERROR);
             }
 
+           ServiceResponse<MemberDTO> registerMemberResponseBody = registerMemberResponse.getBody();
             // MARK:  create JWT token
-            MemberDTO registeredUser = response.getBody();
+            MemberDTO registeredUser = registerMemberResponseBody.getData();
             String accessToken = jwtUtil.generate(registeredUser.getEmail(), registeredUser.getRole(), "ACCESS");
             String refreshToken = jwtUtil.generate(registeredUser.getEmail(), registeredUser.getRole(), "REFRESH");
             //TODO saveToken and revoke all others

@@ -22,6 +22,7 @@
 
 	<!-- Submodule registration -->
 	<modules>
+		<module>common-api</module>
 		<module>web-service</module>
 		<module>auth-service</module>
 		<module>geospatial-service</module>

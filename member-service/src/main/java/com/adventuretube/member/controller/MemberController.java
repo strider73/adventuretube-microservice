@@ -1,6 +1,7 @@
 package com.adventuretube.member.controller;
 
 
+import com.adventuretube.common.api.response.ServiceResponse;
 import com.adventuretube.member.model.entity.Member;
 import com.adventuretube.member.model.dto.member.MemberDTO;
 import com.adventuretube.member.model.entity.Token;
@@ -10,6 +11,7 @@ import com.adventuretube.member.model.mapper.MemberMapper;
 import com.adventuretube.member.service.MemberService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.bouncycastle.crypto.SecretWithEncapsulation;
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -45,20 +47,29 @@ public class MemberController {
             TokenDTO tokenDTO = objectMapper.convertValue(requestMap.get("tokenDTO"), TokenDTO.class);
 
          */
-          Member newMember = memberMapper.memberDTOtoMember(memberDTO);
+        Member newMember = memberMapper.memberDTOtoMember(memberDTO);
         try {
             //After store in the database nothing but id field will be different
             Member registeredMember = memberService.registerMember(newMember);
             memberDTO.setId(registeredMember.getId());
-            return ResponseEntity.ok(memberDTO);
+            return ResponseEntity.ok(
+                    ServiceResponse.<MemberDTO>builder()
+                            .success(true)
+                            .message("Member registered successfully")
+                            .data(memberDTO)
+                            .build()
+            );
+
         } catch (Exception e) {
             log.error("Error occurred while registering member", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(RestAPIResponse.builder()
-                    .message("Error occurred while registering member")
-                    .details(e.toString())
-                    .statusCode(500)
-                    .timestamp(System.currentTimeMillis())
-                    .build()
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                    ServiceResponse.<MemberDTO>builder()
+                            .success(false)
+                            .message("Failed to register member")
+                            .errorCode("MEMBER_REGISTRATION_FAILED")
+                            .data(null)
+                            .build()
             );
         }
 
@@ -66,14 +77,15 @@ public class MemberController {
 
 
     @PostMapping("emailDuplicationCheck")
-    public boolean emailDuplicationCheck(@RequestBody String email) {
-        Optional<Member> duplicatedMember = memberService.findEmail(email);
-        if (duplicatedMember.isPresent()) {
-            return true;
-        }
-        return false;
+    public ResponseEntity<ServiceResponse<Boolean>> emailDuplicationCheck(@RequestBody String email) {
+        Optional<Member> member = memberService.findEmail(email);
+        ServiceResponse<Boolean> response = ServiceResponse.<Boolean>builder()
+                .success(true)
+                .message(member.isPresent() ? "Email already exists" : "Email is available")
+                .data(member.isPresent())
+                .build();
+        return ResponseEntity.ok(response);
     }
-
 
 
     @PostMapping("findMemberByEmail")
@@ -88,26 +100,26 @@ public class MemberController {
     }
 
     @PostMapping("storeTokens")
-    public Boolean storeToken(@RequestBody TokenDTO tokenDTO){
+    public Boolean storeToken(@RequestBody TokenDTO tokenDTO) {
         //TODO  revoke all token for user
-            return memberService.storeToken(tokenDTO);
+        return memberService.storeToken(tokenDTO);
     }
 
     @PostMapping("findToken")
-    public Boolean findToken(@RequestBody String token){
+    public Boolean findToken(@RequestBody String token) {
         Optional<Token> returnedToken = memberService.findToken(token);
-        if(returnedToken.isPresent()){
+        if (returnedToken.isPresent()) {
             return true;
-        }else{
-            return  false;
+        } else {
+            return false;
         }
 
     }
 
     @PostMapping("deleteAllToken")
-    public Boolean deleteAllToken(@RequestBody String token){
+    public Boolean deleteAllToken(@RequestBody String token) {
         //TODO  revoke all token for user
-         return memberService.deleteAllToken(token);
+        return memberService.deleteAllToken(token);
     }
 
     @PostMapping("deleteUser")

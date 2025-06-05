@@ -48,7 +48,7 @@ public class AuthControllerIT {
 
     @Test
     void testRegisterUser() throws Exception {
-        deleteUserViaMemberService("strider.lee@gmail.com");
+        //deleteUserViaMemberService("strider.lee@gmail.com");
 
         String idToken = fetchGoogleIdToken();
 

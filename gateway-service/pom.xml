@@ -22,10 +22,11 @@
          Spring Cloud Gateway is built on Spring WebFlux, which is a reactive programming model,
          while Spring MVC is part of the traditional, synchronous Spring Web model
          -->
-        <!--dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency-->
+        <dependency>
+            <groupId>com.adventuretube</groupId>
+            <artifactId>adventuretube-common-api</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-gateway</artifactId>
