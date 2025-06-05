@@ -109,6 +109,35 @@ public class MemberController {
         //TODO  revoke all token for user
          return memberService.deleteAllToken(token);
     }
+
+    @PostMapping("deleteUser")
+    public ResponseEntity<?> deleteUser(@RequestBody String email) {
+        log.info("Deleting user with email: {}", email);
+        try {
+            boolean isDeleted = memberService.deleteUser(email);
+            if (isDeleted) {
+                return ResponseEntity.ok(RestAPIResponse.builder()
+                        .message("User deleted successfully")
+                        .statusCode(200)
+                        .timestamp(System.currentTimeMillis())
+                        .build());
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(RestAPIResponse.builder()
+                        .message("User not found")
+                        .statusCode(404)
+                        .timestamp(System.currentTimeMillis())
+                        .build());
+            }
+        } catch (Exception e) {
+            log.error("Error occurred while deleting user", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(RestAPIResponse.builder()
+                    .message("Error occurred while deleting user")
+                    .details(e.toString())
+                    .statusCode(500)
+                    .timestamp(System.currentTimeMillis())
+                    .build());
+        }
+    }
 }
 
 

@@ -85,5 +85,18 @@ public class MemberService {
            return false;
        }
     }
+
+
+    public Boolean deleteUser(String email) {
+        Optional<Member> member = memberRepository.findMemberByEmail(email);
+        if(member.isPresent()){
+            List<Token> tokens = tokenRepository.findAllValidTokenByMember(member.get().getId());
+            tokens.forEach(tokenRepository::delete);
+            memberRepository.delete(member.get());
+            return true;
+        }else{
+            throw new RuntimeException("Member with email "+email+" is not exist");
+        }
+    }
 }
 

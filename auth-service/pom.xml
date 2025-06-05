@@ -13,7 +13,6 @@
     <artifactId>auth-service</artifactId>
 
 
-
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -45,7 +44,7 @@
             <artifactId>jjwt-impl</artifactId>
         </dependency>
         <dependency>
-            <groupId> io.jsonwebtoken</groupId>
+            <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-jackson</artifactId>
         </dependency>
 
@@ -83,4 +82,39 @@
             <optional>true</optional>
         </dependency>
     </dependencies>
+
+
+    <build>
+        <plugins>
+            <!--
+             Integration Test Configuration:
+
+            The `maven-failsafe-plugin` is used to run integration tests separately from unit tests.
+              - It detects and executes test classes that follow the *IT.java naming convention (e.g., AuthControllerIT.java).
+              - These tests are run during the `integration-test` and `verify` phases of the Maven lifecycle.
+             - This ensures that integration tests (which may depend on other microservices or full application context)
+             do not interfere with or slow down unit tests during regular `mvn test` runs.
+
+         Usage:
+             - Run `mvn test` → only unit tests (e.g., *Test.java) are executed.
+             - Run `mvn verify` or `mvn install` → integration tests (e.g., *IT.java) are executed after compilation.
+
+              NOTE: This configuration is specific to the auth-service module,
+              since its integration tests depend on the availability of external services like member-service.
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>3.1.2</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>
