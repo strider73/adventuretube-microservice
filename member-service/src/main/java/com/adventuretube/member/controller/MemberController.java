@@ -100,9 +100,14 @@ public class MemberController {
     }
 
     @PostMapping("storeTokens")
-    public Boolean storeToken(@RequestBody TokenDTO tokenDTO) {
-        //TODO  revoke all token for user
-        return memberService.storeToken(tokenDTO);
+    public ResponseEntity<ServiceResponse<Boolean>>  storeToken(@RequestBody TokenDTO tokenDTO) {
+        boolean result = memberService.storeToken(tokenDTO);
+         ServiceResponse<Boolean> response = ServiceResponse.<Boolean>builder()
+                .success(true)
+                .message("Token stored successfully")
+                .data(result)
+                .build();
+         return ResponseEntity.ok(response);
     }
 
     @PostMapping("findToken")

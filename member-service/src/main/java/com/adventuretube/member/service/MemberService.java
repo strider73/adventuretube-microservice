@@ -49,27 +49,51 @@ public class MemberService {
         }
     }
 
-    public Boolean storeToken(TokenDTO tokenDTO){
-        //in here tokenDTO.memberDTO will be converted member while TokenDTO transform Token amazing !!!!!!
-        //before store need to check the tokenDTO.memberDTO.id
-        //this will be the case for
-        //       1. login process ::  authenticate
-        //       2. refresh token process
-        if(tokenDTO.getMemberDTO().getId() == null){
-          Optional<Member> member =  memberRepository.findMemberByEmail(tokenDTO.getMemberDTO().getUsername());
-          if(member.isPresent()){
-              tokenDTO.setMemberDTO(memberMapper.memberToMemberDTO(member.get()));
-          }else{
-              throw new RuntimeException("User email "+tokenDTO
-                      .getMemberDTO().getEmail() + " is not a Member");
-          }
+    /**
+     * Stores a new authentication token for a member.
+     *
+     * <p>This method is shared by multiple authentication processes such as:
+     * <ul>
+     *     <li>Login</li>
+     *     <li>Refresh Token</li>
+     * </ul>
+     *
+     * <p>Behavior:
+     * <ul>
+     *     <li>If {@code tokenDTO.memberDTO.id} is null, the method attempts to resolve the member
+     *         by email (used during login where ID may not be available).</li>
+     *     <li>If no matching member is found, an exception is thrown.</li>
+     *     <li>Before saving, all existing valid tokens for the member are revoked (deleted).</li>
+     * </ul>
+     *
+     * @param tokenDTO The token data including member information and token strings
+     * @return {@code true} if the token was successfully saved
+     * @throws RuntimeException if the member is not found
+     */
+    public Boolean storeToken(TokenDTO tokenDTO) {
+        // Resolve member ID if missing (e.g., login scenario)
+        if (tokenDTO.getMemberDTO().getId() == null) {
+            Optional<Member> member = memberRepository.findMemberByEmail(tokenDTO.getMemberDTO().getUsername());
+            if (member.isPresent()) {
+                tokenDTO.setMemberDTO(memberMapper.memberToMemberDTO(member.get()));
+            } else {
+                throw new RuntimeException("User email " + tokenDTO.getMemberDTO().getEmail() + " is not a Member");
+            }
         }
+
+        // Convert TokenDTO to entity
         Token token = tokenMapper.tokenDTOToToken(tokenDTO);
+
+        // Revoke all existing valid tokens before saving the new one
         List<Token> tokens = tokenRepository.findAllValidTokenByMember(tokenDTO.getMemberDTO().getId());
         tokens.forEach(tokenRepository::delete);
+
+        // Save the new token
         tokenRepository.save(token);
+
         return true;
     }
+
 
     public Optional<Token> findToken(String token) {
         return  tokenRepository.findByRefreshToken(token);

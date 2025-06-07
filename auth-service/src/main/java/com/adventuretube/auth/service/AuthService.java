@@ -101,8 +101,7 @@ public class AuthService {
                     urlForRegister
                     , org.springframework.http.HttpMethod.POST,
                     new org.springframework.http.HttpEntity<>(memberDTO),
-                    new org.springframework.core.ParameterizedTypeReference<ServiceResponse<MemberDTO>>() {
-                    }
+                    new org.springframework.core.ParameterizedTypeReference<ServiceResponse<MemberDTO>>() {}
             );
             if (!response.getStatusCode().is2xxSuccessful()) {
                 throw new MemberServiceException(AuthErrorCode.INTERNAL_ERROR);
@@ -128,10 +127,23 @@ public class AuthService {
                     .refreshToken(refreshToken) // Set refresh token to null or generate if needed
                     .build();
 
-            Boolean istokenStored = restTemplate.postForObject(urlForStoreToken, tokenToStore, Boolean.class);
-            if (!istokenStored) {
+            ResponseEntity<ServiceResponse<Boolean>> tokenStoredResponse = restTemplate.exchange(
+                    urlForStoreToken,
+                    org.springframework.http.HttpMethod.POST,
+                    new org.springframework.http.HttpEntity<>(tokenToStore),
+                    new org.springframework.core.ParameterizedTypeReference<ServiceResponse<Boolean>>() {}
+            );
+            ServiceResponse<Boolean> tokenStoredResponseBody = tokenStoredResponse.getBody();
+
+
+            if (!tokenStoredResponse.getStatusCode().is2xxSuccessful()
+                    || tokenStoredResponseBody == null
+                    || !tokenStoredResponseBody.isSuccess()
+                    || !Boolean.TRUE.equals(tokenStoredResponseBody.getData())) {
+                log.error("Token store failed: {}", tokenStoredResponseBody != null ? tokenStoredResponseBody.getMessage() : "no response body");
                 throw new TokenSaveFailedException(AuthErrorCode.TOKEN_SAVE_FAILED);
             }
+            logger.info("Token stored successfully for user: {}", registeredUser.getEmail());
             // MARK:  return result
 
             return new MemberRegisterResponse(registeredUser.getId(), accessToken, refreshToken);
@@ -197,11 +209,25 @@ public class AuthService {
                 .build();
 
         String urlForStoreToken = "http://MEMBER-SERVICE/member/storeTokens";
-        Boolean istokenStored = restTemplate.postForObject(urlForStoreToken, tokenToStore, Boolean.class);
-        if (!istokenStored) {
-            throw new RuntimeException("token store error !!!");
-        }
+        ResponseEntity<ServiceResponse<Boolean>> tokenToStoreResponse = restTemplate.exchange(
+                urlForStoreToken,
+                org.springframework.http.HttpMethod.POST,
+                new org.springframework.http.HttpEntity<>(tokenToStore),
+                new org.springframework.core.ParameterizedTypeReference<ServiceResponse<Boolean>>() {}
+        );
 
+
+        ServiceResponse<Boolean> tokenStoredResponseBody = tokenToStoreResponse.getBody();
+
+
+        if (!tokenToStoreResponse.getStatusCode().is2xxSuccessful()
+                || tokenStoredResponseBody == null
+                || !tokenStoredResponseBody.isSuccess()
+                || !Boolean.TRUE.equals(tokenStoredResponseBody.getData())) {
+            log.error("Token store failed: {}", tokenStoredResponseBody != null ? tokenStoredResponseBody.getMessage() : "no response body");
+            throw new TokenSaveFailedException(AuthErrorCode.TOKEN_SAVE_FAILED);
+        }
+        logger.info("Token stored successfully for user: {}", email);
 
         return new MemberRegisterResponse(null, accessToken, refreshToken);
     }
@@ -262,9 +288,19 @@ public class AuthService {
                 .build();
 
         String urlForStoreToken = "http://MEMBER-SERVICE/member/storeTokens";
-        Boolean istokenStored = restTemplate.postForObject(urlForStoreToken, tokenToStore, Boolean.class);
-        if (!istokenStored) {
-            throw new RuntimeException("token store error !!!");
+        ResponseEntity<ServiceResponse<Boolean>> tokenStoredResponse = restTemplate.exchange(
+                urlForStoreToken,
+                org.springframework.http.HttpMethod.POST,
+                new org.springframework.http.HttpEntity<>(tokenToStore),
+                new org.springframework.core.ParameterizedTypeReference<ServiceResponse<Boolean>>() {}
+        );
+        ServiceResponse<Boolean> tokenStoredResponseBody = tokenStoredResponse.getBody();
+        if (!tokenStoredResponse.getStatusCode().is2xxSuccessful()
+                || tokenStoredResponseBody == null
+                || !tokenStoredResponseBody.isSuccess()
+                || !Boolean.TRUE.equals(tokenStoredResponseBody.getData())) {
+            log.error("Token store failed: {}", tokenStoredResponseBody != null ? tokenStoredResponseBody.getMessage() : "no response body");
+            throw new TokenSaveFailedException(AuthErrorCode.TOKEN_SAVE_FAILED);
         }
 
         return new MemberRegisterResponse(null, accessToken, refreshToken);
