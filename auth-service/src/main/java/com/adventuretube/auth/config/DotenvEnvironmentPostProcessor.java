@@ -32,15 +32,21 @@ public class DotenvEnvironmentPostProcessor implements EnvironmentPostProcessor 
 
     @Override
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
-        String activeProfile = environment.getActiveProfiles().length > 0 ? environment.getActiveProfiles()[0] : "default";
 
-        //When test case for unit,mock, integration profile name will be set from test case annotation
-        //which those 3 value has no  env file, and need to fall back to default which has env.mac file
-        if (activeProfile.equals("unit") || activeProfile.equals("mock") || activeProfile.equals("integration")) {
-            activeProfile = "mac";
-        }
+        //mot using active profile to determine which env file to load anymre but using a  addition environment variable
+        //envTarget to determine which env file to load instead !!!
 
-        String envFilename = "env." + activeProfile;
+//        String activeProfile = environment.getActiveProfiles().length > 0 ? environment.getActiveProfiles()[0] : "default";
+//
+//        //When test case for unit,mock, integration profile name will be set from test case annotation
+//        //which those 3 value has no  env file, and need to fall back to default which has env.mac file
+//        if (activeProfile.equals("unit") || activeProfile.equals("mock") || activeProfile.equals("integration")) {
+//            activeProfile = "mac";
+//        }
+//
+//        String envFilename = "env." + activeProfile;
+
+        String envFilename = "env."+ System.getenv("envTarget");
         Dotenv dotenv = null;
 
         System.out.println("Loading environment variables from: " + envFilename);
