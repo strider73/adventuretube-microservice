@@ -17,6 +17,8 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -76,8 +78,8 @@ public class AuthService {
         ResponseEntity<ServiceResponse<Boolean>> response = restTemplate.exchange(
                 urlForEmailCheck,
                 org.springframework.http.HttpMethod.POST,
-                new org.springframework.http.HttpEntity<>(memberDTO.getEmail()),
-                new org.springframework.core.ParameterizedTypeReference<ServiceResponse<Boolean>>() {
+                new HttpEntity<>(memberDTO.getEmail()),
+                new ParameterizedTypeReference<ServiceResponse<Boolean>>() {
                 }
         );
 
@@ -89,7 +91,7 @@ public class AuthService {
             throw new MemberServiceException(AuthErrorCode.INTERNAL_ERROR);
         }
         // MARK:  Check Email duplication
-        if (Boolean.TRUE.equals(response.getBody().getData())) {
+        if (Boolean.TRUE.equals(body.getData())) {
             throw new DuplicateException(AuthErrorCode.USER_EMAIL_DUPLICATE);
         }
 
@@ -98,12 +100,12 @@ public class AuthService {
             // MARK:  Register Member !!!
             String urlForRegister = "http://MEMBER-SERVICE/member/registerMember"; //with Eureka
             ResponseEntity<ServiceResponse<MemberDTO>> registerMemberResponse = restTemplate.exchange(
-                    urlForRegister
-                    , org.springframework.http.HttpMethod.POST,
-                    new org.springframework.http.HttpEntity<>(memberDTO),
-                    new org.springframework.core.ParameterizedTypeReference<ServiceResponse<MemberDTO>>() {}
+                    urlForRegister,
+                    org.springframework.http.HttpMethod.POST,
+                    new HttpEntity<>(memberDTO),
+                    new ParameterizedTypeReference<ServiceResponse<MemberDTO>>() {}
             );
-            if (!response.getStatusCode().is2xxSuccessful()) {
+            if (!registerMemberResponse.getStatusCode().is2xxSuccessful()) {
                 throw new MemberServiceException(AuthErrorCode.INTERNAL_ERROR);
             }
 
@@ -130,8 +132,8 @@ public class AuthService {
             ResponseEntity<ServiceResponse<Boolean>> tokenStoredResponse = restTemplate.exchange(
                     urlForStoreToken,
                     org.springframework.http.HttpMethod.POST,
-                    new org.springframework.http.HttpEntity<>(tokenToStore),
-                    new org.springframework.core.ParameterizedTypeReference<ServiceResponse<Boolean>>() {}
+                    new HttpEntity<>(tokenToStore),
+                    new ParameterizedTypeReference<ServiceResponse<Boolean>>() {}
             );
             ServiceResponse<Boolean> tokenStoredResponseBody = tokenStoredResponse.getBody();
 
@@ -212,8 +214,8 @@ public class AuthService {
         ResponseEntity<ServiceResponse<Boolean>> tokenToStoreResponse = restTemplate.exchange(
                 urlForStoreToken,
                 org.springframework.http.HttpMethod.POST,
-                new org.springframework.http.HttpEntity<>(tokenToStore),
-                new org.springframework.core.ParameterizedTypeReference<ServiceResponse<Boolean>>() {}
+                new HttpEntity<>(tokenToStore),
+                new ParameterizedTypeReference<ServiceResponse<Boolean>>() {}
         );
 
 
@@ -291,8 +293,8 @@ public class AuthService {
         ResponseEntity<ServiceResponse<Boolean>> tokenStoredResponse = restTemplate.exchange(
                 urlForStoreToken,
                 org.springframework.http.HttpMethod.POST,
-                new org.springframework.http.HttpEntity<>(tokenToStore),
-                new org.springframework.core.ParameterizedTypeReference<ServiceResponse<Boolean>>() {}
+                new HttpEntity<>(tokenToStore),
+                new ParameterizedTypeReference<ServiceResponse<Boolean>>() {}
         );
         ServiceResponse<Boolean> tokenStoredResponseBody = tokenStoredResponse.getBody();
         if (!tokenStoredResponse.getStatusCode().is2xxSuccessful()

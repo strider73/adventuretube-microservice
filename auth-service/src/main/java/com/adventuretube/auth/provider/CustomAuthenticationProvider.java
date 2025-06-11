@@ -17,6 +17,7 @@ public class CustomAuthenticationProvider extends DaoAuthenticationProvider {
 
     public CustomAuthenticationProvider(CustomUserDetailService customUserDetailService,
                                         PasswordEncoder passwordEncoder) {
+        //set the custom user details service and ready to return  user details when getUserDetailsService() called
         setUserDetailsService(customUserDetailService);
         setPasswordEncoder(passwordEncoder);
     }
@@ -28,6 +29,7 @@ public class CustomAuthenticationProvider extends DaoAuthenticationProvider {
         String email = authentication.getName();
         String password = authentication.getCredentials().toString();
 
+        //This will call the loadUserByUsername method of CustomUserDetailService
         UserDetails userDetails = getUserDetailsService().loadUserByUsername(email);
 
 
