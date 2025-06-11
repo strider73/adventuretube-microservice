@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: auth-service
+  config:
+    #using a docker compose
+    import: "optional:configserver:${CONFIG_SERVER_URL}"
+  devtools:
+    restart:
+      enabled: true
+  cloud:
+    loadbalancer:
+      enabled: true
+    service-registry:
+      auto-registration:
+        enabled: true
