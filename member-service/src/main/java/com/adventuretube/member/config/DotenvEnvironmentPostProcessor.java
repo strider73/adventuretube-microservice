@@ -31,8 +31,10 @@ public class DotenvEnvironmentPostProcessor implements EnvironmentPostProcessor 
 
     @Override
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
-        String activeProfile = environment.getActiveProfiles().length > 0 ? environment.getActiveProfiles()[0] : "default";
-        String envFilename = "env." + activeProfile;
+//        String activeProfile = environment.getActiveProfiles().length > 0 ? environment.getActiveProfiles()[0] : "default";
+//        String envFilename = "env." + activeProfile;
+//        Dotenv dotenv = null;
+        String envFilename = "env."+ System.getenv("envTarget");
         Dotenv dotenv = null;
 
         System.out.println("Loading environment variables from: " + envFilename);
