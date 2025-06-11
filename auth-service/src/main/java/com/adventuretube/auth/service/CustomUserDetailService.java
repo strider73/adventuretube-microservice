@@ -3,8 +3,12 @@ package com.adventuretube.auth.service;
 import com.adventuretube.auth.exceptions.code.AuthErrorCode;
 import com.adventuretube.auth.exceptions.UserNotFoundException;
 import com.adventuretube.auth.model.dto.member.MemberDTO;
+import com.adventuretube.common.api.response.ServiceResponse;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -28,8 +32,14 @@ public class CustomUserDetailService implements UserDetailsService {
         // Fetch user details from the external service
         MemberDTO userFoundByEmail;
         try {
-            userFoundByEmail = restTemplate.postForObject(urlForFindUserByEmail, email, MemberDTO.class);
+            ResponseEntity<ServiceResponse<MemberDTO>> response = restTemplate.exchange(
+                    urlForFindUserByEmail,
+                    org.springframework.http.HttpMethod.POST,
+                    new HttpEntity<>(email),
+                    new ParameterizedTypeReference<ServiceResponse<MemberDTO>>() {}
+            );
 
+            userFoundByEmail = response.getBody().getData();
             if (userFoundByEmail == null) {
                 throw new UserNotFoundException(AuthErrorCode.USER_NOT_FOUND);
             }

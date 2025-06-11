@@ -1,9 +1,13 @@
 package com.adventuretube.geospatial.service;
 
+import com.adventuretube.common.api.response.ServiceResponse;
 import com.adventuretube.geospatial.model.dto.MemberDTO;
 import com.adventuretube.geospatial.exceptions.UserNotFoundException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -27,11 +31,19 @@ public class CustomUserDetailService implements UserDetailsService {
         // Fetch user details from the external service
         MemberDTO userFoundByEmail;
         try {
-            userFoundByEmail = restTemplate.postForObject(urlForFindUserByEmail, email, MemberDTO.class);
+            ResponseEntity<ServiceResponse<MemberDTO>> userFindByEmailResponse = restTemplate.exchange(
+                    urlForFindUserByEmail,
+                    org.springframework.http.HttpMethod.POST,
+                    new org.springframework.http.HttpEntity<>(email),
+                    new org.springframework.core.ParameterizedTypeReference<ServiceResponse<MemberDTO>>() {}
+            );
 
-            if (userFoundByEmail == null) {
-                throw new UserNotFoundException("User is not exist :  email: " + email);
+            ServiceResponse<MemberDTO> findByEmailResponseBody = userFindByEmailResponse.getBody();
+
+            if (findByEmailResponseBody == null || !findByEmailResponseBody.isSuccess()) {
+                throw new UserNotFoundException("User not found with email: " + email);
             }
+            userFoundByEmail = findByEmailResponseBody.getData();
             // Check that userFoundByEmail has the necessary properties
             if (userFoundByEmail.getEmail() == null || userFoundByEmail.getPassword() == null) {
                 throw new BadCredentialsException("User details are incomplete: email: " + email);

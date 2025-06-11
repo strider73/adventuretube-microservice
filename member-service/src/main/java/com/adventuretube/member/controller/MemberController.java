@@ -31,7 +31,7 @@ public class MemberController {
     //handle carefully on the caller side not by GlobalException handler in member-service
     //since these error should be delivered caller side !!!!
     @PostMapping("registerMember")
-    public ResponseEntity<?> registerMember(@RequestBody MemberDTO memberDTO) {
+    public ResponseEntity<ServiceResponse<MemberDTO>> registerMember(@RequestBody MemberDTO memberDTO) {
         log.info("new member registration {}", memberDTO);
 
         /* There is another way to send and receive two or even more different type object using a Map
@@ -52,25 +52,23 @@ public class MemberController {
             //After store in the database nothing but id field will be different
             Member registeredMember = memberService.registerMember(newMember);
             memberDTO.setId(registeredMember.getId());
-            return ResponseEntity.ok(
-                    ServiceResponse.<MemberDTO>builder()
-                            .success(true)
-                            .message("Member registered successfully")
-                            .data(memberDTO)
-                            .build()
-            );
+            ServiceResponse<MemberDTO> response = ServiceResponse.<MemberDTO>builder()
+                    .success(true)
+                    .message("Member registered successfully")
+                    .data(memberDTO)
+                    .build();
+            return ResponseEntity.ok(response);
 
         } catch (Exception e) {
             log.error("Error occurred while registering member", e);
 
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-                    ServiceResponse.<MemberDTO>builder()
-                            .success(false)
-                            .message("Failed to register member")
-                            .errorCode("MEMBER_REGISTRATION_FAILED")
-                            .data(null)
-                            .build()
-            );
+            ServiceResponse<MemberDTO> response = ServiceResponse.<MemberDTO>builder()
+                    .success(false)
+                    .message("Failed to register member")
+                    .errorCode("MEMBER_REGISTRATION_FAILED")
+                    .data(null)
+                    .build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
 
     }
@@ -89,14 +87,16 @@ public class MemberController {
 
 
     @PostMapping("findMemberByEmail")
-    public MemberDTO findMemberByEmail(@RequestBody String email) {
+    public ResponseEntity<ServiceResponse<MemberDTO>> findMemberByEmail(@RequestBody String email) {
         Optional<Member> member = memberService.findEmail(email);
-        if (member.isPresent()) {
-            MemberDTO memberDTO = new MemberDTO();
-            BeanUtils.copyProperties(member.get(), memberDTO);
-            return memberDTO;
-        }
-        return null;
+
+        ServiceResponse<MemberDTO> response = ServiceResponse.<MemberDTO>builder()
+                .success(true)
+                .message(member.isPresent() ? "Member found" : "Member not found")
+                .data(member.map(memberMapper::memberToMemberDTO).orElse(null))
+                .build();
+        return ResponseEntity.ok(response);
+
     }
 
     @PostMapping("storeTokens")
