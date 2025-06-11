@@ -48,6 +48,9 @@
 		<jjwt.version>0.12.3</jjwt.version>
 		<jbcrypt.version>0.4</jbcrypt.version>
 		<spring-doc.version>2.8.5</spring-doc.version>
+
+		<!-- default profile setting -->
+		<spring.profiles.active>mac</spring.profiles.active>
 	</properties>
 
 	<!-- Only version control goes here -->
@@ -207,7 +210,7 @@
 						<version>3.1.2</version>
 						<configuration>
 							<environmentVariables>
-								<SPRING_PROFILES_ACTIVE>mac</SPRING_PROFILES_ACTIVE>
+								<SPRING_PROFILES_ACTIVE>${spring.profiles.active}</SPRING_PROFILES_ACTIVE>
 								<CONFIG_SERVER_URL>http://192.168.1.105:9297</CONFIG_SERVER_URL>
 							</environmentVariables>
 						</configuration>
