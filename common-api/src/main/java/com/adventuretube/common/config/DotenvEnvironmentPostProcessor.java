@@ -1,4 +1,4 @@
-package com.adventuretube.auth.config;
+package com.adventuretube.common.config;
 
 
 import io.github.cdimascio.dotenv.Dotenv;

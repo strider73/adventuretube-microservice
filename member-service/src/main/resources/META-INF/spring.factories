@@ -1,1 +1,1 @@
-org.springframework.boot.env.EnvironmentPostProcessor=com.adventuretube.member.config.DotenvEnvironmentPostProcessor
+org.springframework.boot.env.EnvironmentPostProcessor=com.adventuretube.common.config.DotenvEnvironmentPostProcessor
