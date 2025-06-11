@@ -1,4 +1,4 @@
-package com.adventuretube.auth.support.google;
+package com.adventuretube.auth.integration.google.support;
 
 import org.json.JSONObject;
 import org.springframework.http.*;

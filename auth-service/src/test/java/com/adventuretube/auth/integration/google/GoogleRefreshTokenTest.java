@@ -1,5 +1,6 @@
-package com.adventuretube.auth.support.google;
+package com.adventuretube.auth.integration.google;
 
+import com.adventuretube.auth.integration.google.support.GoogleTokenUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Value;
