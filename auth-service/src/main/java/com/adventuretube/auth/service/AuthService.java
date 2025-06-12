@@ -5,7 +5,6 @@ import com.adventuretube.auth.exceptions.*;
 import com.adventuretube.auth.exceptions.code.AuthErrorCode;
 import com.adventuretube.auth.model.mapper.MemberMapper;
 import com.adventuretube.auth.model.request.MemberLoginRequest;
-import com.adventuretube.auth.common.response.RestAPIResponse;
 import com.adventuretube.auth.model.request.MemberRegisterRequest;
 import com.adventuretube.auth.model.response.MemberRegisterResponse;
 import com.adventuretube.auth.model.dto.member.MemberDTO;
@@ -153,10 +152,10 @@ public class AuthService {
         } catch (HttpClientErrorException | HttpServerErrorException ex) {
             // Parse error response body
             try {
-                RestAPIResponse errorResponse = new ObjectMapper().readValue(ex.getResponseBodyAsString(), RestAPIResponse.class);
-                logger.error("Member service error: {} - {}", errorResponse.getStatusCode(), errorResponse.getMessage());
+                ServiceResponse errorResponse = new ObjectMapper().readValue(ex.getResponseBodyAsString(), ServiceResponse.class);
+                logger.error("Member service error: {} - {}", errorResponse.getErrorCode(), errorResponse.getMessage());
                 throw new RuntimeException(errorResponse.getMessage());
-                //TODO:  need to create a switch exception for each error code after add errorCode property to RestAPIResponse
+                //TODO:  need to create a switch exception for each error code after add errorCode property to ServiceResponse
                 /*
                 switch (code) {
                 case USER_EMAIL_DUPLICATE -> throw new DuplicateException(code);
@@ -235,7 +234,7 @@ public class AuthService {
     }
 
 
-    public RestAPIResponse revokeToken(HttpServletRequest httpServletRequest) {
+    public ServiceResponse revokeToken(HttpServletRequest httpServletRequest) {
         String token = TokenSanitizer.sanitize(httpServletRequest.getHeader("Authorization")); // Assuming the token is passed in the Authorization header
         //using access token for logout
         String urlForDeleteToken = "http://MEMBER-SERVICE/member/deleteAllToken";
@@ -243,12 +242,14 @@ public class AuthService {
         if (!isLoggedOut) {
             throw new TokenDeletionException(AuthErrorCode.TOKEN_DELETION_FAILED);
         } else {
-            return RestAPIResponse.builder()
+            logger.info("Token revoked successfully for token: {}", token);
+            return ServiceResponse.builder()
+                    .success(true)
                     .message("Logout has been successful")
-                    .details("AuthService.logout() : auth-service ")
-                    .statusCode(HttpStatus.OK.value())
-                    .timestamp(System.currentTimeMillis()).build();
+                    .data(isLoggedOut)
+                    .build();
         }
+
 
     }
 

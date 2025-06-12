@@ -1,6 +1,6 @@
 package com.adventuretube.apigateway.config;
 
-import com.adventuretube.apigateway.common.response.RestAPIResponse;
+import com.adventuretube.apigateway.common.response.ServiceResponse;
 import com.adventuretube.apigateway.exception.JwtTokenNotExistException;
 import com.adventuretube.apigateway.service.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
@@ -29,8 +29,8 @@ public class AuthenticationFiter implements GatewayFilter {
     @Operation(summary = "Authenticate user")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Authentication successful"),
-            @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = RestAPIResponse.class))),
-            @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content(schema = @Schema(implementation = RestAPIResponse.class)))
+            @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = ServiceResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content(schema = @Schema(implementation = ServiceResponse.class)))
     })
     @Override
     public Mono<Void> filter(ServerWebExchange exchange,

@@ -1,7 +1,6 @@
 package com.adventuretube.apigateway.exception;
 
-
-import com.adventuretube.apigateway.common.response.RestAPIResponse;
+import com.adventuretube.common.api.response.ServiceResponse;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import org.springframework.http.HttpStatus;
@@ -17,59 +16,62 @@ import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(JwtTokenNotExistException.class)
-    public ResponseEntity<RestAPIResponse> handleJwtTokenNotExistException(JwtTokenNotExistException ex) {
-        RestAPIResponse restAPIErrorResponse = new RestAPIResponse(
-                ex.getMessage(),
-                "JWT token not exist : gateway-service ",
-                HttpStatus.UNAUTHORIZED.value(),
-                System.currentTimeMillis()
-        );
-        return new ResponseEntity<>(restAPIErrorResponse, HttpStatus.UNAUTHORIZED);
+    public ResponseEntity<ServiceResponse<Void>> handleJwtTokenNotExistException(JwtTokenNotExistException ex) {
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(ServiceResponse.<Void>builder()
+                        .success(false)
+                        .message(ex.getMessage())
+                        .errorCode("JWT_TOKEN_NOT_EXIST : gateway-service")
+                        .data(null)
+                        .build());
     }
 
     @ExceptionHandler(SignatureException.class)
-    public ResponseEntity<RestAPIResponse> handleSigniturException(SignatureException ex) {
-        RestAPIResponse restAPIErrorResponse = new RestAPIResponse(
-                ex.getMessage(),
-                "Invalid JWT signature: gateway-service",
-                HttpStatus.UNAUTHORIZED.value(),
-                System.currentTimeMillis()
-        );
-        return new ResponseEntity<>(restAPIErrorResponse, HttpStatus.UNAUTHORIZED);
+    public ResponseEntity<ServiceResponse<Void>> handleSignatureException(SignatureException ex) {
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(ServiceResponse.<Void>builder()
+                        .success(false)
+                        .message("Invalid JWT signature: gateway-service")
+                        .errorCode(ex.getMessage())
+                        .data(null)
+                        .build());
     }
 
     @ExceptionHandler(MalformedJwtException.class)
-    public ResponseEntity<RestAPIResponse> handleMalformedJwtException(MalformedJwtException ex) {
-        RestAPIResponse restAPIErrorResponse = new RestAPIResponse(
-                ex.getMessage(),
-                "MalformedJwt JWT token: gateway-service",
-                HttpStatus.UNAUTHORIZED.value(),
-                System.currentTimeMillis()
-        );
-        return new ResponseEntity<>(restAPIErrorResponse, HttpStatus.UNAUTHORIZED);
+    public ResponseEntity<ServiceResponse<Void>> handleMalformedJwtException(MalformedJwtException ex) {
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(ServiceResponse.<Void>builder()
+                        .success(false)
+                        .message("Malformed JWT token: gateway-service")
+                        .errorCode(ex.getMessage())
+                        .data(null)
+                        .build());
     }
-
 
     @ExceptionHandler(ExpiredJwtException.class)
-    public ResponseEntity<RestAPIResponse> handleExpiredJwtException(ExpiredJwtException ex) {
-        RestAPIResponse restAPIErrorResponse = new RestAPIResponse(
-                ex.getMessage(),
-                "Expired JWT token: gateway-service",
-                HttpStatus.UNAUTHORIZED.value(),
-                System.currentTimeMillis()
-        );
-        return new ResponseEntity<>(restAPIErrorResponse, HttpStatus.UNAUTHORIZED);
+    public ResponseEntity<ServiceResponse<Void>> handleExpiredJwtException(ExpiredJwtException ex) {
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(ServiceResponse.<Void>builder()
+                        .success(false)
+                        .message("Expired JWT token: gateway-service")
+                        .errorCode(ex.getMessage())
+                        .data(null)
+                        .build());
     }
 
-
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<RestAPIResponse> handleUnknownException(Exception ex) {
-        RestAPIResponse restAPIErrorResponse = new RestAPIResponse(
-                ex.getMessage(),
-                "Internal Server Error: gateway-service",
-                INTERNAL_SERVER_ERROR.value(),
-                System.currentTimeMillis()
-        );
-        return new ResponseEntity<>(restAPIErrorResponse, INTERNAL_SERVER_ERROR);
+    public ResponseEntity<ServiceResponse<Void>> handleUnknownException(Exception ex) {
+        return ResponseEntity
+                .status(INTERNAL_SERVER_ERROR)
+                .body(ServiceResponse.<Void>builder()
+                        .success(false)
+                        .message("Internal Server Error: gateway-service")
+                        .errorCode(ex.getMessage())
+                        .data(null)
+                        .build());
     }
 }

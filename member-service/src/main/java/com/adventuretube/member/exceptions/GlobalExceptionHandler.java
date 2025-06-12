@@ -1,7 +1,7 @@
 package com.adventuretube.member.exceptions;
 
 
-import com.adventuretube.member.common.response.RestAPIResponse;
+import com.adventuretube.common.api.response.ServiceResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -13,25 +13,28 @@ import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(DuplicateException.class)
-    public ResponseEntity<RestAPIResponse> handleDuplicationException(DuplicateException ex) {
-        RestAPIResponse restAPIErrorResponse = new RestAPIResponse(
-                ex.getMessage(),
-                "User already exists with the provided email : member-service",
-                HttpStatus.CONFLICT.value(),
-                System.currentTimeMillis()
-        );
-        return new ResponseEntity<>(restAPIErrorResponse,HttpStatus.CONFLICT);
+    public ResponseEntity<ServiceResponse<Void>> handleDuplicationException(DuplicateException ex) {
+
+        ServiceResponse restAPIErrorResponse = ServiceResponse.builder()
+                .success(false)
+                .message("User already exists with the provided email : member-service")
+                .errorCode("DUPLICATE_ERROR")
+                .data(null)
+                .build();
+
+        return new ResponseEntity<ServiceResponse<Void>>(restAPIErrorResponse,HttpStatus.CONFLICT);
     }
 
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<RestAPIResponse> handleUnknownException(Exception ex) {
-        RestAPIResponse restAPIErrorResponse = new RestAPIResponse(
-                ex.getMessage(),
-                "Internal Server Error : member-service",
-                INTERNAL_SERVER_ERROR.value(),
-                System.currentTimeMillis()
-           );
+    public ResponseEntity<ServiceResponse> handleUnknownException(Exception ex) {
+
+        ServiceResponse restAPIErrorResponse = ServiceResponse.builder()
+                .success(false)
+                .message("Internal Server Error : member-service")
+                .errorCode("UNKNOWN_ERROR")
+                .data(null)
+                .build();
 
             return new ResponseEntity<>(restAPIErrorResponse, INTERNAL_SERVER_ERROR);
     }

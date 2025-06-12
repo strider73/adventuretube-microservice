@@ -3,10 +3,10 @@ package com.adventuretube.auth.controller;
 
 import com.adventuretube.auth.model.request.MemberLoginRequest;
 import com.adventuretube.auth.model.response.MemberLoginResponse;
-import com.adventuretube.auth.common.response.RestAPIResponse;
 import com.adventuretube.auth.model.request.MemberRegisterRequest;
 import com.adventuretube.auth.model.response.MemberRegisterResponse;
 import com.adventuretube.auth.service.AuthService;
+import com.adventuretube.common.api.response.ServiceResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -74,17 +74,17 @@ public class AuthController {
             @ApiResponse(
                     responseCode = "401",
                     description = "Unauthorized - Invalid or expired Google ID token.",
-                    content = @Content(schema = @Schema(implementation = RestAPIResponse.class))
+                    content = @Content(schema = @Schema(implementation = ServiceResponse.class))
             ),
             @ApiResponse(
                     responseCode = "409",
                     description = "Conflict - Email or Username already exists.",
-                    content = @Content(schema = @Schema(implementation = RestAPIResponse.class))
+                    content = @Content(schema = @Schema(implementation = ServiceResponse.class))
             ),
             @ApiResponse(
                     responseCode = "500",
                     description = "Internal Server Error - Unexpected server error during registration.",
-                    content = @Content(schema = @Schema(implementation = RestAPIResponse.class))
+                    content = @Content(schema = @Schema(implementation = ServiceResponse.class))
             )
     })
     // This logic will be used when user logs in for the first time from the iOS application
@@ -127,17 +127,17 @@ public class AuthController {
             @ApiResponse(
                     responseCode = "401",
                     description = "Unauthorized - Invalid credentials or expired Google ID token.",
-                    content = @Content(schema = @Schema(implementation = RestAPIResponse.class))
+                    content = @Content(schema = @Schema(implementation = ServiceResponse.class))
             ),
             @ApiResponse(
                     responseCode = "404",
                     description = "User not found.",
-                    content = @Content(schema = @Schema(implementation = RestAPIResponse.class))
+                    content = @Content(schema = @Schema(implementation = ServiceResponse.class))
             ),
             @ApiResponse(
                     responseCode = "500",
                     description = "Internal Server Error - Unexpected authentication error.",
-                    content = @Content(schema = @Schema(implementation = RestAPIResponse.class))
+                    content = @Content(schema = @Schema(implementation = ServiceResponse.class))
             )
     })
     @PostMapping(value = "/token")
@@ -177,17 +177,17 @@ public class AuthController {
             @ApiResponse(
                     responseCode = "401",
                     description = "Unauthorized - Refresh token is missing, invalid, or expired.",
-                    content = @Content(schema = @Schema(implementation = RestAPIResponse.class))
+                    content = @Content(schema = @Schema(implementation = ServiceResponse.class))
             ),
             @ApiResponse(
                     responseCode = "404",
                     description = "User not found.",
-                    content = @Content(schema = @Schema(implementation = RestAPIResponse.class))
+                    content = @Content(schema = @Schema(implementation = ServiceResponse.class))
             ),
             @ApiResponse(
                     responseCode = "500",
                     description = "Internal Server Error - Unexpected failure during token refresh.",
-                    content = @Content(schema = @Schema(implementation = RestAPIResponse.class))
+                    content = @Content(schema = @Schema(implementation = ServiceResponse.class))
             )
     })
     @PostMapping(value = "/token/refresh")
@@ -225,17 +225,17 @@ public class AuthController {
             @ApiResponse(
                     responseCode = "200",
                     description = "User successfully logged out. Refresh token deleted.",
-                    content = @Content(schema = @Schema(implementation = RestAPIResponse.class))
+                    content = @Content(schema = @Schema(implementation = ServiceResponse.class))
             ),
             @ApiResponse(
                     responseCode = "401",
                     description = "Unauthorized - Invalid or missing refresh token.",
-                    content = @Content(schema = @Schema(implementation = RestAPIResponse.class))
+                    content = @Content(schema = @Schema(implementation = ServiceResponse.class))
             ),
             @ApiResponse(
                     responseCode = "500",
                     description = "Internal Server Error - Token revocation failed.",
-                    content = @Content(schema = @Schema(implementation = RestAPIResponse.class))
+                    content = @Content(schema = @Schema(implementation = ServiceResponse.class))
             )
     })
     @PostMapping(value = "/token/revoke")

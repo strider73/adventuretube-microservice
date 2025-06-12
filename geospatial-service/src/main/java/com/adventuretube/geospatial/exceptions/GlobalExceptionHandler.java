@@ -1,7 +1,6 @@
 package com.adventuretube.geospatial.exceptions;
 
-
-import com.adventuretube.geospatial.exceptions.error.RestAPIResponse;
+import com.adventuretube.common.api.response.ServiceResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -13,27 +12,27 @@ import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-
-
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<RestAPIResponse> handleUnknownException(Exception ex) {
-        RestAPIResponse restAPIErrorResponse = new RestAPIResponse(
-                ex.getMessage(),
-                "Internal Server Error : geospatial-service",
-                INTERNAL_SERVER_ERROR.value(),
-                System.currentTimeMillis()
-           );
+    public ResponseEntity<ServiceResponse<?>> handleUnknownException(Exception ex) {
+        ServiceResponse<?> response = ServiceResponse.builder()
+                .success(false)
+                .message("Internal Server Error: geospatial-service")
+                .errorCode(ex.getMessage())
+                .data(null)
+                .build();
 
-            return new ResponseEntity<>(restAPIErrorResponse, INTERNAL_SERVER_ERROR);
+        return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(response);
     }
+
     @ExceptionHandler(UsernameNotFoundException.class)
-    public ResponseEntity<RestAPIResponse> handleUsernameNotFoundException(UsernameNotFoundException ex) {
-        RestAPIResponse restAPIErrorResponse = new RestAPIResponse(
-                ex.getMessage(),
-                "User does mot exist: geospatial-service",
-                HttpStatus.NOT_FOUND.value(),
-                System.currentTimeMillis()
-        );
-        return new ResponseEntity<>(restAPIErrorResponse, HttpStatus.NOT_FOUND);
+    public ResponseEntity<ServiceResponse<?>> handleUsernameNotFoundException(UsernameNotFoundException ex) {
+        ServiceResponse<?> response = ServiceResponse.builder()
+                .success(false)
+                .message("User does not exist: geospatial-service")
+                .errorCode(ex.getMessage())
+                .data(null)
+                .build();
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 }
