@@ -46,7 +46,7 @@ public class DotenvEnvironmentPostProcessor implements EnvironmentPostProcessor 
 //
 //        String envFilename = "env." + activeProfile;
 
-        String envFilename = "env."+ System.getenv("envTarget");
+        String envFilename = "env."+ System.getenv("ENV_TARGET");
         Dotenv dotenv = null;
 
         System.out.println("Loading environment variables from: " + envFilename);
