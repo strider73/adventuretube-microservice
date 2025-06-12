@@ -35,6 +35,7 @@ public class MemberController {
                     .success(true)
                     .message("Member registered successfully")
                     .data(memberDTO)
+                    .timestamp(java.time.LocalDateTime.now())
                     .build());
 
         } catch (Exception e) {
@@ -45,6 +46,7 @@ public class MemberController {
                             .message("Failed to register member")
                             .errorCode("MEMBER_REGISTRATION_FAILED")
                             .data(null)
+                            .timestamp(java.time.LocalDateTime.now())
                             .build());
         }
     }
@@ -56,6 +58,7 @@ public class MemberController {
                 .success(true)
                 .message(member.isPresent() ? "Email already exists" : "Email is available")
                 .data(member.isPresent())
+                .timestamp(java.time.LocalDateTime.now())
                 .build());
     }
 
@@ -66,6 +69,7 @@ public class MemberController {
                 .success(true)
                 .message(member.isPresent() ? "Member found" : "Member not found")
                 .data(member.map(memberMapper::memberToMemberDTO).orElse(null))
+                .timestamp(java.time.LocalDateTime.now())
                 .build());
     }
 
@@ -76,6 +80,7 @@ public class MemberController {
                 .success(true)
                 .message("Token stored successfully")
                 .data(result)
+                .timestamp(java.time.LocalDateTime.now())
                 .build());
     }
 
@@ -86,6 +91,7 @@ public class MemberController {
                 .success(true)
                 .message(exists ? "Token found" : "Token not found")
                 .data(exists)
+                .timestamp(java.time.LocalDateTime.now())
                 .build());
     }
 
@@ -99,6 +105,7 @@ public class MemberController {
                         .success(deleted)
                         .message(message)
                         .data(deleted)
+                        .timestamp(java.time.LocalDateTime.now())
                         .build());
     }
 
@@ -112,12 +119,14 @@ public class MemberController {
                         .success(true)
                         .message("User deleted successfully")
                         .data(true)
+                        .timestamp(java.time.LocalDateTime.now())
                         .build());
             } else {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ServiceResponse.<Boolean>builder()
                         .success(false)
                         .message("User not found")
                         .data(false)
+                        .timestamp(java.time.LocalDateTime.now())
                         .build());
             }
         } catch (Exception e) {
@@ -127,6 +136,7 @@ public class MemberController {
                     .message("Error occurred while deleting user")
                     .errorCode("DELETE_USER_ERROR")
                     .data(null)
+                    .timestamp(java.time.LocalDateTime.now())
                     .build());
         }
     }

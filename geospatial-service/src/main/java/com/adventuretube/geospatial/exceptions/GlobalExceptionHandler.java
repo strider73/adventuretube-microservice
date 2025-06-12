@@ -1,6 +1,7 @@
 package com.adventuretube.geospatial.exceptions;
 
 import com.adventuretube.common.api.response.ServiceResponse;
+import com.adventuretube.geospatial.exceptions.code.GeoErrorCode;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -16,9 +17,10 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ServiceResponse<?>> handleUnknownException(Exception ex) {
         ServiceResponse<?> response = ServiceResponse.builder()
                 .success(false)
-                .message("Internal Server Error: geospatial-service")
-                .errorCode(ex.getMessage())
+                .message(GeoErrorCode.UNKNOWN_EXCEPTION.getMessage() + ": geospatial-service")
+                .errorCode(GeoErrorCode.UNKNOWN_EXCEPTION.name())
                 .data(null)
+                .timestamp(java.time.LocalDateTime.now())
                 .build();
 
         return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(response);
@@ -28,9 +30,10 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ServiceResponse<?>> handleUsernameNotFoundException(UsernameNotFoundException ex) {
         ServiceResponse<?> response = ServiceResponse.builder()
                 .success(false)
-                .message("User does not exist: geospatial-service")
-                .errorCode(ex.getMessage())
+                .message(GeoErrorCode.USER_NOT_FOUND.getMessage() + ": geospatial-service")
+                .errorCode(GeoErrorCode.USER_NOT_FOUND.name())
                 .data(null)
+                .timestamp(java.time.LocalDateTime.now())
                 .build();
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);

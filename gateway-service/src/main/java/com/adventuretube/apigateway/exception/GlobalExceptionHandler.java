@@ -24,6 +24,7 @@ public class GlobalExceptionHandler {
                         .message(ex.getMessage())
                         .errorCode("JWT_TOKEN_NOT_EXIST : gateway-service")
                         .data(null)
+                        .timestamp(java.time.LocalDateTime.now())
                         .build());
     }
 
@@ -36,6 +37,7 @@ public class GlobalExceptionHandler {
                         .message("Invalid JWT signature: gateway-service")
                         .errorCode(ex.getMessage())
                         .data(null)
+                        .timestamp(java.time.LocalDateTime.now())
                         .build());
     }
 
@@ -48,6 +50,7 @@ public class GlobalExceptionHandler {
                         .message("Malformed JWT token: gateway-service")
                         .errorCode(ex.getMessage())
                         .data(null)
+                        .timestamp(java.time.LocalDateTime.now())
                         .build());
     }
 
@@ -60,6 +63,7 @@ public class GlobalExceptionHandler {
                         .message("Expired JWT token: gateway-service")
                         .errorCode(ex.getMessage())
                         .data(null)
+                        .timestamp(java.time.LocalDateTime.now())
                         .build());
     }
 
@@ -72,6 +76,7 @@ public class GlobalExceptionHandler {
                         .message("Internal Server Error: gateway-service")
                         .errorCode(ex.getMessage())
                         .data(null)
+                        .timestamp(java.time.LocalDateTime.now())
                         .build());
     }
 }

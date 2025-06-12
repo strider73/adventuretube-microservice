@@ -20,6 +20,7 @@ public class GlobalExceptionHandler {
                 .message("User already exists with the provided email : member-service")
                 .errorCode("DUPLICATE_ERROR")
                 .data(null)
+                .timestamp(java.time.LocalDateTime.now())
                 .build();
 
         return new ResponseEntity<ServiceResponse<Void>>(restAPIErrorResponse,HttpStatus.CONFLICT);
@@ -34,6 +35,7 @@ public class GlobalExceptionHandler {
                 .message("Internal Server Error : member-service")
                 .errorCode("UNKNOWN_ERROR")
                 .data(null)
+                .timestamp(java.time.LocalDateTime.now())
                 .build();
 
             return new ResponseEntity<>(restAPIErrorResponse, INTERNAL_SERVER_ERROR);
