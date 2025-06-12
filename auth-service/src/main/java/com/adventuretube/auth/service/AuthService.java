@@ -3,6 +3,8 @@ package com.adventuretube.auth.service;
 import com.adventuretube.auth.config.google.GoogleTokenCredentialProperties;
 import com.adventuretube.auth.exceptions.*;
 import com.adventuretube.auth.exceptions.code.AuthErrorCode;
+import com.adventuretube.common.api.code.JwtErrorCode;
+import com.adventuretube.common.api.code.SystemErrorCode;
 import com.adventuretube.auth.model.mapper.MemberMapper;
 import com.adventuretube.auth.model.request.MemberLoginRequest;
 import com.adventuretube.auth.model.request.MemberRegisterRequest;
@@ -87,7 +89,7 @@ public class AuthService {
                 || body == null
                 || !body.isSuccess()) {
             logger.error("Failed to check email duplication: {}", response.getStatusCode());
-            throw new MemberServiceException(AuthErrorCode.INTERNAL_ERROR);
+            throw new MemberServiceException(SystemErrorCode.INTERNAL_ERROR);
         }
         // MARK:  Check Email duplication
         if (Boolean.TRUE.equals(body.getData())) {
@@ -105,7 +107,7 @@ public class AuthService {
                     new ParameterizedTypeReference<ServiceResponse<MemberDTO>>() {}
             );
             if (!registerMemberResponse.getStatusCode().is2xxSuccessful()) {
-                throw new MemberServiceException(AuthErrorCode.INTERNAL_ERROR);
+                throw new MemberServiceException(SystemErrorCode.INTERNAL_ERROR);
             }
 
            ServiceResponse<MemberDTO> registerMemberResponseBody = registerMemberResponse.getBody();
@@ -142,7 +144,7 @@ public class AuthService {
                     || !tokenStoredResponseBody.isSuccess()
                     || !Boolean.TRUE.equals(tokenStoredResponseBody.getData())) {
                 log.error("Token store failed: {}", tokenStoredResponseBody != null ? tokenStoredResponseBody.getMessage() : "no response body");
-                throw new TokenSaveFailedException(AuthErrorCode.TOKEN_SAVE_FAILED);
+                throw new TokenSaveFailedException(JwtErrorCode.TOKEN_SAVE_FAILED);
             }
             logger.info("Token stored successfully for user: {}", registeredUser.getEmail());
             // MARK:  return result
@@ -167,11 +169,11 @@ public class AuthService {
                  */
             } catch (Exception e) {
                 logger.error("Error parsing error response", e);
-                throw new MemberServiceException(AuthErrorCode.INTERNAL_ERROR);
+                throw new MemberServiceException(SystemErrorCode.INTERNAL_ERROR);
             }
         } catch (Exception ex) {
             logger.error("An unexpected error occurred during member registration", ex);
-            throw new MemberServiceException(AuthErrorCode.INTERNAL_ERROR);
+            throw new MemberServiceException(SystemErrorCode.INTERNAL_ERROR);
         }
 
     }
@@ -226,7 +228,7 @@ public class AuthService {
                 || !tokenStoredResponseBody.isSuccess()
                 || !Boolean.TRUE.equals(tokenStoredResponseBody.getData())) {
             log.error("Token store failed: {}", tokenStoredResponseBody != null ? tokenStoredResponseBody.getMessage() : "no response body");
-            throw new TokenSaveFailedException(AuthErrorCode.TOKEN_SAVE_FAILED);
+            throw new TokenSaveFailedException(JwtErrorCode.TOKEN_SAVE_FAILED);
         }
         logger.info("Token stored successfully for user: {}", email);
 
@@ -249,7 +251,7 @@ public class AuthService {
                 || deleteTokenResponseBody == null
                 || !deleteTokenResponseBody.isSuccess()
                 || !Boolean.TRUE.equals(deleteTokenResponseBody.getData())) {
-            throw new TokenDeletionException(AuthErrorCode.TOKEN_DELETION_FAILED);
+            throw new TokenDeletionException(JwtErrorCode.TOKEN_DELETION_FAILED);
         }
 
         logger.info("Token revoked successfully for token: {}", token);
@@ -288,7 +290,7 @@ public class AuthService {
                 || findTokenResponseBody == null
                 || !findTokenResponseBody.isSuccess()
                 || !Boolean.TRUE.equals(findTokenResponseBody.getData())) {
-            throw new TokenNotFoundException(AuthErrorCode.TOKEN_NOT_FOUND);
+            throw new TokenNotFoundException(JwtErrorCode.TOKEN_NOT_FOUND);
         }
 
 
@@ -322,7 +324,7 @@ public class AuthService {
                 || !tokenStoredResponseBody.isSuccess()
                 || !Boolean.TRUE.equals(tokenStoredResponseBody.getData())) {
             log.error("Token store failed: {}", tokenStoredResponseBody != null ? tokenStoredResponseBody.getMessage() : "no response body");
-            throw new TokenSaveFailedException(AuthErrorCode.TOKEN_SAVE_FAILED);
+            throw new TokenSaveFailedException(JwtErrorCode.TOKEN_SAVE_FAILED);
         }
 
         return new MemberRegisterResponse(null, accessToken, refreshToken);

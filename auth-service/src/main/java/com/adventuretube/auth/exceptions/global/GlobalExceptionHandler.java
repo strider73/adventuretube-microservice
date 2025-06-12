@@ -3,6 +3,9 @@ package com.adventuretube.auth.exceptions.global;
 import com.adventuretube.auth.exceptions.*;
 import com.adventuretube.auth.exceptions.base.BaseServiceException;
 import com.adventuretube.auth.exceptions.code.AuthErrorCode;
+import com.adventuretube.common.api.code.ErrorCode;
+import com.adventuretube.common.api.code.JwtErrorCode;
+import com.adventuretube.common.api.code.SystemErrorCode;
 import com.adventuretube.common.api.response.ServiceResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,19 +40,19 @@ public class GlobalExceptionHandler {
 
         ServiceResponse<?> response = ServiceResponse.builder()
                 .success(false)
-                .message(AuthErrorCode.VALIDATION_FAILED.getMessage())
-                .errorCode(AuthErrorCode.VALIDATION_FAILED.name())
+                .message(SystemErrorCode.VALIDATION_FAILED.getMessage())
+                .errorCode(SystemErrorCode.VALIDATION_FAILED.name())
                 .data(errors)
                 .timestamp(java.time.LocalDateTime.now())
                 .build();
 
-        return new ResponseEntity<>(response, AuthErrorCode.VALIDATION_FAILED.getHttpStatus());
+        return new ResponseEntity<>(response, SystemErrorCode.VALIDATION_FAILED.getHttpStatus());
     }
 
     // ---------------------------
     // Helper Methods
     // ---------------------------
-    private ResponseEntity<ServiceResponse<?>> buildErrorResponse(AuthErrorCode errorCode) {
+    private ResponseEntity<ServiceResponse<?>> buildErrorResponse(ErrorCode errorCode) {
         return new ResponseEntity<>(
                 ServiceResponse.builder()
                         .success(false)
@@ -62,7 +65,7 @@ public class GlobalExceptionHandler {
         );
     }
 
-    private ResponseEntity<ServiceResponse<?>> buildErrorResponse(AuthErrorCode errorCode, BaseServiceException ex) {
+    private ResponseEntity<ServiceResponse<?>> buildErrorResponse(ErrorCode errorCode, BaseServiceException ex) {
         return new ResponseEntity<>(
                 ServiceResponse.builder()
                         .success(false)
@@ -80,7 +83,7 @@ public class GlobalExceptionHandler {
     // ---------------------------
     @ExceptionHandler(UsernameNotFoundException.class)
     public ResponseEntity<ServiceResponse<?>> handleUsernameNotFoundException(UsernameNotFoundException ex) {
-        return buildErrorResponse(AuthErrorCode.USER_NOT_FOUND);
+        return buildErrorResponse(SystemErrorCode.USER_NOT_FOUND);
     }
 
     @ExceptionHandler(BadCredentialsException.class)
@@ -147,7 +150,7 @@ public class GlobalExceptionHandler {
     // ---------------------------
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<ServiceResponse<?>> handleIllegalStateException(IllegalStateException ex) {
-        return buildErrorResponse(AuthErrorCode.SERVER_NOT_AVAILABLE);
+        return buildErrorResponse(SystemErrorCode.SERVER_NOT_AVAILABLE);
     }
 
     @ExceptionHandler(InternalServerException.class)
@@ -157,6 +160,6 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ServiceResponse<?>> handleUnknownException(Exception ex) {
-        return buildErrorResponse(AuthErrorCode.INTERNAL_ERROR);
+        return buildErrorResponse(SystemErrorCode.INTERNAL_ERROR);
     }
 }

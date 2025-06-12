@@ -1,14 +1,12 @@
 package com.adventuretube.member.exceptions.code;
 
+import com.adventuretube.common.api.code.ErrorCode;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 @Getter
-public enum MemberErrorCode {
-    ENV_FILE_NOT_FOUND("ENV_FILE_NOT_FOUND", HttpStatus.INTERNAL_SERVER_ERROR),
-
-    //UNKNOWN EXCEPTION
-    UNKNOWN_EXCEPTION("Unknown error", HttpStatus.INTERNAL_SERVER_ERROR);
+public enum MemberErrorCode implements ErrorCode {
+    ENV_FILE_NOT_FOUND("ENV_FILE_NOT_FOUND", HttpStatus.INTERNAL_SERVER_ERROR);
 
 
     private final String message;
