@@ -40,6 +40,7 @@ public class GlobalExceptionHandler {
                 .message(AuthErrorCode.VALIDATION_FAILED.getMessage())
                 .errorCode(AuthErrorCode.VALIDATION_FAILED.name())
                 .data(errors)
+                .timestamp(java.time.LocalDateTime.now())
                 .build();
 
         return new ResponseEntity<>(response, AuthErrorCode.VALIDATION_FAILED.getHttpStatus());
@@ -55,6 +56,7 @@ public class GlobalExceptionHandler {
                         .message(errorCode.getMessage())
                         .errorCode(errorCode.name())
                         .data(null)
+                        .timestamp(java.time.LocalDateTime.now())
                         .build(),
                 errorCode.getHttpStatus()
         );
@@ -67,6 +69,7 @@ public class GlobalExceptionHandler {
                         .message(errorCode.getMessage())
                         .errorCode(errorCode.name())
                         .data(ex.getOrigin() + " : auth-service")
+                        .timestamp(java.time.LocalDateTime.now())
                         .build(),
                 errorCode.getHttpStatus()
         );

@@ -257,6 +257,7 @@ public class AuthService {
                 .success(true)
                 .message("Logout has been successful")
                 .data(deleteTokenResponseBody.getData())
+                .timestamp(java.time.LocalDateTime.now())
                 .build();
 
 
