@@ -30,6 +30,13 @@ else
     echo "$(date) - Using 'env.mac' configuration"
 fi
 
+# Step 3.5: Install common module first
+echo "$(date) - Installing common-api module..."
+./mvnw clean install -pl common-api -DskipTests || {
+    echo "$(date) - common-api install failed."; exit 1;
+}
+
+
 
 # Step 4: Clean and build Maven project
 echo "$(date) - Cleaning and building Maven project..."
