@@ -80,13 +80,26 @@ public class MemberController {
     }
 
     @PostMapping("findToken")
-    public Boolean findToken(@RequestBody String token) {
-        return memberService.findToken(token).isPresent();
+    public ResponseEntity<ServiceResponse<Boolean>> findToken(@RequestBody String token) {
+        boolean exists = memberService.findToken(token).isPresent();
+        return ResponseEntity.ok(ServiceResponse.<Boolean>builder()
+                .success(true)
+                .message(exists ? "Token found" : "Token not found")
+                .data(exists)
+                .build());
     }
 
     @PostMapping("deleteAllToken")
-    public Boolean deleteAllToken(@RequestBody String token) {
-        return memberService.deleteAllToken(token);
+    public ResponseEntity<ServiceResponse<Boolean>> deleteAllToken(@RequestBody String token) {
+        boolean deleted = memberService.deleteAllToken(token);
+        HttpStatus status = deleted ? HttpStatus.OK : HttpStatus.NOT_FOUND;
+        String message = deleted ? "Token deleted successfully" : "Token not found";
+        return ResponseEntity.status(status)
+                .body(ServiceResponse.<Boolean>builder()
+                        .success(deleted)
+                        .message(message)
+                        .data(deleted)
+                        .build());
     }
 
     @PostMapping("deleteUser")

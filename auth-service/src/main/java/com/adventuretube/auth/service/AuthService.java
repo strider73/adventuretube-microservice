@@ -238,17 +238,26 @@ public class AuthService {
         String token = TokenSanitizer.sanitize(httpServletRequest.getHeader("Authorization")); // Assuming the token is passed in the Authorization header
         //using access token for logout
         String urlForDeleteToken = "http://MEMBER-SERVICE/member/deleteAllToken";
-        Boolean isLoggedOut = restTemplate.postForObject(urlForDeleteToken, token, Boolean.class);
-        if (!isLoggedOut) {
+        ResponseEntity<ServiceResponse<Boolean>> deleteTokenResponse = restTemplate.exchange(
+                urlForDeleteToken,
+                org.springframework.http.HttpMethod.POST,
+                new HttpEntity<>(token),
+                new ParameterizedTypeReference<ServiceResponse<Boolean>>() {}
+        );
+        ServiceResponse<Boolean> deleteTokenResponseBody = deleteTokenResponse.getBody();
+        if (!deleteTokenResponse.getStatusCode().is2xxSuccessful()
+                || deleteTokenResponseBody == null
+                || !deleteTokenResponseBody.isSuccess()
+                || !Boolean.TRUE.equals(deleteTokenResponseBody.getData())) {
             throw new TokenDeletionException(AuthErrorCode.TOKEN_DELETION_FAILED);
-        } else {
-            logger.info("Token revoked successfully for token: {}", token);
-            return ServiceResponse.builder()
-                    .success(true)
-                    .message("Logout has been successful")
-                    .data(isLoggedOut)
-                    .build();
         }
+
+        logger.info("Token revoked successfully for token: {}", token);
+        return ServiceResponse.builder()
+                .success(true)
+                .message("Logout has been successful")
+                .data(deleteTokenResponseBody.getData())
+                .build();
 
 
     }
@@ -267,8 +276,17 @@ public class AuthService {
 
         //check the token for logout
         String urlForTokenExist = "http://MEMBER-SERVICE/member/findToken";
-        Boolean isTokenFind = restTemplate.postForObject(urlForTokenExist, token, Boolean.class);
-        if (!isTokenFind) {
+        ResponseEntity<ServiceResponse<Boolean>> findTokenResponse = restTemplate.exchange(
+                urlForTokenExist,
+                org.springframework.http.HttpMethod.POST,
+                new HttpEntity<>(token),
+                new ParameterizedTypeReference<ServiceResponse<Boolean>>() {}
+        );
+        ServiceResponse<Boolean> findTokenResponseBody = findTokenResponse.getBody();
+        if (!findTokenResponse.getStatusCode().is2xxSuccessful()
+                || findTokenResponseBody == null
+                || !findTokenResponseBody.isSuccess()
+                || !Boolean.TRUE.equals(findTokenResponseBody.getData())) {
             throw new TokenNotFoundException(AuthErrorCode.TOKEN_NOT_FOUND);
         }
 
