@@ -1,12 +1,12 @@
 package com.adventuretube.auth.exceptions.base;
 
-import com.adventuretube.auth.exceptions.code.AuthErrorCode;
+import com.adventuretube.common.api.code.ErrorCode;
 
 public abstract class BaseServiceException extends RuntimeException {
-    private final AuthErrorCode errorCode;
+    private final ErrorCode errorCode;
     private final String origin;
 
-    public BaseServiceException(AuthErrorCode errorCode) {
+    public BaseServiceException(ErrorCode errorCode) {
         super(errorCode.getMessage());
         this.errorCode = errorCode;
 
@@ -17,7 +17,7 @@ public abstract class BaseServiceException extends RuntimeException {
                 : "UnknownOrigin";
     }
 
-    public AuthErrorCode getErrorCode() {
+    public ErrorCode getErrorCode() {
         return errorCode;
     }
 

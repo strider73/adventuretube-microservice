@@ -1,10 +1,10 @@
 package com.adventuretube.auth.exceptions;
 
 import com.adventuretube.auth.exceptions.base.BaseServiceException;
-import com.adventuretube.auth.exceptions.code.AuthErrorCode;
+import com.adventuretube.common.api.code.ErrorCode;
 
 public class MemberServiceException extends BaseServiceException {
-    public MemberServiceException(AuthErrorCode errorCode) {
+    public MemberServiceException(ErrorCode errorCode) {
         super(errorCode);
     }
 

@@ -1,5 +1,7 @@
 package com.adventuretube.apigateway.exception;
 
+import com.adventuretube.common.api.code.JwtErrorCode;
+import com.adventuretube.common.api.code.SystemErrorCode;
 import com.adventuretube.common.api.response.ServiceResponse;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
@@ -18,11 +20,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(JwtTokenNotExistException.class)
     public ResponseEntity<ServiceResponse<Void>> handleJwtTokenNotExistException(JwtTokenNotExistException ex) {
         return ResponseEntity
-                .status(HttpStatus.UNAUTHORIZED)
+                .status(JwtErrorCode.TOKEN_NOT_EXIST.getHttpStatus())
                 .body(ServiceResponse.<Void>builder()
                         .success(false)
-                        .message(ex.getMessage())
-                        .errorCode("JWT_TOKEN_NOT_EXIST : gateway-service")
+                        .message(JwtErrorCode.TOKEN_NOT_EXIST.getMessage() + ": gateway-service")
+                        .errorCode(JwtErrorCode.TOKEN_NOT_EXIST.name())
                         .data(null)
                         .timestamp(java.time.LocalDateTime.now())
                         .build());
@@ -31,11 +33,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(SignatureException.class)
     public ResponseEntity<ServiceResponse<Void>> handleSignatureException(SignatureException ex) {
         return ResponseEntity
-                .status(HttpStatus.UNAUTHORIZED)
+                .status(JwtErrorCode.TOKEN_INVALID.getHttpStatus())
                 .body(ServiceResponse.<Void>builder()
                         .success(false)
-                        .message("Invalid JWT signature: gateway-service")
-                        .errorCode(ex.getMessage())
+                        .message(JwtErrorCode.TOKEN_INVALID.getMessage() + ": gateway-service")
+                        .errorCode(JwtErrorCode.TOKEN_INVALID.name())
                         .data(null)
                         .timestamp(java.time.LocalDateTime.now())
                         .build());
@@ -44,11 +46,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MalformedJwtException.class)
     public ResponseEntity<ServiceResponse<Void>> handleMalformedJwtException(MalformedJwtException ex) {
         return ResponseEntity
-                .status(HttpStatus.UNAUTHORIZED)
+                .status(JwtErrorCode.TOKEN_MALFORMED.getHttpStatus())
                 .body(ServiceResponse.<Void>builder()
                         .success(false)
-                        .message("Malformed JWT token: gateway-service")
-                        .errorCode(ex.getMessage())
+                        .message(JwtErrorCode.TOKEN_MALFORMED.getMessage() + ": gateway-service")
+                        .errorCode(JwtErrorCode.TOKEN_MALFORMED.name())
                         .data(null)
                         .timestamp(java.time.LocalDateTime.now())
                         .build());
@@ -57,11 +59,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ExpiredJwtException.class)
     public ResponseEntity<ServiceResponse<Void>> handleExpiredJwtException(ExpiredJwtException ex) {
         return ResponseEntity
-                .status(HttpStatus.UNAUTHORIZED)
+                .status(JwtErrorCode.TOKEN_EXPIRED.getHttpStatus())
                 .body(ServiceResponse.<Void>builder()
                         .success(false)
-                        .message("Expired JWT token: gateway-service")
-                        .errorCode(ex.getMessage())
+                        .message(JwtErrorCode.TOKEN_EXPIRED.getMessage() + ": gateway-service")
+                        .errorCode(JwtErrorCode.TOKEN_EXPIRED.name())
                         .data(null)
                         .timestamp(java.time.LocalDateTime.now())
                         .build());
@@ -70,11 +72,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ServiceResponse<Void>> handleUnknownException(Exception ex) {
         return ResponseEntity
-                .status(INTERNAL_SERVER_ERROR)
+                .status(SystemErrorCode.INTERNAL_ERROR.getHttpStatus())
                 .body(ServiceResponse.<Void>builder()
                         .success(false)
-                        .message("Internal Server Error: gateway-service")
-                        .errorCode(ex.getMessage())
+                        .message(SystemErrorCode.INTERNAL_ERROR.getMessage() + ": gateway-service")
+                        .errorCode(SystemErrorCode.INTERNAL_ERROR.name())
                         .data(null)
                         .timestamp(java.time.LocalDateTime.now())
                         .build());

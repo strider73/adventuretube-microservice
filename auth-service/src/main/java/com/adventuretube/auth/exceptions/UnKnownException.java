@@ -1,10 +1,10 @@
 package com.adventuretube.auth.exceptions;
 
 import com.adventuretube.auth.exceptions.base.BaseServiceException;
-import com.adventuretube.auth.exceptions.code.AuthErrorCode;
+import com.adventuretube.common.api.code.ErrorCode;
 
 public class UnKnownException  extends BaseServiceException {
-    public UnKnownException(AuthErrorCode errorCode) {
+    public UnKnownException(ErrorCode errorCode) {
         super(errorCode);
     }
 

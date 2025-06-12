@@ -1,7 +1,7 @@
 package com.adventuretube.auth.service;
 
-import com.adventuretube.auth.exceptions.code.AuthErrorCode;
 import com.adventuretube.auth.exceptions.UserNotFoundException;
+import com.adventuretube.common.api.code.SystemErrorCode;
 import com.adventuretube.auth.model.dto.member.MemberDTO;
 import com.adventuretube.common.api.response.ServiceResponse;
 import lombok.AllArgsConstructor;
@@ -41,7 +41,7 @@ public class CustomUserDetailService implements UserDetailsService {
 
             userFoundByEmail = response.getBody().getData();
             if (userFoundByEmail == null) {
-                throw new UserNotFoundException(AuthErrorCode.USER_NOT_FOUND);
+                throw new UserNotFoundException(SystemErrorCode.USER_NOT_FOUND);
             }
             // Check that userFoundByEmail has the necessary properties
             if (userFoundByEmail.getEmail() == null || userFoundByEmail.getPassword() == null) {
