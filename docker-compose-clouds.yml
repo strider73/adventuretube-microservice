@@ -11,6 +11,7 @@ services:
       - "${EUREKA_PORT}:${EUREKA_PORT}"
     environment:
       - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+      - ENV_TARGET=${ENV_TARGET}
       - EUREKA_CLIENT_REGISTER_WITH_EUREKA=false
       - EUREKA_CLIENT_FETCH_REGISTRY=false
     networks:
@@ -34,6 +35,7 @@ services:
       - "${CONFIG_PORT}:${CONFIG_PORT}"
     environment:
       - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+      - ENV_TARGET=${ENV_TARGET}
       - SPRING_CLOUD_CONFIG_SERVER_NATIVE_SEARCH_LOCATIONS=file:/config
 #    volumes:
 #      - ./config-service/src/main/resources/config:/config
@@ -64,6 +66,7 @@ services:
       - "${GATEWAY_DEBUG_PORT}:${GATEWAY_DEBUG_PORT}"
     environment:
       - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+      - ENV_TARGET=${ENV_TARGET}
       - JAVA_DEBUG_PORT=${GATEWAY_DEBUG_PORT}
       - CONFIG_SERVER_URL=${CONFIG_SERVER_URL}
       - JAVA_TOOL_OPTIONS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:${GATEWAY_DEBUG_PORT}"

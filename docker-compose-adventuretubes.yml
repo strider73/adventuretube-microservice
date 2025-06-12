@@ -15,6 +15,7 @@ services:
       - "${AUTH_DEBUG_PORT}:${AUTH_DEBUG_PORT}"
     environment:
       - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+      - ENV_TARGET=${ENV_TARGET}
       - JAVA_DEBUG_PORT=${AUTH_DEBUG_PORT}
       - CONFIG_SERVER_URL=${CONFIG_SERVER_URL}
       - JAVA_TOOL_OPTIONS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:${AUTH_DEBUG_PORT}"
@@ -42,6 +43,7 @@ services:
       - "${MEMBER_DEBUG_PORT}:${MEMBER_DEBUG_PORT}"
     environment:
       - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+      - ENV_TARGET=${ENV_TARGET}
       - JAVA_DEBUG_PORT=${MEMBER_DEBUG_PORT}
       - CONFIG_SERVER_URL=${CONFIG_SERVER_URL}
       - JAVA_TOOL_OPTIONS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:${MEMBER_DEBUG_PORT}"
@@ -68,6 +70,7 @@ services:
       - "${WEB_DEBUG_PORT}:${WEB_DEBUG_PORT}"
     environment:
       - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+      - ENV_TARGET=${ENV_TARGET}
       - JAVA_DEBUG_PORT=${WEB_DEBUG_PORT}
       - CONFIG_SERVER_URL=${CONFIG_SERVER_URL}
       - JAVA_TOOL_OPTIONS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:${WEB_DEBUG_PORT}"
@@ -94,6 +97,7 @@ services:
       - "${GEOSPATIAL_DEBUG_PORT}:${GEOSPATIAL_DEBUG_PORT}"
     environment:
       - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+      - ENV_TARGET=${ENV_TARGET}
       - JAVA_DEBUG_PORT=${GEOSPATIAL_DEBUG_PORT}
       - CONFIG_SERVER_URL=${CONFIG_SERVER_URL}
       - JAVA_TOOL_OPTIONS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:${GEOSPATIAL_DEBUG_PORT}"
