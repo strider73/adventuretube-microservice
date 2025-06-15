@@ -2,42 +2,39 @@ package com.adventuretube.member.exceptions;
 
 
 import com.adventuretube.common.api.response.ServiceResponse;
-import org.springframework.http.HttpStatus;
+import com.adventuretube.member.exceptions.code.MemberErrorCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(DuplicateException.class)
-    public ResponseEntity<ServiceResponse<Void>> handleDuplicationException(DuplicateException ex) {
-
-        ServiceResponse restAPIErrorResponse = ServiceResponse.builder()
+    private ResponseEntity<ServiceResponse> buildErrorResponse(MemberErrorCode code, String origin) {
+        ServiceResponse response = ServiceResponse.builder()
                 .success(false)
-                .message("User already exists with the provided email : member-service")
-                .errorCode("DUPLICATE_ERROR")
-                .data(null)
+                .message(code.getMessage())
+                .errorCode(code.name())
+                .data(origin)
                 .timestamp(java.time.LocalDateTime.now())
                 .build();
+        return new ResponseEntity<>(response, code.getHttpStatus());
+    }
 
-        return new ResponseEntity<ServiceResponse<Void>>(restAPIErrorResponse,HttpStatus.CONFLICT);
+    @ExceptionHandler(DuplicateException.class)
+    public ResponseEntity<ServiceResponse> handleDuplicationException(DuplicateException ex) {
+        return buildErrorResponse(ex.getErrorCode(), ex.getOrigin() + " : member-service");
+    }
+
+    @ExceptionHandler(MemberNotFoundException.class)
+    public ResponseEntity<ServiceResponse> handleMemberNotFoundException(MemberNotFoundException ex) {
+        return buildErrorResponse(ex.getErrorCode(), ex.getOrigin() + " : member-service");
     }
 
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ServiceResponse> handleUnknownException(Exception ex) {
-
-        ServiceResponse restAPIErrorResponse = ServiceResponse.builder()
-                .success(false)
-                .message("Internal Server Error : member-service")
-                .errorCode("UNKNOWN_ERROR")
-                .data(null)
-                .timestamp(java.time.LocalDateTime.now())
-                .build();
-
-            return new ResponseEntity<>(restAPIErrorResponse, INTERNAL_SERVER_ERROR);
+        return buildErrorResponse(MemberErrorCode.UNKNOWN_EXCEPTION, "member-service");
     }
 }
