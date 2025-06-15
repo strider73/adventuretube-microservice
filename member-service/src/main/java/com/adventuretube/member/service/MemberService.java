@@ -9,6 +9,9 @@ import com.adventuretube.member.model.mapper.MemberMapper;
 import com.adventuretube.member.model.mapper.TokenMapper;
 import com.adventuretube.member.repo.MemberRepository;
 import com.adventuretube.member.repo.TokenRepository;
+import com.adventuretube.member.exceptions.DuplicateException;
+import com.adventuretube.member.exceptions.MemberNotFoundException;
+import com.adventuretube.member.exceptions.code.MemberErrorCode;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -27,7 +30,10 @@ public class MemberService {
     private final TokenMapper tokenMapper;
 
     public Member registerMember(Member member){
-        return  memberRepository.save(member);
+        if(memberRepository.findMemberByEmail(member.getEmail()).isPresent()) {
+            throw new DuplicateException(MemberErrorCode.USER_EMAIL_DUPLICATE);
+        }
+        return memberRepository.save(member);
     }
 
 
@@ -113,14 +119,13 @@ public class MemberService {
 
     public Boolean deleteUser(String email) {
         Optional<Member> member = memberRepository.findMemberByEmail(email);
-        if(member.isPresent()){
-            List<Token> tokens = tokenRepository.findAllValidTokenByMember(member.get().getId());
-            tokens.forEach(tokenRepository::delete);
-            memberRepository.delete(member.get());
-            return true;
-        }else{
-            throw new RuntimeException("Member with email "+email+" is not exist");
+        if(member.isEmpty()) {
+            throw new MemberNotFoundException(MemberErrorCode.USER_NOT_FOUND);
         }
+        List<Token> tokens = tokenRepository.findAllValidTokenByMember(member.get().getId());
+        tokens.forEach(tokenRepository::delete);
+        memberRepository.delete(member.get());
+        return true;
     }
 }
 

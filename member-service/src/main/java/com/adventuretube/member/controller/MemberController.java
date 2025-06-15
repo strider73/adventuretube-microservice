@@ -27,28 +27,15 @@ public class MemberController {
     public ResponseEntity<ServiceResponse<MemberDTO>> registerMember(@RequestBody MemberDTO memberDTO) {
         log.info("new member registration {}", memberDTO);
         Member newMember = memberMapper.memberDTOtoMember(memberDTO);
-        try {
-            Member registeredMember = memberService.registerMember(newMember);
-            memberDTO.setId(registeredMember.getId());
+        Member registeredMember = memberService.registerMember(newMember);
+        memberDTO.setId(registeredMember.getId());
 
-            return ResponseEntity.ok(ServiceResponse.<MemberDTO>builder()
-                    .success(true)
-                    .message("Member registered successfully")
-                    .data(memberDTO)
-                    .timestamp(java.time.LocalDateTime.now())
-                    .build());
-
-        } catch (Exception e) {
-            log.error("Error occurred while registering member", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(ServiceResponse.<MemberDTO>builder()
-                            .success(false)
-                            .message("Failed to register member")
-                            .errorCode("MEMBER_REGISTRATION_FAILED")
-                            .data(null)
-                            .timestamp(java.time.LocalDateTime.now())
-                            .build());
-        }
+        return ResponseEntity.ok(ServiceResponse.<MemberDTO>builder()
+                .success(true)
+                .message("Member registered successfully")
+                .data(memberDTO)
+                .timestamp(java.time.LocalDateTime.now())
+                .build());
     }
 
     @PostMapping("emailDuplicationCheck")
@@ -112,30 +99,19 @@ public class MemberController {
     @PostMapping("deleteUser")
     public ResponseEntity<ServiceResponse<Boolean>> deleteUser(@RequestBody String email) {
         log.info("Deleting user with email: {}", email);
-        try {
-            boolean isDeleted = memberService.deleteUser(email);
-            if (isDeleted) {
-                return ResponseEntity.ok(ServiceResponse.<Boolean>builder()
-                        .success(true)
-                        .message("User deleted successfully")
-                        .data(true)
-                        .timestamp(java.time.LocalDateTime.now())
-                        .build());
-            } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ServiceResponse.<Boolean>builder()
-                        .success(false)
-                        .message("User not found")
-                        .data(false)
-                        .timestamp(java.time.LocalDateTime.now())
-                        .build());
-            }
-        } catch (Exception e) {
-            log.error("Error occurred while deleting user", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ServiceResponse.<Boolean>builder()
+        boolean isDeleted = memberService.deleteUser(email);
+        if (isDeleted) {
+            return ResponseEntity.ok(ServiceResponse.<Boolean>builder()
+                    .success(true)
+                    .message("User deleted successfully")
+                    .data(true)
+                    .timestamp(java.time.LocalDateTime.now())
+                    .build());
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ServiceResponse.<Boolean>builder()
                     .success(false)
-                    .message("Error occurred while deleting user")
-                    .errorCode("DELETE_USER_ERROR")
-                    .data(null)
+                    .message("User not found")
+                    .data(false)
                     .timestamp(java.time.LocalDateTime.now())
                     .build());
         }
