@@ -99,21 +99,12 @@ public class MemberController {
     @PostMapping("deleteUser")
     public ResponseEntity<ServiceResponse<Boolean>> deleteUser(@RequestBody String email) {
         log.info("Deleting user with email: {}", email);
-        boolean isDeleted = memberService.deleteUser(email);
-        if (isDeleted) {
-            return ResponseEntity.ok(ServiceResponse.<Boolean>builder()
-                    .success(true)
-                    .message("User deleted successfully")
-                    .data(true)
-                    .timestamp(java.time.LocalDateTime.now())
-                    .build());
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ServiceResponse.<Boolean>builder()
-                    .success(false)
-                    .message("User not found")
-                    .data(false)
-                    .timestamp(java.time.LocalDateTime.now())
-                    .build());
-        }
+        memberService.deleteUser(email); // Exception flows to GlobalExceptionHandler
+        return ResponseEntity.ok(ServiceResponse.<Boolean>builder()
+                .success(true)
+                .message("User deleted successfully")
+                .data(true)
+                .timestamp(java.time.LocalDateTime.now())
+                .build());
     }
 }
