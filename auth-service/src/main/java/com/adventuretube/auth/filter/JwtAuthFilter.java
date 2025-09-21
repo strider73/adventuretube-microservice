@@ -48,7 +48,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         // Skip filtering for open endpoints
         String path = request.getServletPath();
         if (Arrays.stream(OPEN_ENDPOINTS).anyMatch(path::startsWith)) {
-            log.info("JWT Token validation will not progress for path: " + path);
+            if(path.equals("/actuator/health")) {
+                log.info("JWT Token validation will not progress for path: " + path);
+            }
 
             filterChain.doFilter(request, response);
             return;
