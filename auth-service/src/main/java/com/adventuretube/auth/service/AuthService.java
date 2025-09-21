@@ -370,6 +370,7 @@ public class AuthService {
         } catch (GeneralSecurityException | IOException ex) {
             log.error("Google ID token verification failed: {}", ex.getMessage());
             throw new RuntimeException(ex);
+        }
     }
 
     private MemberDTO buildMemberDTO(GoogleIdToken.Payload payload) {
