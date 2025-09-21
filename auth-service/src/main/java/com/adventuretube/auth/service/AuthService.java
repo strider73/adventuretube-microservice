@@ -39,6 +39,8 @@ import com.google.api.client.json.gson.GsonFactory;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
+import java.util.Base64;
+import com.fasterxml.jackson.databind.JsonNode;
 
 
 @Service
@@ -83,7 +85,7 @@ public class AuthService {
         );
 
         ServiceResponse<Boolean> body = response.getBody();
-        if(!response.getStatusCode().is2xxSuccessful()
+        if (!response.getStatusCode().is2xxSuccessful()
                 || body == null
                 || !body.isSuccess()) {
             logger.error("Failed to check email duplication: {}", response.getStatusCode());
@@ -102,13 +104,14 @@ public class AuthService {
                     urlForRegister,
                     org.springframework.http.HttpMethod.POST,
                     new HttpEntity<>(memberDTO),
-                    new ParameterizedTypeReference<ServiceResponse<MemberDTO>>() {}
+                    new ParameterizedTypeReference<ServiceResponse<MemberDTO>>() {
+                    }
             );
             if (!registerMemberResponse.getStatusCode().is2xxSuccessful()) {
                 throw new MemberServiceException(AuthErrorCode.INTERNAL_ERROR);
             }
 
-           ServiceResponse<MemberDTO> registerMemberResponseBody = registerMemberResponse.getBody();
+            ServiceResponse<MemberDTO> registerMemberResponseBody = registerMemberResponse.getBody();
             // MARK:  create JWT token
             MemberDTO registeredUser = registerMemberResponseBody.getData();
             String accessToken = jwtUtil.generate(registeredUser.getEmail(), registeredUser.getRole(), "ACCESS");
@@ -132,7 +135,8 @@ public class AuthService {
                     urlForStoreToken,
                     org.springframework.http.HttpMethod.POST,
                     new HttpEntity<>(tokenToStore),
-                    new ParameterizedTypeReference<ServiceResponse<Boolean>>() {}
+                    new ParameterizedTypeReference<ServiceResponse<Boolean>>() {
+                    }
             );
             ServiceResponse<Boolean> tokenStoredResponseBody = tokenStoredResponse.getBody();
 
@@ -214,7 +218,8 @@ public class AuthService {
                 urlForStoreToken,
                 org.springframework.http.HttpMethod.POST,
                 new HttpEntity<>(tokenToStore),
-                new ParameterizedTypeReference<ServiceResponse<Boolean>>() {}
+                new ParameterizedTypeReference<ServiceResponse<Boolean>>() {
+                }
         );
 
 
@@ -242,7 +247,8 @@ public class AuthService {
                 urlForDeleteToken,
                 org.springframework.http.HttpMethod.POST,
                 new HttpEntity<>(token),
-                new ParameterizedTypeReference<ServiceResponse<Boolean>>() {}
+                new ParameterizedTypeReference<ServiceResponse<Boolean>>() {
+                }
         );
         ServiceResponse<Boolean> deleteTokenResponseBody = deleteTokenResponse.getBody();
         if (!deleteTokenResponse.getStatusCode().is2xxSuccessful()
@@ -281,7 +287,8 @@ public class AuthService {
                 urlForTokenExist,
                 org.springframework.http.HttpMethod.POST,
                 new HttpEntity<>(token),
-                new ParameterizedTypeReference<ServiceResponse<Boolean>>() {}
+                new ParameterizedTypeReference<ServiceResponse<Boolean>>() {
+                }
         );
         ServiceResponse<Boolean> findTokenResponseBody = findTokenResponse.getBody();
         if (!findTokenResponse.getStatusCode().is2xxSuccessful()
@@ -314,7 +321,8 @@ public class AuthService {
                 urlForStoreToken,
                 org.springframework.http.HttpMethod.POST,
                 new HttpEntity<>(tokenToStore),
-                new ParameterizedTypeReference<ServiceResponse<Boolean>>() {}
+                new ParameterizedTypeReference<ServiceResponse<Boolean>>() {
+                }
         );
         ServiceResponse<Boolean> tokenStoredResponseBody = tokenStoredResponse.getBody();
         if (!tokenStoredResponse.getStatusCode().is2xxSuccessful()
@@ -330,14 +338,38 @@ public class AuthService {
 
 
     private GoogleIdToken verifyGoogleIdToken(String googleIdToken) {
-        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), GsonFactory.getDefaultInstance()).setAudience(Collections.singletonList(googleTokenCredentialProperties.getClientId())).build();
+        // First decode the token to check the audience claim
+        try {
+            String[] chunks = googleIdToken.split("\\.");
+            String payload = new String(Base64.getUrlDecoder().decode(chunks[1]));
+
+            // Parse the JSON payload to check the 'aud' field
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode tokenPayload = mapper.readTree(payload);
+            String tokenAudience = tokenPayload.get("aud").asText();
+            String expectedClientId = googleTokenCredentialProperties.getClientId();
+
+            log.debug("Token audience: {}", tokenAudience);
+            log.debug("Expected client ID: {}", expectedClientId);
+
+            if (!expectedClientId.equals(tokenAudience)) {
+                log.error("Client ID mismatch. Expected: {}, Got: {}", expectedClientId, tokenAudience);
+                return null;
+            }
+
+        } catch (Exception e) {
+            log.error("Error parsing token payload: {}", e.getMessage());
+            return null;
+        }
+
+        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), GsonFactory.getDefaultInstance())
+                .setAudience(Collections.singletonList(googleTokenCredentialProperties.getClientId())).build();
 
         try {
             return verifier.verify(googleIdToken);
         } catch (GeneralSecurityException | IOException ex) {
             log.error("Google ID token verification failed: {}", ex.getMessage());
             throw new RuntimeException(ex);
-        }
     }
 
     private MemberDTO buildMemberDTO(GoogleIdToken.Payload payload) {
