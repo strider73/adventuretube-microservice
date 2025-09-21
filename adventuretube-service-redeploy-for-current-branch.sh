@@ -30,7 +30,13 @@ docker rmi $(docker images -q adventuretube-microservice_auth-service adventuret
 
 # Step 3: Clean and compile with Maven
 echo "🧹 Maven clean and package..."
-mvn clean package -DskipTests
+if command -v mvn &> /dev/null; then
+    mvn clean package -DskipTests
+elif [ -f "./mvnw" ]; then
+    ./mvnw clean package -DskipTests
+else
+    echo "⚠️ Maven not found, skipping clean package (Docker will handle build)"
+fi
 
 # Step 4: Build Docker images with no cache
 echo "🐳 Building Docker images (no cache)..."
