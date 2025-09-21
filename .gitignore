@@ -42,5 +42,21 @@ build/
 #### Database ####
 data/
 
+#### Claude Code Integration ####
+# Claude configuration and generated content
+CLAUDE.md
+extended-wordpress-mcp-server.js
+wp-sites.json
+.claude/
+# Node.js dependencies for WordPress MCP
+node_modules/
+package.json
+package-lock.json
+# IDE run configurations
+.run/
+
 ###environment variables###
 env.*
+
+###Wordpress document #######
+wordpress-content/
