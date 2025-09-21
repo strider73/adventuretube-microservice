@@ -57,7 +57,7 @@ fi
 
 # Step 6: Stop and remove existing Docker containers (if any)
 echo "$(date) - Stopping and removing existing Docker containers..."
-docker compose --env-file $ENV_FILE -f docker-compose-adventuretubes.yml down --volumes --remove-orphans
+docker compose --env-file $ENV_FILE -f docker-compose-adventuretubes.yml down --volumes
 if [ $? -ne 0 ]; then
     echo "$(date) - Failed to stop and remove Docker containers."
     exit 1
