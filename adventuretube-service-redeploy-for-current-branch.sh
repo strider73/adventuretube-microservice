@@ -57,15 +57,19 @@ fi
 
 # Step 6: Stop and remove existing Docker containers (if any)
 echo "$(date) - Stopping and removing existing Docker containers..."
-docker compose --env-file $ENV_FILE -f docker-compose-adventuretubes.yml down
+docker compose --env-file $ENV_FILE -f docker-compose-adventuretubes.yml down --volumes --remove-orphans
 if [ $? -ne 0 ]; then
     echo "$(date) - Failed to stop and remove Docker containers."
     exit 1
 fi
 
-# Step 7: Build the Docker images
-echo "$(date) - Building Docker images..."
-docker compose --env-file $ENV_FILE -f docker-compose-adventuretubes.yml build
+# Step 6.5: Remove old Docker images to prevent cache issues
+echo "$(date) - Removing old Docker images..."
+docker rmi $(docker images -q adventuretube-microservice_auth-service adventuretube-microservice_member-service adventuretube-microservice_web-service adventuretube-microservice_geospatial-service 2>/dev/null) 2>/dev/null || echo "No existing images to remove"
+
+# Step 7: Build the Docker images with no cache
+echo "$(date) - Building Docker images (no cache)..."
+docker compose --env-file $ENV_FILE -f docker-compose-adventuretubes.yml build --no-cache
 if [ $? -ne 0 ]; then
     echo "$(date) - Docker build failed."
     exit 1
