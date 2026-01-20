@@ -46,7 +46,6 @@ data/
 # Claude configuration and generated content
 CLAUDE.md
 extended-wordpress-mcp-server.js
-wp-sites.json
 .claude/
 # Node.js dependencies for WordPress MCP
 node_modules/
