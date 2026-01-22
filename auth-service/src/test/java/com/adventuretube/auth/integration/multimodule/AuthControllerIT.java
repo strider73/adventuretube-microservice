@@ -1,6 +1,6 @@
 package com.adventuretube.auth.integration.controller;
 
-import com.adventuretube.auth.integration.google.support.GoogleTokenUtil;
+import com.adventuretube.auth.support.GoogleTokenUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;

@@ -239,30 +239,37 @@ public class AuthService {
     }
 
 
+    // JWT token is validated at Gateway (RouterValidator secures /auth/token/revoke)
     public ServiceResponse revokeToken(HttpServletRequest httpServletRequest) {
-        String token = TokenSanitizer.sanitize(httpServletRequest.getHeader("Authorization")); // Assuming the token is passed in the Authorization header
+        String token = TokenSanitizer.sanitize(httpServletRequest.getHeader("Authorization"));
         //using access token for logout
         String urlForDeleteToken = "http://MEMBER-SERVICE/member/deleteAllToken";
-        ResponseEntity<ServiceResponse<Boolean>> deleteTokenResponse = restTemplate.exchange(
-                urlForDeleteToken,
-                org.springframework.http.HttpMethod.POST,
-                new HttpEntity<>(token),
-                new ParameterizedTypeReference<ServiceResponse<Boolean>>() {
-                }
-        );
-        ServiceResponse<Boolean> deleteTokenResponseBody = deleteTokenResponse.getBody();
-        if (!deleteTokenResponse.getStatusCode().is2xxSuccessful()
-                || deleteTokenResponseBody == null
-                || !deleteTokenResponseBody.isSuccess()
-                || !Boolean.TRUE.equals(deleteTokenResponseBody.getData())) {
-            throw new TokenDeletionException(AuthErrorCode.TOKEN_DELETION_FAILED);
+
+        try {
+            ResponseEntity<ServiceResponse<Boolean>> deleteTokenResponse = restTemplate.exchange(
+                    urlForDeleteToken,
+                    org.springframework.http.HttpMethod.POST,
+                    new HttpEntity<>(token),
+                    new ParameterizedTypeReference<ServiceResponse<Boolean>>() {
+                    }
+            );
+            ServiceResponse<Boolean> deleteTokenResponseBody = deleteTokenResponse.getBody();
+            if (!deleteTokenResponse.getStatusCode().is2xxSuccessful()
+                    || deleteTokenResponseBody == null
+                    || !deleteTokenResponseBody.isSuccess()
+                    || !Boolean.TRUE.equals(deleteTokenResponseBody.getData())) {
+                throw new TokenDeletionException(AuthErrorCode.TOKEN_DELETION_FAILED);
+            }
+
+        }catch (HttpClientErrorException.NotFound e){
+            throw new TokenNotFoundException(AuthErrorCode.TOKEN_NOT_FOUND);
         }
 
         logger.info("Token revoked successfully for token: {}", token);
         return ServiceResponse.builder()
                 .success(true)
                 .message("Logout has been successful")
-                .data(deleteTokenResponseBody.getData())
+                .data(true)
                 .timestamp(java.time.LocalDateTime.now())
                 .build();
 
@@ -272,14 +279,14 @@ public class AuthService {
     @Transactional
     public MemberRegisterResponse refreshToken(HttpServletRequest httpServletRequest) {
 
-               /*TODO List
-       1. get the refresh token
-       2. it been already do basic validate from gateway
-       3. and also did user name check from JwtAuthFilter  since /refreshToken is not an exception from  SecurityServiceConfig
-       4. so get the username and role  from the token and create userDetail
-        */
-
-        String token = TokenSanitizer.sanitize(httpServletRequest.getHeader("Authorization")); // Assuming the token is passed in the Authorization header
+    /*
+     * Refresh Token Flow:
+     * 1. JWT signature & expiration validated at Gateway (RouterValidator secures /auth/token/refresh)
+     * 2. Check token exists in DB (not revoked/logged out)
+     * 3. Extract username and role from token, issue new access & refresh tokens
+     */
+        System.out.println("##########################refresh token#########################################");
+        String token = TokenSanitizer.sanitize(httpServletRequest.getHeader("Authorization")); // Assuming the token is passed in tno he Authorization header
 
         //check the token for logout
         String urlForTokenExist = "http://MEMBER-SERVICE/member/findToken";

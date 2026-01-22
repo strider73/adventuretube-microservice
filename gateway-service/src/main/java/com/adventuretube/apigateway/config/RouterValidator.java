@@ -6,24 +6,56 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.function.Predicate;
 
+/**
+ * RouterValidator determines which API endpoints require JWT authentication.
+ *
+ * <p><b>Open Endpoints (No JWT Required):</b></p>
+ * <ul>
+ *   <li>{@code /auth/users} - User registration (authenticates via Google ID token)</li>
+ *   <li>{@code /auth/token} - Login (authenticates via Google ID token, issues JWT)</li>
+ *   <li>{@code /web/registerMember} - Web signup</li>
+ *   <li>{@code /actuator/health}, {@code /healthcheck} - Health checks</li>
+ *   <li>Swagger/OpenAPI documentation endpoints</li>
+ * </ul>
+ *
+ * <p><b>Secured Endpoints (JWT Required):</b></p>
+ * <ul>
+ *   <li>{@code /auth/token/refresh} - Requires valid refresh token</li>
+ *   <li>{@code /auth/token/revoke} - Requires valid access token</li>
+ *   <li>All other endpoints not listed in openEndPoints</li>
+ * </ul>
+ *
+ * <p><b>IMPORTANT:</b> The pattern {@code ^/auth/token$} matches ONLY the exact path
+ * {@code /auth/token} (login). Sub-paths like {@code /auth/token/refresh} and
+ * {@code /auth/token/revoke} are NOT matched, so they require JWT validation.</p>
+ */
 @Service
 public class RouterValidator {
 
-    // List of public (non-secured) endpoint patterns
+    /**
+     * List of public endpoint patterns that bypass JWT authentication.
+     * Uses regex patterns - requests matching these patterns skip the AuthenticationFilter.
+     */
     public static final List<String> openEndPoints = List.of(
-            "^/auth/users.*",             // signup
-            "^/auth/token.*",              // ✅ login, refresh, revoke
-            "^/web/registerMember.*",      // web signup (member service)
-            "^/actuator/health.*",          // actuator health check
-            "^/healthcheck.*",              // custom healthcheck
+            // === Auth Service ===
+            "^/auth/users.*",              // POST: User registration (uses Google ID token, not JWT)
+            "^/auth/token$",               // POST: Login only (uses Google ID token to obtain JWT)
+                                           // NOTE: /auth/token/refresh and /auth/token/revoke are SECURED (require JWT)
 
-        // Swagger & OpenAPI
-        "^/swagger-ui\\.html.*",
-        "^/swagger-ui/.*",
-        "^/auth-service/v3/api-docs.*",
-        "^/member-service/v3/api-docs.*",
-        "^/web-service/v3/api-docs.*",
-        "^/geo-service/v3/api-docs.*"
+            // === Member Service ===
+            "^/web/registerMember.*",      // Web signup endpoint
+
+            // === Health Checks ===
+            "^/actuator/health.*",         // Spring Actuator health endpoint
+            "^/healthcheck.*",             // Custom health check endpoint
+
+            // === Swagger & OpenAPI Documentation ===
+            "^/swagger-ui\\.html.*",
+            "^/swagger-ui/.*",
+            "^/auth-service/v3/api-docs.*",
+            "^/member-service/v3/api-docs.*",
+            "^/web-service/v3/api-docs.*",
+            "^/geo-service/v3/api-docs.*"
     );
 
     // Predicate to check if request requires authentication

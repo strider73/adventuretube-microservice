@@ -1,4 +1,4 @@
-package com.adventuretube.auth.util;
+package com.adventuretube.auth.moduleapi.support;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -13,12 +13,12 @@ import java.util.UUID;
  * Utility class to generate valid JWT tokens for testing purposes
  * This mimics the behavior of JwtUtil but allows for easy test data generation
  */
-public class TestTokenGenerator {
+public class TestAdventureTubeTokenGenerator {
     
     // Your actual JWT configuration values
     private static final String SECRET = "p1tX8G1LEA75ztxooQQ58iReDB6buWJ8wf9T+uWSyTk=";
     private static final long ACCESS_TOKEN_EXPIRATION = 120; // minutes
-    private static final long REFRESH_TOKEN_EXPIRATION = 86400; // minutes
+    private static final long REFRESH_TOKEN_EXPIRATION = 86400; // minutesç
     
     private static Key getSigningKey() {
         byte[] keyBytes = Decoders.BASE64.decode(SECRET);
