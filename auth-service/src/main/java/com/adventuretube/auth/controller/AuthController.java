@@ -142,7 +142,6 @@ public class AuthController {
     })
     @PostMapping(value = "/token")
     public ResponseEntity<?> issueToken(@Valid @RequestBody MemberLoginRequest request) {
-
         return ResponseEntity.ok(authService.issueToken(request));
     }
 

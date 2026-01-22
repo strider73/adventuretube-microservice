@@ -1,8 +1,7 @@
-package com.adventuretube.auth.mockhttp.service;
+package com.adventuretube.auth.integration.isolated;
 
 import com.adventuretube.auth.config.security.AuthServiceConfig;
 import com.adventuretube.auth.model.dto.member.MemberDTO;
-import com.adventuretube.auth.service.CustomUserDetailService;
 import com.adventuretube.common.api.response.ServiceResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.Test;

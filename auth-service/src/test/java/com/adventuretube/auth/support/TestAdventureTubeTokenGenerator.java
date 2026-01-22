@@ -1,4 +1,4 @@
-package com.adventuretube.auth.moduleapi.support;
+package com.adventuretube.auth.support;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;

@@ -1,4 +1,4 @@
-package com.adventuretube.auth.support;
+package com.adventuretube.auth.unit.mapper;
 
 import com.adventuretube.auth.model.dto.member.MemberDTO;
 import com.adventuretube.auth.model.mapper.MemberMapper;

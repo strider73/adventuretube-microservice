@@ -1,4 +1,4 @@
-package com.adventuretube.auth.mockhttp.service;
+package com.adventuretube.auth.integration.isolated;
 
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;

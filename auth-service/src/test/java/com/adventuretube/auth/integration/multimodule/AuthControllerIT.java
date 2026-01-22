@@ -1,4 +1,4 @@
-package com.adventuretube.auth.integration.controller;
+package com.adventuretube.auth.integration.multimodule;
 
 import com.adventuretube.auth.support.GoogleTokenUtil;
 import org.junit.jupiter.api.Test;
