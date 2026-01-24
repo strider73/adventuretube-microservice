@@ -3,8 +3,12 @@ pipeline {
     stages {
         stage('Run Deployment Script') {
             steps {
-                withCredentials([file(credentialsId: 'env-pi2', variable: 'ENV_PI2_FILE')]) {
+                withCredentials([
+                    file(credentialsId: 'env-pi', variable: 'ENV_PI_FILE'),
+                    file(credentialsId: 'env-pi2', variable: 'ENV_PI2_FILE')
+                ]) {
                     script {
+                        sh "cp \$ENV_PI_FILE ./env.pi"
                         sh "cp \$ENV_PI2_FILE ./env.pi2"
                         sh './adventuretube-cloud-redeploy.sh pi2'
                     }
