@@ -47,6 +47,7 @@ data/
 CLAUDE.md
 extended-wordpress-mcp-server.js
 .claude/
+planmode/
 # Node.js dependencies for WordPress MCP
 node_modules/
 package.json
