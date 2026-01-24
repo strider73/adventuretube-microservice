@@ -30,7 +30,11 @@ else
     echo "$(date) - Using 'env.mac' configuration"
 fi
 
-# Step 3.5: Install common module first
+# Step 3.5: Install parent pom and common module
+echo "$(date) - Installing parent pom..."
+./mvnw -N install -DskipTests || {
+    echo "$(date) - Parent pom install failed."; exit 1;
+}
 echo "$(date) - Installing common-api module..."
 ./mvnw clean install -pl common-api -DskipTests || {
     echo "$(date) - common-api install failed."; exit 1;
