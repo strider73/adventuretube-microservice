@@ -30,8 +30,8 @@ COPY --from=builder snapshot-dependencies/ ./
 COPY --from=builder spring-boot-loader/ ./
 COPY --from=builder application/ ./
 
-# Copy environment files into the container
-COPY env.pi env.pi2  ./
+# Copy environment files into the container (with jenkins ownership for read access)
+COPY --chown=jenkins:jenkins env.pi env.pi2  ./
 
 # Define the entry point to run the Spring Boot application
 ENTRYPOINT ["java", "org.springframework.boot.loader.launch.JarLauncher"]
