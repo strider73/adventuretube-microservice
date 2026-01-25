@@ -5,7 +5,10 @@ import io.swagger.v3.oas.annotations.servers.Server;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {
+        "com.adventuretube.auth",
+        "com.adventuretube.common"
+})
 @OpenAPIDefinition(
         servers = {
                 @Server(url = "https://api.adventuretube.net", description = "Auth Service API")
