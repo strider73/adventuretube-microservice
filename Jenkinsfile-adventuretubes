@@ -12,8 +12,10 @@ pipeline {
                     file(credentialsId: 'env-pi', variable: 'ENV_PI')
                 ]) {
                     sh '''
-                        cp $ENV_PI2 env.pi2
-                        cp $ENV_PI env.pi
+                        rm -f env.pi2 env.pi
+                        cat $ENV_PI2 > env.pi2
+                        cat $ENV_PI > env.pi
+                        chmod 644 env.pi2 env.pi
                     '''
                 }
             }
