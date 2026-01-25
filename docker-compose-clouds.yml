@@ -17,7 +17,7 @@ services:
     networks:
       - adventuretube-jenkins-network
     healthcheck:
-      test: ["CMD-SHELL", "echo 'var c = (java.net.HttpURLConnection)java.net.URI.create(\"http://localhost:${EUREKA_PORT}/actuator/health\").toURL().openConnection(); c.setConnectTimeout(3000); c.setReadTimeout(3000); System.exit(c.getResponseCode() == 200 ? 0 : 1);' | jshell -"]
+      test: ["CMD", "curl", "-f", "http://localhost:${EUREKA_PORT}/actuator/health"]
       interval: 30s
       timeout: 10s
       retries: 10
@@ -46,7 +46,7 @@ services:
       eureka-server:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "echo 'var c = (java.net.HttpURLConnection)java.net.URI.create(\"http://localhost:${CONFIG_PORT}/actuator/health\").toURL().openConnection(); c.setConnectTimeout(3000); c.setReadTimeout(3000); System.exit(c.getResponseCode() == 200 ? 0 : 1);' | jshell -"]
+      test: ["CMD", "curl", "-f", "http://localhost:${CONFIG_PORT}/actuator/health"]
       interval: 30s
       timeout: 10s
       retries: 10
@@ -79,11 +79,10 @@ services:
       config-service:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "echo 'var c = (java.net.HttpURLConnection)java.net.URI.create(\"http://localhost:${GATEWAY_PORT}/actuator/health\").toURL().openConnection(); c.setConnectTimeout(3000); c.setReadTimeout(3000); System.exit(c.getResponseCode() == 200 ? 0 : 1);' | jshell -"]
+      test: ["CMD", "curl", "-f", "http://localhost:${GATEWAY_PORT}/actuator/health"]
       interval: 30s
       timeout: 10s
       retries: 10
-      # Gateway takes ~14s to start after container is created; allow grace period before health checks count as failures
       start_period: 60s
     restart: unless-stopped
 

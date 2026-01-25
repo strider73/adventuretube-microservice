@@ -13,6 +13,8 @@ RUN java -Djarmode=layertools -jar application.jar extract
 
 # Stage 2: Runtime
 FROM ${BASE_IMAGE}
+# Install curl for health checks (Oracle Linux uses microdnf)
+RUN microdnf install -y curl && microdnf clean all
 # Add a jenkins user for enhanced security
 RUN groupadd --system jenkins && \
     useradd --system --gid jenkins --home-dir /home/jenkins --create-home jenkins
