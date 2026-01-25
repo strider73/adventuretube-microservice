@@ -83,6 +83,8 @@ services:
       interval: 30s
       timeout: 10s
       retries: 10
+      # Gateway takes ~14s to start after container is created; allow grace period before health checks count as failures
+      start_period: 60s
     restart: unless-stopped
 
 networks:
