@@ -4,11 +4,17 @@ pipeline {
         ENVIRONMENT = "pi2" // Set the environment dynamically if needed
     }
     stages {
-        stage('Setup Environment File') {
+        stage('Setup Environment Files') {
             steps {
-                // Extract env.pi2 credential to workspace
-                withCredentials([file(credentialsId: 'env-pi2', variable: 'ENV_FILE_CONTENT')]) {
-                    sh 'cp $ENV_FILE_CONTENT env.pi2'
+                // Extract env files from Jenkins credentials to workspace
+                withCredentials([
+                    file(credentialsId: 'env-pi2', variable: 'ENV_PI2'),
+                    file(credentialsId: 'env-pi', variable: 'ENV_PI')
+                ]) {
+                    sh '''
+                        cp $ENV_PI2 env.pi2
+                        cp $ENV_PI env.pi
+                    '''
                 }
             }
         }
