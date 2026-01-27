@@ -1,3 +1,4 @@
+
 server:
   port: ${MEMBER_SERVICE_PORT}
 
