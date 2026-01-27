@@ -1,16 +1,14 @@
 package com.adventuretube.member.repo;
 
-
 import com.adventuretube.member.model.entity.Member;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import org.springframework.stereotype.Repository;
+import reactor.core.publisher.Mono;
 
-import java.util.Optional;
+import java.util.UUID;
 
 @Repository
-public interface MemberRepository extends JpaRepository<Member, Long> {
+public interface MemberRepository extends ReactiveCrudRepository<Member, UUID> {
 
-    @Query("SELECT  s from Member  s where  s.email = ?1")
-    Optional<Member>  findMemberByEmail(String email);
+    Mono<Member> findByEmail(String email);
 }

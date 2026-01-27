@@ -1,34 +1,34 @@
 package com.adventuretube.member.repo;
 
-import java.util.List;
-import java.util.Optional;
+import com.adventuretube.member.model.entity.Token;
+import org.springframework.data.r2dbc.repository.Modifying;
+import org.springframework.data.r2dbc.repository.Query;
+import org.springframework.data.repository.reactive.ReactiveCrudRepository;
+import org.springframework.stereotype.Repository;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
 import java.util.UUID;
 
+@Repository
+public interface TokenRepository extends ReactiveCrudRepository<Token, UUID> {
 
-import com.adventuretube.member.model.entity.Token;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.transaction.annotation.Transactional;
+    // Native SQL - R2DBC doesn't support JPQL
+    @Query("SELECT * FROM token WHERE member_id = :memberId AND (expired = false OR revoked = false)")
+    Flux<Token> findAllValidTokenByMember(UUID memberId);
 
-public interface TokenRepository extends JpaRepository<Token, Integer> {
+    @Query("SELECT * FROM token WHERE member_id = :memberId AND (access_token = :token OR refresh_token = :token)")
+    Mono<Token> findTokenByMemberIdAndToken(UUID memberId, String token);
 
-    @Query("select t from Token t inner join Member m on t.member.id = m.id where m.id = :id and (t.expired = false or t.revoked = false)")
-    List<Token> findAllValidTokenByMember(UUID id);
-
-
-
-    @Query("select t from Token t inner join Member m on t.member.id = m.id where m.id = :id and (t.accessToken = :token  or t.refreshToken = :token)")
-    Optional<Token>  findTokensByToken(Long id , String token);
-
-
+    // Delete and return count
     @Modifying
-    @Transactional
-    @Query("delete from Token t where t.accessToken = :token or t.refreshToken = :token")
-    int deleteAllTokenByAccessToken(String token);
+    @Query("DELETE FROM token WHERE access_token = :token OR refresh_token = :token")
+    Mono<Integer> deleteByAccessTokenOrRefreshToken(String token);
 
-    Optional<Token> findByAccessToken(String accessToken);
+    Mono<Token> findByAccessToken(String accessToken);
 
-    Optional<Token> findByRefreshToken(String refreshToken);
+    Mono<Token> findByRefreshToken(String refreshToken);
 
-    }
+    // Delete all tokens for a member
+    Mono<Void> deleteByMemberId(UUID memberId);
+}

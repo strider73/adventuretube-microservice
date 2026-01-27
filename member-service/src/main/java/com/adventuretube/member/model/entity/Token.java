@@ -1,98 +1,45 @@
 package com.adventuretube.member.model.entity;
 
-
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+/**
+ * Token entity for R2DBC.
+ *
+ * Note: R2DBC does not support @ManyToOne relationships.
+ * Instead of `Member member`, we store `memberId` (the foreign key).
+ */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
+@Table("token")
 public class Token {
 
     @Id
-    @GeneratedValue
     private UUID id;
 
-    @Column(unique = true)
+    @Column("access_token")
     private String accessToken;
-    @Column(unique = true)
+
+    @Column("refresh_token")
     private String refreshToken;
+
     private boolean revoked;
-
-    public UUID getId() {
-        return id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
-    }
-
-    public String getAccessToken() {
-        return accessToken;
-    }
-
-    public void setAccessToken(String accessToken) {
-        this.accessToken = accessToken;
-    }
-
-    public String getRefreshToken() {
-        return refreshToken;
-    }
-
-    public void setRefreshToken(String refreshToken) {
-        this.refreshToken = refreshToken;
-    }
-
-    public boolean isRevoked() {
-        return revoked;
-    }
-
-    public void setRevoked(boolean revoked) {
-        this.revoked = revoked;
-    }
-
-    public boolean isExpired() {
-        return expired;
-    }
-
-    public void setExpired(boolean expired) {
-        this.expired = expired;
-    }
-
-    public LocalDateTime getCreateAt() {
-        return createAt;
-    }
-
-    public void setCreateAt(LocalDateTime createAt) {
-        this.createAt = createAt;
-    }
-
     private boolean expired;
 
+    @Column("create_at")
     private LocalDateTime createAt;
 
-    @PrePersist
-    protected void onCreate() {
-        createAt = LocalDateTime.now();
-    }
-
-    public Member getMember() {
-        return member;
-    }
-
-    public void setMember(Member member) {
-        this.member = member;
-    }
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
-    private Member member;
+    // R2DBC: Store foreign key instead of object reference
+    @Column("member_id")
+    private UUID memberId;
 }

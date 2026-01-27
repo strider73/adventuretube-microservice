@@ -1,179 +1,64 @@
 package com.adventuretube.member.model.entity;
 
-
-
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.GenericGenerator;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.UUID;
 
+/**
+ * Member entity for R2DBC.
+ *
+ * R2DBC Limitations & Workarounds:
+ * - @PrePersist: Not supported. Workaround in MemberService.registerMember()
+ *   sets createAt = LocalDateTime.now() before save.
+ * - @GeneratedValue: Not supported. Workaround in MemberService.registerMember()
+ *   sets id = UUID.randomUUID() before save.
+ * - UserDetails: Removed from entity. Before (JPA), Member did double duty
+ *   (data persistence + security). After (R2DBC), clean separation -
+ *   Member handles only data persistence, security handled in auth-service.
+ *
+ * @see MemberService#registerMember(Member)
+ */
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
-public class Member implements UserDetails {
+@Table("member")
+public class Member {
+
     @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(
-            name = "UUID" ,
-            strategy = "org.hibernate.id.UUIDGenerator"
-    )
-    @Column(updatable = false , nullable = false)
     private UUID id;
 
-    @Column(length = 2000)
+    @Column("google_id_token")
     private String googleIdToken;
+
+    @Column("google_id_token_exp")
     private Long googleIdTokenExp;
 
+    @Column("google_id_token_iat")
     private Long googleIdTokenIat;
 
-    //A unique string value used to associate a client and mitigate replay attacks
+    @Column("google_id_token_sub")
     private String googleIdTokenSub;
 
+    @Column("google_profile_picture")
     private String googleProfilePicture;
+
     private String username;
     private String password;
-    private String channelId;
-    private String email;
 
+    @Column("channel_id")
+    private String channelId;
+
+    private String email;
     private String role;
 
-    public LocalDateTime getCreateAt() {
-        return createAt;
-    }
-
-    public void setCreateAt(LocalDateTime createAt) {
-        this.createAt = createAt;
-    }
-
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getChannelId() {
-        return channelId;
-    }
-
-    public void setChannelId(String channelId) {
-        this.channelId = channelId;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getGoogleProfilePicture() {
-        return googleProfilePicture;
-    }
-
-    public void setGoogleProfilePicture(String googleProfilePicture) {
-        this.googleProfilePicture = googleProfilePicture;
-    }
-
-    public String getGoogleIdTokenSub() {
-        return googleIdTokenSub;
-    }
-
-    public void setGoogleIdTokenSub(String googleIdTokenSub) {
-        this.googleIdTokenSub = googleIdTokenSub;
-    }
-
-    public Long getGoogleIdTokenIat() {
-        return googleIdTokenIat;
-    }
-
-    public void setGoogleIdTokenIat(Long googleIdTokenIat) {
-        this.googleIdTokenIat = googleIdTokenIat;
-    }
-
-    public Long getGoogleIdTokenExp() {
-        return googleIdTokenExp;
-    }
-
-    public void setGoogleIdTokenExp(Long googleIdTokenExp) {
-        this.googleIdTokenExp = googleIdTokenExp;
-    }
-
-    public String getGoogleIdToken() {
-        return googleIdToken;
-    }
-
-    public void setGoogleIdToken(String googleIdToken) {
-        this.googleIdToken = googleIdToken;
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
-    }
-
+    @Column("create_at")
     private LocalDateTime createAt;
-
-    @PrePersist
-    protected void onCreate() {
-        createAt = LocalDateTime.now();
-    }
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Arrays.asList(new SimpleGrantedAuthority("ROLE_USER"));
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
-    }
 }

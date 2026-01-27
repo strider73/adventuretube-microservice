@@ -1,16 +1,13 @@
 package com.adventuretube.member.model.mapper;
 
-
-
-
 import com.adventuretube.member.model.dto.token.TokenDTO;
 import com.adventuretube.member.model.entity.Token;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.factory.Mappers;
 
-@Mapper(componentModel = "spring", uses = MemberMapper.class)
+@Mapper(componentModel = "spring")
 public interface TokenMapper {
-    @Mapping(source = "memberDTO", target = "member")
+    // Map memberDTO.id to memberId (R2DBC uses foreign key, not object reference)
+    @Mapping(source = "memberDTO.id", target = "memberId")
     Token tokenDTOToToken(TokenDTO tokenDTO);
 }

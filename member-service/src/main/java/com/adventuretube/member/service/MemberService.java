@@ -1,7 +1,5 @@
 package com.adventuretube.member.service;
 
-
-
 import com.adventuretube.member.model.dto.token.TokenDTO;
 import com.adventuretube.member.model.entity.Member;
 import com.adventuretube.member.model.entity.Token;
@@ -15,10 +13,10 @@ import com.adventuretube.member.exceptions.code.MemberErrorCode;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
-import java.util.List;
-import java.util.Optional;
-
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Service
 @AllArgsConstructor
@@ -29,30 +27,39 @@ public class MemberService {
     private final MemberMapper memberMapper;
     private final TokenMapper tokenMapper;
 
-    public Member registerMember(Member member){
-        if(memberRepository.findMemberByEmail(member.getEmail()).isPresent()) {
-            throw new DuplicateException(MemberErrorCode.USER_EMAIL_DUPLICATE);
-        }
-        return memberRepository.save(member);
+    public Mono<Member> registerMember(Member member) {
+        return memberRepository.findByEmail(member.getEmail())
+                .flatMap(existing -> Mono.<Member>error(new DuplicateException(MemberErrorCode.USER_EMAIL_DUPLICATE)))
+                .switchIfEmpty(Mono.defer(() -> {
+                    // Handle @PrePersist manually - set ID and createAt
+                    if (member.getId() == null) {
+                        member.setId(UUID.randomUUID());
+                    }
+                    if (member.getCreateAt() == null) {
+                        member.setCreateAt(LocalDateTime.now());
+                    }
+                    return memberRepository.save(member);
+                }));
     }
 
-
-    public Optional<Member> findEmail(String email) {
-        return memberRepository.findMemberByEmail(email);
+    public Mono<Member> findEmail(String email) {
+        return memberRepository.findByEmail(email);
     }
 
-    public Optional<Member> findMemberByEmailAndTokenCheck(String email) {
-        Optional<Member> member = memberRepository.findMemberByEmail(email);
-        if(member.isPresent()) {
-            List<Token> tokens = tokenRepository.findAllValidTokenByMember(member.get().getId());
-            if (tokens.isEmpty()){
-                throw new RuntimeException("Member with email "+email+" was logged out already ");
-            }else{
-                return member;
-            }
-        }else{
-            throw new RuntimeException("Member with email "+email+" is not exist");
-        }
+    public Mono<Member> findMemberByEmailAndTokenCheck(String email) {
+        return memberRepository.findByEmail(email)
+                .switchIfEmpty(Mono.error(new RuntimeException("Member with email " + email + " is not exist")))
+                .flatMap(member ->
+                        tokenRepository.findAllValidTokenByMember(member.getId())
+                                .hasElements()
+                                .flatMap(hasTokens -> {
+                                    if (hasTokens) {
+                                        return Mono.just(member);
+                                    } else {
+                                        return Mono.error(new RuntimeException("Member with email " + email + " was logged out already"));
+                                    }
+                                })
+                );
     }
 
     /**
@@ -73,59 +80,66 @@ public class MemberService {
      * </ul>
      *
      * @param tokenDTO The token data including member information and token strings
-     * @return {@code true} if the token was successfully saved
-     * @throws RuntimeException if the member is not found
+     * @return {@code Mono<Boolean>} true if the token was successfully saved
      */
-    public Boolean storeToken(TokenDTO tokenDTO) {
+    public Mono<Boolean> storeToken(TokenDTO tokenDTO) {
         // Resolve member ID if missing (e.g., login scenario)
+        Mono<TokenDTO> resolvedTokenDTO;
         if (tokenDTO.getMemberDTO().getId() == null) {
-            Optional<Member> member = memberRepository.findMemberByEmail(tokenDTO.getMemberDTO().getUsername());
-            if (member.isPresent()) {
-                tokenDTO.setMemberDTO(memberMapper.memberToMemberDTO(member.get()));
-            } else {
-                throw new RuntimeException("User email " + tokenDTO.getMemberDTO().getEmail() + " is not a Member");
+            resolvedTokenDTO = memberRepository.findByEmail(tokenDTO.getMemberDTO().getUsername())
+                    .switchIfEmpty(Mono.error(new RuntimeException("User email " + tokenDTO.getMemberDTO().getEmail() + " is not a Member")))
+                    .map(member -> {
+                        tokenDTO.setMemberDTO(memberMapper.memberToMemberDTO(member));
+                        return tokenDTO;
+                    });
+        } else {
+            resolvedTokenDTO = Mono.just(tokenDTO);
+        }
+
+        return resolvedTokenDTO.flatMap(dto -> {
+            // Convert TokenDTO to entity
+            Token token = tokenMapper.tokenDTOToToken(dto);
+
+            // Handle @PrePersist manually
+            if (token.getId() == null) {
+                token.setId(UUID.randomUUID());
             }
-        }
+            if (token.getCreateAt() == null) {
+                token.setCreateAt(LocalDateTime.now());
+            }
 
-        // Convert TokenDTO to entity
-        Token token = tokenMapper.tokenDTOToToken(tokenDTO);
-
-        // Revoke all existing valid tokens before saving the new one
-        List<Token> tokens = tokenRepository.findAllValidTokenByMember(tokenDTO.getMemberDTO().getId());
-        tokens.forEach(tokenRepository::delete);
-
-        // Save the new token
-        tokenRepository.save(token);
-
-        return true;
+            // Revoke all existing valid tokens before saving the new one
+            return tokenRepository.findAllValidTokenByMember(dto.getMemberDTO().getId())
+                    .flatMap(tokenRepository::delete)
+                    .then(tokenRepository.save(token))
+                    .thenReturn(true);
+        });
     }
 
-
-    public Optional<Token> findToken(String token) {
-        return  tokenRepository.findByRefreshToken(token);
+    public Mono<Token> findToken(String token) {
+        return tokenRepository.findByRefreshToken(token);
     }
 
-    public Boolean deleteAllToken(String token) {
-       int deleteCount =  tokenRepository.deleteAllTokenByAccessToken(token);
-       if(deleteCount > 0) {
-           log.debug("token delete successfully");
-           return true;
-       }else{
-           log.warn("Token deletion failed for access token: {}", token);
-           return false;
-       }
+    public Mono<Boolean> deleteAllToken(String token) {
+        return tokenRepository.deleteByAccessTokenOrRefreshToken(token)
+                .map(deleteCount -> {
+                    if (deleteCount > 0) {
+                        log.debug("token delete successfully");
+                        return true;
+                    } else {
+                        log.warn("Token deletion failed for access token: {}", token);
+                        return false;
+                    }
+                });
     }
 
-
-    public Boolean deleteUser(String email) {
-        Optional<Member> member = memberRepository.findMemberByEmail(email);
-        if(member.isEmpty()) {
-            throw new MemberNotFoundException(MemberErrorCode.USER_NOT_FOUND);
-        }
-        List<Token> tokens = tokenRepository.findAllValidTokenByMember(member.get().getId());
-        tokens.forEach(tokenRepository::delete);
-        memberRepository.delete(member.get());
-        return true;
+    public Mono<Boolean> deleteUser(String email) {
+        return memberRepository.findByEmail(email)
+                .switchIfEmpty(Mono.error(new MemberNotFoundException(MemberErrorCode.USER_NOT_FOUND)))
+                .flatMap(member ->
+                        tokenRepository.deleteByMemberId(member.getId())
+                                .then(memberRepository.delete(member))
+                                .thenReturn(true)
+                );
     }
 }
-
