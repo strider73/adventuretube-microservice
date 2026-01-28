@@ -3,6 +3,19 @@ server:
   port: ${MEMBER_SERVICE_PORT}
 
 spring:
+  # Network interface selection for Eureka registration
+  # Problem: Mac has multiple network interfaces (WiFi, Thunderbolt, Docker, etc.)
+  # Eureka may auto-detect wrong IP (e.g., 169.254.x.x link-local address)
+  # Solution: Force Spring to use 192.168.1.x network and ignore virtual interfaces
+  cloud:
+    inetutils:
+      preferred-networks:
+        - 192.168.1
+      ignored-interfaces:
+        - en14          # Thunderbolt/USB adapter (link-local 169.254.x.x)
+        - docker*       # Docker virtual interfaces
+        - veth*         # Docker container interfaces
+        - br-*          # Docker bridge interfaces
   # R2DBC configuration (replaces datasource/JPA)
   r2dbc:
     url: r2dbc:postgresql:${POSTGRES_HOST}
