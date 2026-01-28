@@ -35,6 +35,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ServiceResponse> handleUnknownException(Exception ex) {
+        // Log the actual exception for debugging
+        ex.printStackTrace();
         return buildErrorResponse(MemberErrorCode.UNKNOWN_EXCEPTION, "member-service");
     }
 }

@@ -100,9 +100,10 @@ public class MemberService {
             // Convert TokenDTO to entity
             Token token = tokenMapper.tokenDTOToToken(dto);
 
-            // Handle @PrePersist manually
+            // Handle @PrePersist manually (R2DBC doesn't support JPA callbacks)
             if (token.getId() == null) {
                 token.setId(UUID.randomUUID());
+                token.setNew(true);  // Tell R2DBC this is INSERT, not UPDATE
             }
             if (token.getCreateAt() == null) {
                 token.setCreateAt(LocalDateTime.now());
