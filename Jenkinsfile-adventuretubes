@@ -1,5 +1,10 @@
 pipeline {
     agent { label 'jenkins-agent2' }
+
+    parameters {
+        string(name: 'BRANCH', defaultValue: 'main', description: 'Git branch to build and deploy')
+    }
+
     environment {
         ENVIRONMENT = "pi2" // Set the environment dynamically if needed
     }
@@ -27,7 +32,7 @@ pipeline {
                     // Execute the deployment shell script for service modules
                     sh """
                     chmod +x adventuretube-service-redeploy.sh
-                    ./adventuretube-service-redeploy.sh ${ENVIRONMENT}
+                    ./adventuretube-service-redeploy.sh ${ENVIRONMENT} "${params.BRANCH}"
                     """
                 }
             }

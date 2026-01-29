@@ -6,12 +6,16 @@ if [ -z "$1" ]; then
     exit 1
 fi
 
-# Step 2: Pull the latest updates from the 'main' branch
-echo "$(date) - Pulling latest updates from 'main' branch..."
-git checkout main
-git pull origin main
+# Get branch from second argument, default to 'main'
+BRANCH=${2:-main}
+
+# Step 2: Pull the latest updates from the specified branch
+echo "$(date) - Pulling latest updates from '${BRANCH}' branch..."
+git fetch origin
+git checkout ${BRANCH}
+git pull origin ${BRANCH}
 if [ $? -ne 0 ]; then
-    echo "$(date) - Failed to pull latest updates from 'main' branch."
+    echo "$(date) - Failed to pull latest updates from '${BRANCH}' branch."
     exit 1
 fi
 
@@ -40,7 +44,7 @@ echo "$(date) - Installing common-api module..."
 
 # Step 4: Clean and build Maven project
 echo "$(date) - Cleaning and building Maven project..."
-MODULES=${2:-auth-service,member-service,web-service,geospatial-service}
+MODULES=${3:-auth-service,member-service,web-service,geospatial-service}
 ./mvnw clean package -DskipTests -pl $MODULES
 if [ $? -ne 0 ]; then
     echo "$(date) - Maven build failed."
