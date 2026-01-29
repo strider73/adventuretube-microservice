@@ -38,6 +38,8 @@ public class MemberService {
                     if (member.getCreateAt() == null) {
                         member.setCreateAt(LocalDateTime.now());
                     }
+                    // Tell R2DBC this is INSERT, not UPDATE
+                    member.setNew(true);
                     return memberRepository.save(member);
                 }));
     }
