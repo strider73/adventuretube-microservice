@@ -8,8 +8,8 @@ pipeline {
             steps {
                 // Extract env files from Jenkins credentials to workspace
                 withCredentials([
-                    file(credentialsId: 'env-pi2', variable: 'ENV_PI2'),
-                    file(credentialsId: 'env-pi', variable: 'ENV_PI')
+                    file(credentialsId: 'env.pi2', variable: 'ENV_PI2'),
+                    file(credentialsId: 'env.pi', variable: 'ENV_PI')
                 ]) {
                     sh '''
                         rm -f env.pi2 env.pi
