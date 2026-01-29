@@ -17,10 +17,29 @@ import org.springframework.web.client.RestTemplate;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+/**
+ * Spring Boot integration test for the complete login flow.
+ * Tests the auth-service endpoints using MockMvc (in-memory, no network).
+ *
+ * This is an INTERNAL test that starts a Spring Boot context.
+ * Uses MockMvc for testing - faster than external HTTP calls.
+ *
+ * Flow:
+ * 1. Register new user (POST /auth/users)
+ * 2. Login with Google ID Token (POST /auth/token)
+ * 3. Refresh token (POST /auth/token/refresh)
+ * 4. Logout (POST /auth/token/revoke)
+ *
+ * Prerequisites:
+ * - Valid Google credentials configured in application-integration.yml
+ * - Member service available for user cleanup
+ *
+ * Run: mvn verify -Dit.test=LoginFlowSpringBootIT -pl auth-service
+ */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("integration")
 @AutoConfigureMockMvc
-public class AuthControllerIT {
+public class LoginFlowSpringBootIT {
 
     @Autowired
     private MockMvc mockMvc;

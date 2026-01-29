@@ -43,12 +43,23 @@ public class LoginFlowModuleApiIT {
     private static String clientSecret;
     private static String refreshToken;
 
-    // Test against local auth-service or gateway
-    private static final String AUTH_BASE_URL = "http://localhost:8010";
-    // private static final String AUTH_BASE_URL = "https://api.adventuretube.net";
+    // Test against local auth-service or remote
+    // Override with env var: AUTH_BASE_URL=https://gateway.adventuretube.net
+    private static final String AUTH_BASE_URL = System.getenv("AUTH_BASE_URL") != null
+            ? System.getenv("AUTH_BASE_URL")
+            : "http://localhost:8010";
+
+    // Member service URL for user cleanup
+    // Override with env var: MEMBER_BASE_URL=https://gateway.adventuretube.net
+    private static final String MEMBER_BASE_URL = System.getenv("MEMBER_BASE_URL") != null
+            ? System.getenv("MEMBER_BASE_URL")
+            : "http://localhost:8070";
 
     private static final RestTemplate restTemplate = new RestTemplate();
     private static final ObjectMapper objectMapper = new ObjectMapper();
+
+    // Store test user email for cleanup
+    private static String testUserEmail;
 
     // Store tokens between tests
     private static String googleIdToken;
@@ -72,6 +83,40 @@ public class LoginFlowModuleApiIT {
 
         log.info("Environment variables loaded successfully");
         log.info("Client ID: {}...", clientId.substring(0, Math.min(20, clientId.length())));
+    }
+
+    @AfterAll
+    static void cleanup() {
+        if (testUserEmail != null) {
+            log.info("=== Cleanup: Deleting test user ===");
+            deleteUserViaMemberService(testUserEmail);
+        }
+    }
+
+    /**
+     * Delete user via member-service REST API.
+     * Called before registration to ensure clean state and after tests for cleanup.
+     */
+    private static void deleteUserViaMemberService(String email) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<String> entity = new HttpEntity<>(email, headers);
+
+        try {
+            ResponseEntity<String> response = restTemplate.postForEntity(
+                    MEMBER_BASE_URL + "/member/deleteUser",
+                    entity,
+                    String.class
+            );
+            if (response.getStatusCode().is2xxSuccessful()) {
+                log.info("Test user deleted: {}", email);
+            } else {
+                log.warn("Failed to delete test user: {}", response.getStatusCode());
+            }
+        } catch (Exception e) {
+            log.info("User cleanup skipped (probably not found): {}", e.getMessage());
+        }
     }
 
     @Test
@@ -108,6 +153,11 @@ public class LoginFlowModuleApiIT {
         JsonNode payloadJson = objectMapper.readTree(payload);
         String email = payloadJson.get("email").asText();
         String name = payloadJson.has("name") ? payloadJson.get("name").asText() : "TestUser";
+
+        // Store email for cleanup and delete existing user first
+        testUserEmail = email;
+        log.info("Cleaning up existing user before registration...");
+        deleteUserViaMemberService(email);
 
         log.info("Extracted email from token: {}", email);
         log.info("Extracted name from token: {}", name);
