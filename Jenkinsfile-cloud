@@ -1,5 +1,10 @@
 pipeline {
     agent {label 'jenkins-agent2'}
+
+    parameters {
+        string(name: 'BRANCH', defaultValue: 'main', description: 'Git branch to build and deploy')
+    }
+
     stages {
         stage('Run Deployment Script') {
             steps {
@@ -11,7 +16,7 @@ pipeline {
                         sh "rm -f ./env.pi ./env.pi2"
                         sh "cp \$ENV_PI_FILE ./env.pi"
                         sh "cp \$ENV_PI2_FILE ./env.pi2"
-                        sh './adventuretube-cloud-redeploy.sh pi2'
+                        sh "./adventuretube-cloud-redeploy.sh pi2 \"${params.BRANCH}\""
                     }
                 }
             }

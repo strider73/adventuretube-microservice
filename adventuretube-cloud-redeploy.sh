@@ -7,7 +7,7 @@ if [ -z "$1" ]; then
 fi
 
 # Step 2: Pull the latest updates from the branch
-BRANCH="main"
+BRANCH="${2:-main}"
 echo "$(date) - Pulling latest updates from '${BRANCH}' branch..."
 git checkout ${BRANCH}
 git pull origin ${BRANCH}
