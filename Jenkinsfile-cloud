@@ -10,7 +10,7 @@ pipeline {
             steps {
                 withCredentials([
                     file(credentialsId: 'env.pi', variable: 'ENV_PI_FILE'),
-                    file(credentialsId: 'env-pi2', variable: 'ENV_PI2_FILE')
+                    file(credentialsId: 'env.pi2', variable: 'ENV_PI2_FILE')
                 ]) {
                     script {
                         sh "rm -f ./env.pi ./env.pi2"
