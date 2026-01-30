@@ -43,7 +43,7 @@ public class AuthenticationFiter implements GatewayFilter {
 
             // Step 2: If the Authorization header is missing, throw an exception
             if (authMissing(request)) {
-                throw new RuntimeException("Authorization header is missing");
+                throw new JwtTokenNotExistException("Authorization header is missing");
             }
             // Step 3: Extract token from Authorization header
             final String token = request.getHeaders().getOrEmpty("Authorization").get(0);

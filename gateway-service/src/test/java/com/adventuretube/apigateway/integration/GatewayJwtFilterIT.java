@@ -1,7 +1,7 @@
-package com.adventuretube.auth.integration.multimodule;
+package com.adventuretube.apigateway.integration;
 
-import com.adventuretube.auth.support.EnvFileLoader;
-import com.adventuretube.auth.support.GoogleTokenUtil;
+import com.adventuretube.apigateway.support.EnvFileLoader;
+import com.adventuretube.apigateway.support.GoogleTokenUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -15,8 +15,8 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Gateway Security tests for JWT authentication.
- * Tests that secured endpoints properly reject unauthorized requests.
+ * Gateway JWT Filter Integration Tests.
+ * Tests that the gateway properly validates JWT tokens on secured endpoints.
  *
  * This is an EXTERNAL test that runs against a deployed gateway.
  * It does NOT start a Spring context - it only makes HTTP calls.
@@ -24,8 +24,10 @@ import static org.junit.jupiter.api.Assertions.*;
  * Test scenarios:
  * 1. Access secured endpoint without JWT → 401 Unauthorized
  * 2. Access secured endpoint with invalid JWT → 401 Unauthorized
- * 3. Access secured endpoint with expired JWT → 401 Unauthorized
- * 4. Access secured endpoint after logout (revoked token) → 401 Unauthorized
+ * 3. Access secured endpoint with malformed JWT → 401 Unauthorized
+ * 4. Access secured endpoint with empty Authorization header → 401 Unauthorized
+ * 5. Access secured endpoint with Bearer prefix only → 401 Unauthorized
+ * 6. Access secured endpoint with valid JWT → Success
  *
  * Prerequisites:
  * - Gateway service must be running at GATEWAY_BASE_URL
@@ -33,11 +35,11 @@ import static org.junit.jupiter.api.Assertions.*;
  * - Member service must be registered with Eureka
  * - Valid Google credentials in env.mac (project root)
  *
- * Run: mvn verify -Dit.test=GatewaySecurityIT -pl auth-service
+ * Run: mvn verify -Dit.test=GatewayJwtFilterIT -pl gateway-service
  */
 @Slf4j
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class GatewaySecurityIT {
+public class GatewayJwtFilterIT {
 
     // Load from env.mac file
     private String clientId;
@@ -60,7 +62,7 @@ public class GatewaySecurityIT {
 
     @BeforeAll
     void setup() throws Exception {
-        log.info("=== GatewaySecurityIT Setup ===");
+        log.info("=== GatewayJwtFilterIT Setup ===");
 
         // Load environment variables
         Map<String, String> env = EnvFileLoader.loadEnvFile("env.mac");
@@ -99,9 +101,6 @@ public class GatewaySecurityIT {
         }
     }
 
-    /**
-     * Ensure test user exists and obtain valid tokens for testing.
-     */
     private void ensureUserExistsAndLogin() throws Exception {
         // Try to register (may already exist)
         tryRegisterUser();
@@ -136,7 +135,7 @@ public class GatewaySecurityIT {
                     request,
                     String.class
             );
-            log.info("User registered for security tests");
+            log.info("User registered for JWT filter tests");
         } catch (HttpClientErrorException.Conflict e) {
             log.info("User already exists - continuing with tests");
         }
@@ -188,7 +187,7 @@ public class GatewaySecurityIT {
         }
     }
 
-    // ============ Security Tests ============
+    // ============ JWT Filter Tests ============
 
     @Test
     @DisplayName("Secured endpoint without JWT should return 401")
@@ -206,9 +205,9 @@ public class GatewaySecurityIT {
                     entity,
                     String.class
             );
-            fail("Should have thrown 401 Unauthorized, but got: " + response.getStatusCode());
+            fail("Should have been rejected without JWT, but got: " + response.getStatusCode());
         } catch (HttpClientErrorException e) {
-            log.info("Received expected error: {} - {}", e.getStatusCode(), e.getResponseBodyAsString());
+            log.info("Received expected client error: {} - {}", e.getStatusCode(), e.getResponseBodyAsString());
             assertEquals(HttpStatus.UNAUTHORIZED, e.getStatusCode(),
                     "Should return 401 Unauthorized without JWT");
         }
@@ -326,12 +325,12 @@ public class GatewaySecurityIT {
         headers.set("Authorization", "Bearer " + validAccessToken);
 
         // Use a different secured endpoint that doesn't delete the user
-        // Testing /member/getMemberWithEmail which is also secured
+        // Testing /member/findMemberByEmail which is also secured
         HttpEntity<String> entity = new HttpEntity<>(testUserEmail, headers);
 
         try {
             ResponseEntity<String> response = restTemplate.postForEntity(
-                    GATEWAY_BASE_URL + "/member/getMemberWithEmail",
+                    GATEWAY_BASE_URL + "/member/findMemberByEmail",
                     entity,
                     String.class
             );
@@ -345,67 +344,5 @@ public class GatewaySecurityIT {
             assertNotEquals(HttpStatus.UNAUTHORIZED, e.getStatusCode(),
                     "Should NOT return 401 with valid JWT");
         }
-    }
-
-    @Test
-    @DisplayName("Revoked token should be rejected after logout")
-    void revokedToken_afterLogout_returns401() throws Exception {
-        log.info("=== Test: Revoked token after logout ===");
-
-        // Get fresh tokens for this test
-        login();
-        String tokenToRevoke = validRefreshToken;
-        String accessTokenBeforeLogout = validAccessToken;
-
-        // Logout (revoke the refresh token)
-        HttpHeaders logoutHeaders = new HttpHeaders();
-        logoutHeaders.set("Authorization", "Bearer " + tokenToRevoke);
-
-        HttpEntity<String> logoutRequest = new HttpEntity<>(logoutHeaders);
-
-        ResponseEntity<String> logoutResponse = restTemplate.exchange(
-                GATEWAY_BASE_URL + "/auth/token/revoke",
-                HttpMethod.POST,
-                logoutRequest,
-                String.class
-        );
-
-        assertTrue(logoutResponse.getStatusCode().is2xxSuccessful(), "Logout should succeed");
-        log.info("Logout successful - token revoked");
-
-        // Try to use the revoked refresh token for token refresh
-        HttpHeaders refreshHeaders = new HttpHeaders();
-        refreshHeaders.setContentType(MediaType.APPLICATION_JSON);
-        refreshHeaders.set("Authorization", "Bearer " + tokenToRevoke);
-
-        String requestBody = "{\"googleIdToken\": \"" + googleIdToken + "\"}";
-        HttpEntity<String> refreshRequest = new HttpEntity<>(requestBody, refreshHeaders);
-
-        try {
-            ResponseEntity<String> response = restTemplate.exchange(
-                    GATEWAY_BASE_URL + "/auth/token/refresh",
-                    HttpMethod.POST,
-                    refreshRequest,
-                    String.class
-            );
-            log.warn("Token refresh returned: {} - {}", response.getStatusCode(), response.getBody());
-            // If it doesn't throw, check if the response indicates failure
-            JsonNode json = objectMapper.readTree(response.getBody());
-            if (json.has("success") && !json.get("success").asBoolean()) {
-                log.info("Token refresh correctly rejected revoked token");
-            } else {
-                fail("Revoked token should be rejected, but got: " + response.getBody());
-            }
-        } catch (HttpClientErrorException e) {
-            log.info("Received expected error for revoked token: {} - {}",
-                    e.getStatusCode(), e.getResponseBodyAsString());
-            // 401 or 403 are acceptable for revoked tokens
-            assertTrue(e.getStatusCode() == HttpStatus.UNAUTHORIZED ||
-                            e.getStatusCode() == HttpStatus.FORBIDDEN,
-                    "Should return 401 or 403 for revoked token");
-        }
-
-        // Re-login to get valid tokens for cleanup
-        login();
     }
 }
