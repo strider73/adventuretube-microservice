@@ -3,88 +3,71 @@ package com.adventuretube.auth.integration.isolated;
 import com.adventuretube.auth.config.security.AuthServiceConfig;
 import com.adventuretube.auth.model.dto.member.MemberDTO;
 import com.adventuretube.common.api.response.ServiceResponse;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.adventuretube.common.client.ServiceClient;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.client.MockRestServiceServer;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @ActiveProfiles("mock")
 @Import(AuthServiceConfig.class)
 public class CustomUserDetailServiceSecurityIT {
 
-    @Autowired
-    private RestTemplate restTemplate;
+    @MockBean
+    private ServiceClient serviceClient;
 
     @Autowired
-    private AuthenticationManager authenticationManager;
-
-    private MockRestServiceServer mockServer;
+    private ReactiveAuthenticationManager reactiveAuthenticationManager;
 
     @Test
-    void authenticateUser_shouldSucceed_whenValidCredentials() throws Exception {
-        mockServer = MockRestServiceServer.createServer(restTemplate);
-
+    void authenticateUser_shouldSucceed_whenValidCredentials() {
         // given
         String email = "security@example.com";
         String password = "securePassword";
-        //create a mock MemberDTO to simulate the response from the member service
+
         MemberDTO mockMember = new MemberDTO();
         mockMember.setEmail(email);
         mockMember.setPassword(new BCryptPasswordEncoder().encode(password));
         mockMember.setRole("ROLE_USER");
 
-        //create a mock ServiceResponse to simulate the response using mockMember
         ServiceResponse<MemberDTO> response = new ServiceResponse<>();
         response.setSuccess(true);
         response.setData(mockMember);
 
-        // Serialize mock response
-        String jsonResponse;
-        try {
-            jsonResponse = new MappingJackson2HttpMessageConverter()
-                    .getObjectMapper()
-                    .writeValueAsString(response);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException("Failed to serialize mock response", e);
-        }
-
-
-
-//        for (int i = 0; i < 2; i++) {
-            mockServer.expect(requestTo("http://MEMBER-SERVICE/member/findMemberByEmail"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andExpect(content().string(email))
-                    .andRespond(withSuccess(jsonResponse, MediaType.APPLICATION_JSON));
-        //}
-
+        when(serviceClient.postReactive(
+                eq("http://MEMBER-SERVICE"),
+                eq("/member/findMemberByEmail"),
+                eq(email),
+                any(ParameterizedTypeReference.class)
+        )).thenReturn(Mono.just(response));
 
         // when
         Authentication authRequest = new UsernamePasswordAuthenticationToken(email, password);
-        Authentication authResult = authenticationManager.authenticate(authRequest);
+        Mono<Authentication> authResult = reactiveAuthenticationManager.authenticate(authRequest);
 
         // then
-        assertThat(authResult.isAuthenticated()).isTrue();
-        UserDetails principal = (UserDetails) authResult.getPrincipal();
-        assertThat(principal.getUsername()).isEqualTo(email);
-        //assertThat(principal.getPassword()).isEqualTo(password);
-
-        mockServer.verify();
+        StepVerifier.create(authResult)
+                .assertNext(auth -> {
+                    assertThat(auth.isAuthenticated()).isTrue();
+                    UserDetails principal = (UserDetails) auth.getPrincipal();
+                    assertThat(principal.getUsername()).isEqualTo(email);
+                })
+                .verifyComplete();
     }
 }

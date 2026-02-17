@@ -4,25 +4,21 @@ import com.adventuretube.auth.support.GoogleTokenUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.client.RestTemplate;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Spring Boot integration test for the complete login flow.
- * Tests the auth-service endpoints using MockMvc (in-memory, no network).
+ * Tests the auth-service endpoints using WebTestClient (reactive, in-memory, no network).
  *
  * This is an INTERNAL test that starts a Spring Boot context.
- * Uses MockMvc for testing - faster than external HTTP calls.
+ * Uses WebTestClient for testing - the reactive equivalent of MockMvc.
  *
  * Flow:
  * 1. Register new user (POST /auth/users)
@@ -38,15 +34,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("integration")
-@AutoConfigureMockMvc
+@AutoConfigureWebTestClient
 public class LoginFlowSpringBootIT {
 
     @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private RestTemplate restTemplate;
-
+    private WebTestClient webTestClient;
 
     @Value("${GOOGLE_CLIENT_ID}")
     private String clientId;
@@ -61,16 +53,8 @@ public class LoginFlowSpringBootIT {
         return GoogleTokenUtil.fetchIdToken(clientId, clientSecret, refreshToken);
     }
 
-
-//    @BeforeEach
-//    void deleteTestUserIfExists() {
-//        deleteUserViaMemberService("strider.lee@gmail.com");
-//    }
-
     @Test
-    void testRegisterUser() throws Exception {
-        //deleteUserViaMemberService("strider.lee@gmail.com");
-
+    void testRegisterUser() {
         String idToken = fetchGoogleIdToken();
 
         String body = String.format("""
@@ -82,16 +66,18 @@ public class LoginFlowSpringBootIT {
                     }
                 """, idToken);
 
-        mockMvc.perform(post("/auth/users")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(body))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.userId").exists());
+        webTestClient.post().uri("/auth/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(body)
+                .exchange()
+                .expectStatus().isCreated()
+                .expectBody()
+                .jsonPath("$.userId").exists();
     }
 
     @Test
-    void testLoginAfterRegistration() throws Exception {
-        registerTestUser("strider.lee@gmail.com"); // shared helper
+    void testLoginAfterRegistration() {
+        registerTestUser("strider.lee@gmail.com");
 
         String idToken = fetchGoogleIdToken();
         String loginBody = String.format("""
@@ -102,16 +88,18 @@ public class LoginFlowSpringBootIT {
         }
     """, idToken);
 
-        mockMvc.perform(post("/auth/token")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(loginBody))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.accessToken").exists());
+        webTestClient.post().uri("/auth/token")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(loginBody)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.accessToken").exists();
     }
 
     @Test
-    void testRefreshToken() throws Exception {
-        deleteUserViaMemberService("strider.lee@gmail.com"); // Clean state
+    void testRefreshToken() {
+        deleteUserViaMemberService("strider.lee@gmail.com");
         String idToken = fetchGoogleIdToken();
 
         // 1. Register the user and capture tokens
@@ -124,26 +112,29 @@ public class LoginFlowSpringBootIT {
         }
     """, idToken);
 
-        String responseBody = mockMvc.perform(post("/auth/users")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(registerBody))
-                .andExpect(status().isCreated())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
+        String responseBody = webTestClient.post().uri("/auth/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(registerBody)
+                .exchange()
+                .expectStatus().isCreated()
+                .expectBody(String.class)
+                .returnResult()
+                .getResponseBody();
 
         String refreshToken = extractFieldFromJson(responseBody, "refreshToken");
 
         // 2. Refresh using valid token
-        mockMvc.perform(post("/auth/token/refresh")
-                        .header("Authorization", "Bearer " + refreshToken))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.accessToken").exists());
+        webTestClient.post().uri("/auth/token/refresh")
+                .header("Authorization", "Bearer " + refreshToken)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.accessToken").exists();
     }
 
 
     @Test
-    void testLogout() throws Exception {
+    void testLogout() {
         deleteUserViaMemberService("strider.lee@gmail.com");
         String idToken = fetchGoogleIdToken();
 
@@ -157,21 +148,24 @@ public class LoginFlowSpringBootIT {
         }
     """, idToken);
 
-        String responseBody = mockMvc.perform(post("/auth/users")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(registerBody))
-                .andExpect(status().isCreated())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
+        String responseBody = webTestClient.post().uri("/auth/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(registerBody)
+                .exchange()
+                .expectStatus().isCreated()
+                .expectBody(String.class)
+                .returnResult()
+                .getResponseBody();
 
         String accessToken = extractFieldFromJson(responseBody, "accessToken");
 
         // Step 2: Logout using access token
-        mockMvc.perform(post("/auth/token/revoke")
-                        .header("Authorization", "Bearer " + accessToken))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Logout has been successful"));
+        webTestClient.post().uri("/auth/token/revoke")
+                .header("Authorization", "Bearer " + accessToken)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.message").isEqualTo("Logout has been successful");
 
         // (Optional) Step 3: Cleanup user
         deleteUserViaMemberService("strider.lee@gmail.com");
@@ -179,7 +173,7 @@ public class LoginFlowSpringBootIT {
 
 
     private void deleteUserViaMemberService(String email) {
-
+        RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
@@ -188,16 +182,16 @@ public class LoginFlowSpringBootIT {
         try {
             ResponseEntity<String> response = restTemplate.postForEntity("http://MEMBER-SERVICE/member/deleteUser", entity, String.class);
             if (response.getStatusCode().is2xxSuccessful()) {
-                System.out.println("✅ Test user deleted.");
+                System.out.println("Test user deleted.");
             } else {
-                System.err.println("⚠️ Failed to delete test user: " + response.getStatusCode());
+                System.err.println("Failed to delete test user: " + response.getStatusCode());
             }
         } catch (Exception e) {
             System.err.println("User cleanup skipped (probably not found): " + e.getMessage());
         }
     }
 
-    private void registerTestUser(String email) throws Exception {
+    private void registerTestUser(String email) {
         deleteUserViaMemberService(email);
         String idToken = fetchGoogleIdToken();
 
@@ -213,10 +207,11 @@ public class LoginFlowSpringBootIT {
         }
     """, idToken, email);
 
-        mockMvc.perform(post("/auth/users")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(registerBody))
-                .andExpect(status().isCreated());
+        webTestClient.post().uri("/auth/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(registerBody)
+                .exchange()
+                .expectStatus().isCreated();
     }
 
     private String extractFieldFromJson(String json, String fieldName) {
@@ -230,6 +225,3 @@ public class LoginFlowSpringBootIT {
         }
     }
 }
-
-
-
