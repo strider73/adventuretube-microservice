@@ -13,19 +13,17 @@ import com.adventuretube.common.api.response.ServiceResponse;
 import com.adventuretube.common.client.ServiceClient;
 import com.adventuretube.common.client.ServiceClientException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
@@ -41,7 +39,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 @Service
 @Slf4j
-@Transactional(readOnly = true)
 @AllArgsConstructor
 public class AuthService {
 
@@ -52,10 +49,9 @@ public class AuthService {
     private final JwtUtil jwtUtil;
     private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
     private final PasswordEncoder passwordEncoder;
-    private final AuthenticationManager authenticationManager;
+    private final ReactiveAuthenticationManager reactiveAuthenticationManager;
     private final MemberMapper memberMapper;
 
-    @Transactional
     public MemberRegisterResponse createUser(MemberRegisterRequest request) {
 
         // MARK:   Validate Google ID token  https://developers.google.com/identity/sign-in/ios/backend-auth
@@ -161,7 +157,7 @@ public class AuthService {
         //Since this request does not yet have a JWT token, it goes through authentication process.
         //and issue the tokens if the  email and googleId are matched using CustomUserDetailsService,
         //which is registered through Security configuration (AuthServiceConfig in this case).
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, googleId));
+        Authentication authentication = reactiveAuthenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, googleId)).block();
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String accessToken = jwtUtil.generate(userDetails.getUsername(), userDetails.getAuthorities().toString(), "ACCESS");
         String refreshToken = jwtUtil.generate(userDetails.getUsername(), userDetails.getAuthorities().toString(), "REFRESH");
@@ -201,8 +197,8 @@ public class AuthService {
 
 
     // JWT token is validated at Gateway (RouterValidator secures /auth/token/revoke)
-    public ServiceResponse revokeToken(HttpServletRequest httpServletRequest) {
-        String token = TokenSanitizer.sanitize(httpServletRequest.getHeader("Authorization"));
+    public ServiceResponse revokeToken(String rawToken) {
+        String token = TokenSanitizer.sanitize(rawToken);
 
         try {
             ServiceResponse<Boolean> deleteTokenResponse = serviceClient.post(
@@ -232,15 +228,14 @@ public class AuthService {
         }
     }
 
-    @Transactional
-    public MemberRegisterResponse refreshToken(HttpServletRequest httpServletRequest) {
+    public MemberRegisterResponse refreshToken(String rawToken) {
         /*
          * Refresh Token Flow:
          * 1. JWT signature & expiration validated at Gateway (RouterValidator secures /auth/token/refresh)
          * 2. Check token exists in DB (not revoked/logged out)
          * 3. Extract username and role from token, issue new access & refresh tokens
          */
-        String token = TokenSanitizer.sanitize(httpServletRequest.getHeader("Authorization"));
+        String token = TokenSanitizer.sanitize(rawToken);
 
         try {
             // Check if token exists (not revoked/logged out)

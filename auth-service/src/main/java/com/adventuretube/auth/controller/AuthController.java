@@ -15,7 +15,6 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,9 +24,10 @@ import java.net.URI;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @Slf4j
 @RestController
@@ -37,7 +37,7 @@ public class AuthController {
     private final AuthService authService;
 
     // =========================
-    // 🔐 Registration Endpoint
+    // Registration Endpoint
     // =========================
     @Operation(
             summary = "Create  new user and issue id and refresh token",
@@ -48,7 +48,7 @@ public class AuthController {
                                     name = "Signup Example",
                                     value = """
                                             {
-                                              "googleIdToken": "eyJhbGciOiJSUzI1NiIsImtpZCI6IjgyMWYzYmM2NmYwNzUxZjc4NDA2MDY3OTliMWFkZjllOWZiNjBkZmIiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhenAiOiI2NTc0MzMzMjMzMzctN2dlMzc1ODBsZGtqczNpMTNycW4ycGMydmFmNjFrcGQuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJhdWQiOiI2NTc0MzMzMjMzMzctN2dlMzc1ODBsZGtqczNpMTNycW4ycGMydmFmNjFrcGQuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJzdWIiOiIxMTA4MTQ5NzI0OTUwMjgwOTM1NDkiLCJlbWFpbCI6InN0cmlkZXIubGVlQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJhdF9oYXNoIjoiR21KVzJaNWh2WTVULTA1UXMwZlRLZyIsIm5hbWUiOiJDaHJpcyBMZWUiLCJwaWN0dXJlIjoiaHR0cHM6Ly9saDMuZ29vZ2xldXNlcmNvbnRlbnQuY29tL2EvQUNnOG9jSmx4TUoyR1JpOVZuZzJvYk9aTF92cy1jSzhhVzZvdVh3Wmhsc1c2eFQ0c1hrVTdjbDh4QT1zOTYtYyIsImdpdmVuX25hbWUiOiJDaHJpcyIsImZhbWlseV9uYW1lIjoiTGVlIiwiaWF0IjoxNzQzNTc1NjI2LCJleHAiOjE3NDM1NzkyMjZ9.ZhBBS6k9ZDTGqkXJMEbTEEwvxpdNOKXC5byH6uuoiU3oO_TIedL2lm05YdSXHQnG-vbJ9LVc3LFgcmqPT-DQ59i71y0jvCFMQP5DlcfUV0dq7AA1RZv_pwFFGgNqgSpUifzmrrV9VpKr7xMjwhPNSfNRx3EdNogzjKEZPcFfCz777auqPVC8KJgpUp3Pa7GhPRsLdGmH3QACpNaw1ilQx7YPuz6_5tyT86JAvn7LH9F86_1ceju1-ynPEAeFLWgsFe2DFOMonwwUQnx3c-RTJGyKTwZiFwb-ssBWHJGacvCx3Xr29aHhoXb5FCYK3Yf9rpgCrEStmNYoCAWkDjayZQ",
+                                              "googleIdToken": "eyJhbGciOiJSUzI1NiIsImtpZCI6IjgyMWYzYmM2NmYwNzUxZjc4NDA2MDY3OTliMWFkZjllOWZiNjBkZmIiLCJ0eXAiOiJKV1QifQ...",
                                               "refreshToken": "ref-token",
                                               "email": "strider.lee@gmail.com",
                                               "password": "123456",
@@ -66,11 +66,6 @@ public class AuthController {
                     responseCode = "201",
                     description = "User registered successfully."
             ),
-//            @ApiResponse(
-//                 responseCode = "404",
-//                 description = "API path not found.",
-//                 content = @Content(schema = @Schema(implementation = CommonErrorResponse.class))
-//            ),
             @ApiResponse(
                     responseCode = "401",
                     description = "Unauthorized - Invalid or expired Google ID token.",
@@ -90,16 +85,15 @@ public class AuthController {
     // This logic will be used when user logs in for the first time from the iOS application
     @PostMapping(value = "/users")
     public ResponseEntity<MemberRegisterResponse> registerUser(@Valid @RequestBody MemberRegisterRequest request) {
-        MemberRegisterResponse response = authService.createUser(request); // 🔥 renamed here too
-        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath()
-                .path("/users/{id}")
+        MemberRegisterResponse response = authService.createUser(request);
+        URI uri = UriComponentsBuilder.fromPath("/users/{id}")
                 .buildAndExpand(response.getUserId())
-                .toUriString());
+                .toUri();
         return ResponseEntity.created(uri).body(response);
     }
 
     // =========================
-    // 🔑 Login Endpoint
+    // Login Endpoint
     // =========================
     @Operation(
             summary = "Authenticate user and issue access and refresh tokens",
@@ -146,7 +140,7 @@ public class AuthController {
     }
 
     // =========================
-    // 🔄 Refresh Token Endpoint
+    // Refresh Token Endpoint
     // =========================
     @Operation(
             summary = "Refresh access token using a valid refresh token",
@@ -154,7 +148,7 @@ public class AuthController {
                          This endpoint accepts a valid refresh token via the Authorization header.
                          It verifies the token against the token store in the MEMBER-SERVICE.
                          If valid, it issues a new access token and a new refresh token.
-                            
+
                           This should be called when an access token is expired but the refresh token is still active.
                     """,
             parameters = {
@@ -190,13 +184,13 @@ public class AuthController {
             )
     })
     @PostMapping(value = "/token/refresh")
-    public ResponseEntity<?> refreshToken(HttpServletRequest request) {
-        return ResponseEntity.ok(authService.refreshToken(request));
+    public ResponseEntity<?> refreshToken(@RequestHeader("Authorization") String authorization) {
+        return ResponseEntity.ok(authService.refreshToken(authorization));
     }
 
 
     // =========================
-    // 🚪 Logout Endpoint
+    // Logout Endpoint
     // =========================
     @Operation(
             summary = "Logout user and revoke refresh token",
@@ -238,7 +232,7 @@ public class AuthController {
             )
     })
     @PostMapping(value = "/token/revoke")
-    public ResponseEntity<?> revokeToken(HttpServletRequest request) {
-        return ResponseEntity.ok(authService.revokeToken(request));
+    public ResponseEntity<?> revokeToken(@RequestHeader("Authorization") String authorization) {
+        return ResponseEntity.ok(authService.revokeToken(authorization));
     }
 }

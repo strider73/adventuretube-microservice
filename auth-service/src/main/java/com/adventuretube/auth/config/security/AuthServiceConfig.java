@@ -1,21 +1,21 @@
 package com.adventuretube.auth.config.security;
 
-import com.adventuretube.auth.filter.JwtAuthFilter;
-import com.adventuretube.auth.provider.CustomAuthenticationProvider;
-import com.adventuretube.auth.service.CustomUserDetailService;
+import com.adventuretube.auth.filter.JwtWebFilter;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.authentication.ReactiveAuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
+import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
+import org.springframework.security.config.web.server.ServerHttpSecurity;
+import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.server.SecurityWebFilterChain;
+import org.springframework.security.web.server.util.matcher.PathPatternParserServerWebExchangeMatcher;
+import reactor.core.publisher.Mono;
+
 import static com.adventuretube.auth.config.security.SecurityConstants.OPEN_ENDPOINTS;
 
 
@@ -24,46 +24,27 @@ import static com.adventuretube.auth.config.security.SecurityConstants.OPEN_ENDP
  * - Applies only to /auth/** routes.
  * - Public access for login, registration, token refresh, logout, and Swagger-related paths.
  * - ADMIN role required for any other /auth/** endpoints.
- * - Integrates a custom JwtAuthFilter to process JWT tokens before default auth mechanisms.
+ * - Integrates a custom JwtWebFilter to process JWT tokens before default auth mechanisms.
  */
 @Configuration
-@EnableWebSecurity
+@EnableWebFluxSecurity
 @AllArgsConstructor
 public class AuthServiceConfig {
 
-    private  final CustomUserDetailService customUserDetailService;
-    private  final JwtAuthFilter jwtAuthFilter;
+    private final JwtWebFilter jwtWebFilter;
+
     @Bean
-    @Order(1)
-    public SecurityFilterChain apiFilterChain(HttpSecurity httpSecurity) throws  Exception{
-
-
+    public SecurityWebFilterChain apiFilterChain(ServerHttpSecurity httpSecurity) {
         httpSecurity
-            .csrf(AbstractHttpConfigurer::disable)
-            .securityMatcher("/auth/**")// Applies this security configuration to /auth/** endpoints
-            .authorizeHttpRequests(authorize -> authorize
-                    .requestMatchers(
-                       OPEN_ENDPOINTS // Public endpoints
-                    )
-                    .permitAll()
-                    .anyRequest().hasRole("ADMIN")
+            .csrf(ServerHttpSecurity.CsrfSpec::disable)
+            .securityMatcher(new PathPatternParserServerWebExchangeMatcher("/auth/**"))
+            .authorizeExchange(authorize -> authorize
+                    .pathMatchers(OPEN_ENDPOINTS).permitAll()
+                    .anyExchange().hasRole("ADMIN")
             )
-            //.authenticationProvider()
-            /**
-            // * Integrates a custom JwtAuthFilter to handle token-based authentication.
-            // *
-            // * - This filter is executed before Spring Security's default UsernamePasswordAuthenticationFilter.
-            // * - It extracts the JWT from the Authorization header, validates its signature and expiration,
-            // *   and sets the Authentication object in the SecurityContextHolder.
-            // *
-            // * - This Authentication object includes the user's roles, which are then used by Spring Security
-            // *   to enforce access control based on the rules defined in the authorizeHttpRequests block above.
-            // */
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
-            //.httpBasic(withDefaults());// Use HTTP Basic authentication
+            .addFilterBefore(jwtWebFilter, SecurityWebFiltersOrder.AUTHENTICATION);
 
-     return httpSecurity.build();
-
+        return httpSecurity.build();
     }
 
     @Bean
@@ -71,30 +52,20 @@ public class AuthServiceConfig {
         return new BCryptPasswordEncoder();
     }
 
-
-    /*
-    This can be used to customize userDetailService
-    This will allow to customize loadUserByUsername
-       at this moment loadUSerByUser name does validate user email address and return  all error accordingly
-     */
     @Bean
-    public AuthenticationManager customAuthenticationManager(HttpSecurity httpSecurity) throws  Exception {
-        AuthenticationManagerBuilder  authenticationManagerBuilder = httpSecurity.getSharedObject(AuthenticationManagerBuilder.class);
-        authenticationManagerBuilder.authenticationProvider(customAuthenticationProvider());
-        //declare what type of authenticate provider will be used (userDetailService in our case)
-        //and set the password encoder
-        //authenticationManagerBuilder.userDetailsService(customUserDetailService).passwordEncoder(passwordEncoder());
-        return authenticationManagerBuilder.build(); // and return authenticationManager
+    public ReactiveAuthenticationManager reactiveAuthenticationManager(
+            ReactiveUserDetailsService reactiveUserDetailsService,
+            PasswordEncoder passwordEncoder) {
+        return authentication -> {
+            String email = authentication.getName();
+            String password = authentication.getCredentials().toString();
 
-    }
-
-
-     /*This can be used for CustomAuthenticationProvider
-      this can allow to  customize authenticate() method
-     */
-
-    @Bean
-    public CustomAuthenticationProvider customAuthenticationProvider() {
-        return new CustomAuthenticationProvider(customUserDetailService, passwordEncoder());
+            return reactiveUserDetailsService.findByUsername(email)
+                    .filter(userDetails -> passwordEncoder.matches(password, userDetails.getPassword()))
+                    .map(userDetails -> (org.springframework.security.core.Authentication)
+                            new UsernamePasswordAuthenticationToken(userDetails, password, userDetails.getAuthorities()))
+                    .switchIfEmpty(Mono.error(
+                            new org.springframework.security.authentication.BadCredentialsException("Invalid username or password")));
+        };
     }
 }
