@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
+import reactor.core.publisher.Mono;
 
 @Slf4j
 @RestController
@@ -84,12 +85,14 @@ public class AuthController {
     })
     // This logic will be used when user logs in for the first time from the iOS application
     @PostMapping(value = "/users")
-    public ResponseEntity<MemberRegisterResponse> registerUser(@Valid @RequestBody MemberRegisterRequest request) {
-        MemberRegisterResponse response = authService.createUser(request);
-        URI uri = UriComponentsBuilder.fromPath("/users/{id}")
-                .buildAndExpand(response.getUserId())
-                .toUri();
-        return ResponseEntity.created(uri).body(response);
+    public Mono<ResponseEntity<MemberRegisterResponse>> registerUser(@Valid @RequestBody Mono<MemberRegisterRequest> request) {
+        return request.flatMap(req -> authService.createUser(req))
+                .map(response -> {
+                    URI uri = UriComponentsBuilder.fromPath("/users/{id}")
+                            .buildAndExpand(response.getUserId())
+                            .toUri();
+                    return ResponseEntity.created(uri).body(response);
+                });
     }
 
     // =========================
@@ -135,8 +138,9 @@ public class AuthController {
             )
     })
     @PostMapping(value = "/token")
-    public ResponseEntity<?> issueToken(@Valid @RequestBody MemberLoginRequest request) {
-        return ResponseEntity.ok(authService.issueToken(request));
+    public Mono<ResponseEntity<?>> issueToken(@Valid @RequestBody Mono<MemberLoginRequest> request) {
+        return request.flatMap(req -> authService.issueToken(req))
+                .map(response -> ResponseEntity.ok(response));
     }
 
     // =========================
@@ -184,8 +188,9 @@ public class AuthController {
             )
     })
     @PostMapping(value = "/token/refresh")
-    public ResponseEntity<?> refreshToken(@RequestHeader("Authorization") String authorization) {
-        return ResponseEntity.ok(authService.refreshToken(authorization));
+    public Mono<ResponseEntity<?>> refreshToken(@RequestHeader("Authorization") String authorization) {
+        return authService.refreshToken(authorization)
+                .map(response -> ResponseEntity.ok(response));
     }
 
 
@@ -232,7 +237,8 @@ public class AuthController {
             )
     })
     @PostMapping(value = "/token/revoke")
-    public ResponseEntity<?> revokeToken(@RequestHeader("Authorization") String authorization) {
-        return ResponseEntity.ok(authService.revokeToken(authorization));
+    public Mono<ResponseEntity<?>> revokeToken(@RequestHeader("Authorization") String authorization) {
+        return authService.revokeToken(authorization)
+                .map(response -> ResponseEntity.ok(response));
     }
 }

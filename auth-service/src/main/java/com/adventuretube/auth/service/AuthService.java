@@ -20,7 +20,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -35,6 +34,7 @@ import java.security.GeneralSecurityException;
 import java.util.Collections;
 import java.util.Base64;
 import com.fasterxml.jackson.databind.JsonNode;
+import reactor.core.publisher.Mono;
 
 
 @Service
@@ -52,100 +52,93 @@ public class AuthService {
     private final ReactiveAuthenticationManager reactiveAuthenticationManager;
     private final MemberMapper memberMapper;
 
-    public MemberRegisterResponse createUser(MemberRegisterRequest request) {
+    public Mono<MemberRegisterResponse> createUser(MemberRegisterRequest request) {
 
         // MARK:   Validate Google ID token  https://developers.google.com/identity/sign-in/ios/backend-auth
         GoogleIdToken idToken = verifyGoogleIdToken(request.getGoogleIdToken());
         if (idToken == null) {
             log.error("Google idToken is null");
-            throw new GoogleIdTokenInvalidException(AuthErrorCode.GOOGLE_TOKEN_INVALID);
+            return Mono.error(new GoogleIdTokenInvalidException(AuthErrorCode.GOOGLE_TOKEN_INVALID));
         }
         GoogleIdToken.Payload payload = idToken.getPayload();
         // MARK:  compare email address that in the request with payload
         if (!request.getEmail().equals(payload.getEmail())) {
-            throw new GoogleIdTokenInvalidException(AuthErrorCode.GOOGLE_EMAIL_MISMATCH);
+            return Mono.error(new GoogleIdTokenInvalidException(AuthErrorCode.GOOGLE_EMAIL_MISMATCH));
         }
-
 
         // MARK:  prepare check user email duplication
         MemberDTO memberDTO = buildMemberDTO(payload);
 
-        try {
-            // MARK:  Check Email duplication
-            ServiceResponse<Boolean> emailCheckResponse = serviceClient.post(
-                    MEMBER_SERVICE_URL,
-                    "/member/emailDuplicationCheck",
-                    memberDTO.getEmail(),
-                    new ParameterizedTypeReference<ServiceResponse<Boolean>>() {}
-            );
+        // MARK:  Check Email duplication
+        return serviceClient.postReactive(
+                        MEMBER_SERVICE_URL,
+                        "/member/emailDuplicationCheck",
+                        memberDTO.getEmail(),
+                        new ParameterizedTypeReference<ServiceResponse<Boolean>>() {}
+                )
+                .<ServiceResponse<MemberDTO>>flatMap(emailCheckResponse -> {
+                    if (emailCheckResponse == null || !emailCheckResponse.isSuccess()) {
+                        logger.error("Failed to check email duplication");
+                        return Mono.error(new InternalServerException(AuthErrorCode.INTERNAL_ERROR));
+                    }
+                    if (Boolean.TRUE.equals(emailCheckResponse.getData())) {
+                        return Mono.error(new DuplicateException(AuthErrorCode.USER_EMAIL_DUPLICATE));
+                    }
+                    // MARK:  Register Member
+                    return serviceClient.postReactive(
+                            MEMBER_SERVICE_URL,
+                            "/member/registerMember",
+                            memberDTO,
+                            new ParameterizedTypeReference<ServiceResponse<MemberDTO>>() {}
+                    );
+                })
+                .flatMap(registerResponse -> {
+                    if (registerResponse == null || !registerResponse.isSuccess()) {
+                        return Mono.error(new InternalServerException(AuthErrorCode.INTERNAL_ERROR));
+                    }
 
-            if (emailCheckResponse == null || !emailCheckResponse.isSuccess()) {
-                logger.error("Failed to check email duplication");
-                throw new InternalServerException(AuthErrorCode.INTERNAL_ERROR);
-            }
+                    // MARK:  create JWT token
+                    MemberDTO registeredUser = registerResponse.getData();
+                    String accessToken = jwtUtil.generate(registeredUser.getEmail(), registeredUser.getRole(), "ACCESS");
+                    String refreshToken = jwtUtil.generate(registeredUser.getEmail(), registeredUser.getRole(), "REFRESH");
 
-            if (Boolean.TRUE.equals(emailCheckResponse.getData())) {
-                throw new DuplicateException(AuthErrorCode.USER_EMAIL_DUPLICATE);
-            }
+                    // MARK:  store token to database
+                    TokenDTO tokenToStore = TokenDTO.builder()
+                            .memberDTO(registeredUser)
+                            .expired(false)
+                            .revoked(false)
+                            .accessToken(accessToken)
+                            .refreshToken(refreshToken)
+                            .build();
 
-            // MARK:  Register Member
-            ServiceResponse<MemberDTO> registerResponse = serviceClient.post(
-                    MEMBER_SERVICE_URL,
-                    "/member/registerMember",
-                    memberDTO,
-                    new ParameterizedTypeReference<ServiceResponse<MemberDTO>>() {}
-            );
-
-            if (registerResponse == null || !registerResponse.isSuccess()) {
-                throw new InternalServerException(AuthErrorCode.INTERNAL_ERROR);
-            }
-
-            // MARK:  create JWT token
-            MemberDTO registeredUser = registerResponse.getData();
-            String accessToken = jwtUtil.generate(registeredUser.getEmail(), registeredUser.getRole(), "ACCESS");
-            String refreshToken = jwtUtil.generate(registeredUser.getEmail(), registeredUser.getRole(), "REFRESH");
-
-            // MARK:  store token to database
-            TokenDTO tokenToStore = TokenDTO.builder()
-                    .memberDTO(registeredUser)
-                    .expired(false)
-                    .revoked(false)
-                    .accessToken(accessToken)
-                    .refreshToken(refreshToken)
-                    .build();
-
-            ServiceResponse<Boolean> tokenStoredResponse = serviceClient.post(
-                    MEMBER_SERVICE_URL,
-                    "/member/storeTokens",
-                    tokenToStore,
-                    new ParameterizedTypeReference<ServiceResponse<Boolean>>() {}
-            );
-
-            if (tokenStoredResponse == null
-                    || !tokenStoredResponse.isSuccess()
-                    || !Boolean.TRUE.equals(tokenStoredResponse.getData())) {
-                log.error("Token store failed: {}", tokenStoredResponse != null ? tokenStoredResponse.getMessage() : "no response body");
-                throw new TokenSaveFailedException(AuthErrorCode.TOKEN_SAVE_FAILED);
-            }
-
-            logger.info("Token stored successfully for user: {}", registeredUser.getEmail());
-            return new MemberRegisterResponse(registeredUser.getId(), accessToken, refreshToken);
-
-        } catch (ServiceClientException ex) {
-            // Map remote error codes to local exceptions
-            logger.error("Member service error: {} - {}", ex.getErrorCode(), ex.getMessage());
-            throw mapServiceClientException(ex);
-        }
+                    return serviceClient.postReactive(
+                                    MEMBER_SERVICE_URL,
+                                    "/member/storeTokens",
+                                    tokenToStore,
+                                    new ParameterizedTypeReference<ServiceResponse<Boolean>>() {}
+                            )
+                            .flatMap(tokenStoredResponse -> {
+                                if (tokenStoredResponse == null
+                                        || !tokenStoredResponse.isSuccess()
+                                        || !Boolean.TRUE.equals(tokenStoredResponse.getData())) {
+                                    log.error("Token store failed: {}", tokenStoredResponse != null ? tokenStoredResponse.getMessage() : "no response body");
+                                    return Mono.<MemberRegisterResponse>error(new TokenSaveFailedException(AuthErrorCode.TOKEN_SAVE_FAILED));
+                                }
+                                logger.info("Token stored successfully for user: {}", registeredUser.getEmail());
+                                return Mono.just(new MemberRegisterResponse(registeredUser.getId(), accessToken, refreshToken));
+                            });
+                })
+                .onErrorMap(ServiceClientException.class, this::mapServiceClientException);
     }
 
 
-    public MemberRegisterResponse issueToken(MemberLoginRequest request) {
+    public Mono<MemberRegisterResponse> issueToken(MemberLoginRequest request) {
 
         //MARK: STEP1 validate google IdToken
         GoogleIdToken idToken = verifyGoogleIdToken(request.getGoogleIdToken());
         if (idToken == null) {
             log.error("Invalid Google ID token");
-            throw new GoogleIdTokenInvalidException(AuthErrorCode.GOOGLE_TOKEN_INVALID);
+            return Mono.error(new GoogleIdTokenInvalidException(AuthErrorCode.GOOGLE_TOKEN_INVALID));
         }
 
         // MARK: STEP2 prepare check user email duplication
@@ -157,78 +150,70 @@ public class AuthService {
         //Since this request does not yet have a JWT token, it goes through authentication process.
         //and issue the tokens if the  email and googleId are matched using CustomUserDetailsService,
         //which is registered through Security configuration (AuthServiceConfig in this case).
-        Authentication authentication = reactiveAuthenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, googleId)).block();
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        String accessToken = jwtUtil.generate(userDetails.getUsername(), userDetails.getAuthorities().toString(), "ACCESS");
-        String refreshToken = jwtUtil.generate(userDetails.getUsername(), userDetails.getAuthorities().toString(), "REFRESH");
+        return reactiveAuthenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, googleId))
+                .flatMap(authentication -> {
+                    UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+                    String accessToken = jwtUtil.generate(userDetails.getUsername(), userDetails.getAuthorities().toString(), "ACCESS");
+                    String refreshToken = jwtUtil.generate(userDetails.getUsername(), userDetails.getAuthorities().toString(), "REFRESH");
 
+                    TokenDTO tokenToStore = TokenDTO.builder()
+                            .memberDTO(memberMapper.userDetailToMemberDTO(userDetails))
+                            .expired(false)
+                            .revoked(false)
+                            .accessToken(accessToken)
+                            .refreshToken(refreshToken)
+                            .build();
 
-        TokenDTO tokenToStore = TokenDTO.builder()
-                .memberDTO(memberMapper.userDetailToMemberDTO(userDetails))
-                .expired(false)
-                .revoked(false)
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .build();
-
-        try {
-            ServiceResponse<Boolean> tokenStoredResponse = serviceClient.post(
-                    MEMBER_SERVICE_URL,
-                    "/member/storeTokens",
-                    tokenToStore,
-                    new ParameterizedTypeReference<ServiceResponse<Boolean>>() {}
-            );
-
-            if (tokenStoredResponse == null
-                    || !tokenStoredResponse.isSuccess()
-                    || !Boolean.TRUE.equals(tokenStoredResponse.getData())) {
-                log.error("Token store failed: {}", tokenStoredResponse != null ? tokenStoredResponse.getMessage() : "no response body");
-                throw new TokenSaveFailedException(AuthErrorCode.TOKEN_SAVE_FAILED);
-            }
-
-            logger.info("Token stored successfully for user: {}", email);
-            return new MemberRegisterResponse(null, accessToken, refreshToken);
-
-        } catch (ServiceClientException ex) {
-            logger.error("Member service error during token store: {} - {}", ex.getErrorCode(), ex.getMessage());
-            throw mapServiceClientException(ex);
-        }
+                    return serviceClient.postReactive(
+                                    MEMBER_SERVICE_URL,
+                                    "/member/storeTokens",
+                                    tokenToStore,
+                                    new ParameterizedTypeReference<ServiceResponse<Boolean>>() {}
+                            )
+                            .flatMap(tokenStoredResponse -> {
+                                if (tokenStoredResponse == null
+                                        || !tokenStoredResponse.isSuccess()
+                                        || !Boolean.TRUE.equals(tokenStoredResponse.getData())) {
+                                    log.error("Token store failed: {}", tokenStoredResponse != null ? tokenStoredResponse.getMessage() : "no response body");
+                                    return Mono.error(new TokenSaveFailedException(AuthErrorCode.TOKEN_SAVE_FAILED));
+                                }
+                                logger.info("Token stored successfully for user: {}", email);
+                                return Mono.just(new MemberRegisterResponse(null, accessToken, refreshToken));
+                            });
+                })
+                .onErrorMap(ServiceClientException.class, this::mapServiceClientException);
     }
 
 
     // JWT token is validated at Gateway (RouterValidator secures /auth/token/revoke)
-    public ServiceResponse revokeToken(String rawToken) {
+    public Mono<ServiceResponse<Boolean>> revokeToken(String rawToken) {
         String token = TokenSanitizer.sanitize(rawToken);
 
-        try {
-            ServiceResponse<Boolean> deleteTokenResponse = serviceClient.post(
-                    MEMBER_SERVICE_URL,
-                    "/member/deleteAllToken",
-                    token,
-                    new ParameterizedTypeReference<ServiceResponse<Boolean>>() {}
-            );
-
-            if (deleteTokenResponse == null
-                    || !deleteTokenResponse.isSuccess()
-                    || !Boolean.TRUE.equals(deleteTokenResponse.getData())) {
-                throw new TokenDeletionException(AuthErrorCode.TOKEN_DELETION_FAILED);
-            }
-
-            logger.info("Token revoked successfully for token: {}", token);
-            return ServiceResponse.builder()
-                    .success(true)
-                    .message("Logout has been successful")
-                    .data(true)
-                    .timestamp(java.time.LocalDateTime.now())
-                    .build();
-
-        } catch (ServiceClientException ex) {
-            logger.error("Member service error during token revoke: {} - {}", ex.getErrorCode(), ex.getMessage());
-            throw mapServiceClientException(ex);
-        }
+        return serviceClient.postReactive(
+                        MEMBER_SERVICE_URL,
+                        "/member/deleteAllToken",
+                        token,
+                        new ParameterizedTypeReference<ServiceResponse<Boolean>>() {}
+                )
+                .flatMap(deleteTokenResponse -> {
+                    if (deleteTokenResponse == null
+                            || !deleteTokenResponse.isSuccess()
+                            || !Boolean.TRUE.equals(deleteTokenResponse.getData())) {
+                        return Mono.error(new TokenDeletionException(AuthErrorCode.TOKEN_DELETION_FAILED));
+                    }
+                    logger.info("Token revoked successfully for token: {}", token);
+                    ServiceResponse<Boolean> response = ServiceResponse.<Boolean>builder()
+                            .success(true)
+                            .message("Logout has been successful")
+                            .data(true)
+                            .timestamp(java.time.LocalDateTime.now())
+                            .build();
+                    return Mono.just(response);
+                })
+                .onErrorMap(ServiceClientException.class, this::mapServiceClientException);
     }
 
-    public MemberRegisterResponse refreshToken(String rawToken) {
+    public Mono<MemberRegisterResponse> refreshToken(String rawToken) {
         /*
          * Refresh Token Flow:
          * 1. JWT signature & expiration validated at Gateway (RouterValidator secures /auth/token/refresh)
@@ -237,57 +222,50 @@ public class AuthService {
          */
         String token = TokenSanitizer.sanitize(rawToken);
 
-        try {
-            // Check if token exists (not revoked/logged out)
-            ServiceResponse<Boolean> findTokenResponse = serviceClient.post(
-                    MEMBER_SERVICE_URL,
-                    "/member/findToken",
-                    token,
-                    new ParameterizedTypeReference<ServiceResponse<Boolean>>() {}
-            );
+        return serviceClient.postReactive(
+                        MEMBER_SERVICE_URL,
+                        "/member/findToken",
+                        token,
+                        new ParameterizedTypeReference<ServiceResponse<Boolean>>() {}
+                )
+                .flatMap(findTokenResponse -> {
+                    if (findTokenResponse == null
+                            || !findTokenResponse.isSuccess()
+                            || !Boolean.TRUE.equals(findTokenResponse.getData())) {
+                        return Mono.error(new TokenNotFoundException(AuthErrorCode.TOKEN_NOT_FOUND));
+                    }
 
-            if (findTokenResponse == null
-                    || !findTokenResponse.isSuccess()
-                    || !Boolean.TRUE.equals(findTokenResponse.getData())) {
-                throw new TokenNotFoundException(AuthErrorCode.TOKEN_NOT_FOUND);
-            }
+                    String userName = jwtUtil.extractUsername(token);
+                    String role = jwtUtil.extractUserRole(token);
+                    String accessToken = jwtUtil.generate(userName, role, "ACCESS");
+                    String refreshToken = jwtUtil.generate(userName, role, "REFRESH");
 
-            String userName = jwtUtil.extractUsername(token);
-            String role = jwtUtil.extractUserRole(token);
+                    MemberDTO memberDTO = MemberDTO.builder().username(userName).role(role).build();
+                    TokenDTO tokenToStore = TokenDTO.builder()
+                            .memberDTO(memberDTO)
+                            .expired(false)
+                            .revoked(false)
+                            .accessToken(accessToken)
+                            .refreshToken(refreshToken)
+                            .build();
 
-            String accessToken = jwtUtil.generate(userName, role, "ACCESS");
-            String refreshToken = jwtUtil.generate(userName, role, "REFRESH");
-
-            MemberDTO memberDTO = MemberDTO.builder().username(userName).role(role).build();
-
-            TokenDTO tokenToStore = TokenDTO.builder()
-                    .memberDTO(memberDTO)
-                    .expired(false)
-                    .revoked(false)
-                    .accessToken(accessToken)
-                    .refreshToken(refreshToken)
-                    .build();
-
-            ServiceResponse<Boolean> tokenStoredResponse = serviceClient.post(
-                    MEMBER_SERVICE_URL,
-                    "/member/storeTokens",
-                    tokenToStore,
-                    new ParameterizedTypeReference<ServiceResponse<Boolean>>() {}
-            );
-
-            if (tokenStoredResponse == null
-                    || !tokenStoredResponse.isSuccess()
-                    || !Boolean.TRUE.equals(tokenStoredResponse.getData())) {
-                log.error("Token store failed: {}", tokenStoredResponse != null ? tokenStoredResponse.getMessage() : "no response body");
-                throw new TokenSaveFailedException(AuthErrorCode.TOKEN_SAVE_FAILED);
-            }
-
-            return new MemberRegisterResponse(null, accessToken, refreshToken);
-
-        } catch (ServiceClientException ex) {
-            logger.error("Member service error during token refresh: {} - {}", ex.getErrorCode(), ex.getMessage());
-            throw mapServiceClientException(ex);
-        }
+                    return serviceClient.postReactive(
+                                    MEMBER_SERVICE_URL,
+                                    "/member/storeTokens",
+                                    tokenToStore,
+                                    new ParameterizedTypeReference<ServiceResponse<Boolean>>() {}
+                            )
+                            .flatMap(tokenStoredResponse -> {
+                                if (tokenStoredResponse == null
+                                        || !tokenStoredResponse.isSuccess()
+                                        || !Boolean.TRUE.equals(tokenStoredResponse.getData())) {
+                                    log.error("Token store failed: {}", tokenStoredResponse != null ? tokenStoredResponse.getMessage() : "no response body");
+                                    return Mono.error(new TokenSaveFailedException(AuthErrorCode.TOKEN_SAVE_FAILED));
+                                }
+                                return Mono.just(new MemberRegisterResponse(null, accessToken, refreshToken));
+                            });
+                })
+                .onErrorMap(ServiceClientException.class, this::mapServiceClientException);
     }
 
 
