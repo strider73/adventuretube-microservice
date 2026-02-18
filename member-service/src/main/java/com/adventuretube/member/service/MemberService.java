@@ -85,6 +85,7 @@ public class MemberService {
      * @return {@code Mono<Boolean>} true if the token was successfully saved
      */
     public Mono<Boolean> storeToken(TokenDTO tokenDTO) {
+        log.info(">>> storeToken called for member: {}", tokenDTO.getMemberDTO().getEmail());
         // Resolve member ID if missing (e.g., login scenario)
         Mono<TokenDTO> resolvedTokenDTO;
         if (tokenDTO.getMemberDTO().getId() == null) {
@@ -112,9 +113,12 @@ public class MemberService {
             }
 
             // Revoke all existing valid tokens before saving the new one
+            log.info(">>> storeToken: revoking old tokens and saving new token for memberId: {}", dto.getMemberDTO().getId());
             return tokenRepository.findAllValidTokenByMember(dto.getMemberDTO().getId())
                     .flatMap(tokenRepository::delete)
                     .then(tokenRepository.save(token))
+                    .doOnSuccess(saved -> log.info(">>> storeToken: token saved successfully for memberId: {}", dto.getMemberDTO().getId()))
+                    .doOnError(err -> log.error(">>> storeToken: FAILED to save token for memberId: {}, error: {}", dto.getMemberDTO().getId(), err.getMessage()))
                     .thenReturn(true);
         });
     }
