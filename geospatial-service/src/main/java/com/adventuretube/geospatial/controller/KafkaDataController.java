@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Mono;
 
 @RestController
 @AllArgsConstructor
@@ -15,19 +16,19 @@ import org.springframework.web.bind.annotation.RestController;
 public class KafkaDataController {
 
     private final Producer producer;
+
     @PostMapping(value = "/publish")
-    public ResponseEntity<String> sendMessageToKafkaTopic(@RequestParam("message") String message) {
+    public Mono<ResponseEntity<String>> sendMessageToKafkaTopic(@RequestParam("message") String message) {
         this.producer.sendMessage(message);
-        return ResponseEntity.ok("message :"+message+" has been sent successfully to kafka");
+        return Mono.just(ResponseEntity.ok("message :" + message + " has been sent successfully to kafka"));
     }
 
-
     @PostMapping(value = "/publish/repeat")
-    public ResponseEntity<String> sendMessageToKafkaTopicRepeatedly(@RequestParam("message") String message, @RequestParam("count") int count) {
+    public Mono<ResponseEntity<String>> sendMessageToKafkaTopicRepeatedly(@RequestParam("message") String message, @RequestParam("count") int count) {
         for (int i = 0; i < count; i++) {
             this.producer.sendMessage(message);
         }
-        return ResponseEntity.ok("Message: " + message + " has been sent " + count + " times successfully to Kafka");
+        return Mono.just(ResponseEntity.ok("Message: " + message + " has been sent " + count + " times successfully to Kafka"));
     }
 
 }

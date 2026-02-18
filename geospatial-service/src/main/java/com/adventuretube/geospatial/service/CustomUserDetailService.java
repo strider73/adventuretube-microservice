@@ -3,73 +3,59 @@ package com.adventuretube.geospatial.service;
 import com.adventuretube.common.api.response.ServiceResponse;
 import com.adventuretube.geospatial.model.dto.MemberDTO;
 import com.adventuretube.geospatial.exceptions.UserNotFoundException;
+import com.adventuretube.common.client.ServiceClient;
+import com.adventuretube.common.client.ServiceClientException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
+import reactor.core.publisher.Mono;
 
 @Slf4j
 @Service
 @AllArgsConstructor
-public class CustomUserDetailService implements UserDetailsService {
-    private  RestTemplate restTemplate;
+public class CustomUserDetailService implements ReactiveUserDetailsService {
+    private static final String MEMBER_SERVICE_URL = "http://MEMBER-SERVICE";
 
-    //UsernameNotFoundException will be handled by Spring Security resulting an authentication failure.
+    private final ServiceClient serviceClient;
+
     @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        String urlForFindUserByEmail = "http://MEMBER-SERVICE/member/findMemberByEmail";
+    public Mono<UserDetails> findByUsername(String email) {
+        return serviceClient.postReactive(
+                        MEMBER_SERVICE_URL,
+                        "/member/findMemberByEmail",
+                        email,
+                        new ParameterizedTypeReference<ServiceResponse<MemberDTO>>() {}
+                )
+                .flatMap(response -> {
+                    if (response == null || !response.isSuccess()) {
+                        return Mono.error(new UserNotFoundException("User not found with email: " + email));
+                    }
 
-        // Fetch user details from the external service
-        MemberDTO userFoundByEmail;
-        try {
-            ResponseEntity<ServiceResponse<MemberDTO>> userFindByEmailResponse = restTemplate.exchange(
-                    urlForFindUserByEmail,
-                    org.springframework.http.HttpMethod.POST,
-                    new org.springframework.http.HttpEntity<>(email),
-                    new org.springframework.core.ParameterizedTypeReference<ServiceResponse<MemberDTO>>() {}
-            );
+                    MemberDTO userFoundByEmail = response.getData();
+                    if (userFoundByEmail == null) {
+                        return Mono.error(new UserNotFoundException("User not found with email: " + email));
+                    }
 
-            ServiceResponse<MemberDTO> findByEmailResponseBody = userFindByEmailResponse.getBody();
+                    if (userFoundByEmail.getEmail() == null || userFoundByEmail.getPassword() == null) {
+                        return Mono.error(new BadCredentialsException("User details are incomplete: email: " + email));
+                    }
 
-            if (findByEmailResponseBody == null || !findByEmailResponseBody.isSuccess()) {
-                throw new UserNotFoundException("User not found with email: " + email);
-            }
-            userFoundByEmail = findByEmailResponseBody.getData();
-            // Check that userFoundByEmail has the necessary properties
-            if (userFoundByEmail.getEmail() == null || userFoundByEmail.getPassword() == null) {
-                throw new BadCredentialsException("User details are incomplete: email: " + email);
-            }
+                    UserDetails userDetails = User.builder()
+                            .username(userFoundByEmail.getEmail())
+                            .password(userFoundByEmail.getPassword())
+                            .authorities(userFoundByEmail.getRole())
+                            .build();
 
-            // Ensure roles are in the correct format, assuming roles are returned as a comma-separated string
-            String[] roles = userFoundByEmail.getRole().split(",");
-
-            // Build UserDetails object to return to SecurityContext
-            return User.builder()
-                    .username(userFoundByEmail.getEmail())
-                    .password(userFoundByEmail.getPassword())
-                    .authorities(userFoundByEmail.getRole()) // Ensure roles are in the correct format
-                    .build();
-
-        } catch (UserNotFoundException e) {
-            log.error("user not found -" + e.toString());
-            throw e;
-        } catch (RestClientException e) {
-            log.error("IllegalStateException" + e.toString());
-            throw e;
-        } catch (Exception e) {
-            log.error("Unknown Exception" + e.toString());
-            throw e;
-        }
-
-
+                    return Mono.just(userDetails);
+                })
+                .onErrorMap(ServiceClientException.class, e -> {
+                    log.error("Service client error: {}", e.toString());
+                    return new UserNotFoundException("User not found with email: " + email);
+                });
     }
 }
