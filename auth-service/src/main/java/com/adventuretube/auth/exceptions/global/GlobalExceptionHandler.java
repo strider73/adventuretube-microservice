@@ -14,11 +14,13 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import lombok.extern.slf4j.Slf4j;
 
 import java.security.GeneralSecurityException;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -157,6 +159,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ServiceResponse<?>> handleUnknownException(Exception ex) {
+        log.error("Unhandled exception: {} - {}", ex.getClass().getName(), ex.getMessage(), ex);
         return buildErrorResponse(AuthErrorCode.INTERNAL_ERROR);
     }
 }

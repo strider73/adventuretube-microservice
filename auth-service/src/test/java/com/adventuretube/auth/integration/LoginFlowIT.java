@@ -16,7 +16,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Integration tests for the login and token refresh flows.
+ * Integration tests for the login and token refresh flows via the API Gateway.
  *
  * Tests AuthService.issueToken() and AuthService.refreshToken() which call:
  * - POST /member/findMemberByEmail (via ReactiveAuthenticationManager)
@@ -25,7 +25,8 @@ import static org.junit.jupiter.api.Assertions.*;
  * - POST /member/storeTokens (after refresh)
  *
  * Prerequisites:
- * - Auth service running at AUTH_BASE_URL (default: localhost:8010)
+ * - Gateway service running at GATEWAY_BASE_URL (default: localhost:8030)
+ * - Auth service running (discovered via Eureka)
  * - Member service running at MEMBER_BASE_URL (default: localhost:8070)
  * - Valid Google credentials in env.mac
  *
@@ -36,9 +37,9 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class LoginFlowIT {
 
-    private static final String AUTH_BASE_URL = System.getenv("AUTH_BASE_URL") != null
-            ? System.getenv("AUTH_BASE_URL")
-            : "http://localhost:8010";
+    private static final String GATEWAY_BASE_URL = System.getenv("GATEWAY_BASE_URL") != null
+            ? System.getenv("GATEWAY_BASE_URL")
+            : "https://api.adventuretube.net";
 
     private static final String MEMBER_BASE_URL = System.getenv("MEMBER_BASE_URL") != null
             ? System.getenv("MEMBER_BASE_URL")
@@ -58,7 +59,7 @@ public class LoginFlowIT {
     @BeforeAll
     void setup() throws Exception {
         log.info("=== LoginFlowIT Setup ===");
-        log.info("Auth URL: {}, Member URL: {}", AUTH_BASE_URL, MEMBER_BASE_URL);
+        log.info("Gateway URL: {}, Member URL: {}", GATEWAY_BASE_URL, MEMBER_BASE_URL);
 
         // 1. Load Google credentials from env.mac
         Map<String, String> env = EnvFileLoader.loadEnvFile("env.mac");
@@ -99,7 +100,7 @@ public class LoginFlowIT {
         ));
 
         HttpEntity<String> request = new HttpEntity<>(requestBody, headers);
-        restTemplate.exchange(AUTH_BASE_URL + "/auth/users", HttpMethod.POST, request, String.class);
+        restTemplate.exchange(GATEWAY_BASE_URL + "/auth/users", HttpMethod.POST, request, String.class);
         log.info("Setup complete - user registered");
     }
 
@@ -125,9 +126,9 @@ public class LoginFlowIT {
         String requestBody = "{\"googleIdToken\": \"" + googleIdToken + "\"}";
         HttpEntity<String> request = new HttpEntity<>(requestBody, headers);
 
-        log.info("POST {}/auth/token", AUTH_BASE_URL);
+        log.info("POST {}/auth/token", GATEWAY_BASE_URL);
         ResponseEntity<String> response = restTemplate.exchange(
-                AUTH_BASE_URL + "/auth/token",
+                GATEWAY_BASE_URL + "/auth/token",
                 HttpMethod.POST,
                 request,
                 String.class
@@ -163,7 +164,7 @@ public class LoginFlowIT {
 
         try {
             ResponseEntity<String> response = restTemplate.exchange(
-                    AUTH_BASE_URL + "/auth/token",
+                    GATEWAY_BASE_URL + "/auth/token",
                     HttpMethod.POST,
                     request,
                     String.class
@@ -190,9 +191,9 @@ public class LoginFlowIT {
 
         HttpEntity<String> request = new HttpEntity<>(headers);
 
-        log.info("POST {}/auth/token/refresh", AUTH_BASE_URL);
+        log.info("POST {}/auth/token/refresh", GATEWAY_BASE_URL);
         ResponseEntity<String> response = restTemplate.exchange(
-                AUTH_BASE_URL + "/auth/token/refresh",
+                GATEWAY_BASE_URL + "/auth/token/refresh",
                 HttpMethod.POST,
                 request,
                 String.class
@@ -230,9 +231,9 @@ public class LoginFlowIT {
         revokeHeaders.set("Authorization", tokenToRevoke);
         HttpEntity<String> revokeRequest = new HttpEntity<>(revokeHeaders);
 
-        log.info("POST {}/auth/token/revoke", AUTH_BASE_URL);
+        log.info("POST {}/auth/token/revoke", GATEWAY_BASE_URL);
         ResponseEntity<String> revokeResponse = restTemplate.exchange(
-                AUTH_BASE_URL + "/auth/token/revoke",
+                GATEWAY_BASE_URL + "/auth/token/revoke",
                 HttpMethod.POST,
                 revokeRequest,
                 String.class
@@ -248,7 +249,7 @@ public class LoginFlowIT {
 
         try {
             restTemplate.exchange(
-                    AUTH_BASE_URL + "/auth/token/refresh",
+                    GATEWAY_BASE_URL + "/auth/token/refresh",
                     HttpMethod.POST,
                     refreshRequest,
                     String.class
