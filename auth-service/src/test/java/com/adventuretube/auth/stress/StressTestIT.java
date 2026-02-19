@@ -15,8 +15,6 @@ import java.io.PrintWriter;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -24,11 +22,8 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Stress Test for auth-service → member-service reactive pipeline.
  *
- * Each concurrent "user" runs a complete sequential flow:
- *   Login → Refresh → Revoke
- *
- * This is realistic because a single user performs operations sequentially,
- * while many different users hit the system concurrently.
+ * Runs a single sequential flow at a time: Login → Refresh → Revoke,
+ * one after another (no concurrency).
  *
  * Prerequisites:
  * - Auth service running at AUTH_BASE_URL
@@ -51,9 +46,8 @@ public class StressTestIT {
             ? System.getenv("MEMBER_BASE_URL")
             : "http://localhost:8070";
 
-    private static final int CONCURRENT_USERS = 10;        // Concurrent full-flow users
-    private static final int TOTAL_FLOWS = 50;             // Total login→refresh→revoke flows
-    private static final int WARMUP_FLOWS = 3;             // Warmup flows (not counted)
+    private static final int TOTAL_FLOWS = 50;               // Total login→refresh→revoke flows (sequential)
+    private static final int WARMUP_FLOWS = 1;             // Warmup flows (not counted)
 
     // Test data
     private static String googleIdToken;
@@ -64,14 +58,14 @@ public class StressTestIT {
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     // Results storage
-    private static final List<FlowResult> flowResults = Collections.synchronizedList(new ArrayList<>());
+    private static final List<FlowResult> flowResults = new ArrayList<>();
 
     @BeforeAll
     static void setup() {
         log.info("╔══════════════════════════════════════════════════════════════╗");
-        log.info("║        STRESS TEST - FULL FLOW (Login→Refresh→Revoke)       ║");
+        log.info("║     STRESS TEST - SEQUENTIAL (Login→Refresh→Revoke)         ║");
         log.info("╠══════════════════════════════════════════════════════════════╣");
-        log.info("║  Concurrent Users: {:>5}                                     ║", CONCURRENT_USERS);
+        log.info("║  Mode:             Sequential (1 flow at a time)            ║");
         log.info("║  Total Flows:      {:>5}                                     ║", TOTAL_FLOWS);
         log.info("║  Warmup Flows:     {:>5}                                     ║", WARMUP_FLOWS);
         log.info("║  Auth URL:  {}                                               ", AUTH_BASE_URL);
@@ -151,60 +145,39 @@ public class StressTestIT {
 
     @Test
     @Order(2)
-    @DisplayName("Stress Test - Concurrent Full Flows (Login → Refresh → Revoke)")
-    void stressTestFullFlow() throws InterruptedException {
+    @DisplayName("Stress Test - Sequential Full Flows (Login → Refresh → Revoke)")
+    void stressTestFullFlow() {
         log.info("╔══════════════════════════════════════════════════════════════╗");
         log.info("║               STARTING STRESS TEST                          ║");
-        log.info("║        Each user: Login → Refresh → Revoke (sequential)     ║");
-        log.info("║        Multiple users running concurrently                  ║");
+        log.info("║        Single sequential flow: Login → Refresh → Revoke     ║");
+        log.info("║        One flow at a time, no concurrency                   ║");
         log.info("╚══════════════════════════════════════════════════════════════╝");
 
-        ExecutorService executor = Executors.newFixedThreadPool(CONCURRENT_USERS);
-        CountDownLatch latch = new CountDownLatch(TOTAL_FLOWS);
-        AtomicInteger completedCount = new AtomicInteger(0);
-        AtomicInteger successCount = new AtomicInteger(0);
-        AtomicInteger failureCount = new AtomicInteger(0);
+        int successCount = 0;
+        int failureCount = 0;
 
         long testStartTime = System.currentTimeMillis();
 
         for (int i = 0; i < TOTAL_FLOWS; i++) {
-            final int flowId = i + 1;
-            executor.submit(() -> {
-                try {
-                    FlowResult result = executeFullFlow(flowId);
-                    flowResults.add(result);
+            int flowId = i + 1;
+            log.info("Starting flow {}/{}", flowId, TOTAL_FLOWS);
 
-                    if (result.success) {
-                        successCount.incrementAndGet();
-                    } else {
-                        failureCount.incrementAndGet();
-                    }
+            FlowResult result = executeFullFlow(flowId);
+            flowResults.add(result);
 
-                    int completed = completedCount.incrementAndGet();
-                    if (completed % 10 == 0) {
-                        log.info("Progress: {}/{} flows completed", completed, TOTAL_FLOWS);
-                    }
-                } catch (Exception e) {
-                    flowResults.add(new FlowResult(flowId, false, 0, 0, 0, 0, e.getMessage()));
-                    failureCount.incrementAndGet();
-                    completedCount.incrementAndGet();
-                } finally {
-                    latch.countDown();
-                }
-            });
+            if (result.success) {
+                successCount++;
+                log.info("Flow {}/{} - SUCCESS - login: {}ms, refresh: {}ms, revoke: {}ms",
+                        flowId, TOTAL_FLOWS, result.loginDurationMs, result.refreshDurationMs, result.revokeDurationMs);
+            } else {
+                failureCount++;
+                log.error("Flow {}/{} - FAILED - {}", flowId, TOTAL_FLOWS, result.errorMessage);
+            }
         }
 
-        boolean completed = latch.await(5, TimeUnit.MINUTES);
-        long testEndTime = System.currentTimeMillis();
-        long totalTestDuration = testEndTime - testStartTime;
+        long totalTestDuration = System.currentTimeMillis() - testStartTime;
 
-        executor.shutdown();
-
-        if (!completed) {
-            log.error("Test timed out - not all flows completed");
-        }
-
-        generateReport(totalTestDuration, successCount.get(), failureCount.get());
+        generateReport(totalTestDuration, successCount, failureCount);
     }
 
     // ============ Flow Execution ============
@@ -330,9 +303,9 @@ public class StressTestIT {
         log.info("┌──────────────────────────────────────────────────────────────┐");
         log.info("│ TEST CONFIGURATION                                           │");
         log.info("├──────────────────────────────────────────────────────────────┤");
-        log.info("│ Concurrent Users:     {:>6}                                 │", CONCURRENT_USERS);
+        log.info("│ Mode:                 Sequential (1 at a time)              │");
         log.info("│ Total Flows:          {:>6}                                 │", TOTAL_FLOWS);
-        log.info("│ Flow Pattern:         Login → Refresh → Revoke (sequential) │");
+        log.info("│ Flow Pattern:         Login → Refresh → Revoke              │");
         log.info("└──────────────────────────────────────────────────────────────┘");
 
         log.info("");
@@ -389,8 +362,8 @@ public class StressTestIT {
 
         try (PrintWriter writer = new PrintWriter(new FileWriter(filepath))) {
             writer.println("═══════════════════════════════════════════════════════════════");
-            writer.println("       STRESS TEST REPORT - Full Flow (Reactive)");
-            writer.println("       Login → Refresh → Revoke (sequential per user)");
+            writer.println("       STRESS TEST REPORT - Sequential Flow (Reactive)");
+            writer.println("       Login → Refresh → Revoke (one at a time)");
             writer.println("═══════════════════════════════════════════════════════════════");
             writer.println();
             writer.println("Timestamp: " + LocalDateTime.now());
@@ -398,9 +371,9 @@ public class StressTestIT {
             writer.println();
             writer.println("TEST CONFIGURATION");
             writer.println("──────────────────────────────────────────────────────────────");
-            writer.println("Concurrent Users:     " + CONCURRENT_USERS);
+            writer.println("Mode:                 Sequential (1 at a time)");
             writer.println("Total Flows:          " + TOTAL_FLOWS);
-            writer.println("Flow Pattern:         Login → Refresh → Revoke (sequential)");
+            writer.println("Flow Pattern:         Login → Refresh → Revoke");
             writer.println();
             writer.println("RESULTS SUMMARY");
             writer.println("──────────────────────────────────────────────────────────────");

@@ -11,14 +11,14 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 public class MemberServiceConfig {
 
     @Bean
-    public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
-        return http
-                .csrf(ServerHttpSecurity.CsrfSpec::disable)  // REST API with JWT doesn't require CSRF
-                .authorizeExchange(exchanges -> exchanges
-                        .pathMatchers("/security/**").hasRole("ADMIN")
-                        .anyExchange().permitAll()
-                )
-                .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
-                .build();
+    public SecurityWebFilterChain apiFilterChain(ServerHttpSecurity httpSecurity) {
+        // All endpoint protection is handled by Gateway (RouterValidator).
+        // Member-service permits all requests that reach it.
+        httpSecurity
+            .csrf(ServerHttpSecurity.CsrfSpec::disable)
+            .authorizeExchange(authorize -> authorize
+                .anyExchange().permitAll()
+            );
+        return httpSecurity.build();
     }
 }
