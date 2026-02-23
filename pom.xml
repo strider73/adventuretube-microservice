@@ -48,6 +48,7 @@
 		<jjwt.version>0.12.3</jjwt.version>
 		<jbcrypt.version>0.4</jbcrypt.version>
 		<spring-doc.version>2.8.5</spring-doc.version>
+		<okhttp.version>4.12.0</okhttp.version>
 
 		<!-- default profile setting -->
 		<spring.profiles.active>mac</spring.profiles.active>
@@ -115,6 +116,12 @@
 				<groupId>org.springdoc</groupId>
 				<artifactId>springdoc-openapi-starter-webflux-ui</artifactId>
 				<version>${spring-doc.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.squareup.okhttp3</groupId>
+				<artifactId>mockwebserver</artifactId>
+				<version>${okhttp.version}</version>
+				<scope>test</scope>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
