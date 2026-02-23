@@ -13,10 +13,10 @@ import com.adventuretube.common.api.response.ServiceResponse;
 import com.adventuretube.common.client.ServiceClient;
 import com.adventuretube.common.client.ServiceClientException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -39,10 +39,10 @@ import reactor.core.publisher.Mono;
 
 @Service
 @Slf4j
-@AllArgsConstructor
 public class AuthService {
 
-    private static final String MEMBER_SERVICE_URL = "http://MEMBER-SERVICE";
+    @Value("${member-service.url:http://MEMBER-SERVICE}")
+    private String memberServiceUrl;
 
     private final GoogleTokenCredentialProperties googleTokenCredentialProperties;
     private final ServiceClient serviceClient;
@@ -51,6 +51,20 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final ReactiveAuthenticationManager reactiveAuthenticationManager;
     private final MemberMapper memberMapper;
+
+    public AuthService(GoogleTokenCredentialProperties googleTokenCredentialProperties,
+                       ServiceClient serviceClient,
+                       JwtUtil jwtUtil,
+                       PasswordEncoder passwordEncoder,
+                       ReactiveAuthenticationManager reactiveAuthenticationManager,
+                       MemberMapper memberMapper) {
+        this.googleTokenCredentialProperties = googleTokenCredentialProperties;
+        this.serviceClient = serviceClient;
+        this.jwtUtil = jwtUtil;
+        this.passwordEncoder = passwordEncoder;
+        this.reactiveAuthenticationManager = reactiveAuthenticationManager;
+        this.memberMapper = memberMapper;
+    }
 
     public Mono<MemberRegisterResponse> createUser(MemberRegisterRequest request) {
 
@@ -71,7 +85,7 @@ public class AuthService {
 
         // MARK:  Check Email duplication
         return serviceClient.postReactive(
-                        MEMBER_SERVICE_URL,
+                        memberServiceUrl,
                         "/member/emailDuplicationCheck",
                         memberDTO.getEmail(),
                         new ParameterizedTypeReference<ServiceResponse<Boolean>>() {}
@@ -86,7 +100,7 @@ public class AuthService {
                     }
                     // MARK:  Register Member
                     return serviceClient.postReactive(
-                            MEMBER_SERVICE_URL,
+                            memberServiceUrl,
                             "/member/registerMember",
                             memberDTO,
                             new ParameterizedTypeReference<ServiceResponse<MemberDTO>>() {}
@@ -112,7 +126,7 @@ public class AuthService {
                             .build();
 
                     return serviceClient.postReactive(
-                                    MEMBER_SERVICE_URL,
+                                    memberServiceUrl,
                                     "/member/storeTokens",
                                     tokenToStore,
                                     new ParameterizedTypeReference<ServiceResponse<Boolean>>() {}
@@ -165,7 +179,7 @@ public class AuthService {
                             .build();
 
                     return serviceClient.postReactive(
-                                    MEMBER_SERVICE_URL,
+                                    memberServiceUrl,
                                     "/member/storeTokens",
                                     tokenToStore,
                                     new ParameterizedTypeReference<ServiceResponse<Boolean>>() {}
@@ -190,7 +204,7 @@ public class AuthService {
         String token = TokenSanitizer.sanitize(rawToken);
 
         return serviceClient.postReactive(
-                        MEMBER_SERVICE_URL,
+                        memberServiceUrl,
                         "/member/deleteAllToken",
                         token,
                         new ParameterizedTypeReference<ServiceResponse<Boolean>>() {}
@@ -223,7 +237,7 @@ public class AuthService {
         String token = TokenSanitizer.sanitize(rawToken);
 
         return serviceClient.postReactive(
-                        MEMBER_SERVICE_URL,
+                        memberServiceUrl,
                         "/member/findToken",
                         token,
                         new ParameterizedTypeReference<ServiceResponse<Boolean>>() {}
@@ -250,7 +264,7 @@ public class AuthService {
                             .build();
 
                     return serviceClient.postReactive(
-                                    MEMBER_SERVICE_URL,
+                                    memberServiceUrl,
                                     "/member/storeTokens",
                                     tokenToStore,
                                     new ParameterizedTypeReference<ServiceResponse<Boolean>>() {}
@@ -269,7 +283,7 @@ public class AuthService {
     }
 
 
-    private GoogleIdToken verifyGoogleIdToken(String googleIdToken) {
+    protected GoogleIdToken verifyGoogleIdToken(String googleIdToken) {
         // First decode the token to check the audience claim
         try {
             String[] chunks = googleIdToken.split("\\.");

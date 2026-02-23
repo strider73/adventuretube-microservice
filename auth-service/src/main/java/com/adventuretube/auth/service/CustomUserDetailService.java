@@ -6,8 +6,8 @@ import com.adventuretube.auth.model.dto.member.MemberDTO;
 import com.adventuretube.common.api.response.ServiceResponse;
 import com.adventuretube.common.client.ServiceClient;
 import com.adventuretube.common.client.ServiceClientException;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
@@ -18,16 +18,20 @@ import reactor.core.publisher.Mono;
 
 @Slf4j
 @Service
-@AllArgsConstructor
 public class CustomUserDetailService implements ReactiveUserDetailsService {
-    private static final String MEMBER_SERVICE_URL = "http://MEMBER-SERVICE";
+    @Value("${member-service.url:http://MEMBER-SERVICE}")
+    private String memberServiceUrl;
 
     private final ServiceClient serviceClient;
+
+    public CustomUserDetailService(ServiceClient serviceClient) {
+        this.serviceClient = serviceClient;
+    }
 
     @Override
     public Mono<UserDetails> findByUsername(String email) {
         return serviceClient.postReactive(
-                        MEMBER_SERVICE_URL,
+                        memberServiceUrl,
                         "/member/findMemberByEmail",
                         email,
                         new ParameterizedTypeReference<ServiceResponse<MemberDTO>>() {}
