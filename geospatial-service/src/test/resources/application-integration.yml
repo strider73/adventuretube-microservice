@@ -1,0 +1,32 @@
+server:
+  port: 0
+
+spring:
+  application:
+    name: geospatial-service
+  config:
+    import: ""
+  devtools:
+    restart:
+      enabled: false
+  data:
+    mongodb:
+      host: ${MONGO_HOST}
+      port: ${MONGO_PORT}
+      database: ${MONGO_DB}
+      username: ${MONGO_USERNAME}
+      password: ${MONGO_PASSWORD}
+      authentication-database: ${MONGO_AUTH_DB}
+      auto-index-creation: true
+  cloud:
+    config:
+      enabled: false
+    loadbalancer:
+      enabled: false
+    service-registry:
+      auto-registration:
+        enabled: false
+
+eureka:
+  client:
+    enabled: false

@@ -72,5 +72,30 @@
         </dependency>
     </dependencies>
 
+    <build>
+        <plugins>
+            <!--
+             maven-failsafe-plugin: Separates unit tests from integration tests.
+             - Run `mvn test` → only unit tests (e.g., *Test.java) are executed.
+             - Run `mvn verify` or `mvn install` → integration tests (e.g., *IT.java) are executed after compilation.
+
+              NOTE: This configuration is specific to the geospatial-service module,
+              since its integration tests depend on the availability of external services like MongoDB.
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>3.1.2</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
