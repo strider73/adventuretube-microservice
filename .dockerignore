@@ -18,8 +18,5 @@ data/
 Jenkinsfile
 planmode/
 
-# Environment files (secrets - not needed in build)
-env.*
-
 # Documentation
 *.md
