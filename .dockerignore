@@ -1,0 +1,25 @@
+# Docker build context exclusions
+# All services use context: . (project root), so Docker sends the entire
+# directory to the daemon. Exclude non-build files to avoid permission
+# errors (e.g., data/postgres) and reduce context transfer size.
+
+# Runtime data volumes (postgres has restricted permissions)
+data/
+
+# Version control
+.git/
+
+# IDE files
+.idea/
+*.iml
+
+# CI/CD and tooling
+.mcp.json
+Jenkinsfile
+planmode/
+
+# Environment files (secrets - not needed in build)
+env.*
+
+# Documentation
+*.md
