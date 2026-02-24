@@ -27,6 +27,9 @@ spring:
       auto-registration:
         enabled: false
 
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration
+
 eureka:
   client:
     enabled: false

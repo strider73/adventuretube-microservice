@@ -11,9 +11,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -41,7 +42,7 @@ class AdventureTubeDataControllerTest {
         data2.setId("2");
         data2.setYoutubeTitle("Trip to Tokyo");
 
-        when(adventureTubeDataService.findAll()).thenReturn(List.of(data1, data2));
+        when(adventureTubeDataService.findAll()).thenReturn(Flux.just(data1, data2));
 
         webTestClient.get().uri("/geo/data")
                 .exchange()
@@ -52,7 +53,7 @@ class AdventureTubeDataControllerTest {
 
     @Test
     void findAll_shouldReturnEmptyList_whenNoData() {
-        when(adventureTubeDataService.findAll()).thenReturn(List.of());
+        when(adventureTubeDataService.findAll()).thenReturn(Flux.empty());
 
         webTestClient.get().uri("/geo/data")
                 .exchange()
@@ -69,7 +70,7 @@ class AdventureTubeDataControllerTest {
         data.setId("abc123");
         data.setYoutubeTitle("Mountain Hike");
 
-        when(adventureTubeDataService.findById("abc123")).thenReturn(Optional.of(data));
+        when(adventureTubeDataService.findById("abc123")).thenReturn(Mono.just(data));
 
         webTestClient.get().uri("/geo/data/abc123")
                 .exchange()
@@ -81,7 +82,7 @@ class AdventureTubeDataControllerTest {
 
     @Test
     void findById_shouldReturn404_whenNotFound() {
-        when(adventureTubeDataService.findById("nonexistent")).thenReturn(Optional.empty());
+        when(adventureTubeDataService.findById("nonexistent")).thenReturn(Mono.empty());
 
         webTestClient.get().uri("/geo/data/nonexistent")
                 .exchange()
@@ -96,7 +97,7 @@ class AdventureTubeDataControllerTest {
         data.setYoutubeContentID("yt-123");
         data.setYoutubeTitle("Beach Trip");
 
-        when(adventureTubeDataService.findByYoutubeContentID("yt-123")).thenReturn(Optional.of(data));
+        when(adventureTubeDataService.findByYoutubeContentID("yt-123")).thenReturn(Mono.just(data));
 
         webTestClient.get().uri("/geo/data/youtube/yt-123")
                 .exchange()
@@ -108,7 +109,7 @@ class AdventureTubeDataControllerTest {
 
     @Test
     void findByYoutubeContentID_shouldReturn404_whenNotFound() {
-        when(adventureTubeDataService.findByYoutubeContentID("yt-999")).thenReturn(Optional.empty());
+        when(adventureTubeDataService.findByYoutubeContentID("yt-999")).thenReturn(Mono.empty());
 
         webTestClient.get().uri("/geo/data/youtube/yt-999")
                 .exchange()
@@ -122,7 +123,7 @@ class AdventureTubeDataControllerTest {
         AdventureTubeData data = new AdventureTubeData();
         data.setUserContentType("TRAVEL");
 
-        when(adventureTubeDataService.findByContentType("TRAVEL")).thenReturn(List.of(data));
+        when(adventureTubeDataService.findByContentType("TRAVEL")).thenReturn(Flux.just(data));
 
         webTestClient.get().uri("/geo/data/type/TRAVEL")
                 .exchange()
@@ -133,7 +134,7 @@ class AdventureTubeDataControllerTest {
 
     @Test
     void findByContentType_shouldReturnEmptyList_whenNoneMatch() {
-        when(adventureTubeDataService.findByContentType("UNKNOWN")).thenReturn(List.of());
+        when(adventureTubeDataService.findByContentType("UNKNOWN")).thenReturn(Flux.empty());
 
         webTestClient.get().uri("/geo/data/type/UNKNOWN")
                 .exchange()
@@ -149,7 +150,7 @@ class AdventureTubeDataControllerTest {
         AdventureTubeData data = new AdventureTubeData();
         data.setUserContentCategory(List.of("hiking", "nature"));
 
-        when(adventureTubeDataService.findByCategory("hiking")).thenReturn(List.of(data));
+        when(adventureTubeDataService.findByCategory("hiking")).thenReturn(Flux.just(data));
 
         webTestClient.get().uri("/geo/data/category/hiking")
                 .exchange()
@@ -160,7 +161,7 @@ class AdventureTubeDataControllerTest {
 
     @Test
     void findByCategory_shouldReturnEmptyList_whenNoneMatch() {
-        when(adventureTubeDataService.findByCategory("scuba")).thenReturn(List.of());
+        when(adventureTubeDataService.findByCategory("scuba")).thenReturn(Flux.empty());
 
         webTestClient.get().uri("/geo/data/category/scuba")
                 .exchange()
@@ -173,7 +174,7 @@ class AdventureTubeDataControllerTest {
 
     @Test
     void count_shouldReturnDocumentCount() {
-        when(adventureTubeDataService.count()).thenReturn(42L);
+        when(adventureTubeDataService.count()).thenReturn(Mono.just(42L));
 
         webTestClient.get().uri("/geo/data/count")
                 .exchange()
@@ -195,7 +196,7 @@ class AdventureTubeDataControllerTest {
         saved.setYoutubeContentID("yt-new");
         saved.setYoutubeTitle("New Adventure");
 
-        when(adventureTubeDataService.save(any(AdventureTubeData.class))).thenReturn(saved);
+        when(adventureTubeDataService.save(any(AdventureTubeData.class))).thenReturn(Mono.just(saved));
 
         webTestClient.post().uri("/geo/save")
                 .contentType(MediaType.APPLICATION_JSON)

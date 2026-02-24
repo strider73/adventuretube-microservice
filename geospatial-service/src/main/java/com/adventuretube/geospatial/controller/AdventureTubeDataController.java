@@ -18,45 +18,48 @@ public class AdventureTubeDataController {
 
     @GetMapping("/data")
     public Mono<ResponseEntity<List<AdventureTubeData>>> findAll() {
-        return Mono.fromCallable(adventureTubeDataService::findAll)
+        return adventureTubeDataService.findAll()
+                .collectList()
                 .map(ResponseEntity::ok);
     }
 
     @GetMapping("/data/{id}")
     public Mono<ResponseEntity<AdventureTubeData>> findById(@PathVariable String id) {
-        return Mono.fromCallable(() -> adventureTubeDataService.findById(id))
-                .map(opt -> opt.map(ResponseEntity::ok)
-                        .orElse(ResponseEntity.notFound().build()));
+        return adventureTubeDataService.findById(id)
+                .map(ResponseEntity::ok)
+                .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/data/youtube/{youtubeContentID}")
     public Mono<ResponseEntity<AdventureTubeData>> findByYoutubeContentID(@PathVariable String youtubeContentID) {
-        return Mono.fromCallable(() -> adventureTubeDataService.findByYoutubeContentID(youtubeContentID))
-                .map(opt -> opt.map(ResponseEntity::ok)
-                        .orElse(ResponseEntity.notFound().build()));
+        return adventureTubeDataService.findByYoutubeContentID(youtubeContentID)
+                .map(ResponseEntity::ok)
+                .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/data/type/{contentType}")
     public Mono<ResponseEntity<List<AdventureTubeData>>> findByContentType(@PathVariable String contentType) {
-        return Mono.fromCallable(() -> adventureTubeDataService.findByContentType(contentType))
+        return adventureTubeDataService.findByContentType(contentType)
+                .collectList()
                 .map(ResponseEntity::ok);
     }
 
     @GetMapping("/data/category/{category}")
     public Mono<ResponseEntity<List<AdventureTubeData>>> findByCategory(@PathVariable String category) {
-        return Mono.fromCallable(() -> adventureTubeDataService.findByCategory(category))
+        return adventureTubeDataService.findByCategory(category)
+                .collectList()
                 .map(ResponseEntity::ok);
     }
 
     @GetMapping("/data/count")
     public Mono<ResponseEntity<Long>> count() {
-        return Mono.fromCallable(adventureTubeDataService::count)
+        return adventureTubeDataService.count()
                 .map(ResponseEntity::ok);
     }
 
     @PostMapping("/save")
     public Mono<ResponseEntity<AdventureTubeData>> save(@RequestBody AdventureTubeData data) {
-        return Mono.fromCallable(() -> adventureTubeDataService.save(data))
+        return adventureTubeDataService.save(data)
                 .map(ResponseEntity::ok);
     }
 }

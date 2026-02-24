@@ -1,13 +1,11 @@
-
 package com.adventuretube.geospatial.service;
 
 import com.adventuretube.geospatial.model.entity.adventuretube.AdventureTubeData;
 import com.adventuretube.geospatial.repository.AdventureTubeDataRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Optional;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @Service
 @RequiredArgsConstructor
@@ -15,31 +13,31 @@ public class AdventureTubeDataService {
 
     private final AdventureTubeDataRepository repository;
 
-    public List<AdventureTubeData> findAll() {
+    public Flux<AdventureTubeData> findAll() {
         return repository.findAll();
     }
 
-    public Optional<AdventureTubeData> findById(String id) {
+    public Mono<AdventureTubeData> findById(String id) {
         return repository.findById(id);
     }
 
-    public Optional<AdventureTubeData> findByYoutubeContentID(String youtubeContentID) {
+    public Mono<AdventureTubeData> findByYoutubeContentID(String youtubeContentID) {
         return repository.findByYoutubeContentID(youtubeContentID);
     }
 
-    public List<AdventureTubeData> findByContentType(String contentType) {
+    public Flux<AdventureTubeData> findByContentType(String contentType) {
         return repository.findByUserContentType(contentType);
     }
 
-    public List<AdventureTubeData> findByCategory(String category) {
+    public Flux<AdventureTubeData> findByCategory(String category) {
         return repository.findByUserContentCategoryContaining(category);
     }
 
-    public AdventureTubeData save(AdventureTubeData data) {
+    public Mono<AdventureTubeData> save(AdventureTubeData data) {
         return repository.save(data);
     }
 
-    public long count() {
+    public Mono<Long> count() {
         return repository.count();
     }
 }
