@@ -2,6 +2,8 @@ package com.adventuretube.common.client;
 
 import com.adventuretube.common.api.response.ServiceResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cloud.client.circuitbreaker.ReactiveCircuitBreaker;
+import org.springframework.cloud.client.circuitbreaker.ReactiveCircuitBreakerFactory;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatusCode;
@@ -9,6 +11,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientRequestException;
 import reactor.core.publisher.Mono;
+
+import java.time.Duration;
 
 /**
  * Generic client for inter-service communication.
@@ -42,10 +46,15 @@ import reactor.core.publisher.Mono;
 @Component
 public class ServiceClient {
 
-    private final WebClient.Builder webClientBuilder;
+    private static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(5);
 
-    public ServiceClient(@LoadBalanced WebClient.Builder webClientBuilder) {
+    private final WebClient.Builder webClientBuilder;
+    private final ReactiveCircuitBreakerFactory circuitBreakerFactory;
+
+    public ServiceClient(@LoadBalanced WebClient.Builder webClientBuilder,
+                         ReactiveCircuitBreakerFactory circuitBreakerFactory) {
         this.webClientBuilder = webClientBuilder;
+        this.circuitBreakerFactory = circuitBreakerFactory;
     }
 
     /**
@@ -63,8 +72,9 @@ public class ServiceClient {
                                                          ParameterizedTypeReference<ServiceResponse<T>> responseType) {
         WebClient webClient = webClientBuilder.baseUrl(baseUrl).build();
         String serviceName = extractServiceName(baseUrl);
+        ReactiveCircuitBreaker circuitBreaker = circuitBreakerFactory.create(serviceName);
 
-        return webClient.post()
+        Mono<ServiceResponse<T>> call = webClient.post()
                 .uri(path)
                 .bodyValue(body)
                 .retrieve()
@@ -101,11 +111,24 @@ public class ServiceClient {
                                 )))
                 )
                 .bodyToMono(responseType)
+                .timeout(DEFAULT_TIMEOUT)
                 .onErrorMap(WebClientRequestException.class, ex -> {
                     log.error("Network error calling {}: {}", serviceName, ex.getMessage());
                     return new ServiceClientException(serviceName, "SERVER_NOT_AVAILABLE",
                             serviceName + " is not available", 503);
+                })
+                .onErrorMap(java.util.concurrent.TimeoutException.class, ex -> {
+                    log.error("Timeout calling {}{}: {}", serviceName, path, ex.getMessage());
+                    return new ServiceClientException(serviceName, "SERVER_NOT_AVAILABLE",
+                            serviceName + " timed out", 503);
                 });
+
+        return circuitBreaker.run(call, throwable -> {
+            log.error("Circuit breaker open for {}: {}", serviceName, throwable.getMessage());
+            return Mono.error(new ServiceClientException(
+                    serviceName, "CIRCUIT_OPEN",
+                    serviceName + " circuit breaker is open", 503));
+        });
     }
 
     /**
@@ -121,8 +144,9 @@ public class ServiceClient {
                                                      ParameterizedTypeReference<ServiceResponse<T>> responseType) {
         WebClient webClient = webClientBuilder.baseUrl(baseUrl).build();
         String serviceName = extractServiceName(baseUrl);
+        ReactiveCircuitBreaker circuitBreaker = circuitBreakerFactory.create(serviceName);
 
-        return webClient.get()
+        Mono<ServiceResponse<T>> call = webClient.get()
                 .uri(path)
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError, response ->
@@ -158,11 +182,24 @@ public class ServiceClient {
                                 )))
                 )
                 .bodyToMono(responseType)
+                .timeout(DEFAULT_TIMEOUT)
                 .onErrorMap(WebClientRequestException.class, ex -> {
                     log.error("Network error calling {}: {}", serviceName, ex.getMessage());
                     return new ServiceClientException(serviceName, "SERVER_NOT_AVAILABLE",
                             serviceName + " is not available", 503);
+                })
+                .onErrorMap(java.util.concurrent.TimeoutException.class, ex -> {
+                    log.error("Timeout calling {}{}: {}", serviceName, path, ex.getMessage());
+                    return new ServiceClientException(serviceName, "SERVER_NOT_AVAILABLE",
+                            serviceName + " timed out", 503);
                 });
+
+        return circuitBreaker.run(call, throwable -> {
+            log.error("Circuit breaker open for {}: {}", serviceName, throwable.getMessage());
+            return Mono.error(new ServiceClientException(
+                    serviceName, "CIRCUIT_OPEN",
+                    serviceName + " circuit breaker is open", 503));
+        });
     }
 
     /**

@@ -9,12 +9,18 @@ import okhttp3.mockwebserver.MockWebServer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.cloud.client.circuitbreaker.ReactiveCircuitBreaker;
+import org.springframework.cloud.client.circuitbreaker.ReactiveCircuitBreakerFactory;
+import org.springframework.cloud.client.circuitbreaker.ConfigBuilder;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -29,10 +35,34 @@ class ServiceClientReactiveTest {
         mockWebServer = new MockWebServer();
         mockWebServer.start();
 
-        String baseUrl = mockWebServer.url("/").toString();
         // Create a plain (non-load-balanced) WebClient.Builder for testing
         WebClient.Builder webClientBuilder = WebClient.builder();
-        serviceClient = new ServiceClient(webClientBuilder);
+
+        // No-op circuit breaker that passes through all calls without tripping.
+        // Unlike a real circuit breaker, this does NOT invoke the fallback —
+        // errors propagate directly so tests can verify specific error codes.
+        ReactiveCircuitBreakerFactory<Object, ConfigBuilder<Object>> circuitBreakerFactory =
+                new ReactiveCircuitBreakerFactory<>() {
+                    @Override
+                    public ReactiveCircuitBreaker create(String id) {
+                        return new ReactiveCircuitBreaker() {
+                            @Override
+                            public <T> Mono<T> run(Mono<T> toRun, Function<Throwable, Mono<T>> fallback) {
+                                return toRun; // pass through, ignore fallback
+                            }
+                            @Override
+                            public <T> Flux<T> run(Flux<T> toRun, Function<Throwable, Flux<T>> fallback) {
+                                return toRun; // pass through, ignore fallback
+                            }
+                        };
+                    }
+                    @Override
+                    protected ConfigBuilder<Object> configBuilder(String id) { return null; }
+                    @Override
+                    public void configureDefault(Function<String, Object> defaultConfiguration) {}
+                };
+
+        serviceClient = new ServiceClient(webClientBuilder, circuitBreakerFactory);
     }
 
     @AfterEach

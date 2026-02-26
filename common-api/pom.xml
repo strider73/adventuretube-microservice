@@ -45,6 +45,12 @@
             <artifactId>spring-cloud-starter-loadbalancer</artifactId>
         </dependency>
 
+        <!-- Resilience4j Circuit Breaker for reactive inter-service calls -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-circuitbreaker-reactor-resilience4j</artifactId>
+        </dependency>
+
         <!-- Jackson JavaTimeModule for LocalDateTime serialization -->
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>

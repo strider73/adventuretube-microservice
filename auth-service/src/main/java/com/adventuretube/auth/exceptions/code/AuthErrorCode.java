@@ -17,7 +17,8 @@ public enum AuthErrorCode {
 
 
     //System Exceptions
-    SERVER_NOT_AVAILABLE("Server is not available", HttpStatus.INTERNAL_SERVER_ERROR),
+    SERVER_NOT_AVAILABLE("Server is not available", HttpStatus.SERVICE_UNAVAILABLE),
+    SERVICE_CIRCUIT_OPEN("Member service is temporarily unavailable, please try again later", HttpStatus.SERVICE_UNAVAILABLE),
     INTERNAL_ERROR("Unknown error", HttpStatus.INTERNAL_SERVER_ERROR),
     VALIDATION_FAILED("Validation failed", HttpStatus.BAD_REQUEST),
     USER_DOES_NOT_EXIST("User does not exist", HttpStatus.NOT_FOUND),

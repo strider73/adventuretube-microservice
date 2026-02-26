@@ -385,6 +385,7 @@ public class AuthService {
             case "TOKEN_DELETION_FAILED" -> new TokenDeletionException(AuthErrorCode.TOKEN_DELETION_FAILED);
             case "MEMBER_DELETION_FAILED" -> new InternalServerException(AuthErrorCode.MEMBER_DELETION_FAILED);
             case "SERVER_NOT_AVAILABLE" -> new MemberServiceException(AuthErrorCode.SERVER_NOT_AVAILABLE);
+            case "CIRCUIT_OPEN" -> new MemberServiceException(AuthErrorCode.SERVICE_CIRCUIT_OPEN);
             default -> new InternalServerException(AuthErrorCode.INTERNAL_ERROR);
         };
     }

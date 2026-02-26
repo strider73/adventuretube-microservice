@@ -23,6 +23,9 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.cloud.client.circuitbreaker.ConfigBuilder;
+import org.springframework.cloud.client.circuitbreaker.ReactiveCircuitBreaker;
+import org.springframework.cloud.client.circuitbreaker.ReactiveCircuitBreakerFactory;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -33,12 +36,15 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.UUID;
+import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -67,7 +73,30 @@ class AuthServiceComponentTest {
 
         // Create plain (non-load-balanced) WebClient.Builder
         WebClient.Builder webClientBuilder = WebClient.builder();
-        ServiceClient serviceClient = new ServiceClient(webClientBuilder);
+
+        // No-op circuit breaker that passes through all calls
+        ReactiveCircuitBreakerFactory<Object, ConfigBuilder<Object>> circuitBreakerFactory =
+                new ReactiveCircuitBreakerFactory<>() {
+                    @Override
+                    public ReactiveCircuitBreaker create(String id) {
+                        return new ReactiveCircuitBreaker() {
+                            @Override
+                            public <T> Mono<T> run(Mono<T> toRun, Function<Throwable, Mono<T>> fallback) {
+                                return toRun; // pass through, ignore fallback
+                            }
+                            @Override
+                            public <T> Flux<T> run(Flux<T> toRun, Function<Throwable, Flux<T>> fallback) {
+                                return toRun; // pass through, ignore fallback
+                            }
+                        };
+                    }
+                    @Override
+                    protected ConfigBuilder<Object> configBuilder(String id) { return null; }
+                    @Override
+                    public void configureDefault(Function<String, Object> defaultConfiguration) {}
+                };
+
+        ServiceClient serviceClient = new ServiceClient(webClientBuilder, circuitBreakerFactory);
 
         // Create JwtUtil with test values via reflection
         jwtUtil = new JwtUtil();
