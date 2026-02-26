@@ -2,6 +2,7 @@ package com.adventuretube.geospatial.exceptions;
 
 import com.adventuretube.common.api.response.ServiceResponse;
 import com.adventuretube.geospatial.exceptions.code.GeoErrorCode;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -12,6 +13,18 @@ import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(DuplicateKeyException.class)
+    public ResponseEntity<ServiceResponse<?>> handleDuplicateKeyException(DuplicateKeyException ex) {
+        ServiceResponse<?> response = ServiceResponse.builder()
+                .success(false)
+                .message(GeoErrorCode.DUPLICATE_KEY.getMessage() + ": " + ex.getMostSpecificCause().getMessage())
+                .errorCode(GeoErrorCode.DUPLICATE_KEY.name())
+                .data(null)
+                .timestamp(java.time.LocalDateTime.now())
+                .build();
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+    }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ServiceResponse<?>> handleUnknownException(Exception ex) {

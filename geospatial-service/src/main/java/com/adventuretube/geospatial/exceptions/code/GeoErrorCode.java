@@ -9,6 +9,8 @@ public enum GeoErrorCode {
 
     USER_NOT_FOUND("User not found", HttpStatus.NOT_FOUND),
 
+    DUPLICATE_KEY("Duplicate entry already exists", HttpStatus.CONFLICT),
+
     //UNKNOWN EXCEPTION
     UNKNOWN_EXCEPTION("Unknown error", HttpStatus.INTERNAL_SERVER_ERROR);
     private final String message;

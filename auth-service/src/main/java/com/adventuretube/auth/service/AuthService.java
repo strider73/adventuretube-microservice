@@ -283,6 +283,31 @@ public class AuthService {
     }
 
 
+    public Mono<ServiceResponse<Boolean>> deleteUser(String email) {
+        return serviceClient.postReactive(
+                        memberServiceUrl,
+                        "/member/deleteUser",
+                        email,
+                        new ParameterizedTypeReference<ServiceResponse<Boolean>>() {}
+                )
+                .flatMap(deleteResponse -> {
+                    if (deleteResponse == null
+                            || !deleteResponse.isSuccess()
+                            || !Boolean.TRUE.equals(deleteResponse.getData())) {
+                        return Mono.error(new InternalServerException(AuthErrorCode.MEMBER_DELETION_FAILED));
+                    }
+                    logger.info("User deleted successfully: {}", email);
+                    ServiceResponse<Boolean> response = ServiceResponse.<Boolean>builder()
+                            .success(true)
+                            .message("User deleted successfully")
+                            .data(true)
+                            .timestamp(java.time.LocalDateTime.now())
+                            .build();
+                    return Mono.just(response);
+                })
+                .onErrorMap(ServiceClientException.class, this::mapServiceClientException);
+    }
+
     protected GoogleIdToken verifyGoogleIdToken(String googleIdToken) {
         // First decode the token to check the audience claim
         try {
@@ -358,6 +383,7 @@ public class AuthService {
             case "TOKEN_NOT_FOUND" -> new TokenNotFoundException(AuthErrorCode.TOKEN_NOT_FOUND);
             case "TOKEN_SAVE_FAILED" -> new TokenSaveFailedException(AuthErrorCode.TOKEN_SAVE_FAILED);
             case "TOKEN_DELETION_FAILED" -> new TokenDeletionException(AuthErrorCode.TOKEN_DELETION_FAILED);
+            case "MEMBER_DELETION_FAILED" -> new InternalServerException(AuthErrorCode.MEMBER_DELETION_FAILED);
             case "SERVER_NOT_AVAILABLE" -> new MemberServiceException(AuthErrorCode.SERVER_NOT_AVAILABLE);
             default -> new InternalServerException(AuthErrorCode.INTERNAL_ERROR);
         };

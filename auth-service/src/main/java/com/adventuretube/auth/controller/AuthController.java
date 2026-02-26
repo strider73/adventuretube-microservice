@@ -22,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.net.URI;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -239,6 +240,48 @@ public class AuthController {
     @PostMapping(value = "/token/revoke")
     public Mono<ResponseEntity<?>> revokeToken(@RequestHeader("Authorization") String authorization) {
         return authService.revokeToken(authorization)
+                .map(response -> ResponseEntity.ok(response));
+    }
+
+    // =========================
+    // Delete User Endpoint
+    // =========================
+    @Operation(
+            summary = "Delete user and all associated tokens",
+            description = """
+                    This endpoint deletes a user and all their tokens from the system.
+                    It calls the MEMBER-SERVICE to perform the deletion.
+                    """,
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    content = @Content(
+                            mediaType = "text/plain",
+                            examples = @ExampleObject(
+                                    name = "Delete User Example",
+                                    value = "strider.lee@gmail.com"
+                            )
+                    )
+            )
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "User deleted successfully.",
+                    content = @Content(schema = @Schema(implementation = ServiceResponse.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "User not found.",
+                    content = @Content(schema = @Schema(implementation = ServiceResponse.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal Server Error - User deletion failed.",
+                    content = @Content(schema = @Schema(implementation = ServiceResponse.class))
+            )
+    })
+    @DeleteMapping(value = "/users")
+    public Mono<ResponseEntity<?>> deleteUser(@RequestBody String email) {
+        return authService.deleteUser(email)
                 .map(response -> ResponseEntity.ok(response));
     }
 }

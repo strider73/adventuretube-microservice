@@ -29,6 +29,7 @@ public enum AuthErrorCode {
     TOKEN_EXPIRED("Token expired", HttpStatus.UNAUTHORIZED),
     //Member Service Exceptions
     MEMBER_REGISTRATION_FAILED("Failed to register member", HttpStatus.INTERNAL_SERVER_ERROR),
+    MEMBER_DELETION_FAILED("Failed to delete user", HttpStatus.INTERNAL_SERVER_ERROR),
     
     
     //UNKNOWN EXCEPTION
