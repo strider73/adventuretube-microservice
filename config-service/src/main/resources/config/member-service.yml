@@ -42,11 +42,21 @@ eureka:
     enabled: true
 
 logging:
+  pattern:
+    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
   level:
     root: INFO
     io.r2dbc.postgresql: INFO
     org.springframework.r2dbc: INFO
     com.adventuretube.member: DEBUG
+
+management:
+  tracing:
+    sampling:
+      probability: 1.0
+  zipkin:
+    tracing:
+      endpoint: ${ZIPKIN_URL}/api/v2/spans
 
 springdoc:
   api-docs:

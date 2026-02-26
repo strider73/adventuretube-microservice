@@ -33,11 +33,20 @@ eureka:
 
 
 logging:
+  pattern:
+    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
   level:
     root: INFO
     com.netflix.discovery.DiscoveryClient: WARN  # Skip debug messages for DiscoveryClient
     com.adventuretube.member: DEBUG  # Ensure debug messages for member-service
 
+management:
+  tracing:
+    sampling:
+      probability: 1.0
+  zipkin:
+    tracing:
+      endpoint: ${ZIPKIN_URL}/api/v2/spans
 
 springdoc:
   api-docs:

@@ -52,6 +52,8 @@ eureka:
 
 
 logging:
+  pattern:
+    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
   level:
     root: INFO
     org:
@@ -95,15 +97,21 @@ resilience4j:
       memberService:
         timeout-duration: 5s
 
-# Actuator endpoints for circuit breaker monitoring
+# Actuator endpoints for circuit breaker monitoring + distributed tracing
 management:
   endpoints:
     web:
       exposure:
-        include: health,circuitbreakers,circuitbreakerevents
+        include: health,circuitbreakers,circuitbreakerevents,metrics
   endpoint:
     health:
       show-details: always
   health:
     circuitbreakers:
       enabled: true
+  tracing:
+    sampling:
+      probability: 1.0
+  zipkin:
+    tracing:
+      endpoint: ${ZIPKIN_URL}/api/v2/spans
