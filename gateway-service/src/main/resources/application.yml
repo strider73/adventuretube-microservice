@@ -15,4 +15,4 @@ management:
       probability: 1.0
   zipkin:
     tracing:
-      endpoint: ${ZIPKIN_URL:http://192.168.1.199:9411}/api/v2/spans
+      endpoint: ${ZIPKIN_URL}/api/v2/spans
