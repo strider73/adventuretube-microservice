@@ -13,6 +13,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 @Configuration
 @EnableWebFluxSecurity
@@ -44,7 +45,9 @@ public class AuthServiceConfig {
             String password = authentication.getCredentials().toString();
 
             return reactiveUserDetailsService.findByUsername(email)
-                    .filter(userDetails -> passwordEncoder.matches(password, userDetails.getPassword()))
+                    .filterWhen(userDetails ->
+                            Mono.fromCallable(() -> passwordEncoder.matches(password, userDetails.getPassword()))
+                                    .subscribeOn(Schedulers.boundedElastic()))
                     .map(userDetails -> (Authentication)
                             new UsernamePasswordAuthenticationToken(userDetails, password, userDetails.getAuthorities()))
                     .switchIfEmpty(Mono.error(

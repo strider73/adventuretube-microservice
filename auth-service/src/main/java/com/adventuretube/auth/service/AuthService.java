@@ -35,6 +35,7 @@ import java.util.Collections;
 import java.util.Base64;
 import com.fasterxml.jackson.databind.JsonNode;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 
 @Service
@@ -68,131 +69,133 @@ public class AuthService {
 
     public Mono<MemberRegisterResponse> createUser(MemberRegisterRequest request) {
 
-        // MARK:   Validate Google ID token  https://developers.google.com/identity/sign-in/ios/backend-auth
-        GoogleIdToken idToken = verifyGoogleIdToken(request.getGoogleIdToken());
-        if (idToken == null) {
-            log.error("Google idToken is null");
-            return Mono.error(new GoogleIdTokenInvalidException(AuthErrorCode.GOOGLE_TOKEN_INVALID));
-        }
-        GoogleIdToken.Payload payload = idToken.getPayload();
-        // MARK:  compare email address that in the request with payload
-        if (!request.getEmail().equals(payload.getEmail())) {
-            return Mono.error(new GoogleIdTokenInvalidException(AuthErrorCode.GOOGLE_EMAIL_MISMATCH));
-        }
-
-        // MARK:  prepare check user email duplication
-        MemberDTO memberDTO = buildMemberDTO(payload);
-
-        // MARK:  Check Email duplication
-        return serviceClient.postReactive(
-                        memberServiceUrl,
-                        "/member/emailDuplicationCheck",
-                        memberDTO.getEmail(),
-                        new ParameterizedTypeReference<ServiceResponse<Boolean>>() {}
-                )
-                .<ServiceResponse<MemberDTO>>flatMap(emailCheckResponse -> {
-                    if (emailCheckResponse == null || !emailCheckResponse.isSuccess()) {
-                        logger.error("Failed to check email duplication");
-                        return Mono.error(new InternalServerException(AuthErrorCode.INTERNAL_ERROR));
+        // MARK: Validate Google ID token + build MemberDTO (both blocking — offloaded to boundedElastic)
+        return Mono.fromCallable(() -> {
+                    GoogleIdToken idToken = verifyGoogleIdToken(request.getGoogleIdToken());
+                    if (idToken == null) {
+                        log.error("Google idToken is null");
+                        throw new GoogleIdTokenInvalidException(AuthErrorCode.GOOGLE_TOKEN_INVALID);
                     }
-                    if (Boolean.TRUE.equals(emailCheckResponse.getData())) {
-                        return Mono.error(new DuplicateException(AuthErrorCode.USER_EMAIL_DUPLICATE));
+                    GoogleIdToken.Payload payload = idToken.getPayload();
+                    if (!request.getEmail().equals(payload.getEmail())) {
+                        throw new GoogleIdTokenInvalidException(AuthErrorCode.GOOGLE_EMAIL_MISMATCH);
                     }
-                    // MARK:  Register Member
-                    return serviceClient.postReactive(
-                            memberServiceUrl,
-                            "/member/registerMember",
-                            memberDTO,
-                            new ParameterizedTypeReference<ServiceResponse<MemberDTO>>() {}
-                    );
+                    return buildMemberDTO(payload);
                 })
-                .flatMap(registerResponse -> {
-                    if (registerResponse == null || !registerResponse.isSuccess()) {
-                        return Mono.error(new InternalServerException(AuthErrorCode.INTERNAL_ERROR));
-                    }
-
-                    // MARK:  create JWT token
-                    MemberDTO registeredUser = registerResponse.getData();
-                    String accessToken = jwtUtil.generate(registeredUser.getEmail(), registeredUser.getRole(), "ACCESS");
-                    String refreshToken = jwtUtil.generate(registeredUser.getEmail(), registeredUser.getRole(), "REFRESH");
-
-                    // MARK:  store token to database
-                    TokenDTO tokenToStore = TokenDTO.builder()
-                            .memberDTO(registeredUser)
-                            .expired(false)
-                            .revoked(false)
-                            .accessToken(accessToken)
-                            .refreshToken(refreshToken)
-                            .build();
-
-                    return serviceClient.postReactive(
+                .subscribeOn(Schedulers.boundedElastic())
+                // MARK:  Check Email duplication
+                .flatMap(memberDTO -> serviceClient.postReactive(
+                                memberServiceUrl,
+                                "/member/emailDuplicationCheck",
+                                memberDTO.getEmail(),
+                                new ParameterizedTypeReference<ServiceResponse<Boolean>>() {}
+                        )
+                        .<ServiceResponse<MemberDTO>>flatMap(emailCheckResponse -> {
+                            if (emailCheckResponse == null || !emailCheckResponse.isSuccess()) {
+                                logger.error("Failed to check email duplication");
+                                return Mono.error(new InternalServerException(AuthErrorCode.INTERNAL_ERROR));
+                            }
+                            if (Boolean.TRUE.equals(emailCheckResponse.getData())) {
+                                return Mono.error(new DuplicateException(AuthErrorCode.USER_EMAIL_DUPLICATE));
+                            }
+                            // MARK:  Register Member
+                            return serviceClient.postReactive(
                                     memberServiceUrl,
-                                    "/member/storeTokens",
-                                    tokenToStore,
-                                    new ParameterizedTypeReference<ServiceResponse<Boolean>>() {}
-                            )
-                            .flatMap(tokenStoredResponse -> {
-                                if (tokenStoredResponse == null
-                                        || !tokenStoredResponse.isSuccess()
-                                        || !Boolean.TRUE.equals(tokenStoredResponse.getData())) {
-                                    log.error("Token store failed: {}", tokenStoredResponse != null ? tokenStoredResponse.getMessage() : "no response body");
-                                    return Mono.<MemberRegisterResponse>error(new TokenSaveFailedException(AuthErrorCode.TOKEN_SAVE_FAILED));
-                                }
-                                logger.info("Token stored successfully for user: {}", registeredUser.getEmail());
-                                return Mono.just(new MemberRegisterResponse(registeredUser.getId(), accessToken, refreshToken));
-                            });
-                })
+                                    "/member/registerMember",
+                                    memberDTO,
+                                    new ParameterizedTypeReference<ServiceResponse<MemberDTO>>() {}
+                            );
+                        })
+                        .flatMap(registerResponse -> {
+                            if (registerResponse == null || !registerResponse.isSuccess()) {
+                                return Mono.error(new InternalServerException(AuthErrorCode.INTERNAL_ERROR));
+                            }
+
+                            // MARK:  create JWT token
+                            MemberDTO registeredUser = registerResponse.getData();
+                            String accessToken = jwtUtil.generate(registeredUser.getEmail(), registeredUser.getRole(), "ACCESS");
+                            String refreshToken = jwtUtil.generate(registeredUser.getEmail(), registeredUser.getRole(), "REFRESH");
+
+                            // MARK:  store token to database
+                            TokenDTO tokenToStore = TokenDTO.builder()
+                                    .memberDTO(registeredUser)
+                                    .expired(false)
+                                    .revoked(false)
+                                    .accessToken(accessToken)
+                                    .refreshToken(refreshToken)
+                                    .build();
+
+                            return serviceClient.postReactive(
+                                            memberServiceUrl,
+                                            "/member/storeTokens",
+                                            tokenToStore,
+                                            new ParameterizedTypeReference<ServiceResponse<Boolean>>() {}
+                                    )
+                                    .flatMap(tokenStoredResponse -> {
+                                        if (tokenStoredResponse == null
+                                                || !tokenStoredResponse.isSuccess()
+                                                || !Boolean.TRUE.equals(tokenStoredResponse.getData())) {
+                                            log.error("Token store failed: {}", tokenStoredResponse != null ? tokenStoredResponse.getMessage() : "no response body");
+                                            return Mono.<MemberRegisterResponse>error(new TokenSaveFailedException(AuthErrorCode.TOKEN_SAVE_FAILED));
+                                        }
+                                        logger.info("Token stored successfully for user: {}", registeredUser.getEmail());
+                                        return Mono.just(new MemberRegisterResponse(registeredUser.getId(), accessToken, refreshToken));
+                                    });
+                        })
+                )
                 .onErrorMap(ServiceClientException.class, this::mapServiceClientException);
     }
 
 
     public Mono<MemberRegisterResponse> issueToken(MemberLoginRequest request) {
 
-        //MARK: STEP1 validate google IdToken
-        GoogleIdToken idToken = verifyGoogleIdToken(request.getGoogleIdToken());
-        if (idToken == null) {
-            log.error("Invalid Google ID token");
-            return Mono.error(new GoogleIdTokenInvalidException(AuthErrorCode.GOOGLE_TOKEN_INVALID));
-        }
+        // MARK: STEP1 validate google IdToken (blocking — offloaded to boundedElastic)
+        return Mono.fromCallable(() -> {
+                    GoogleIdToken idToken = verifyGoogleIdToken(request.getGoogleIdToken());
+                    if (idToken == null) {
+                        log.error("Invalid Google ID token");
+                        throw new GoogleIdTokenInvalidException(AuthErrorCode.GOOGLE_TOKEN_INVALID);
+                    }
+                    return idToken;
+                })
+                .subscribeOn(Schedulers.boundedElastic())
+                // MARK: STEP2 extract email and googleId from validated token
+                .flatMap(idToken -> {
+                    GoogleIdToken.Payload payload = idToken.getPayload();
+                    String email = payload.getEmail();
+                    String googleId = payload.getSubject();
 
-        // MARK: STEP2 prepare check user email duplication
-        GoogleIdToken.Payload payload = idToken.getPayload();
-        String email = payload.getEmail();
-        String googleId = payload.getSubject();
+                    // MARK: STEP3 authenticate and issue tokens
+                    return reactiveAuthenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, googleId))
+                            .flatMap(authentication -> {
+                                UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+                                String accessToken = jwtUtil.generate(userDetails.getUsername(), userDetails.getAuthorities().toString(), "ACCESS");
+                                String refreshToken = jwtUtil.generate(userDetails.getUsername(), userDetails.getAuthorities().toString(), "REFRESH");
 
-        //MARK: STEP3 compare email address that in the request with payload
-        //Since this request does not yet have a JWT token, it goes through authentication process.
-        //and issue the tokens if the  email and googleId are matched using CustomUserDetailsService,
-        //which is registered through Security configuration (AuthServiceConfig in this case).
-        return reactiveAuthenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, googleId))
-                .flatMap(authentication -> {
-                    UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-                    String accessToken = jwtUtil.generate(userDetails.getUsername(), userDetails.getAuthorities().toString(), "ACCESS");
-                    String refreshToken = jwtUtil.generate(userDetails.getUsername(), userDetails.getAuthorities().toString(), "REFRESH");
+                                TokenDTO tokenToStore = TokenDTO.builder()
+                                        .memberDTO(memberMapper.userDetailToMemberDTO(userDetails))
+                                        .expired(false)
+                                        .revoked(false)
+                                        .accessToken(accessToken)
+                                        .refreshToken(refreshToken)
+                                        .build();
 
-                    TokenDTO tokenToStore = TokenDTO.builder()
-                            .memberDTO(memberMapper.userDetailToMemberDTO(userDetails))
-                            .expired(false)
-                            .revoked(false)
-                            .accessToken(accessToken)
-                            .refreshToken(refreshToken)
-                            .build();
-
-                    return serviceClient.postReactive(
-                                    memberServiceUrl,
-                                    "/member/storeTokens",
-                                    tokenToStore,
-                                    new ParameterizedTypeReference<ServiceResponse<Boolean>>() {}
-                            )
-                            .flatMap(tokenStoredResponse -> {
-                                if (tokenStoredResponse == null
-                                        || !tokenStoredResponse.isSuccess()
-                                        || !Boolean.TRUE.equals(tokenStoredResponse.getData())) {
-                                    log.error("Token store failed: {}", tokenStoredResponse != null ? tokenStoredResponse.getMessage() : "no response body");
-                                    return Mono.error(new TokenSaveFailedException(AuthErrorCode.TOKEN_SAVE_FAILED));
-                                }
-                                logger.info("Token stored successfully for user: {}", email);
-                                return Mono.just(new MemberRegisterResponse(null, accessToken, refreshToken));
+                                return serviceClient.postReactive(
+                                                memberServiceUrl,
+                                                "/member/storeTokens",
+                                                tokenToStore,
+                                                new ParameterizedTypeReference<ServiceResponse<Boolean>>() {}
+                                        )
+                                        .flatMap(tokenStoredResponse -> {
+                                            if (tokenStoredResponse == null
+                                                    || !tokenStoredResponse.isSuccess()
+                                                    || !Boolean.TRUE.equals(tokenStoredResponse.getData())) {
+                                                log.error("Token store failed: {}", tokenStoredResponse != null ? tokenStoredResponse.getMessage() : "no response body");
+                                                return Mono.error(new TokenSaveFailedException(AuthErrorCode.TOKEN_SAVE_FAILED));
+                                            }
+                                            logger.info("Token stored successfully for user: {}", email);
+                                            return Mono.just(new MemberRegisterResponse(null, accessToken, refreshToken));
+                                        });
                             });
                 })
                 .onErrorMap(ServiceClientException.class, this::mapServiceClientException);

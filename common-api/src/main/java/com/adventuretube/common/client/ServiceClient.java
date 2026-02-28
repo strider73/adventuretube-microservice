@@ -206,7 +206,7 @@ public class ServiceClient {
      * Extract service name from URL for logging.
      * e.g., "http://MEMBER-SERVICE" → "MEMBER-SERVICE"
      */
-    private String extractServiceName(String baseUrl) {
+    private String  extractServiceName(String baseUrl) {
         return baseUrl.replace("http://", "").replace("https://", "");
     }
 }

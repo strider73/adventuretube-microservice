@@ -1,5 +1,6 @@
 package com.adventuretube.common.config;
 
+import io.micrometer.observation.ObservationRegistry;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,6 +12,9 @@ import org.springframework.web.reactive.function.client.WebClient;
  * The @LoadBalanced annotation enables service discovery via Eureka,
  * allowing services to call each other using logical service names
  * (e.g., "http://MEMBER-SERVICE") instead of hardcoded URLs.
+ *
+ * The ObservationRegistry enables distributed tracing propagation,
+ * ensuring trace context (B3/W3C headers) is sent to downstream services.
  *
  * Usage in services:
  * <pre>
@@ -29,7 +33,8 @@ public class WebClientConfig {
 
     @Bean
     @LoadBalanced
-    public WebClient.Builder webClientBuilder() {
-        return WebClient.builder();
+    public WebClient.Builder webClientBuilder(ObservationRegistry observationRegistry) {
+        return WebClient.builder()
+                .observationRegistry(observationRegistry);
     }
 }
