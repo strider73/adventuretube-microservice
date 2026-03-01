@@ -6,8 +6,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.core.reactive.ReactiveKafkaProducerTemplate;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 @Service
 @RequiredArgsConstructor
@@ -15,18 +16,24 @@ public class Producer {
     private static final Logger logger = LoggerFactory.getLogger(Producer.class);
     private static final String TOPIC = "adventuretube-data";
 
-    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final ReactiveKafkaProducerTemplate<String, String> reactiveKafkaProducerTemplate;
     private final ObjectMapper objectMapper;
 
-    public void sendAdventureTubeData(AdventureTubeData data) {
+    public Mono<Void> sendAdventureTubeData(AdventureTubeData data) {
+        String json;
         try {
-            String json = objectMapper.writeValueAsString(data);
-            String key = data.getYoutubeContentID();
-            logger.info("Publishing to Kafka topic={} key={}", TOPIC, key);
-            kafkaTemplate.send(TOPIC, key, json);
+            json = objectMapper.writeValueAsString(data);
         } catch (JsonProcessingException e) {
             logger.error("Failed to serialize AdventureTubeData: {}", e.getMessage(), e);
-            throw new RuntimeException("Failed to serialize AdventureTubeData", e);
+            return Mono.error(new RuntimeException("Failed to serialize AdventureTubeData", e));
         }
+
+        String key = data.getYoutubeContentID();
+        logger.info("Publishing to Kafka topic={} key={}", TOPIC, key);
+
+        return reactiveKafkaProducerTemplate.send(TOPIC, key, json)
+                .doOnSuccess(result -> logger.info("Sent to Kafka: topic={} key={} offset={}",
+                        TOPIC, key, result.recordMetadata().offset()))
+                .then();
     }
 }

@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 @Service
 @RequiredArgsConstructor
@@ -32,11 +33,11 @@ public class Consumer {
             return;
         }
 
-        try {
-            adventureTubeDataService.save(data).block();
-            logger.info("Saved AdventureTubeData: youtubeContentID={}", data.getYoutubeContentID());
-        } catch (DuplicateKeyException e) {
-            logger.warn("Duplicate youtubeContentID={}, skipping", data.getYoutubeContentID());
-        }
+        adventureTubeDataService.save(data)
+                .doOnSuccess(saved -> logger.info("Saved AdventureTubeData: youtubeContentID={}", saved.getYoutubeContentID()))
+                .doOnError(DuplicateKeyException.class, e ->
+                        logger.warn("Duplicate youtubeContentID={}, skipping", data.getYoutubeContentID()))
+                .onErrorResume(DuplicateKeyException.class, e -> Mono.empty())
+                .subscribe();
     }
 }

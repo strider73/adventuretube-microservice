@@ -1,6 +1,7 @@
 package com.adventuretube.geospatial.controller;
 
 import com.adventuretube.geospatial.GeospatialServiceConfig;
+import com.adventuretube.geospatial.kafka.Producer;
 import com.adventuretube.geospatial.model.entity.adventuretube.AdventureTubeData;
 import com.adventuretube.geospatial.service.AdventureTubeDataService;
 import org.junit.jupiter.api.Test;
@@ -17,6 +18,7 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @WebFluxTest(AdventureTubeDataController.class)
@@ -29,6 +31,9 @@ class AdventureTubeDataControllerTest {
 
     @MockitoBean
     private AdventureTubeDataService adventureTubeDataService;
+
+    @MockitoBean
+    private Producer producer;
 
     // --- GET /geo/data ---
 
@@ -186,26 +191,21 @@ class AdventureTubeDataControllerTest {
     // --- POST /geo/save ---
 
     @Test
-    void save_shouldPersistAndReturnData() {
+    void save_shouldReturn202AndDelegateToProducer() {
         AdventureTubeData input = new AdventureTubeData();
         input.setYoutubeContentID("yt-new");
         input.setYoutubeTitle("New Adventure");
 
-        AdventureTubeData saved = new AdventureTubeData();
-        saved.setId("generated-id");
-        saved.setYoutubeContentID("yt-new");
-        saved.setYoutubeTitle("New Adventure");
-
-        when(adventureTubeDataService.save(any(AdventureTubeData.class))).thenReturn(Mono.just(saved));
+        when(producer.sendAdventureTubeData(any(AdventureTubeData.class))).thenReturn(Mono.empty());
 
         webTestClient.post().uri("/geo/save")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(input)
                 .exchange()
-                .expectStatus().isOk()
-                .expectBody()
-                .jsonPath("$.id").isEqualTo("generated-id")
-                .jsonPath("$.youtubeContentID").isEqualTo("yt-new")
-                .jsonPath("$.youtubeTitle").isEqualTo("New Adventure");
+                .expectStatus().isAccepted()
+                .expectBody(String.class)
+                .isEqualTo("Data accepted: youtubeContentID=yt-new");
+
+        verify(producer).sendAdventureTubeData(any(AdventureTubeData.class));
     }
 }
