@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient
@@ -208,51 +210,40 @@ class AdventureTubeDataFullStackIT {
     // ── POST /geo/save ───────────────────────────────────────────────
 
     @Test
-    void save_shouldPersistAndReturnDataWithId() {
+    void save_shouldReturn202AndPublishToKafka() {
         AdventureTubeData input = createTestData("postSave", "video", List.of("travel"));
 
         webTestClient.post().uri("/geo/save")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(input)
                 .exchange()
-                .expectStatus().isOk()
-                .expectBody(AdventureTubeData.class)
-                .value(saved -> {
-                    assertThat(saved.getId()).isNotNull();
-                    assertThat(saved.getYoutubeContentID()).isEqualTo(testYoutubeId("postSave"));
-                    createdIds.add(saved.getId());
-                });
+                .expectStatus().isAccepted()
+                .expectBody(String.class)
+                .value(body -> assertThat(body).contains(testYoutubeId("postSave")));
+
+        verify(kafkaProducer).sendAdventureTubeData(any(AdventureTubeData.class));
     }
 
-    // ── POST /geo/save → GET /geo/data/{id} round-trip ───────────────
+    // ── POST /geo/save → verify data sent to Producer ─────────────────
 
     @Test
-    void saveAndRetrieve_shouldReturnSameDocument() {
+    void save_shouldSendCorrectDataToProducer() {
         AdventureTubeData input = createTestData("roundTrip", "video", List.of("travel", "hiking"));
 
-        // Save via HTTP
-        AdventureTubeData saved = webTestClient.post().uri("/geo/save")
+        webTestClient.post().uri("/geo/save")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(input)
                 .exchange()
-                .expectStatus().isOk()
-                .expectBody(AdventureTubeData.class)
-                .returnResult()
-                .getResponseBody();
+                .expectStatus().isAccepted();
 
-        assertThat(saved).isNotNull();
-        createdIds.add(saved.getId());
+        org.mockito.ArgumentCaptor<AdventureTubeData> captor =
+                org.mockito.ArgumentCaptor.forClass(AdventureTubeData.class);
+        verify(kafkaProducer).sendAdventureTubeData(captor.capture());
 
-        // Retrieve via HTTP
-        webTestClient.get().uri("/geo/data/{id}", saved.getId())
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody()
-                .jsonPath("$.id").isEqualTo(saved.getId())
-                .jsonPath("$.youtubeContentID").isEqualTo(testYoutubeId("roundTrip"))
-                .jsonPath("$.youtubeTitle").isEqualTo("Test Title " + testYoutubeId("roundTrip"))
-                .jsonPath("$.userContentType").isEqualTo("video")
-                .jsonPath("$.chapters[0].youtubeId").isEqualTo(testYoutubeId("roundTrip"))
-                .jsonPath("$.places[0].location.coordinates[0]").isEqualTo(126.978);
+        AdventureTubeData captured = captor.getValue();
+        assertThat(captured.getYoutubeContentID()).isEqualTo(testYoutubeId("roundTrip"));
+        assertThat(captured.getUserContentType()).isEqualTo("video");
+        assertThat(captured.getUserContentCategory()).containsExactly("travel", "hiking");
+        assertThat(captured.getPlaces()).hasSize(1);
     }
 }

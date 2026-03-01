@@ -1,5 +1,6 @@
 package com.adventuretube.geospatial.controller;
 
+import com.adventuretube.geospatial.kafka.Producer;
 import com.adventuretube.geospatial.model.entity.adventuretube.AdventureTubeData;
 import com.adventuretube.geospatial.service.AdventureTubeDataService;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,7 @@ import java.util.List;
 public class AdventureTubeDataController {
 
     private final AdventureTubeDataService adventureTubeDataService;
+    private final Producer producer;
 
     @GetMapping("/data")
     public Mono<ResponseEntity<List<AdventureTubeData>>> findAll() {
@@ -60,13 +62,10 @@ public class AdventureTubeDataController {
     }
 
     @PostMapping("/save")
-    public Mono<ResponseEntity<AdventureTubeData>> save(@RequestBody AdventureTubeData data) {
-        log.info("📥 POST /geo/save received");
-        log.info("📦 Data: youtubeContentID={}, youtubeTitle={}", data.getYoutubeContentID(), data.getYoutubeTitle());
-        log.info("📦 Places count: {}", data.getPlaces() != null ? data.getPlaces().size() : "null");
-        return adventureTubeDataService.save(data)
-                .doOnSuccess(saved -> log.info("✅ Saved successfully: id={}", saved.getId()))
-                .doOnError(err -> log.error("❌ Save failed: {}", err.getMessage(), err))
-                .map(ResponseEntity::ok);
+    public Mono<ResponseEntity<String>> save(@RequestBody AdventureTubeData data) {
+        log.info("POST /geo/save received: youtubeContentID={}", data.getYoutubeContentID());
+        producer.sendAdventureTubeData(data);
+        return Mono.just(ResponseEntity.accepted()
+                .body("Data accepted: youtubeContentID=" + data.getYoutubeContentID()));
     }
 }
