@@ -16,15 +16,29 @@ spring:
         - docker*       # Docker virtual interfaces
         - veth*         # Docker container interfaces
         - br-*          # Docker bridge interfaces
-  # R2DBC configuration (replaces datasource/JPA)
-  r2dbc:
-    url: r2dbc:postgresql:${POSTGRES_HOST}
+  threads:
+    virtual:
+      enabled: true
+  datasource:
+    url: jdbc:postgresql:${POSTGRES_HOST}
     username: ${POSTGRES_USER}
     password: ${POSTGRES_PASSWORD}
-    pool:
-      initial-size: 5
-      max-size: 10
-      max-idle-time: 30m
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      max-lifetime: 2700000
+      idle-timeout: 600000
+      validation-timeout: 5000
+      connection-test-query: SELECT 1
+  jpa:
+    hibernate:
+      ddl-auto: update
+      show-sql: true
+      properties:
+        hibernate:
+          dialect: org.hibernate.dialect.PostgreSQLDialect
+          default_schema: public
+          format_sql: true
 
 #in here hostname and ip address id where the this submodule is running
 #which is case of direct connection from the mac to the pi HOST_IP should eureka clinet ip address which is mac local network ip address
@@ -46,8 +60,9 @@ logging:
     level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
   level:
     root: INFO
-    io.r2dbc.postgresql: INFO
-    org.springframework.r2dbc: INFO
+    org.hibernate: INFO
+    org.hibernate.SQL: INFO
+    org.hibernate.type.descriptor.sql: TRACE
     com.adventuretube.member: DEBUG
 
 management:

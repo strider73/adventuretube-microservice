@@ -13,10 +13,10 @@ import com.adventuretube.member.exceptions.code.MemberErrorCode;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Mono;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.UUID;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -27,41 +27,27 @@ public class MemberService {
     private final MemberMapper memberMapper;
     private final TokenMapper tokenMapper;
 
-    public Mono<Member> registerMember(Member member) {
-        return memberRepository.findByEmail(member.getEmail())
-                .flatMap(existing -> Mono.<Member>error(new DuplicateException(MemberErrorCode.USER_EMAIL_DUPLICATE)))
-                .switchIfEmpty(Mono.defer(() -> {
-                    // Handle @PrePersist manually - set ID and createAt
-                    if (member.getId() == null) {
-                        member.setId(UUID.randomUUID());
-                    }
-                    if (member.getCreateAt() == null) {
-                        member.setCreateAt(LocalDateTime.now());
-                    }
-                    // Tell R2DBC this is INSERT, not UPDATE
-                    member.setNew(true);
-                    return memberRepository.save(member);
-                }));
+    public Member registerMember(Member member) {
+        Optional<Member> existing = memberRepository.findByEmail(member.getEmail());
+        if (existing.isPresent()) {
+            throw new DuplicateException(MemberErrorCode.USER_EMAIL_DUPLICATE);
+        }
+        return memberRepository.save(member);
     }
 
-    public Mono<Member> findEmail(String email) {
+    public Optional<Member> findEmail(String email) {
         return memberRepository.findByEmail(email);
     }
 
-    public Mono<Member> findMemberByEmailAndTokenCheck(String email) {
-        return memberRepository.findByEmail(email)
-                .switchIfEmpty(Mono.error(new RuntimeException("Member with email " + email + " is not exist")))
-                .flatMap(member ->
-                        tokenRepository.findAllValidTokenByMember(member.getId())
-                                .hasElements()
-                                .flatMap(hasTokens -> {
-                                    if (hasTokens) {
-                                        return Mono.just(member);
-                                    } else {
-                                        return Mono.error(new RuntimeException("Member with email " + email + " was logged out already"));
-                                    }
-                                })
-                );
+    public Member findMemberByEmailAndTokenCheck(String email) {
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Member with email " + email + " is not exist"));
+
+        List<Token> validTokens = tokenRepository.findAllValidTokenByMember(member.getId());
+        if (validTokens.isEmpty()) {
+            throw new RuntimeException("Member with email " + email + " was logged out already");
+        }
+        return member;
     }
 
     /**
@@ -82,71 +68,54 @@ public class MemberService {
      * </ul>
      *
      * @param tokenDTO The token data including member information and token strings
-     * @return {@code Mono<Boolean>} true if the token was successfully saved
+     * @return true if the token was successfully saved
      */
-    public Mono<Boolean> storeToken(TokenDTO tokenDTO) {
+    @Transactional
+    public boolean storeToken(TokenDTO tokenDTO) {
         log.info(">>> storeToken called for member: {}", tokenDTO.getMemberDTO().getEmail());
+
         // Resolve member ID if missing (e.g., login scenario)
-        Mono<TokenDTO> resolvedTokenDTO;
         if (tokenDTO.getMemberDTO().getId() == null) {
-            resolvedTokenDTO = memberRepository.findByEmail(tokenDTO.getMemberDTO().getUsername())
-                    .switchIfEmpty(Mono.error(new RuntimeException("User email " + tokenDTO.getMemberDTO().getEmail() + " is not a Member")))
-                    .map(member -> {
-                        tokenDTO.setMemberDTO(memberMapper.memberToMemberDTO(member));
-                        return tokenDTO;
-                    });
-        } else {
-            resolvedTokenDTO = Mono.just(tokenDTO);
+            Member member = memberRepository.findByEmail(tokenDTO.getMemberDTO().getUsername())
+                    .orElseThrow(() -> new RuntimeException("User email " + tokenDTO.getMemberDTO().getEmail() + " is not a Member"));
+            tokenDTO.setMemberDTO(memberMapper.memberToMemberDTO(member));
         }
 
-        return resolvedTokenDTO.flatMap(dto -> {
-            // Convert TokenDTO to entity
-            Token token = tokenMapper.tokenDTOToToken(dto);
+        // Convert TokenDTO to entity
+        Token token = tokenMapper.tokenDTOToToken(tokenDTO);
 
-            // Handle @PrePersist manually (R2DBC doesn't support JPA callbacks)
-            if (token.getId() == null) {
-                token.setId(UUID.randomUUID());
-                token.setNew(true);  // Tell R2DBC this is INSERT, not UPDATE
-            }
-            if (token.getCreateAt() == null) {
-                token.setCreateAt(LocalDateTime.now());
-            }
+        // Revoke all existing valid tokens before saving the new one
+        log.info(">>> storeToken: revoking old tokens and saving new token for memberId: {}", tokenDTO.getMemberDTO().getId());
+        List<Token> existingTokens = tokenRepository.findAllValidTokenByMember(tokenDTO.getMemberDTO().getId());
+        tokenRepository.deleteAll(existingTokens);
 
-            // Revoke all existing valid tokens before saving the new one
-            log.info(">>> storeToken: revoking old tokens and saving new token for memberId: {}", dto.getMemberDTO().getId());
-            return tokenRepository.findAllValidTokenByMember(dto.getMemberDTO().getId())
-                    .flatMap(tokenRepository::delete)
-                    .then(tokenRepository.save(token))
-                    .doOnSuccess(saved -> log.info(">>> storeToken: token saved successfully for memberId: {}", dto.getMemberDTO().getId()))
-                    .doOnError(err -> log.error(">>> storeToken: FAILED to save token for memberId: {}, error: {}", dto.getMemberDTO().getId(), err.getMessage()))
-                    .thenReturn(true);
-        });
+        tokenRepository.save(token);
+        log.info(">>> storeToken: token saved successfully for memberId: {}", tokenDTO.getMemberDTO().getId());
+        return true;
     }
 
-    public Mono<Token> findToken(String token) {
+    public Optional<Token> findToken(String token) {
         return tokenRepository.findByRefreshToken(token);
     }
 
-    public Mono<Boolean> deleteAllToken(String token) {
-        return tokenRepository.deleteByAccessTokenOrRefreshToken(token)
-                .map(deleteCount -> {
-                    if (deleteCount > 0) {
-                        log.debug("token delete successfully");
-                        return true;
-                    } else {
-                        log.warn("Token deletion failed for access token: {}", token);
-                        return false;
-                    }
-                });
+    @Transactional
+    public boolean deleteAllToken(String token) {
+        int deleteCount = tokenRepository.deleteByAccessTokenOrRefreshToken(token);
+        if (deleteCount > 0) {
+            log.debug("token delete successfully");
+            return true;
+        } else {
+            log.warn("Token deletion failed for access token: {}", token);
+            return false;
+        }
     }
 
-    public Mono<Boolean> deleteUser(String email) {
-        return memberRepository.findByEmail(email)
-                .switchIfEmpty(Mono.error(new MemberNotFoundException(MemberErrorCode.USER_NOT_FOUND)))
-                .flatMap(member ->
-                        tokenRepository.deleteByMemberId(member.getId())
-                                .then(memberRepository.delete(member))
-                                .thenReturn(true)
-                );
+    @Transactional
+    public boolean deleteUser(String email) {
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new MemberNotFoundException(MemberErrorCode.USER_NOT_FOUND));
+        tokenRepository.deleteByMemberId(member.getId());
+        memberRepository.delete(member);
+        return true;
     }
 }

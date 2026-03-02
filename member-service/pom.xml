@@ -19,10 +19,9 @@
             <artifactId>adventuretube-common-api</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
-        <!-- WebFlux (replaces spring-boot-starter-web) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-webflux</artifactId>
+            <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -36,15 +35,13 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-config</artifactId>
         </dependency>
-        <!-- R2DBC (replaces spring-boot-starter-data-jpa) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-r2dbc</artifactId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
-        <!-- R2DBC PostgreSQL driver (replaces postgresql JDBC) -->
         <dependency>
             <groupId>org.postgresql</groupId>
-            <artifactId>r2dbc-postgresql</artifactId>
+            <artifactId>postgresql</artifactId>
             <scope>runtime</scope>
         </dependency>
         <dependency>
@@ -61,10 +58,9 @@
             <artifactId>spring-boot-devtools</artifactId>
             <optional>true</optional>
         </dependency>
-        <!-- OpenAPI for WebFlux (replaces webmvc-ui) -->
         <dependency>
             <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-starter-webflux-ui</artifactId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
         </dependency>
     </dependencies>
 
