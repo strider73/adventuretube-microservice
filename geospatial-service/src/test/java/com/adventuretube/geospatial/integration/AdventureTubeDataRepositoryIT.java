@@ -10,10 +10,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.test.context.ActiveProfiles;
-import reactor.test.StepVerifier;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,7 +34,7 @@ class AdventureTubeDataRepositoryIT {
     @AfterEach
     void cleanup() {
         if (!createdIds.isEmpty()) {
-            repository.deleteAllById(createdIds).block();
+            repository.deleteAllById(createdIds);
         }
         createdIds.clear();
     }
@@ -93,10 +93,9 @@ class AdventureTubeDataRepositoryIT {
 
     /**
      * Save a document and track its ID for cleanup.
-     * Uses .block() in test setup since this is a test helper, not production code.
      */
     private AdventureTubeData saveAndTrack(AdventureTubeData data) {
-        AdventureTubeData saved = repository.save(data).block();
+        AdventureTubeData saved = repository.save(data);
         createdIds.add(saved.getId());
         return saved;
     }
@@ -107,15 +106,13 @@ class AdventureTubeDataRepositoryIT {
     void save_shouldPersistAndGenerateId() {
         AdventureTubeData data = createTestData("save", "video", List.of("travel"));
 
-        StepVerifier.create(repository.save(data))
-                .assertNext(saved -> {
-                    assertThat(saved.getId()).isNotNull();
-                    assertThat(saved.getYoutubeContentID()).isEqualTo(testYoutubeId("save"));
-                    assertThat(saved.getPlaces()).hasSize(1);
-                    assertThat(saved.getChapters()).hasSize(1);
-                    createdIds.add(saved.getId());
-                })
-                .verifyComplete();
+        AdventureTubeData saved = repository.save(data);
+        createdIds.add(saved.getId());
+
+        assertThat(saved.getId()).isNotNull();
+        assertThat(saved.getYoutubeContentID()).isEqualTo(testYoutubeId("save"));
+        assertThat(saved.getPlaces()).hasSize(1);
+        assertThat(saved.getChapters()).hasSize(1);
     }
 
     @Test
@@ -123,12 +120,11 @@ class AdventureTubeDataRepositoryIT {
         AdventureTubeData saved = saveAndTrack(
                 createTestData("findById", "video", List.of("travel")));
 
-        StepVerifier.create(repository.findById(saved.getId()))
-                .assertNext(found -> {
-                    assertThat(found.getYoutubeContentID()).isEqualTo(testYoutubeId("findById"));
-                    assertThat(found.getYoutubeTitle()).isEqualTo("Test Title " + testYoutubeId("findById"));
-                })
-                .verifyComplete();
+        Optional<AdventureTubeData> found = repository.findById(saved.getId());
+
+        assertThat(found).isPresent();
+        assertThat(found.get().getYoutubeContentID()).isEqualTo(testYoutubeId("findById"));
+        assertThat(found.get().getYoutubeTitle()).isEqualTo("Test Title " + testYoutubeId("findById"));
     }
 
     @Test
@@ -136,17 +132,16 @@ class AdventureTubeDataRepositoryIT {
         AdventureTubeData saved = saveAndTrack(
                 createTestData("ytLookup", "video", List.of("travel")));
 
-        StepVerifier.create(repository.findByYoutubeContentID(testYoutubeId("ytLookup")))
-                .assertNext(found -> {
-                    assertThat(found.getId()).isEqualTo(saved.getId());
-                    // Verify nested Place with Location
-                    assertThat(found.getPlaces()).hasSize(1);
-                    Place place = found.getPlaces().get(0);
-                    assertThat(place.getName()).isEqualTo("Test Place");
-                    assertThat(place.getLocation().getType()).isEqualTo("Point");
-                    assertThat(place.getLocation().getCoordinates()).containsExactly(126.978, 37.566);
-                })
-                .verifyComplete();
+        Optional<AdventureTubeData> found = repository.findByYoutubeContentID(testYoutubeId("ytLookup"));
+
+        assertThat(found).isPresent();
+        assertThat(found.get().getId()).isEqualTo(saved.getId());
+        // Verify nested Place with Location
+        assertThat(found.get().getPlaces()).hasSize(1);
+        Place place = found.get().getPlaces().get(0);
+        assertThat(place.getName()).isEqualTo("Test Place");
+        assertThat(place.getLocation().getType()).isEqualTo("Point");
+        assertThat(place.getLocation().getCoordinates()).containsExactly(126.978, 37.566);
     }
 
     @Test
@@ -155,12 +150,10 @@ class AdventureTubeDataRepositoryIT {
         saveAndTrack(createTestData("type1", uniqueType, List.of("travel")));
         saveAndTrack(createTestData("type2", uniqueType, List.of("food")));
 
-        StepVerifier.create(repository.findByUserContentType(uniqueType).collectList())
-                .assertNext(results -> {
-                    assertThat(results).hasSize(2);
-                    assertThat(results).allMatch(d -> d.getUserContentType().equals(uniqueType));
-                })
-                .verifyComplete();
+        List<AdventureTubeData> results = repository.findByUserContentType(uniqueType);
+
+        assertThat(results).hasSize(2);
+        assertThat(results).allMatch(d -> d.getUserContentType().equals(uniqueType));
     }
 
     @Test
@@ -170,31 +163,27 @@ class AdventureTubeDataRepositoryIT {
         saveAndTrack(createTestData("cat2", "video", List.of(uniqueCategory, "food")));
         saveAndTrack(createTestData("cat3", "video", List.of("other")));
 
-        StepVerifier.create(repository.findByUserContentCategoryContaining(uniqueCategory).collectList())
-                .assertNext(results -> {
-                    assertThat(results).hasSize(2);
-                    assertThat(results).allMatch(
-                            d -> d.getUserContentCategory().contains(uniqueCategory));
-                })
-                .verifyComplete();
+        List<AdventureTubeData> results = repository.findByUserContentCategoryContaining(uniqueCategory);
+
+        assertThat(results).hasSize(2);
+        assertThat(results).allMatch(
+                d -> d.getUserContentCategory().contains(uniqueCategory));
     }
 
     @Test
     void findAll_shouldReturnNonEmptyList() {
         saveAndTrack(createTestData("all", "video", List.of("travel")));
 
-        StepVerifier.create(repository.findAll().collectList())
-                .assertNext(all -> assertThat(all).hasSizeGreaterThanOrEqualTo(1))
-                .verifyComplete();
+        List<AdventureTubeData> all = repository.findAll();
+        assertThat(all).hasSizeGreaterThanOrEqualTo(1);
     }
 
     @Test
     void count_shouldReturnPositiveNumber() {
         saveAndTrack(createTestData("count", "video", List.of("travel")));
 
-        StepVerifier.create(repository.count())
-                .assertNext(count -> assertThat(count).isGreaterThanOrEqualTo(1))
-                .verifyComplete();
+        long count = repository.count();
+        assertThat(count).isGreaterThanOrEqualTo(1);
     }
 
     @Test
@@ -203,11 +192,10 @@ class AdventureTubeDataRepositoryIT {
                 createTestData("delete", "video", List.of("travel")));
         String savedId = saved.getId();
 
-        StepVerifier.create(
-                repository.deleteById(savedId)
-                        .then(repository.findById(savedId))
-        )
-                .verifyComplete(); // Empty Mono = document not found
+        repository.deleteById(savedId);
+        Optional<AdventureTubeData> found = repository.findById(savedId);
+
+        assertThat(found).isEmpty();
 
         createdIds.remove(savedId); // Already deleted, skip cleanup
     }

@@ -4,30 +4,36 @@ import com.adventuretube.geospatial.GeospatialServiceConfig;
 import com.adventuretube.geospatial.kafka.Producer;
 import com.adventuretube.geospatial.model.entity.adventuretube.AdventureTubeData;
 import com.adventuretube.geospatial.service.AdventureTubeDataService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.reactive.server.WebTestClient;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
+import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebFluxTest(AdventureTubeDataController.class)
+@WebMvcTest(AdventureTubeDataController.class)
 @Import(GeospatialServiceConfig.class)
 @ActiveProfiles("test")
 class AdventureTubeDataControllerTest {
 
     @Autowired
-    private WebTestClient webTestClient;
+    private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @MockitoBean
     private AdventureTubeDataService adventureTubeDataService;
@@ -38,7 +44,7 @@ class AdventureTubeDataControllerTest {
     // --- GET /geo/data ---
 
     @Test
-    void findAll_shouldReturnListOfData() {
+    void findAll_shouldReturnListOfData() throws Exception {
         AdventureTubeData data1 = new AdventureTubeData();
         data1.setId("1");
         data1.setYoutubeTitle("Trip to Seoul");
@@ -47,162 +53,140 @@ class AdventureTubeDataControllerTest {
         data2.setId("2");
         data2.setYoutubeTitle("Trip to Tokyo");
 
-        when(adventureTubeDataService.findAll()).thenReturn(Flux.just(data1, data2));
+        when(adventureTubeDataService.findAll()).thenReturn(List.of(data1, data2));
 
-        webTestClient.get().uri("/geo/data")
-                .exchange()
-                .expectStatus().isOk()
-                .expectBodyList(AdventureTubeData.class)
-                .hasSize(2);
+        mockMvc.perform(get("/geo/data"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2));
     }
 
     @Test
-    void findAll_shouldReturnEmptyList_whenNoData() {
-        when(adventureTubeDataService.findAll()).thenReturn(Flux.empty());
+    void findAll_shouldReturnEmptyList_whenNoData() throws Exception {
+        when(adventureTubeDataService.findAll()).thenReturn(List.of());
 
-        webTestClient.get().uri("/geo/data")
-                .exchange()
-                .expectStatus().isOk()
-                .expectBodyList(AdventureTubeData.class)
-                .hasSize(0);
+        mockMvc.perform(get("/geo/data"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(0));
     }
 
     // --- GET /geo/data/{id} ---
 
     @Test
-    void findById_shouldReturnData_whenFound() {
+    void findById_shouldReturnData_whenFound() throws Exception {
         AdventureTubeData data = new AdventureTubeData();
         data.setId("abc123");
         data.setYoutubeTitle("Mountain Hike");
 
-        when(adventureTubeDataService.findById("abc123")).thenReturn(Mono.just(data));
+        when(adventureTubeDataService.findById("abc123")).thenReturn(Optional.of(data));
 
-        webTestClient.get().uri("/geo/data/abc123")
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody()
-                .jsonPath("$.id").isEqualTo("abc123")
-                .jsonPath("$.youtubeTitle").isEqualTo("Mountain Hike");
+        mockMvc.perform(get("/geo/data/abc123"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value("abc123"))
+                .andExpect(jsonPath("$.youtubeTitle").value("Mountain Hike"));
     }
 
     @Test
-    void findById_shouldReturn404_whenNotFound() {
-        when(adventureTubeDataService.findById("nonexistent")).thenReturn(Mono.empty());
+    void findById_shouldReturn404_whenNotFound() throws Exception {
+        when(adventureTubeDataService.findById("nonexistent")).thenReturn(Optional.empty());
 
-        webTestClient.get().uri("/geo/data/nonexistent")
-                .exchange()
-                .expectStatus().isNotFound();
+        mockMvc.perform(get("/geo/data/nonexistent"))
+                .andExpect(status().isNotFound());
     }
 
     // --- GET /geo/data/youtube/{youtubeContentID} ---
 
     @Test
-    void findByYoutubeContentID_shouldReturnData_whenFound() {
+    void findByYoutubeContentID_shouldReturnData_whenFound() throws Exception {
         AdventureTubeData data = new AdventureTubeData();
         data.setYoutubeContentID("yt-123");
         data.setYoutubeTitle("Beach Trip");
 
-        when(adventureTubeDataService.findByYoutubeContentID("yt-123")).thenReturn(Mono.just(data));
+        when(adventureTubeDataService.findByYoutubeContentID("yt-123")).thenReturn(Optional.of(data));
 
-        webTestClient.get().uri("/geo/data/youtube/yt-123")
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody()
-                .jsonPath("$.youtubeContentID").isEqualTo("yt-123")
-                .jsonPath("$.youtubeTitle").isEqualTo("Beach Trip");
+        mockMvc.perform(get("/geo/data/youtube/yt-123"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.youtubeContentID").value("yt-123"))
+                .andExpect(jsonPath("$.youtubeTitle").value("Beach Trip"));
     }
 
     @Test
-    void findByYoutubeContentID_shouldReturn404_whenNotFound() {
-        when(adventureTubeDataService.findByYoutubeContentID("yt-999")).thenReturn(Mono.empty());
+    void findByYoutubeContentID_shouldReturn404_whenNotFound() throws Exception {
+        when(adventureTubeDataService.findByYoutubeContentID("yt-999")).thenReturn(Optional.empty());
 
-        webTestClient.get().uri("/geo/data/youtube/yt-999")
-                .exchange()
-                .expectStatus().isNotFound();
+        mockMvc.perform(get("/geo/data/youtube/yt-999"))
+                .andExpect(status().isNotFound());
     }
 
     // --- GET /geo/data/type/{contentType} ---
 
     @Test
-    void findByContentType_shouldReturnMatchingData() {
+    void findByContentType_shouldReturnMatchingData() throws Exception {
         AdventureTubeData data = new AdventureTubeData();
         data.setUserContentType("TRAVEL");
 
-        when(adventureTubeDataService.findByContentType("TRAVEL")).thenReturn(Flux.just(data));
+        when(adventureTubeDataService.findByContentType("TRAVEL")).thenReturn(List.of(data));
 
-        webTestClient.get().uri("/geo/data/type/TRAVEL")
-                .exchange()
-                .expectStatus().isOk()
-                .expectBodyList(AdventureTubeData.class)
-                .hasSize(1);
+        mockMvc.perform(get("/geo/data/type/TRAVEL"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1));
     }
 
     @Test
-    void findByContentType_shouldReturnEmptyList_whenNoneMatch() {
-        when(adventureTubeDataService.findByContentType("UNKNOWN")).thenReturn(Flux.empty());
+    void findByContentType_shouldReturnEmptyList_whenNoneMatch() throws Exception {
+        when(adventureTubeDataService.findByContentType("UNKNOWN")).thenReturn(List.of());
 
-        webTestClient.get().uri("/geo/data/type/UNKNOWN")
-                .exchange()
-                .expectStatus().isOk()
-                .expectBodyList(AdventureTubeData.class)
-                .hasSize(0);
+        mockMvc.perform(get("/geo/data/type/UNKNOWN"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(0));
     }
 
     // --- GET /geo/data/category/{category} ---
 
     @Test
-    void findByCategory_shouldReturnMatchingData() {
+    void findByCategory_shouldReturnMatchingData() throws Exception {
         AdventureTubeData data = new AdventureTubeData();
         data.setUserContentCategory(List.of("hiking", "nature"));
 
-        when(adventureTubeDataService.findByCategory("hiking")).thenReturn(Flux.just(data));
+        when(adventureTubeDataService.findByCategory("hiking")).thenReturn(List.of(data));
 
-        webTestClient.get().uri("/geo/data/category/hiking")
-                .exchange()
-                .expectStatus().isOk()
-                .expectBodyList(AdventureTubeData.class)
-                .hasSize(1);
+        mockMvc.perform(get("/geo/data/category/hiking"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1));
     }
 
     @Test
-    void findByCategory_shouldReturnEmptyList_whenNoneMatch() {
-        when(adventureTubeDataService.findByCategory("scuba")).thenReturn(Flux.empty());
+    void findByCategory_shouldReturnEmptyList_whenNoneMatch() throws Exception {
+        when(adventureTubeDataService.findByCategory("scuba")).thenReturn(List.of());
 
-        webTestClient.get().uri("/geo/data/category/scuba")
-                .exchange()
-                .expectStatus().isOk()
-                .expectBodyList(AdventureTubeData.class)
-                .hasSize(0);
+        mockMvc.perform(get("/geo/data/category/scuba"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(0));
     }
 
     // --- GET /geo/data/count ---
 
     @Test
-    void count_shouldReturnDocumentCount() {
-        when(adventureTubeDataService.count()).thenReturn(Mono.just(42L));
+    void count_shouldReturnDocumentCount() throws Exception {
+        when(adventureTubeDataService.count()).thenReturn(42L);
 
-        webTestClient.get().uri("/geo/data/count")
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody(Long.class)
-                .isEqualTo(42L);
+        mockMvc.perform(get("/geo/data/count"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("42"));
     }
 
     // --- POST /geo/save ---
 
     @Test
-    void save_shouldReturn202AndDelegateToProducer() {
+    void save_shouldReturn202AndDelegateToProducer() throws Exception {
         AdventureTubeData input = new AdventureTubeData();
         input.setYoutubeContentID("yt-new");
         input.setYoutubeTitle("New Adventure");
 
-        webTestClient.post().uri("/geo/save")
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(input)
-                .exchange()
-                .expectStatus().isAccepted()
-                .expectBody(String.class)
-                .isEqualTo("Data accepted: youtubeContentID=yt-new");
+        mockMvc.perform(post("/geo/save")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(input)))
+                .andExpect(status().isAccepted())
+                .andExpect(content().string("Data accepted: youtubeContentID=yt-new"));
 
         verify(producer).sendAdventureTubeData(any(AdventureTubeData.class));
     }

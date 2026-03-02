@@ -6,35 +6,42 @@ import com.adventuretube.geospatial.model.entity.adventuretube.Location;
 import com.adventuretube.geospatial.model.entity.adventuretube.Place;
 import com.adventuretube.geospatial.repository.AdventureTubeDataRepository;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import com.adventuretube.geospatial.kafka.Producer;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.test.web.servlet.MockMvc;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@AutoConfigureWebTestClient
+@AutoConfigureMockMvc
 @ActiveProfiles("integration")
 class AdventureTubeDataFullStackIT {
 
     @Autowired
-    private WebTestClient webTestClient;
+    private MockMvc mockMvc;
 
     @Autowired
     private AdventureTubeDataRepository repository;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     /** Mock Kafka Producer to avoid requiring a Kafka broker in integration tests */
     @MockitoBean
@@ -46,7 +53,7 @@ class AdventureTubeDataFullStackIT {
     @AfterEach
     void cleanup() {
         if (!createdIds.isEmpty()) {
-            repository.deleteAllById(createdIds).block();
+            repository.deleteAllById(createdIds);
         }
         createdIds.clear();
     }
@@ -104,7 +111,7 @@ class AdventureTubeDataFullStackIT {
     }
 
     private AdventureTubeData seedAndTrack(String suffix, String contentType, List<String> categories) {
-        AdventureTubeData saved = repository.save(createTestData(suffix, contentType, categories)).block();
+        AdventureTubeData saved = repository.save(createTestData(suffix, contentType, categories));
         createdIds.add(saved.getId());
         return saved;
     }
@@ -112,115 +119,99 @@ class AdventureTubeDataFullStackIT {
     // ── GET /geo/data ────────────────────────────────────────────────
 
     @Test
-    void findAll_shouldReturnNonEmptyList() {
+    void findAll_shouldReturnNonEmptyList() throws Exception {
         seedAndTrack("findAll", "video", List.of("travel"));
 
-        webTestClient.get().uri("/geo/data")
-                .exchange()
-                .expectStatus().isOk()
-                .expectBodyList(AdventureTubeData.class)
-                .value(list -> assertThat(list).hasSizeGreaterThanOrEqualTo(1));
+        mockMvc.perform(get("/geo/data"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()", greaterThanOrEqualTo(1)));
     }
 
     // ── GET /geo/data/{id} ───────────────────────────────────────────
 
     @Test
-    void findById_shouldReturnData_whenFound() {
+    void findById_shouldReturnData_whenFound() throws Exception {
         AdventureTubeData saved = seedAndTrack("findById", "video", List.of("travel"));
 
-        webTestClient.get().uri("/geo/data/{id}", saved.getId())
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody()
-                .jsonPath("$.id").isEqualTo(saved.getId())
-                .jsonPath("$.youtubeContentID").isEqualTo(testYoutubeId("findById"));
+        mockMvc.perform(get("/geo/data/{id}", saved.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(saved.getId()))
+                .andExpect(jsonPath("$.youtubeContentID").value(testYoutubeId("findById")));
     }
 
     @Test
-    void findById_shouldReturn404_whenNotFound() {
-        webTestClient.get().uri("/geo/data/{id}", "nonexistent_" + testRunId)
-                .exchange()
-                .expectStatus().isNotFound();
+    void findById_shouldReturn404_whenNotFound() throws Exception {
+        mockMvc.perform(get("/geo/data/{id}", "nonexistent_" + testRunId))
+                .andExpect(status().isNotFound());
     }
 
     // ── GET /geo/data/youtube/{youtubeContentID} ─────────────────────
 
     @Test
-    void findByYoutubeContentID_shouldReturnData_whenFound() {
+    void findByYoutubeContentID_shouldReturnData_whenFound() throws Exception {
         seedAndTrack("ytLookup", "video", List.of("travel"));
 
-        webTestClient.get().uri("/geo/data/youtube/{ytId}", testYoutubeId("ytLookup"))
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody()
-                .jsonPath("$.youtubeContentID").isEqualTo(testYoutubeId("ytLookup"))
-                .jsonPath("$.places[0].name").isEqualTo("Test Place")
-                .jsonPath("$.places[0].location.type").isEqualTo("Point");
+        mockMvc.perform(get("/geo/data/youtube/{ytId}", testYoutubeId("ytLookup")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.youtubeContentID").value(testYoutubeId("ytLookup")))
+                .andExpect(jsonPath("$.places[0].name").value("Test Place"))
+                .andExpect(jsonPath("$.places[0].location.type").value("Point"));
     }
 
     @Test
-    void findByYoutubeContentID_shouldReturn404_whenNotFound() {
-        webTestClient.get().uri("/geo/data/youtube/{ytId}", "NONEXISTENT_" + testRunId)
-                .exchange()
-                .expectStatus().isNotFound();
+    void findByYoutubeContentID_shouldReturn404_whenNotFound() throws Exception {
+        mockMvc.perform(get("/geo/data/youtube/{ytId}", "NONEXISTENT_" + testRunId))
+                .andExpect(status().isNotFound());
     }
 
     // ── GET /geo/data/type/{contentType} ─────────────────────────────
 
     @Test
-    void findByContentType_shouldReturnMatchingData() {
+    void findByContentType_shouldReturnMatchingData() throws Exception {
         String uniqueType = "test_type_" + testRunId;
         seedAndTrack("type1", uniqueType, List.of("travel"));
         seedAndTrack("type2", uniqueType, List.of("food"));
 
-        webTestClient.get().uri("/geo/data/type/{type}", uniqueType)
-                .exchange()
-                .expectStatus().isOk()
-                .expectBodyList(AdventureTubeData.class)
-                .hasSize(2);
+        mockMvc.perform(get("/geo/data/type/{type}", uniqueType))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2));
     }
 
     // ── GET /geo/data/category/{category} ────────────────────────────
 
     @Test
-    void findByCategory_shouldReturnMatchingData() {
+    void findByCategory_shouldReturnMatchingData() throws Exception {
         String uniqueCat = "test_cat_" + testRunId;
         seedAndTrack("cat1", "video", List.of(uniqueCat, "travel"));
         seedAndTrack("cat2", "video", List.of(uniqueCat, "food"));
 
-        webTestClient.get().uri("/geo/data/category/{cat}", uniqueCat)
-                .exchange()
-                .expectStatus().isOk()
-                .expectBodyList(AdventureTubeData.class)
-                .hasSize(2);
+        mockMvc.perform(get("/geo/data/category/{cat}", uniqueCat))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2));
     }
 
     // ── GET /geo/data/count ──────────────────────────────────────────
 
     @Test
-    void count_shouldReturnPositiveNumber() {
+    void count_shouldReturnPositiveNumber() throws Exception {
         seedAndTrack("count", "video", List.of("travel"));
 
-        webTestClient.get().uri("/geo/data/count")
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody(Long.class)
-                .value(count -> assertThat(count).isGreaterThanOrEqualTo(1));
+        mockMvc.perform(get("/geo/data/count"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", greaterThanOrEqualTo(1)));
     }
 
     // ── POST /geo/save ───────────────────────────────────────────────
 
     @Test
-    void save_shouldReturn202AndPublishToKafka() {
+    void save_shouldReturn202AndPublishToKafka() throws Exception {
         AdventureTubeData input = createTestData("postSave", "video", List.of("travel"));
 
-        webTestClient.post().uri("/geo/save")
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(input)
-                .exchange()
-                .expectStatus().isAccepted()
-                .expectBody(String.class)
-                .value(body -> assertThat(body).contains(testYoutubeId("postSave")));
+        mockMvc.perform(post("/geo/save")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(input)))
+                .andExpect(status().isAccepted())
+                .andExpect(content().string(containsString(testYoutubeId("postSave"))));
 
         verify(kafkaProducer).sendAdventureTubeData(any(AdventureTubeData.class));
     }
@@ -228,14 +219,13 @@ class AdventureTubeDataFullStackIT {
     // ── POST /geo/save → verify data sent to Producer ─────────────────
 
     @Test
-    void save_shouldSendCorrectDataToProducer() {
+    void save_shouldSendCorrectDataToProducer() throws Exception {
         AdventureTubeData input = createTestData("roundTrip", "video", List.of("travel", "hiking"));
 
-        webTestClient.post().uri("/geo/save")
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(input)
-                .exchange()
-                .expectStatus().isAccepted();
+        mockMvc.perform(post("/geo/save")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(input)))
+                .andExpect(status().isAccepted());
 
         org.mockito.ArgumentCaptor<AdventureTubeData> captor =
                 org.mockito.ArgumentCaptor.forClass(AdventureTubeData.class);

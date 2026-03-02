@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Mono;
 
 import java.util.List;
 
@@ -21,53 +20,44 @@ public class AdventureTubeDataController {
     private final Producer producer;
 
     @GetMapping("/data")
-    public Mono<ResponseEntity<List<AdventureTubeData>>> findAll() {
-        return adventureTubeDataService.findAll()
-                .collectList()
-                .map(ResponseEntity::ok);
+    public ResponseEntity<List<AdventureTubeData>> findAll() {
+        return ResponseEntity.ok(adventureTubeDataService.findAll());
     }
 
     @GetMapping("/data/{id}")
-    public Mono<ResponseEntity<AdventureTubeData>> findById(@PathVariable String id) {
+    public ResponseEntity<AdventureTubeData> findById(@PathVariable String id) {
         return adventureTubeDataService.findById(id)
                 .map(ResponseEntity::ok)
-                .defaultIfEmpty(ResponseEntity.notFound().build());
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/data/youtube/{youtubeContentID}")
-    public Mono<ResponseEntity<AdventureTubeData>> findByYoutubeContentID(@PathVariable String youtubeContentID) {
+    public ResponseEntity<AdventureTubeData> findByYoutubeContentID(@PathVariable String youtubeContentID) {
         return adventureTubeDataService.findByYoutubeContentID(youtubeContentID)
                 .map(ResponseEntity::ok)
-                .defaultIfEmpty(ResponseEntity.notFound().build());
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/data/type/{contentType}")
-    public Mono<ResponseEntity<List<AdventureTubeData>>> findByContentType(@PathVariable String contentType) {
-        return adventureTubeDataService.findByContentType(contentType)
-                .collectList()
-                .map(ResponseEntity::ok);
+    public ResponseEntity<List<AdventureTubeData>> findByContentType(@PathVariable String contentType) {
+        return ResponseEntity.ok(adventureTubeDataService.findByContentType(contentType));
     }
 
     @GetMapping("/data/category/{category}")
-    public Mono<ResponseEntity<List<AdventureTubeData>>> findByCategory(@PathVariable String category) {
-        return adventureTubeDataService.findByCategory(category)
-                .collectList()
-                .map(ResponseEntity::ok);
+    public ResponseEntity<List<AdventureTubeData>> findByCategory(@PathVariable String category) {
+        return ResponseEntity.ok(adventureTubeDataService.findByCategory(category));
     }
 
     @GetMapping("/data/count")
-    public Mono<ResponseEntity<Long>> count() {
-        return adventureTubeDataService.count()
-                .map(ResponseEntity::ok);
+    public ResponseEntity<Long> count() {
+        return ResponseEntity.ok(adventureTubeDataService.count());
     }
 
     @PostMapping("/save")
-    public Mono<ResponseEntity<String>> save(@RequestBody AdventureTubeData data) {
+    public ResponseEntity<String> save(@RequestBody AdventureTubeData data) {
         log.info("POST /geo/save received: youtubeContentID={}", data.getYoutubeContentID());
-        return Mono.deferContextual(ctx -> {
-            producer.sendAdventureTubeData(data);
-            return Mono.just(ResponseEntity.accepted()
-                    .body("Data accepted: youtubeContentID=" + data.getYoutubeContentID()));
-        });
+        producer.sendAdventureTubeData(data);
+        return ResponseEntity.accepted()
+                .body("Data accepted: youtubeContentID=" + data.getYoutubeContentID());
     }
 }

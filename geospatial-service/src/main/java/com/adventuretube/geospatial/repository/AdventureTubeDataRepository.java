@@ -1,14 +1,15 @@
 package com.adventuretube.geospatial.repository;
 
 import com.adventuretube.geospatial.model.entity.adventuretube.AdventureTubeData;
-import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
+import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
+
+import java.util.List;
+import java.util.Optional;
 
 @Repository
-public interface AdventureTubeDataRepository extends ReactiveMongoRepository<AdventureTubeData, String> {
-    Mono<AdventureTubeData> findByYoutubeContentID(String youtubeContentID);
-    Flux<AdventureTubeData> findByUserContentType(String userContentType);
-    Flux<AdventureTubeData> findByUserContentCategoryContaining(String category);
+public interface AdventureTubeDataRepository extends MongoRepository<AdventureTubeData, String> {
+    Optional<AdventureTubeData> findByYoutubeContentID(String youtubeContentID);
+    List<AdventureTubeData> findByUserContentType(String userContentType);
+    List<AdventureTubeData> findByUserContentCategoryContaining(String category);
 }

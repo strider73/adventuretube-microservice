@@ -7,11 +7,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-import reactor.test.StepVerifier;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -35,12 +33,12 @@ class AdventureTubeDataServiceTest {
         data2.setId("2");
         data2.setYoutubeTitle("Trip to Tokyo");
 
-        when(repository.findAll()).thenReturn(Flux.just(data1, data2));
+        when(repository.findAll()).thenReturn(List.of(data1, data2));
 
-        StepVerifier.create(service.findAll())
-                .assertNext(d -> assertThat(d.getYoutubeTitle()).isEqualTo("Trip to Seoul"))
-                .assertNext(d -> assertThat(d.getYoutubeTitle()).isEqualTo("Trip to Tokyo"))
-                .verifyComplete();
+        List<AdventureTubeData> result = service.findAll();
+        assertThat(result).hasSize(2);
+        assertThat(result.get(0).getYoutubeTitle()).isEqualTo("Trip to Seoul");
+        assertThat(result.get(1).getYoutubeTitle()).isEqualTo("Trip to Tokyo");
 
         verify(repository).findAll();
     }
@@ -51,24 +49,22 @@ class AdventureTubeDataServiceTest {
         data.setId("abc123");
         data.setYoutubeTitle("Mountain Hike");
 
-        when(repository.findById("abc123")).thenReturn(Mono.just(data));
+        when(repository.findById("abc123")).thenReturn(Optional.of(data));
 
-        StepVerifier.create(service.findById("abc123"))
-                .assertNext(d -> {
-                    assertThat(d.getId()).isEqualTo("abc123");
-                    assertThat(d.getYoutubeTitle()).isEqualTo("Mountain Hike");
-                })
-                .verifyComplete();
+        Optional<AdventureTubeData> result = service.findById("abc123");
+        assertThat(result).isPresent();
+        assertThat(result.get().getId()).isEqualTo("abc123");
+        assertThat(result.get().getYoutubeTitle()).isEqualTo("Mountain Hike");
 
         verify(repository).findById("abc123");
     }
 
     @Test
     void findById_shouldReturnEmpty_whenNotFound() {
-        when(repository.findById("nonexistent")).thenReturn(Mono.empty());
+        when(repository.findById("nonexistent")).thenReturn(Optional.empty());
 
-        StepVerifier.create(service.findById("nonexistent"))
-                .verifyComplete();
+        Optional<AdventureTubeData> result = service.findById("nonexistent");
+        assertThat(result).isEmpty();
 
         verify(repository).findById("nonexistent");
     }
@@ -79,24 +75,22 @@ class AdventureTubeDataServiceTest {
         data.setYoutubeContentID("yt-123");
         data.setYoutubeTitle("Beach Trip");
 
-        when(repository.findByYoutubeContentID("yt-123")).thenReturn(Mono.just(data));
+        when(repository.findByYoutubeContentID("yt-123")).thenReturn(Optional.of(data));
 
-        StepVerifier.create(service.findByYoutubeContentID("yt-123"))
-                .assertNext(d -> {
-                    assertThat(d.getYoutubeContentID()).isEqualTo("yt-123");
-                    assertThat(d.getYoutubeTitle()).isEqualTo("Beach Trip");
-                })
-                .verifyComplete();
+        Optional<AdventureTubeData> result = service.findByYoutubeContentID("yt-123");
+        assertThat(result).isPresent();
+        assertThat(result.get().getYoutubeContentID()).isEqualTo("yt-123");
+        assertThat(result.get().getYoutubeTitle()).isEqualTo("Beach Trip");
 
         verify(repository).findByYoutubeContentID("yt-123");
     }
 
     @Test
     void findByYoutubeContentID_shouldReturnEmpty_whenNotFound() {
-        when(repository.findByYoutubeContentID("yt-999")).thenReturn(Mono.empty());
+        when(repository.findByYoutubeContentID("yt-999")).thenReturn(Optional.empty());
 
-        StepVerifier.create(service.findByYoutubeContentID("yt-999"))
-                .verifyComplete();
+        Optional<AdventureTubeData> result = service.findByYoutubeContentID("yt-999");
+        assertThat(result).isEmpty();
 
         verify(repository).findByYoutubeContentID("yt-999");
     }
@@ -106,21 +100,21 @@ class AdventureTubeDataServiceTest {
         AdventureTubeData data = new AdventureTubeData();
         data.setUserContentType("TRAVEL");
 
-        when(repository.findByUserContentType("TRAVEL")).thenReturn(Flux.just(data));
+        when(repository.findByUserContentType("TRAVEL")).thenReturn(List.of(data));
 
-        StepVerifier.create(service.findByContentType("TRAVEL"))
-                .assertNext(d -> assertThat(d.getUserContentType()).isEqualTo("TRAVEL"))
-                .verifyComplete();
+        List<AdventureTubeData> result = service.findByContentType("TRAVEL");
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getUserContentType()).isEqualTo("TRAVEL");
 
         verify(repository).findByUserContentType("TRAVEL");
     }
 
     @Test
-    void findByContentType_shouldReturnEmptyFlux_whenNoneMatch() {
-        when(repository.findByUserContentType("UNKNOWN")).thenReturn(Flux.empty());
+    void findByContentType_shouldReturnEmptyList_whenNoneMatch() {
+        when(repository.findByUserContentType("UNKNOWN")).thenReturn(List.of());
 
-        StepVerifier.create(service.findByContentType("UNKNOWN"))
-                .verifyComplete();
+        List<AdventureTubeData> result = service.findByContentType("UNKNOWN");
+        assertThat(result).isEmpty();
 
         verify(repository).findByUserContentType("UNKNOWN");
     }
@@ -130,21 +124,21 @@ class AdventureTubeDataServiceTest {
         AdventureTubeData data = new AdventureTubeData();
         data.setUserContentCategory(List.of("hiking", "nature"));
 
-        when(repository.findByUserContentCategoryContaining("hiking")).thenReturn(Flux.just(data));
+        when(repository.findByUserContentCategoryContaining("hiking")).thenReturn(List.of(data));
 
-        StepVerifier.create(service.findByCategory("hiking"))
-                .assertNext(d -> assertThat(d.getUserContentCategory()).contains("hiking"))
-                .verifyComplete();
+        List<AdventureTubeData> result = service.findByCategory("hiking");
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getUserContentCategory()).contains("hiking");
 
         verify(repository).findByUserContentCategoryContaining("hiking");
     }
 
     @Test
-    void findByCategory_shouldReturnEmptyFlux_whenNoneMatch() {
-        when(repository.findByUserContentCategoryContaining("scuba")).thenReturn(Flux.empty());
+    void findByCategory_shouldReturnEmptyList_whenNoneMatch() {
+        when(repository.findByUserContentCategoryContaining("scuba")).thenReturn(List.of());
 
-        StepVerifier.create(service.findByCategory("scuba"))
-                .verifyComplete();
+        List<AdventureTubeData> result = service.findByCategory("scuba");
+        assertThat(result).isEmpty();
 
         verify(repository).findByUserContentCategoryContaining("scuba");
     }
@@ -160,25 +154,21 @@ class AdventureTubeDataServiceTest {
         saved.setYoutubeContentID("yt-new");
         saved.setYoutubeTitle("New Adventure");
 
-        when(repository.save(input)).thenReturn(Mono.just(saved));
+        when(repository.save(input)).thenReturn(saved);
 
-        StepVerifier.create(service.save(input))
-                .assertNext(d -> {
-                    assertThat(d.getId()).isEqualTo("generated-id");
-                    assertThat(d.getYoutubeContentID()).isEqualTo("yt-new");
-                })
-                .verifyComplete();
+        AdventureTubeData result = service.save(input);
+        assertThat(result.getId()).isEqualTo("generated-id");
+        assertThat(result.getYoutubeContentID()).isEqualTo("yt-new");
 
         verify(repository).save(input);
     }
 
     @Test
     void count_shouldReturnDocumentCount() {
-        when(repository.count()).thenReturn(Mono.just(42L));
+        when(repository.count()).thenReturn(42L);
 
-        StepVerifier.create(service.count())
-                .assertNext(count -> assertThat(count).isEqualTo(42L))
-                .verifyComplete();
+        long result = service.count();
+        assertThat(result).isEqualTo(42L);
 
         verify(repository).count();
     }
