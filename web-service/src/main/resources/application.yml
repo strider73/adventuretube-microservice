@@ -3,14 +3,3 @@ spring:
     name: web-service
   config:
     import: optional:configserver:${CONFIG_SERVER_URL}
-  devtools:
-    restart:
-      enabled: true
-
-management:
-  tracing:
-    sampling:
-      probability: 1.0
-  zipkin:
-    tracing:
-      endpoint: ${ZIPKIN_URL}/api/v2/spans

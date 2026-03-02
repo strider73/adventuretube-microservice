@@ -3,16 +3,3 @@ spring:
     name: gateway-service
   config:
     import: optional:configserver:${CONFIG_SERVER_URL}
-
-logging:
-  level:
-    root: INFO  # Set the logging level for the entire application
-    com.adventuretube: DEBUG  # More detailed logging for your application's package
-
-management:
-  tracing:
-    sampling:
-      probability: 1.0
-  zipkin:
-    tracing:
-      endpoint: ${ZIPKIN_URL}/api/v2/spans
