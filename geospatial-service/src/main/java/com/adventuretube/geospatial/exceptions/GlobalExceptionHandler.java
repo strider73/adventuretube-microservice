@@ -26,6 +26,18 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ServiceResponse<?>> handleIllegalArgumentException(IllegalArgumentException ex) {
+        ServiceResponse<?> response = ServiceResponse.builder()
+                .success(false)
+                .message(ex.getMessage())
+                .errorCode(GeoErrorCode.DATA_NOT_FOUND.name())
+                .data(null)
+                .timestamp(java.time.LocalDateTime.now())
+                .build();
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ServiceResponse<?>> handleUnknownException(Exception ex) {
         ServiceResponse<?> response = ServiceResponse.builder()

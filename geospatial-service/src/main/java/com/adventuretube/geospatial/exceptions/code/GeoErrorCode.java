@@ -11,6 +11,8 @@ public enum GeoErrorCode {
 
     DUPLICATE_KEY("Duplicate entry already exists", HttpStatus.CONFLICT),
 
+    DATA_NOT_FOUND("AdventureTubeData not found", HttpStatus.NOT_FOUND),
+
     //UNKNOWN EXCEPTION
     UNKNOWN_EXCEPTION("Unknown error", HttpStatus.INTERNAL_SERVER_ERROR);
     private final String message;

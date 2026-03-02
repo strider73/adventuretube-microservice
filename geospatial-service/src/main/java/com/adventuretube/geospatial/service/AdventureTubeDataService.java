@@ -38,6 +38,22 @@ public class AdventureTubeDataService {
         return repository.save(data);
     }
 
+    public AdventureTubeData update(String id, AdventureTubeData data) {
+        return repository.findById(id)
+                .map(existing -> {
+                    data.setId(id);
+                    return repository.save(data);
+                })
+                .orElseThrow(() -> new IllegalArgumentException("AdventureTubeData not found with id: " + id));
+    }
+
+    public void delete(String id) {
+        if (!repository.existsById(id)) {
+            throw new IllegalArgumentException("AdventureTubeData not found with id: " + id);
+        }
+        repository.deleteById(id);
+    }
+
     public long count() {
         return repository.count();
     }

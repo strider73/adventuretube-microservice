@@ -53,6 +53,19 @@ public class AdventureTubeDataController {
         return ResponseEntity.ok(adventureTubeDataService.count());
     }
 
+    @PutMapping("/data/{id}")
+    public ResponseEntity<AdventureTubeData> update(@PathVariable String id, @RequestBody AdventureTubeData data) {
+        log.info("PUT /geo/data/{} received", id);
+        return ResponseEntity.ok(adventureTubeDataService.update(id, data));
+    }
+
+    @DeleteMapping("/data/{id}")
+    public ResponseEntity<Void> delete(@PathVariable String id) {
+        log.info("DELETE /geo/data/{} received", id);
+        adventureTubeDataService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+
     @PostMapping("/save")
     public ResponseEntity<String> save(@RequestBody AdventureTubeData data) {
         log.info("POST /geo/save received: youtubeContentID={}", data.getYoutubeContentID());
