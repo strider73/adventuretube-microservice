@@ -64,8 +64,10 @@ public class AdventureTubeDataController {
     @PostMapping("/save")
     public Mono<ResponseEntity<String>> save(@RequestBody AdventureTubeData data) {
         log.info("POST /geo/save received: youtubeContentID={}", data.getYoutubeContentID());
-        producer.sendAdventureTubeData(data);
-        return Mono.just(ResponseEntity.accepted()
-                .body("Data accepted: youtubeContentID=" + data.getYoutubeContentID()));
+        return Mono.deferContextual(ctx -> {
+            producer.sendAdventureTubeData(data);
+            return Mono.just(ResponseEntity.accepted()
+                    .body("Data accepted: youtubeContentID=" + data.getYoutubeContentID()));
+        });
     }
 }
