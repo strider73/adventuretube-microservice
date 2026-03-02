@@ -3,6 +3,7 @@ package com.adventuretube.web.controller;
 import com.adventuretube.common.api.response.ServiceResponse;
 import com.adventuretube.web.service.GeoDataService;
 import com.fasterxml.jackson.databind.JsonNode;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,7 @@ import java.time.LocalDateTime;
 @RestController
 @RequestMapping("/web/geo")
 @RequiredArgsConstructor
+@Tag(name = "Web Controller")
 public class GeoDataController {
 
     private final GeoDataService geoDataService;
