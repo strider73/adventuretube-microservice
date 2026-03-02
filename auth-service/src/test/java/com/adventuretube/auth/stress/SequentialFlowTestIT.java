@@ -35,7 +35,7 @@ public class SequentialFlowTestIT {
 
     // Configuration
     // private static final String AUTH_BASE_URL = "http://localhost:8010";  // Local
-    private static final String AUTH_BASE_URL = "https://api.adventuretube.net";  // Production via Gateway
+    private static final String AUTH_BASE_URL = "https://api.travel-tube.com";  // Production via Gateway
 
     private static final int TOTAL_CYCLES = 50;      // Number of full cycles to run
     private static final int WARMUP_CYCLES = 3;      // Warmup cycles (not counted in stats)

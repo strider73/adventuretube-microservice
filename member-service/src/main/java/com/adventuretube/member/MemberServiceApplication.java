@@ -9,7 +9,7 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 @SpringBootApplication
 @OpenAPIDefinition(
         servers = {
-                @Server(url = "https://api.adventuretube.net", description = "member Service API")
+                @Server(url = "https://api.travel-tube.com", description = "member Service API")
         }
 )
 @EntityScan(basePackages = {"com.adventuretube.member.model"})

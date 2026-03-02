@@ -11,7 +11,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 })
 @OpenAPIDefinition(
         servers = {
-                @Server(url = "https://api.adventuretube.net", description = "Auth Service API")
+                @Server(url = "https://api.travel-tube.com", description = "Auth Service API")
         }
 )
 public class AuthServiceApplication {

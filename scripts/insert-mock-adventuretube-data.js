@@ -1,5 +1,5 @@
 // insert-mock-adventuretube-data.js
-// Run: mongosh "mongodb://strider:5785Ch00@adventuretube.net:27017/adventuretube?authSource=admin" insert-mock-adventuretube-data.js
+// Run: mongosh "mongodb://strider:5785Ch00@travel-tube.com:27017/adventuretube?authSource=admin" insert-mock-adventuretube-data.js
 
 const categories = ["Travel", "Food", "Nature", "Culture", "Adventure", "Hiking", "Beach", "City", "Camping", "Road Trip"];
 const contentTypes = ["vlog", "guide", "review", "documentary", "short"];

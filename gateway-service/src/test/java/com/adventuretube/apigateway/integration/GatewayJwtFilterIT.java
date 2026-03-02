@@ -49,7 +49,7 @@ public class GatewayJwtFilterIT {
     // Test against gateway
     private static final String GATEWAY_BASE_URL = System.getenv("GATEWAY_BASE_URL") != null
             ? System.getenv("GATEWAY_BASE_URL")
-            : "https://gateway.adventuretube.net";
+            : "https://gateway.travel-tube.com";
 
     private final RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper objectMapper = new ObjectMapper();

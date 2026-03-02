@@ -1,6 +1,6 @@
 // migrate-to-adventuretube-data.js
 // Merges data from 5 source collections into adventureTubeData
-// Run: mongosh "mongodb://strider:5785Ch00@adventuretube.net:27017/adventuretube?authSource=admin" migrate-to-adventuretube-data.js
+// Run: mongosh "mongodb://strider:5785Ch00@travel-tube.com:27017/adventuretube?authSource=admin" migrate-to-adventuretube-data.js
 
 // ============================================================
 // Step 1: Build lookup maps from sites (places with geo data)

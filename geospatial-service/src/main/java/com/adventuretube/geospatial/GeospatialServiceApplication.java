@@ -7,7 +7,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 @OpenAPIDefinition(
         servers = {
-                @Server(url = "https://api.adventuretube.net", description = "geospatial Service API")
+                @Server(url = "https://api.travel-tube.com", description = "geospatial Service API")
         }
 )
 @SpringBootApplication

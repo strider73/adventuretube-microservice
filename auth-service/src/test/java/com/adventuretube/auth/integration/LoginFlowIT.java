@@ -39,7 +39,7 @@ public class LoginFlowIT {
 
     private static final String GATEWAY_BASE_URL = System.getenv("GATEWAY_BASE_URL") != null
             ? System.getenv("GATEWAY_BASE_URL")
-            : "https://api.adventuretube.net";
+            : "https://api.travel-tube.com";
 
     private static final String MEMBER_BASE_URL = System.getenv("MEMBER_BASE_URL") != null
             ? System.getenv("MEMBER_BASE_URL")

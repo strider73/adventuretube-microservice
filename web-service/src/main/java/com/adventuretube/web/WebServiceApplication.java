@@ -9,7 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 @OpenAPIDefinition(
         servers = {
-                @Server(url = "https://api.adventuretube.net", description = "web Service API")
+                @Server(url = "https://api.travel-tube.com", description = "web Service API")
         }
 )
 public class WebServiceApplication {
