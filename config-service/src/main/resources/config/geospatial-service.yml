@@ -47,6 +47,8 @@ spring:
           default_schema: public  # <-- Add this line
           format_sql: true
   kafka:
+    template:
+      observation-enabled: true
     listener:
       observation-enabled: true
     consumer:

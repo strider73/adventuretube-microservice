@@ -196,8 +196,6 @@ class AdventureTubeDataControllerTest {
         input.setYoutubeContentID("yt-new");
         input.setYoutubeTitle("New Adventure");
 
-        when(producer.sendAdventureTubeData(any(AdventureTubeData.class))).thenReturn(Mono.empty());
-
         webTestClient.post().uri("/geo/save")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(input)
