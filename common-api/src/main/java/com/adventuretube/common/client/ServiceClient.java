@@ -26,7 +26,7 @@ import java.time.Duration;
  * <pre>
  * {@code
  * // Reactive POST request to MEMBER-SERVICE
- * Mono<ServiceResponse<MemberDTO>> response = serviceClient.postReactive(
+ * Mono<ServiceResponse<MemberDTO>> response = serviceClient.postServiceResponseReactive(
  *     "http://MEMBER-SERVICE",
  *     "/member/registerMember",
  *     memberDTO,
@@ -34,7 +34,7 @@ import java.time.Duration;
  * );
  *
  * // Reactive GET request to MEMBER-SERVICE
- * Mono<ServiceResponse<MemberDTO>> response = serviceClient.getReactive(
+ * Mono<ServiceResponse<MemberDTO>> response = serviceClient.getServiceResponseReactive(
  *     "http://MEMBER-SERVICE",
  *     "/member/findMember",
  *     new ParameterizedTypeReference<ServiceResponse<MemberDTO>>() {}
@@ -68,7 +68,7 @@ public class ServiceClient {
      * @param <R>          The type of request body
      * @return Mono containing ServiceResponse with the result
      */
-    public <T, R> Mono<ServiceResponse<T>> postReactive(String baseUrl, String path, R body,
+    public <T, R> Mono<ServiceResponse<T>> postServiceResponseReactive(String baseUrl, String path, R body,
                                                          ParameterizedTypeReference<ServiceResponse<T>> responseType) {
         WebClient webClient = webClientBuilder.baseUrl(baseUrl).build();
         String serviceName = extractServiceName(baseUrl);
@@ -140,7 +140,7 @@ public class ServiceClient {
      * @param <T>          The type of data in ServiceResponse
      * @return Mono containing ServiceResponse with the result
      */
-    public <T> Mono<ServiceResponse<T>> getReactive(String baseUrl, String path,
+    public <T> Mono<ServiceResponse<T>> getServiceResponseReactive(String baseUrl, String path,
                                                      ParameterizedTypeReference<ServiceResponse<T>> responseType) {
         WebClient webClient = webClientBuilder.baseUrl(baseUrl).build();
         String serviceName = extractServiceName(baseUrl);
@@ -208,25 +208,25 @@ public class ServiceClient {
      * Blocking GET for services that return ServiceResponse.
      * Convenience wrapper for Spring MVC callers.
      */
-    public <T> ServiceResponse<T> get(String baseUrl, String path,
+    public <T> ServiceResponse<T> getServiceResponseNonReactive(String baseUrl, String path,
                                        ParameterizedTypeReference<ServiceResponse<T>> responseType) {
-        return getReactive(baseUrl, path, responseType).block();
+        return getServiceResponseReactive(baseUrl, path, responseType).block();
     }
 
     /**
      * Blocking POST for services that return ServiceResponse.
      * Convenience wrapper for Spring MVC callers.
      */
-    public <T, R> ServiceResponse<T> post(String baseUrl, String path, R body,
+    public <T, R> ServiceResponse<T> postServiceResponseNonReactive(String baseUrl, String path, R body,
                                            ParameterizedTypeReference<ServiceResponse<T>> responseType) {
-        return postReactive(baseUrl, path, body, responseType).block();
+        return postServiceResponseReactive(baseUrl, path, body, responseType).block();
     }
 
     /**
      * Blocking GET for services that return raw entities (not ServiceResponse).
      * Convenience wrapper for Spring MVC callers.
      */
-    public <T> T getRaw(String baseUrl, String path,
+    public <T> T getRawNonReactive(String baseUrl, String path,
                          ParameterizedTypeReference<T> responseType) {
         return getRawReactive(baseUrl, path, responseType).block();
     }

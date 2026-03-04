@@ -84,7 +84,7 @@ public class AuthService {
                 })
                 .subscribeOn(Schedulers.boundedElastic())
                 // MARK:  Check Email duplication
-                .flatMap(memberDTO -> serviceClient.postReactive(
+                .flatMap(memberDTO -> serviceClient.postServiceResponseReactive(
                                 memberServiceUrl,
                                 "/member/emailDuplicationCheck",
                                 memberDTO.getEmail(),
@@ -99,7 +99,7 @@ public class AuthService {
                                 return Mono.error(new DuplicateException(AuthErrorCode.USER_EMAIL_DUPLICATE));
                             }
                             // MARK:  Register Member
-                            return serviceClient.postReactive(
+                            return serviceClient.postServiceResponseReactive(
                                     memberServiceUrl,
                                     "/member/registerMember",
                                     memberDTO,
@@ -125,7 +125,7 @@ public class AuthService {
                                     .refreshToken(refreshToken)
                                     .build();
 
-                            return serviceClient.postReactive(
+                            return serviceClient.postServiceResponseReactive(
                                             memberServiceUrl,
                                             "/member/storeTokens",
                                             tokenToStore,
@@ -180,7 +180,7 @@ public class AuthService {
                                         .refreshToken(refreshToken)
                                         .build();
 
-                                return serviceClient.postReactive(
+                                return serviceClient.postServiceResponseReactive(
                                                 memberServiceUrl,
                                                 "/member/storeTokens",
                                                 tokenToStore,
@@ -206,7 +206,7 @@ public class AuthService {
     public Mono<ServiceResponse<Boolean>> revokeToken(String rawToken) {
         String token = TokenSanitizer.sanitize(rawToken);
 
-        return serviceClient.postReactive(
+        return serviceClient.postServiceResponseReactive(
                         memberServiceUrl,
                         "/member/deleteAllToken",
                         token,
@@ -239,7 +239,7 @@ public class AuthService {
          */
         String token = TokenSanitizer.sanitize(rawToken);
 
-        return serviceClient.postReactive(
+        return serviceClient.postServiceResponseReactive(
                         memberServiceUrl,
                         "/member/findToken",
                         token,
@@ -266,7 +266,7 @@ public class AuthService {
                             .refreshToken(refreshToken)
                             .build();
 
-                    return serviceClient.postReactive(
+                    return serviceClient.postServiceResponseReactive(
                                     memberServiceUrl,
                                     "/member/storeTokens",
                                     tokenToStore,
@@ -287,7 +287,7 @@ public class AuthService {
 
 
     public Mono<ServiceResponse<Boolean>> deleteUser(String email) {
-        return serviceClient.postReactive(
+        return serviceClient.postServiceResponseReactive(
                         memberServiceUrl,
                         "/member/deleteUser",
                         email,
