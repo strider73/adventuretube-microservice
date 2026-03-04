@@ -21,7 +21,7 @@ public class Member {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "google_id_token")
+    @Column(name = "google_id_token", columnDefinition = "TEXT")
     private String googleIdToken;
 
     @Column(name = "google_id_token_exp")
