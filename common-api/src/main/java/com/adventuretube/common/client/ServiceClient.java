@@ -124,6 +124,9 @@ public class ServiceClient {
                 });
 
         return circuitBreaker.run(call, throwable -> {
+            if (throwable instanceof ServiceClient4xxException) {
+                return Mono.error(throwable);
+            }
             log.error("Circuit breaker open for {}: {}", serviceName, throwable.getMessage());
             return Mono.error(new ServiceClient5xxException(
                     serviceName, "CIRCUIT_OPEN",
@@ -195,6 +198,9 @@ public class ServiceClient {
                 });
 
         return circuitBreaker.run(call, throwable -> {
+            if (throwable instanceof ServiceClient4xxException) {
+                return Mono.error(throwable);
+            }
             log.error("Circuit breaker open for {}: {}", serviceName, throwable.getMessage());
             return Mono.error(new ServiceClient5xxException(
                     serviceName, "CIRCUIT_OPEN",
@@ -282,6 +288,9 @@ public class ServiceClient {
                 });
 
         return circuitBreaker.run(call, throwable -> {
+            if (throwable instanceof ServiceClient4xxException) {
+                return Mono.error(throwable);
+            }
             log.error("Circuit breaker open for {}: {}", serviceName, throwable.getMessage());
             return Mono.error(new ServiceClient5xxException(
                     serviceName, "CIRCUIT_OPEN",
