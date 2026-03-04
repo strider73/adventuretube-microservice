@@ -134,6 +134,11 @@ public class GlobalExceptionHandler {
     // ---------------------------
     // Member Service Exceptions
     // ---------------------------
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ServiceResponse<?>> handleUserNotFoundException(UserNotFoundException ex) {
+        return buildErrorResponse(ex.getErrorCode(), ex);
+    }
+
     @ExceptionHandler(DuplicateException.class)
     public ResponseEntity<ServiceResponse<?>> handleDuplicationException(DuplicateException ex) {
         return buildErrorResponse(ex.getErrorCode(), ex);
