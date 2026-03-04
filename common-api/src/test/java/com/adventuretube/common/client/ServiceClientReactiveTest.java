@@ -99,7 +99,7 @@ class ServiceClientReactiveTest {
     }
 
     @Test
-    void postServiceResponseReactive_4xxError_returnsServiceClientException() throws JsonProcessingException {
+    void postServiceResponseReactive_4xxError_returnsServiceClient4xxException() throws JsonProcessingException {
         ServiceResponse<Object> errorResponse = ServiceResponse.builder()
                 .success(false)
                 .errorCode("USER_NOT_FOUND")
@@ -120,8 +120,8 @@ class ServiceClientReactiveTest {
                         "request-body",
                         new ParameterizedTypeReference<ServiceResponse<String>>() {}))
                 .expectErrorSatisfies(throwable -> {
-                    assertThat(throwable).isInstanceOf(ServiceClientException.class);
-                    ServiceClientException ex = (ServiceClientException) throwable;
+                    assertThat(throwable).isInstanceOf(ServiceClient4xxException.class);
+                    ServiceClient4xxException ex = (ServiceClient4xxException) throwable;
                     assertThat(ex.getErrorCode()).isEqualTo("USER_NOT_FOUND");
                     assertThat(ex.getHttpStatus()).isEqualTo(404);
                 })
@@ -129,7 +129,7 @@ class ServiceClientReactiveTest {
     }
 
     @Test
-    void postServiceResponseReactive_5xxError_returnsServiceClientException() throws JsonProcessingException {
+    void postServiceResponseReactive_5xxError_returnsServiceClient5xxException() throws JsonProcessingException {
         ServiceResponse<Object> errorResponse = ServiceResponse.builder()
                 .success(false)
                 .errorCode("SERVER_ERROR")
@@ -150,8 +150,8 @@ class ServiceClientReactiveTest {
                         "request-body",
                         new ParameterizedTypeReference<ServiceResponse<String>>() {}))
                 .expectErrorSatisfies(throwable -> {
-                    assertThat(throwable).isInstanceOf(ServiceClientException.class);
-                    ServiceClientException ex = (ServiceClientException) throwable;
+                    assertThat(throwable).isInstanceOf(ServiceClient5xxException.class);
+                    ServiceClient5xxException ex = (ServiceClient5xxException) throwable;
                     assertThat(ex.getErrorCode()).isEqualTo("SERVER_ERROR");
                     assertThat(ex.getHttpStatus()).isEqualTo(500);
                 })
@@ -159,7 +159,7 @@ class ServiceClientReactiveTest {
     }
 
     @Test
-    void postServiceResponseReactive_5xxWithEmptyBody_returnsServiceClientException() {
+    void postServiceResponseReactive_5xxWithEmptyBody_returnsServiceClient5xxException() {
         mockWebServer.enqueue(new MockResponse()
                 .setResponseCode(500)
                 .addHeader("Content-Type", "application/json"));
@@ -172,8 +172,8 @@ class ServiceClientReactiveTest {
                         "request-body",
                         new ParameterizedTypeReference<ServiceResponse<String>>() {}))
                 .expectErrorSatisfies(throwable -> {
-                    assertThat(throwable).isInstanceOf(ServiceClientException.class);
-                    ServiceClientException ex = (ServiceClientException) throwable;
+                    assertThat(throwable).isInstanceOf(ServiceClient5xxException.class);
+                    ServiceClient5xxException ex = (ServiceClient5xxException) throwable;
                     assertThat(ex.getErrorCode()).isEqualTo("SERVER_ERROR");
                     assertThat(ex.getHttpStatus()).isEqualTo(500);
                 })
@@ -208,7 +208,7 @@ class ServiceClientReactiveTest {
     }
 
     @Test
-    void getServiceResponseReactive_4xxError_returnsServiceClientException() throws JsonProcessingException {
+    void getServiceResponseReactive_4xxError_returnsServiceClient4xxException() throws JsonProcessingException {
         ServiceResponse<Object> errorResponse = ServiceResponse.builder()
                 .success(false)
                 .errorCode("NOT_FOUND")
@@ -228,8 +228,8 @@ class ServiceClientReactiveTest {
                         "/test/endpoint",
                         new ParameterizedTypeReference<ServiceResponse<String>>() {}))
                 .expectErrorSatisfies(throwable -> {
-                    assertThat(throwable).isInstanceOf(ServiceClientException.class);
-                    ServiceClientException ex = (ServiceClientException) throwable;
+                    assertThat(throwable).isInstanceOf(ServiceClient4xxException.class);
+                    ServiceClient4xxException ex = (ServiceClient4xxException) throwable;
                     assertThat(ex.getErrorCode()).isEqualTo("NOT_FOUND");
                     assertThat(ex.getHttpStatus()).isEqualTo(404);
                 })

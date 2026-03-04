@@ -40,7 +40,37 @@ logging:
     com.netflix.discovery.DiscoveryClient: WARN  # Skip debug messages for DiscoveryClient
     com.adventuretube.member: DEBUG  # Ensure debug messages for member-service
 
+# Circuit Breaker (Resilience4j) configuration
+resilience4j:
+  circuitbreaker:
+    instances:
+      GEOSPATIAL-SERVICE:
+        register-health-indicator: true
+        sliding-window-type: COUNT_BASED
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 30s
+        permitted-number-of-calls-in-half-open-state: 3
+        ignore-exceptions:
+          - com.adventuretube.common.client.ServiceClient4xxException
+  timelimiter:
+    instances:
+      GEOSPATIAL-SERVICE:
+        timeout-duration: 5s
+
+# Actuator endpoints for circuit breaker monitoring + distributed tracing
 management:
+  endpoints:
+    web:
+      exposure:
+        include: health,circuitbreakers,circuitbreakerevents,metrics
+  endpoint:
+    health:
+      show-details: always
+  health:
+    circuitbreakers:
+      enabled: true
   tracing:
     sampling:
       probability: 1.0
