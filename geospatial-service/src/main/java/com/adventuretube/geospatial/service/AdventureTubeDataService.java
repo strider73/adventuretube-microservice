@@ -54,6 +54,14 @@ public class AdventureTubeDataService {
         repository.deleteById(id);
     }
 
+    public void deleteByYoutubeContentID(String youtubeContentID) {
+                AdventureTubeData data  = repository.findByYoutubeContentID(youtubeContentID)
+                        .orElseThrow(() -> new IllegalArgumentException("AdventureTubeData not found with youtubeContentID"+ youtubeContentID));
+                repository.deleteById(data.getYoutubeContentID());
+
+    }
+
+
     public long count() {
         return repository.count();
     }

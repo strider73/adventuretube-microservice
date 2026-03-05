@@ -20,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DataMongoTest
 @ActiveProfiles("integration")
-class AdventureTubeDataRepositoryIT {
+class  AdventureTubeDataRepositoryIT {
 
     @Autowired
     private AdventureTubeDataRepository repository;
