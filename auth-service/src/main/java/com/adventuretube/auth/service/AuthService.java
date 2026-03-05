@@ -13,6 +13,7 @@ import com.adventuretube.common.api.response.ServiceResponse;
 import com.adventuretube.common.client.ServiceClient;
 import com.adventuretube.common.client.ServiceClientException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +45,8 @@ public class AuthService {
 
     @Value("${member-service.url:http://MEMBER-SERVICE}")
     private String memberServiceUrl;
+    @Value("${geospatial-service.url:http://GEOSPATIAL-SERVICE}")
+    private String geoServiceUrl;
 
     private final GoogleTokenCredentialProperties googleTokenCredentialProperties;
     private final ServiceClient serviceClient;
@@ -393,4 +396,35 @@ public class AuthService {
         };
     }
 
+    // ── Contents Management ──────────────────────────────────────────
+
+    /**
+     * Injects ownerEmail from JWT into the payload and forwards to Geospatial Service.
+     * Auth-service uses JsonNode (not AdventureTubeData) to avoid coupling to geospatial entity.
+     */
+    public Mono<String> createAdventuretubeData(String authorization, JsonNode body) {
+        return Mono.fromCallable(() -> {
+                    String token = authorization.replace("Bearer ", "");
+                    String email = jwtUtil.extractUsername(token);
+                    ((ObjectNode) body).put("ownerEmail", email);
+                    return body;
+                })
+                .flatMap(enrichedBody -> serviceClient.postRawReactive(
+                        geoServiceUrl, "/geo/save", enrichedBody,
+                        new ParameterizedTypeReference<String>() {}))
+                .onErrorMap(ServiceClientException.class, this::mapServiceClientException);
+    }
+
+
+    public Mono<String> deleteAdventuretubeData(String authorization, String youtubeContentId) {
+        return Mono.fromCallable(() -> {
+                    String token = authorization.replace("Bearer ", "");
+                    return jwtUtil.extractUsername(token);
+                })
+                .flatMap(ownerEmail -> serviceClient.deleteRawReactive(
+                        geoServiceUrl,
+                        "/geo/data/delete/adventuretubedata?youtubeContentId=" + youtubeContentId + "&ownerEmail=" + ownerEmail,
+                        new ParameterizedTypeReference<String>() {}))
+                .onErrorMap(ServiceClientException.class, this::mapServiceClientException);
+    }
 }

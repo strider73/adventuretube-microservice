@@ -14,6 +14,30 @@ import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(DataNotFoundException.class)
+    public ResponseEntity<ServiceResponse<?>> handleDataNotFoundException(DataNotFoundException ex) {
+        ServiceResponse<?> response = ServiceResponse.builder()
+                .success(false)
+                .message(ex.getErrorCode().getMessage())
+                .errorCode(ex.getErrorCode().name())
+                .data(null)
+                .timestamp(java.time.LocalDateTime.now())
+                .build();
+        return ResponseEntity.status(ex.getErrorCode().getHttpStatus()).body(response);
+    }
+
+    @ExceptionHandler(DuplicateDataException.class)
+    public ResponseEntity<ServiceResponse<?>> handleDuplicateDataException(DuplicateDataException ex) {
+        ServiceResponse<?> response = ServiceResponse.builder()
+                .success(false)
+                .message(ex.getErrorCode().getMessage())
+                .errorCode(ex.getErrorCode().name())
+                .data(null)
+                .timestamp(java.time.LocalDateTime.now())
+                .build();
+        return ResponseEntity.status(ex.getErrorCode().getHttpStatus()).body(response);
+    }
+
     @ExceptionHandler(DuplicateKeyException.class)
     public ResponseEntity<ServiceResponse<?>> handleDuplicateKeyException(DuplicateKeyException ex) {
         ServiceResponse<?> response = ServiceResponse.builder()
@@ -62,5 +86,18 @@ public class GlobalExceptionHandler {
                 .build();
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    @ExceptionHandler(OwnershipMismatchException.class)
+    public ResponseEntity<ServiceResponse<?>> handleOwnershipMismatchException(OwnershipMismatchException ex) {
+        ServiceResponse<?>  response = ServiceResponse.builder()
+                .success(false)
+                .message(ex.getErrorCode().getMessage())
+                .errorCode(ex.getErrorCode().name())
+                .data(null)
+                .timestamp(java.time.LocalDateTime.now())
+                .build();
+        return  ResponseEntity.status(ex.getErrorCode().getHttpStatus()).body(response);
+
     }
 }

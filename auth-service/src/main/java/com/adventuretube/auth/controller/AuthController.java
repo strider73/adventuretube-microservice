@@ -7,6 +7,8 @@ import com.adventuretube.auth.model.request.MemberRegisterRequest;
 import com.adventuretube.auth.model.response.MemberRegisterResponse;
 import com.adventuretube.auth.service.AuthService;
 import com.adventuretube.common.api.response.ServiceResponse;
+import com.fasterxml.jackson.databind.JsonNode;
+import io.swagger.v3.core.util.Json;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -22,12 +24,8 @@ import lombok.extern.slf4j.Slf4j;
 import java.net.URI;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.JavaScriptUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
 
@@ -283,5 +281,63 @@ public class AuthController {
     public Mono<ResponseEntity<?>> deleteUser(@RequestBody String email) {
         return authService.deleteUser(email)
                 .map(response -> ResponseEntity.ok(response));
+    }
+
+
+    // =========================
+    // Contents Management
+    // =========================
+
+    @Operation(
+            summary = "Create AdventureTubeData with ownership",
+            description = """
+                    Proxies the save request to Geospatial Service.
+                    Extracts the user's email from the JWT token and injects it as `ownerEmail`
+                    into the payload before forwarding. The client does not need to send ownerEmail.
+
+                    Geospatial Service publishes the data to Kafka and returns 202 Accepted.
+                    """,
+            parameters = {
+                    @Parameter(
+                            name = "Authorization",
+                            description = "Access token in the format: Bearer {access_token}",
+                            required = true,
+                            in = ParameterIn.HEADER,
+                            example = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                    )
+            }
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "202",
+                    description = "Data accepted and forwarded to Geospatial Service via Kafka."
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized - Invalid or expired JWT token.",
+                    content = @Content(schema = @Schema(implementation = ServiceResponse.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal Server Error - Failed to forward data to Geospatial Service.",
+                    content = @Content(schema = @Schema(implementation = ServiceResponse.class))
+            )
+    })
+    @PostMapping(value = "/adventuretubedata")
+    public Mono<ResponseEntity<?>> createAdventuretubeData(
+            @RequestHeader("Authorization") String authorization,
+            @RequestBody JsonNode body) {
+        return authService.createAdventuretubeData(authorization, body)
+                .map(result -> ResponseEntity.accepted().body(result));
+    }
+
+    @DeleteMapping(value = "/adventuretubedata/{youtubeContentId}")
+    public Mono<ResponseEntity<?>> deleteAdventuretubeData(
+            @RequestHeader("Authorization") String authorization,
+            @PathVariable String youtubeContentId){
+        return authService.deleteAdventuretubeData(authorization,youtubeContentId)
+                .map(result -> ResponseEntity.ok().body(result));
+
+
     }
 }

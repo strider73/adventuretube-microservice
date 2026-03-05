@@ -13,6 +13,8 @@ public enum GeoErrorCode {
 
     DATA_NOT_FOUND("AdventureTubeData not found", HttpStatus.NOT_FOUND),
 
+    OWNERSHIP_MISMATCH("AdventuretubeData ownership email is not matched", HttpStatus.FORBIDDEN),
+
     //UNKNOWN EXCEPTION
     UNKNOWN_EXCEPTION("Unknown error", HttpStatus.INTERNAL_SERVER_ERROR);
     private final String message;

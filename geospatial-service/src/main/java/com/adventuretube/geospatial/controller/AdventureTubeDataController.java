@@ -66,6 +66,16 @@ public class AdventureTubeDataController {
         return ResponseEntity.noContent().build();
     }
 
+    @DeleteMapping("/data/delete/adventuretubedata")
+    public ResponseEntity<Void> deleteByYoutubeContentID(@RequestParam String youtubeContentId,@RequestParam String ownerEmail) {
+        log.info("DELETE /geo/data/delete/adventuretubedata youtubeContentId={}, ownerEmail={}",youtubeContentId, ownerEmail);
+
+        adventureTubeDataService.deleteByYoutubeContentIdAndOwnerEmail(youtubeContentId,ownerEmail);
+        return ResponseEntity.noContent().build();
+    }
+
+
+
     @PostMapping("/save")
     public ResponseEntity<String> save(@RequestBody AdventureTubeData data) {
         log.info("POST /geo/save received: youtubeContentID={}", data.getYoutubeContentID());
