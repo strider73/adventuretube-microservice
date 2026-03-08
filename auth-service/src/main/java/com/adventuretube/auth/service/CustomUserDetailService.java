@@ -30,7 +30,7 @@ public class CustomUserDetailService implements ReactiveUserDetailsService {
 
     @Override
     public Mono<UserDetails> findByUsername(String email) {
-        return serviceClient.postServiceResponseReactive(
+        return serviceClient.postReactive(
                         memberServiceUrl,
                         "/member/findMemberByEmail",
                         email,

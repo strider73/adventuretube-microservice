@@ -56,7 +56,7 @@ public class ReactiveAuthenticationManagerTest {
         response.setSuccess(true);
         response.setData(mockMember);
 
-        when(serviceClient.postServiceResponseReactive(
+        when(serviceClient.postReactive(
                 eq("http://MEMBER-SERVICE"),
                 eq("/member/findMemberByEmail"),
                 eq(email),
