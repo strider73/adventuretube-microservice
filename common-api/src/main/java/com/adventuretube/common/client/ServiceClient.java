@@ -86,10 +86,8 @@ public class ServiceClient {
                 .uri(path)
                 .bodyValue(body)
                 .retrieve()
-                .onStatus(HttpStatusCode::is4xxClientError,
-                        response -> handle4xxServiceResponse(serviceName, response))
-                .onStatus(HttpStatusCode::is5xxServerError,
-                        response -> handle5xxServiceResponse(serviceName, response))
+                .onStatus(HttpStatusCode::isError,
+                        response -> handleErrorServiceResponse(serviceName, response))
                 .bodyToMono(responseType)
                 .timeout(DEFAULT_TIMEOUT)
                 .onErrorMap(WebClientRequestException.class, ex -> networkError(serviceName, ex))
@@ -108,10 +106,8 @@ public class ServiceClient {
                 .get()
                 .uri(path)
                 .retrieve()
-                .onStatus(HttpStatusCode::is4xxClientError,
-                        response -> handle4xxServiceResponse(serviceName, response))
-                .onStatus(HttpStatusCode::is5xxServerError,
-                        response -> handle5xxServiceResponse(serviceName, response))
+                .onStatus(HttpStatusCode::isError,
+                        response -> handleErrorServiceResponse(serviceName, response))
                 .bodyToMono(responseType)
                 .timeout(DEFAULT_TIMEOUT)
                 .onErrorMap(WebClientRequestException.class, ex -> networkError(serviceName, ex))
@@ -133,10 +129,8 @@ public class ServiceClient {
                 .get()
                 .uri(path)
                 .retrieve()
-                .onStatus(HttpStatusCode::is4xxClientError,
-                        response -> handle4xxRaw(serviceName, "GET", path, response))
-                .onStatus(HttpStatusCode::is5xxServerError,
-                        response -> handle5xxRaw(serviceName, "GET", path, response))
+                .onStatus(HttpStatusCode::isError,
+                        response -> handleErrorRaw(serviceName, "GET", path, response))
                 .bodyToMono(responseType)
                 .timeout(DEFAULT_TIMEOUT)
                 .onErrorMap(WebClientRequestException.class, ex -> networkError(serviceName, ex))
@@ -155,10 +149,8 @@ public class ServiceClient {
                 .uri(path)
                 .bodyValue(body)
                 .retrieve()
-                .onStatus(HttpStatusCode::is4xxClientError,
-                        response -> handle4xxRaw(serviceName, "POST", path, response))
-                .onStatus(HttpStatusCode::is5xxServerError,
-                        response -> handle5xxRaw(serviceName, "POST", path, response))
+                .onStatus(HttpStatusCode::isError,
+                        response -> handleErrorRaw(serviceName, "POST", path, response))
                 .bodyToMono(responseType)
                 .timeout(DEFAULT_TIMEOUT)
                 .onErrorMap(WebClientRequestException.class, ex -> networkError(serviceName, ex))
@@ -177,10 +169,8 @@ public class ServiceClient {
                 .uri(path)
                 .bodyValue(body)
                 .retrieve()
-                .onStatus(HttpStatusCode::is4xxClientError,
-                        response -> handle4xxRaw(serviceName, "PUT", path, response))
-                .onStatus(HttpStatusCode::is5xxServerError,
-                        response -> handle5xxRaw(serviceName, "PUT", path, response))
+                .onStatus(HttpStatusCode::isError,
+                        response -> handleErrorRaw(serviceName, "PUT", path, response))
                 .bodyToMono(responseType)
                 .timeout(DEFAULT_TIMEOUT)
                 .onErrorMap(WebClientRequestException.class, ex -> networkError(serviceName, ex))
@@ -198,10 +188,8 @@ public class ServiceClient {
                 .delete()
                 .uri(path)
                 .retrieve()
-                .onStatus(HttpStatusCode::is4xxClientError,
-                        response -> handle4xxRaw(serviceName, "DELETE", path, response))
-                .onStatus(HttpStatusCode::is5xxServerError,
-                        response -> handle5xxRaw(serviceName, "DELETE", path, response))
+                .onStatus(HttpStatusCode::isError,
+                        response -> handleErrorRaw(serviceName, "DELETE", path, response))
                 .bodyToMono(responseType)
                 .timeout(DEFAULT_TIMEOUT)
                 .onErrorMap(WebClientRequestException.class, ex -> networkError(serviceName, ex))
@@ -258,96 +246,56 @@ public class ServiceClient {
     // ════════════════════════════════════════════════════════════════════
 
     /**
-     * 4xx handler for ServiceResponse endpoints.
+     * Error handler for ServiceResponse endpoints.
      * Extracts errorCode and message from the ServiceResponse error body.
+     * Falls back to a generic error if the body is empty.
      */
-    private Mono<Throwable> handle4xxServiceResponse(
+    private Mono<Throwable> handleErrorServiceResponse(
             String serviceName,
             org.springframework.web.reactive.function.client.ClientResponse response) {
-        return response.bodyToMono(ServiceResponse.class)
-                .flatMap(errorResponse -> {
-                    log.error("{} 4xx error: {} - {}",
-                            serviceName, errorResponse.getErrorCode(), errorResponse.getMessage());
-                    return Mono.error(new ServiceClientException(
-                            serviceName,
-                            errorResponse.getErrorCode(),
-                            errorResponse.getMessage(),
-                            response.statusCode().value()));
-                });
-    }
-
-    /**
-     * 5xx handler for ServiceResponse endpoints.
-     * Attempts to extract error details from body; falls back to generic error if body is empty.
-     */
-    private Mono<Throwable> handle5xxServiceResponse(
-            String serviceName,
-            org.springframework.web.reactive.function.client.ClientResponse response) {
+        int status = response.statusCode().value();
         return response.bodyToMono(ServiceResponse.class)
                 .<Throwable>flatMap(errorResponse -> {
-                    log.error("{} 5xx error: {} - {}",
-                            serviceName, errorResponse.getErrorCode(), errorResponse.getMessage());
+                    log.error("{} {} error: {} - {}",
+                            serviceName, status, errorResponse.getErrorCode(), errorResponse.getMessage());
                     return Mono.error(new ServiceClientException(
                             serviceName,
                             errorResponse.getErrorCode(),
                             errorResponse.getMessage(),
-                            response.statusCode().value()));
+                            status));
                 })
                 .switchIfEmpty(Mono.error(new ServiceClientException(
                         serviceName,
-                        "SERVER_ERROR",
-                        serviceName + " returned 5xx with no body",
-                        response.statusCode().value())));
+                        status >= 500 ? "SERVER_ERROR" : "CLIENT_ERROR",
+                        serviceName + " returned " + status + " with no body",
+                        status)));
     }
 
     /**
-     * 4xx handler for raw endpoints.
-     * Even though success responses are raw (not ServiceResponse), error responses
-     * are always ServiceResponse — built by GlobalExceptionHandler on the target service.
-     * So we read the body the same way as handle4xxServiceResponse.
+     * Error handler for raw endpoints.
+     * Error responses are always ServiceResponse (built by GlobalExceptionHandler on the target service),
+     * even though success responses are plain entities.
      */
-    private Mono<Throwable> handle4xxRaw(
+    private Mono<Throwable> handleErrorRaw(
             String serviceName, String method, String path,
             org.springframework.web.reactive.function.client.ClientResponse response) {
+        int status = response.statusCode().value();
         return response.bodyToMono(ServiceResponse.class)
                 .<Throwable>flatMap(errorResponse -> {
-                    log.error("{} 4xx error on {} {}: {} - {}",
-                            serviceName, method, path,
+                    log.error("{} {} error on {} {}: {} - {}",
+                            serviceName, status, method, path,
                             errorResponse.getErrorCode(), errorResponse.getMessage());
                     return Mono.error(new ServiceClientException(
                             serviceName,
                             errorResponse.getErrorCode(),
                             errorResponse.getMessage(),
-                            response.statusCode().value()));
+                            status));
                 })
                 .switchIfEmpty(Mono.error(new ServiceClientException(
-                        serviceName, "CLIENT_ERROR",
-                        serviceName + " returned " + response.statusCode().value() + " with no body",
-                        response.statusCode().value())));
-    }
-
-    /**
-     * 5xx handler for raw endpoints.
-     * Same reasoning as handle4xxRaw — error bodies are always ServiceResponse.
-     */
-    private Mono<Throwable> handle5xxRaw(
-            String serviceName, String method, String path,
-            org.springframework.web.reactive.function.client.ClientResponse response) {
-        return response.bodyToMono(ServiceResponse.class)
-                .<Throwable>flatMap(errorResponse -> {
-                    log.error("{} 5xx error on {} {}: {} - {}",
-                            serviceName, method, path,
-                            errorResponse.getErrorCode(), errorResponse.getMessage());
-                    return Mono.error(new ServiceClientException(
-                            serviceName,
-                            errorResponse.getErrorCode(),
-                            errorResponse.getMessage(),
-                            response.statusCode().value()));
-                })
-                .switchIfEmpty(Mono.error(new ServiceClientException(
-                        serviceName, "SERVER_ERROR",
-                        serviceName + " returned " + response.statusCode().value() + " with no body",
-                        response.statusCode().value())));
+                        serviceName,
+                        status >= 500 ? "SERVER_ERROR" : "CLIENT_ERROR",
+                        serviceName + " returned " + status + " with no body",
+                        status)));
     }
 
     /** Wraps a call with circuit breaker, passing through 4xx errors. */
