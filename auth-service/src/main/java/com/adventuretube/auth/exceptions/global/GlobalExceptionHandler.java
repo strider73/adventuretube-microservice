@@ -4,6 +4,7 @@ import com.adventuretube.auth.exceptions.*;
 import com.adventuretube.auth.exceptions.base.BaseServiceException;
 import com.adventuretube.auth.exceptions.code.AuthErrorCode;
 import com.adventuretube.common.api.response.ServiceResponse;
+import com.adventuretube.common.client.ServiceClientException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -147,6 +148,22 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MemberServiceException.class)
     public ResponseEntity<ServiceResponse<?>> handleMemberServiceException(MemberServiceException ex) {
         return buildErrorResponse(ex.getErrorCode(), ex);
+    }
+
+    // ---------------------------
+    // Inter-Service Communication
+    // ---------------------------
+    @ExceptionHandler(ServiceClientException.class)
+    public ResponseEntity<ServiceResponse<?>> handleServiceClientException(ServiceClientException ex) {
+        log.error("Inter-service call failed: {}", ex.toString());
+        ServiceResponse<?> response = ServiceResponse.builder()
+                .success(false)
+                .message(ex.getMessage())
+                .errorCode(ex.getErrorCode())
+                .data(ex.getServiceName() + " : auth-service")
+                .timestamp(java.time.LocalDateTime.now())
+                .build();
+        return ResponseEntity.status(ex.getHttpStatus()).body(response);
     }
 
     // ---------------------------

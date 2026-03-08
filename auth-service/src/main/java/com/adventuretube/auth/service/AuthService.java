@@ -11,7 +11,6 @@ import com.adventuretube.auth.model.dto.member.MemberDTO;
 import com.adventuretube.auth.model.dto.token.TokenDTO;
 import com.adventuretube.common.api.response.ServiceResponse;
 import com.adventuretube.common.client.ServiceClient;
-import com.adventuretube.common.client.ServiceClientException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
@@ -146,7 +145,7 @@ public class AuthService {
                                     });
                         })
                 )
-                .onErrorMap(ServiceClientException.class, this::mapServiceClientException);
+;
     }
 
 
@@ -201,7 +200,7 @@ public class AuthService {
                                         });
                             });
                 })
-                .onErrorMap(ServiceClientException.class, this::mapServiceClientException);
+;
     }
 
 
@@ -230,7 +229,7 @@ public class AuthService {
                             .build();
                     return Mono.just(response);
                 })
-                .onErrorMap(ServiceClientException.class, this::mapServiceClientException);
+;
     }
 
     public Mono<MemberRegisterResponse> refreshToken(String rawToken) {
@@ -285,7 +284,7 @@ public class AuthService {
                                 return Mono.just(new MemberRegisterResponse(null, accessToken, refreshToken));
                             });
                 })
-                .onErrorMap(ServiceClientException.class, this::mapServiceClientException);
+;
     }
 
 
@@ -311,7 +310,7 @@ public class AuthService {
                             .build();
                     return Mono.just(response);
                 })
-                .onErrorMap(ServiceClientException.class, this::mapServiceClientException);
+;
     }
 
     protected GoogleIdToken verifyGoogleIdToken(String googleIdToken) {
@@ -373,29 +372,6 @@ public class AuthService {
                 .build();
     }
 
-    /**
-     * Maps MemberServiceException error codes to appropriate auth-service exceptions.
-     */
-    private RuntimeException mapServiceClientException(ServiceClientException ex) {
-        String errorCode = ex.getErrorCode();
-
-        if (errorCode == null) {
-            return new InternalServerException(AuthErrorCode.INTERNAL_ERROR);
-        }
-
-        return switch (errorCode) {
-            case "USER_EMAIL_DUPLICATE" -> new DuplicateException(AuthErrorCode.USER_EMAIL_DUPLICATE);
-            case "USER_NOT_FOUND" -> new UserNotFoundException(AuthErrorCode.USER_NOT_FOUND);
-            case "TOKEN_NOT_FOUND" -> new TokenNotFoundException(AuthErrorCode.TOKEN_NOT_FOUND);
-            case "TOKEN_SAVE_FAILED" -> new TokenSaveFailedException(AuthErrorCode.TOKEN_SAVE_FAILED);
-            case "TOKEN_DELETION_FAILED" -> new TokenDeletionException(AuthErrorCode.TOKEN_DELETION_FAILED);
-            case "MEMBER_DELETION_FAILED" -> new InternalServerException(AuthErrorCode.MEMBER_DELETION_FAILED);
-            case "SERVER_NOT_AVAILABLE" -> new MemberServiceException(AuthErrorCode.SERVER_NOT_AVAILABLE);
-            case "CIRCUIT_OPEN" -> new MemberServiceException(AuthErrorCode.SERVICE_CIRCUIT_OPEN);
-            default -> new InternalServerException(AuthErrorCode.INTERNAL_ERROR);
-        };
-    }
-
     // ── Contents Management ──────────────────────────────────────────
 
     /**
@@ -412,7 +388,7 @@ public class AuthService {
                 .flatMap(enrichedBody -> serviceClient.postRawReactive(
                         geoServiceUrl, "/geo/save", enrichedBody,
                         new ParameterizedTypeReference<String>() {}))
-                .onErrorMap(ServiceClientException.class, this::mapServiceClientException);
+;
     }
 
 
@@ -425,6 +401,6 @@ public class AuthService {
                         geoServiceUrl,
                         "/geo/data/delete/adventuretubedata?youtubeContentId=" + youtubeContentId + "&ownerEmail=" + ownerEmail,
                         new ParameterizedTypeReference<String>() {}))
-                .onErrorMap(ServiceClientException.class, this::mapServiceClientException);
+;
     }
 }
