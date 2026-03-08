@@ -86,7 +86,7 @@ public class AuthService {
                 })
                 .subscribeOn(Schedulers.boundedElastic())
                 // MARK:  Check Email duplication
-                .flatMap(memberDTO -> serviceClient.postServiceResponseReactive(
+                .flatMap(memberDTO -> serviceClient.postReactive(
                                 memberServiceUrl,
                                 "/member/emailDuplicationCheck",
                                 memberDTO.getEmail(),
@@ -101,7 +101,7 @@ public class AuthService {
                                 return Mono.error(new DuplicateException(AuthErrorCode.USER_EMAIL_DUPLICATE));
                             }
                             // MARK:  Register Member
-                            return serviceClient.postServiceResponseReactive(
+                            return serviceClient.postReactive(
                                     memberServiceUrl,
                                     "/member/registerMember",
                                     memberDTO,
@@ -127,7 +127,7 @@ public class AuthService {
                                     .refreshToken(refreshToken)
                                     .build();
 
-                            return serviceClient.postServiceResponseReactive(
+                            return serviceClient.postReactive(
                                             memberServiceUrl,
                                             "/member/storeTokens",
                                             tokenToStore,
@@ -182,7 +182,7 @@ public class AuthService {
                                         .refreshToken(refreshToken)
                                         .build();
 
-                                return serviceClient.postServiceResponseReactive(
+                                return serviceClient.postReactive(
                                                 memberServiceUrl,
                                                 "/member/storeTokens",
                                                 tokenToStore,
@@ -208,7 +208,7 @@ public class AuthService {
     public Mono<ServiceResponse<Boolean>> revokeToken(String rawToken) {
         String token = TokenSanitizer.sanitize(rawToken);
 
-        return serviceClient.postServiceResponseReactive(
+        return serviceClient.postReactive(
                         memberServiceUrl,
                         "/member/deleteAllToken",
                         token,
@@ -241,7 +241,7 @@ public class AuthService {
          */
         String token = TokenSanitizer.sanitize(rawToken);
 
-        return serviceClient.postServiceResponseReactive(
+        return serviceClient.postReactive(
                         memberServiceUrl,
                         "/member/findToken",
                         token,
@@ -268,7 +268,7 @@ public class AuthService {
                             .refreshToken(refreshToken)
                             .build();
 
-                    return serviceClient.postServiceResponseReactive(
+                    return serviceClient.postReactive(
                                     memberServiceUrl,
                                     "/member/storeTokens",
                                     tokenToStore,
@@ -289,7 +289,7 @@ public class AuthService {
 
 
     public Mono<ServiceResponse<Boolean>> deleteUser(String email) {
-        return serviceClient.postServiceResponseReactive(
+        return serviceClient.postReactive(
                         memberServiceUrl,
                         "/member/deleteUser",
                         email,
@@ -385,7 +385,7 @@ public class AuthService {
                     ((ObjectNode) body).put("ownerEmail", email);
                     return body;
                 })
-                .flatMap(enrichedBody -> serviceClient.postRawReactive(
+                .flatMap(enrichedBody -> serviceClient.postReactive(
                         geoServiceUrl, "/geo/save", enrichedBody,
                         new ParameterizedTypeReference<String>() {}))
 ;
@@ -397,7 +397,7 @@ public class AuthService {
                     String token = authorization.replace("Bearer ", "");
                     return jwtUtil.extractUsername(token);
                 })
-                .flatMap(ownerEmail -> serviceClient.deleteRawReactive(
+                .flatMap(ownerEmail -> serviceClient.deleteReactive(
                         geoServiceUrl,
                         "/geo/data/delete/adventuretubedata?youtubeContentId=" + youtubeContentId + "&ownerEmail=" + ownerEmail,
                         new ParameterizedTypeReference<String>() {}))

@@ -16,32 +16,32 @@ public class GeoDataService {
     private final ServiceClient serviceClient;
 
     public JsonNode findAll() {
-        return serviceClient.getRawNonReactive(BASE_URL, "/geo/data",
-                new ParameterizedTypeReference<>() {});
+        return serviceClient.<JsonNode>getReactive(BASE_URL, "/geo/data",
+                new ParameterizedTypeReference<>() {}).block();
     }
 
     public JsonNode findById(String id) {
-        return serviceClient.getRawNonReactive(BASE_URL, "/geo/data/" + id,
-                new ParameterizedTypeReference<>() {});
+        return serviceClient.<JsonNode>getReactive(BASE_URL, "/geo/data/" + id,
+                new ParameterizedTypeReference<>() {}).block();
     }
 
     public JsonNode findByYoutubeContentID(String youtubeContentID) {
-        return serviceClient.getRawNonReactive(BASE_URL, "/geo/data/youtube/" + youtubeContentID,
-                new ParameterizedTypeReference<>() {});
+        return serviceClient.<JsonNode>getReactive(BASE_URL, "/geo/data/youtube/" + youtubeContentID,
+                new ParameterizedTypeReference<>() {}).block();
     }
 
     public JsonNode findByContentType(String contentType) {
-        return serviceClient.getRawNonReactive(BASE_URL, "/geo/data/type/" + contentType,
-                new ParameterizedTypeReference<>() {});
+        return serviceClient.<JsonNode>getReactive(BASE_URL, "/geo/data/type/" + contentType,
+                new ParameterizedTypeReference<>() {}).block();
     }
 
     public JsonNode findByCategory(String category) {
-        return serviceClient.getRawNonReactive(BASE_URL, "/geo/data/category/" + category,
-                new ParameterizedTypeReference<>() {});
+        return serviceClient.<JsonNode>getReactive(BASE_URL, "/geo/data/category/" + category,
+                new ParameterizedTypeReference<>() {}).block();
     }
 
     public JsonNode count() {
-        return serviceClient.getRawNonReactive(BASE_URL, "/geo/data/count",
-                new ParameterizedTypeReference<>() {});
+        return serviceClient.<JsonNode>getReactive(BASE_URL, "/geo/data/count",
+                new ParameterizedTypeReference<>() {}).block();
     }
 }

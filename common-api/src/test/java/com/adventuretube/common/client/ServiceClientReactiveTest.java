@@ -71,7 +71,7 @@ class ServiceClientReactiveTest {
     }
 
     @Test
-    void postServiceResponseReactive_success_returnsServiceResponse() throws JsonProcessingException {
+    void postReactive_success_returnsServiceResponse() throws JsonProcessingException {
         ServiceResponse<String> expectedResponse = ServiceResponse.<String>builder()
                 .success(true)
                 .message("Created")
@@ -85,7 +85,7 @@ class ServiceClientReactiveTest {
 
         String baseUrl = mockWebServer.url("/").toString();
 
-        StepVerifier.create(serviceClient.postServiceResponseReactive(
+        StepVerifier.create(serviceClient.postReactive(
                         baseUrl,
                         "/test/endpoint",
                         "request-body",
@@ -99,7 +99,7 @@ class ServiceClientReactiveTest {
     }
 
     @Test
-    void postServiceResponseReactive_4xxError_returnsServiceClientException_clientError() throws JsonProcessingException {
+    void postReactive_4xxError_returnsServiceClientException_clientError() throws JsonProcessingException {
         ServiceResponse<Object> errorResponse = ServiceResponse.builder()
                 .success(false)
                 .errorCode("USER_NOT_FOUND")
@@ -114,7 +114,7 @@ class ServiceClientReactiveTest {
 
         String baseUrl = mockWebServer.url("/").toString();
 
-        StepVerifier.create(serviceClient.postServiceResponseReactive(
+        StepVerifier.create(serviceClient.postReactive(
                         baseUrl,
                         "/test/endpoint",
                         "request-body",
@@ -131,7 +131,7 @@ class ServiceClientReactiveTest {
     }
 
     @Test
-    void postServiceResponseReactive_5xxError_returnsServiceClientException_serverError() throws JsonProcessingException {
+    void postReactive_5xxError_returnsServiceClientException_serverError() throws JsonProcessingException {
         ServiceResponse<Object> errorResponse = ServiceResponse.builder()
                 .success(false)
                 .errorCode("SERVER_ERROR")
@@ -146,7 +146,7 @@ class ServiceClientReactiveTest {
 
         String baseUrl = mockWebServer.url("/").toString();
 
-        StepVerifier.create(serviceClient.postServiceResponseReactive(
+        StepVerifier.create(serviceClient.postReactive(
                         baseUrl,
                         "/test/endpoint",
                         "request-body",
@@ -163,14 +163,14 @@ class ServiceClientReactiveTest {
     }
 
     @Test
-    void postServiceResponseReactive_5xxWithEmptyBody_returnsServiceClientException_serverError() {
+    void postReactive_5xxWithEmptyBody_returnsServiceClientException_serverError() {
         mockWebServer.enqueue(new MockResponse()
                 .setResponseCode(500)
                 .addHeader("Content-Type", "application/json"));
 
         String baseUrl = mockWebServer.url("/").toString();
 
-        StepVerifier.create(serviceClient.postServiceResponseReactive(
+        StepVerifier.create(serviceClient.postReactive(
                         baseUrl,
                         "/test/endpoint",
                         "request-body",
@@ -186,7 +186,7 @@ class ServiceClientReactiveTest {
     }
 
     @Test
-    void getServiceResponseReactive_success_returnsServiceResponse() throws JsonProcessingException {
+    void getReactive_success_returnsServiceResponse() throws JsonProcessingException {
         ServiceResponse<String> expectedResponse = ServiceResponse.<String>builder()
                 .success(true)
                 .message("Found")
@@ -200,7 +200,7 @@ class ServiceClientReactiveTest {
 
         String baseUrl = mockWebServer.url("/").toString();
 
-        StepVerifier.create(serviceClient.getServiceResponseReactive(
+        StepVerifier.create(serviceClient.getReactive(
                         baseUrl,
                         "/test/endpoint",
                         new ParameterizedTypeReference<ServiceResponse<String>>() {}))
@@ -213,7 +213,7 @@ class ServiceClientReactiveTest {
     }
 
     @Test
-    void getServiceResponseReactive_4xxError_returnsServiceClientException_clientError() throws JsonProcessingException {
+    void getReactive_4xxError_returnsServiceClientException_clientError() throws JsonProcessingException {
         ServiceResponse<Object> errorResponse = ServiceResponse.builder()
                 .success(false)
                 .errorCode("NOT_FOUND")
@@ -228,7 +228,7 @@ class ServiceClientReactiveTest {
 
         String baseUrl = mockWebServer.url("/").toString();
 
-        StepVerifier.create(serviceClient.getServiceResponseReactive(
+        StepVerifier.create(serviceClient.getReactive(
                         baseUrl,
                         "/test/endpoint",
                         new ParameterizedTypeReference<ServiceResponse<String>>() {}))
@@ -243,7 +243,7 @@ class ServiceClientReactiveTest {
     }
 
     @Test
-    void postServiceResponseReactive_doesNotBlock() throws JsonProcessingException {
+    void postReactive_doesNotBlock() throws JsonProcessingException {
         ServiceResponse<String> expectedResponse = ServiceResponse.<String>builder()
                 .success(true)
                 .message("OK")
@@ -258,7 +258,7 @@ class ServiceClientReactiveTest {
         String baseUrl = mockWebServer.url("/").toString();
 
         // Verify reactive chain completes without blocking using StepVerifier
-        var mono = serviceClient.postServiceResponseReactive(
+        var mono = serviceClient.postReactive(
                 baseUrl,
                 "/test/endpoint",
                 "request-body",
