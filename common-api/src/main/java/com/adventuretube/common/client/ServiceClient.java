@@ -32,10 +32,10 @@ import java.time.Duration;
  *
  * <h3>Error handling</h3>
  * <ul>
- *   <li>4xx errors: {@link ServiceClient4xxException} (passed through circuit breaker)</li>
- *   <li>5xx errors: {@link ServiceClient5xxException} with SERVER_ERROR</li>
- *   <li>Network failures: {@link ServiceClient5xxException} with SERVER_NOT_AVAILABLE</li>
- *   <li>Circuit breaker open: {@link ServiceClient5xxException} with CIRCUIT_OPEN</li>
+ *   <li>4xx errors: {@link ServiceClientException} with isClientError()=true (passed through circuit breaker)</li>
+ *   <li>5xx errors: {@link ServiceClientException} with isServerError()=true</li>
+ *   <li>Network failures: {@link ServiceClientException} with SERVER_NOT_AVAILABLE</li>
+ *   <li>Circuit breaker open: {@link ServiceClientException} with CIRCUIT_OPEN</li>
  * </ul>
  *
  * <h3>Usage examples</h3>
@@ -268,7 +268,7 @@ public class ServiceClient {
                 .flatMap(errorResponse -> {
                     log.error("{} 4xx error: {} - {}",
                             serviceName, errorResponse.getErrorCode(), errorResponse.getMessage());
-                    return Mono.error(new ServiceClient4xxException(
+                    return Mono.error(new ServiceClientException(
                             serviceName,
                             errorResponse.getErrorCode(),
                             errorResponse.getMessage(),
@@ -287,13 +287,13 @@ public class ServiceClient {
                 .<Throwable>flatMap(errorResponse -> {
                     log.error("{} 5xx error: {} - {}",
                             serviceName, errorResponse.getErrorCode(), errorResponse.getMessage());
-                    return Mono.error(new ServiceClient5xxException(
+                    return Mono.error(new ServiceClientException(
                             serviceName,
                             errorResponse.getErrorCode(),
                             errorResponse.getMessage(),
                             response.statusCode().value()));
                 })
-                .switchIfEmpty(Mono.error(new ServiceClient5xxException(
+                .switchIfEmpty(Mono.error(new ServiceClientException(
                         serviceName,
                         "SERVER_ERROR",
                         serviceName + " returned 5xx with no body",
@@ -314,13 +314,13 @@ public class ServiceClient {
                     log.error("{} 4xx error on {} {}: {} - {}",
                             serviceName, method, path,
                             errorResponse.getErrorCode(), errorResponse.getMessage());
-                    return Mono.error(new ServiceClient4xxException(
+                    return Mono.error(new ServiceClientException(
                             serviceName,
                             errorResponse.getErrorCode(),
                             errorResponse.getMessage(),
                             response.statusCode().value()));
                 })
-                .switchIfEmpty(Mono.error(new ServiceClient4xxException(
+                .switchIfEmpty(Mono.error(new ServiceClientException(
                         serviceName, "CLIENT_ERROR",
                         serviceName + " returned " + response.statusCode().value() + " with no body",
                         response.statusCode().value())));
@@ -338,13 +338,13 @@ public class ServiceClient {
                     log.error("{} 5xx error on {} {}: {} - {}",
                             serviceName, method, path,
                             errorResponse.getErrorCode(), errorResponse.getMessage());
-                    return Mono.error(new ServiceClient5xxException(
+                    return Mono.error(new ServiceClientException(
                             serviceName,
                             errorResponse.getErrorCode(),
                             errorResponse.getMessage(),
                             response.statusCode().value()));
                 })
-                .switchIfEmpty(Mono.error(new ServiceClient5xxException(
+                .switchIfEmpty(Mono.error(new ServiceClientException(
                         serviceName, "SERVER_ERROR",
                         serviceName + " returned " + response.statusCode().value() + " with no body",
                         response.statusCode().value())));
@@ -354,25 +354,25 @@ public class ServiceClient {
     private <T> Mono<T> withCircuitBreaker(String serviceName, Mono<T> call) {
         ReactiveCircuitBreaker circuitBreaker = circuitBreakerFactory.create(serviceName);
         return circuitBreaker.run(call, throwable -> {
-            if (throwable instanceof ServiceClient4xxException) {
+            if (throwable instanceof ServiceClientException sce && sce.isClientError()) {
                 return Mono.error(throwable);
             }
             log.error("Circuit breaker open for {}: {}", serviceName, throwable.getMessage());
-            return Mono.error(new ServiceClient5xxException(
+            return Mono.error(new ServiceClientException(
                     serviceName, "CIRCUIT_OPEN",
                     serviceName + " circuit breaker is open", 503));
         });
     }
 
-    private ServiceClient5xxException networkError(String serviceName, WebClientRequestException ex) {
+    private ServiceClientException networkError(String serviceName, WebClientRequestException ex) {
         log.error("Network error calling {}: {}", serviceName, ex.getMessage());
-        return new ServiceClient5xxException(serviceName, "SERVER_NOT_AVAILABLE",
+        return new ServiceClientException(serviceName, "SERVER_NOT_AVAILABLE",
                 serviceName + " is not available", 503);
     }
 
-    private ServiceClient5xxException timeoutError(String serviceName, String path, java.util.concurrent.TimeoutException ex) {
+    private ServiceClientException timeoutError(String serviceName, String path, java.util.concurrent.TimeoutException ex) {
         log.error("Timeout calling {}{}: {}", serviceName, path, ex.getMessage());
-        return new ServiceClient5xxException(serviceName, "SERVER_NOT_AVAILABLE",
+        return new ServiceClientException(serviceName, "SERVER_NOT_AVAILABLE",
                 serviceName + " timed out", 503);
     }
 

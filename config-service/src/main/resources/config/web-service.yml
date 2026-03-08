@@ -52,8 +52,6 @@ resilience4j:
         failure-rate-threshold: 50
         wait-duration-in-open-state: 30s
         permitted-number-of-calls-in-half-open-state: 3
-        ignore-exceptions:
-          - com.adventuretube.common.client.ServiceClient4xxException
   timelimiter:
     instances:
       GEOSPATIAL-SERVICE:

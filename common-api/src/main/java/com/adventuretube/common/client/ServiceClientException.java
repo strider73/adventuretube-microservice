@@ -27,6 +27,9 @@ public class ServiceClientException extends RuntimeException {
         this.httpStatus = httpStatus;
     }
 
+    public boolean isClientError() { return httpStatus >= 400 && httpStatus < 500; }
+    public boolean isServerError() { return httpStatus >= 500; }
+
     @Override
     public String toString() {
         return String.format("ServiceClientException{service='%s', errorCode='%s', httpStatus=%d, message='%s'}",
