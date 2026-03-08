@@ -60,3 +60,6 @@ env.*
 
 ###Wordpress document #######
 wordpress-content/
+
+### Study notes ###
+spring_in_action_full.md
