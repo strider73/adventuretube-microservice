@@ -14,6 +14,14 @@ import java.util.List;
 public class AdventureTubeData {
     @Id
     private String id;
+
+    @Indexed(unique = true)
+    //because of this index there is property has been added in application.properties
+    //spring.data.mongodb.auto-index-creation=true
+    private String youtubeContentID;
+    @Indexed
+    private String ownerEmail;
+
     private List<String> userContentCategory;
     private List<Place> places;
     private String userTripDuration;
@@ -22,10 +30,6 @@ public class AdventureTubeData {
     private List<Chapter> chapters;
     private String userContentType;
     private String coreDataID;
-    @Indexed(unique = true)
-    //because of this index there is property has been added in application.properties
-    //spring.data.mongodb.auto-index-creation=true
-    private String youtubeContentID;
     public  AdventureTubeData(){
         super();
     }
@@ -39,7 +43,8 @@ public class AdventureTubeData {
                              List<Chapter> chapters,
                              String userContentType,
                              String coreDataID,
-                             String youtubeContentID) {
+                             String youtubeContentID,
+                             String ownerEmail) {
         this.userContentCategory = userContentCategory;
         this.places = places;
         this.userTripDuration = userTripDuration;
@@ -49,6 +54,7 @@ public class AdventureTubeData {
         this.userContentType = userContentType;
         this.coreDataID = coreDataID;
         this.youtubeContentID = youtubeContentID;
+        this.ownerEmail = ownerEmail;
     }
 
     @JsonProperty("userContentCategory")
@@ -95,4 +101,9 @@ public class AdventureTubeData {
     public String getYoutubeContentID() { return youtubeContentID; }
     @JsonProperty("youtubeContentID")
     public void setYoutubeContentID(String value) { this.youtubeContentID = value; }
+
+    @JsonProperty("ownerEmail")
+    public String getOwnerEmail(){return  ownerEmail;}
+    @JsonProperty("ownerEmail")
+    public void setOwnerEmail(String value){ this.ownerEmail = value; }
 }

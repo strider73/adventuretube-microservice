@@ -87,7 +87,8 @@ class  AdventureTubeDataRepositoryIT {
                 List.of(chapter),
                 contentType,
                 "CORE_" + testRunId,
-                ytId
+                ytId,
+                "test@example.com"
         );
     }
 

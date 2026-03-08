@@ -106,7 +106,8 @@ class AdventureTubeDataFullStackIT {
                 List.of(chapter),
                 contentType,
                 "CORE_" + testRunId,
-                ytId
+                ytId,
+                "strider.test.lee@gmail.com"
         );
     }
 

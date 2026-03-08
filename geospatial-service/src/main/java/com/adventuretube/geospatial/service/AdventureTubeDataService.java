@@ -1,5 +1,7 @@
 package com.adventuretube.geospatial.service;
 
+import com.adventuretube.geospatial.exceptions.OwnershipMismatchException;
+import com.adventuretube.geospatial.exceptions.code.GeoErrorCode;
 import com.adventuretube.geospatial.model.entity.adventuretube.AdventureTubeData;
 import com.adventuretube.geospatial.repository.AdventureTubeDataRepository;
 import lombok.RequiredArgsConstructor;
@@ -54,11 +56,17 @@ public class AdventureTubeDataService {
         repository.deleteById(id);
     }
 
-    public void deleteByYoutubeContentID(String youtubeContentID) {
-                AdventureTubeData data  = repository.findByYoutubeContentID(youtubeContentID)
-                        .orElseThrow(() -> new IllegalArgumentException("AdventureTubeData not found with youtubeContentID"+ youtubeContentID));
-                repository.deleteById(data.getYoutubeContentID());
+    public String deleteByYoutubeContentIdAndOwnerEmail(String youtubeContentId, String ownerEmail) {
+        AdventureTubeData data = repository.findByYoutubeContentID(youtubeContentId)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "AdventureTubeData not found with youtubeContentID: " + youtubeContentId));
 
+        if (!data.getOwnerEmail().equals(ownerEmail)) {
+            throw new OwnershipMismatchException(GeoErrorCode.OWNERSHIP_MISMATCH);
+        }
+
+        repository.deleteById(data.getId());
+        return data.getCoreDataID();
     }
 
 
