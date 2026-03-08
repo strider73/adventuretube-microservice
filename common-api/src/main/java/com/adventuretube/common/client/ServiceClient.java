@@ -15,32 +15,46 @@ import reactor.core.publisher.Mono;
 import java.time.Duration;
 
 /**
- * Generic client for inter-service communication.
+ * Generic client for inter-service communication via WebClient.
  *
- * Provides centralized error handling for all service-to-service calls:
- * - 4xx errors: Extracted from response body and signalled as ServiceClient4xxException (ignored by circuit breaker)
- * - 5xx errors: Signalled as ServiceClient5xxException with SERVER_ERROR
- * - Network failures: Signalled as ServiceClient5xxException with SERVER_NOT_AVAILABLE
+ * <p>All methods are built on reactive WebClient. Blocking services (Tomcat + virtual threads)
+ * use the {@code *NonReactive()} convenience wrappers which call {@code .block()}.
  *
- * Usage:
+ * <h3>Method naming convention</h3>
  * <pre>
- * {@code
- * // Reactive POST request to MEMBER-SERVICE
- * Mono<ServiceResponse<MemberDTO>> response = serviceClient.postServiceResponseReactive(
- *     "http://MEMBER-SERVICE",
- *     "/member/registerMember",
- *     memberDTO,
- *     new ParameterizedTypeReference<ServiceResponse<MemberDTO>>() {}
- * );
+ *   {http-method} + {Raw|ServiceResponse} + {Reactive|NonReactive}
  *
- * // Reactive GET request to MEMBER-SERVICE
- * Mono<ServiceResponse<MemberDTO>> response = serviceClient.getServiceResponseReactive(
- *     "http://MEMBER-SERVICE",
- *     "/member/findMember",
- *     new ParameterizedTypeReference<ServiceResponse<MemberDTO>>() {}
- * );
- * }
+ *   Raw             = target returns a plain entity (e.g., String, AdventureTubeData)
+ *   ServiceResponse = target returns ServiceResponse&lt;T&gt; wrapper
+ *   Reactive        = returns Mono&lt;T&gt;  (for Netty / reactive callers)
+ *   NonReactive     = calls .block()    (for Tomcat / blocking callers)
  * </pre>
+ *
+ * <h3>Error handling</h3>
+ * <ul>
+ *   <li>4xx errors: {@link ServiceClientException} with isClientError()=true (passed through circuit breaker)</li>
+ *   <li>5xx errors: {@link ServiceClientException} with isServerError()=true</li>
+ *   <li>Network failures: {@link ServiceClientException} with SERVER_NOT_AVAILABLE</li>
+ *   <li>Circuit breaker open: {@link ServiceClientException} with CIRCUIT_OPEN</li>
+ * </ul>
+ *
+ * <h3>Usage examples</h3>
+ * <pre>{@code
+ * // Reactive (auth-service on Netty)
+ * Mono<ServiceResponse<MemberDTO>> result = serviceClient.postServiceResponseReactive(
+ *     "http://MEMBER-SERVICE", "/member/register", dto,
+ *     new ParameterizedTypeReference<ServiceResponse<MemberDTO>>() {});
+ *
+ * // Blocking (web-service on Tomcat + virtual threads)
+ * ServiceResponse<MemberDTO> result = serviceClient.postServiceResponseNonReactive(
+ *     "http://MEMBER-SERVICE", "/member/register", dto,
+ *     new ParameterizedTypeReference<ServiceResponse<MemberDTO>>() {});
+ *
+ * // Raw reactive (auth-service -> geospatial-service)
+ * Mono<String> result = serviceClient.postRawReactive(
+ *     "http://GEOSPATIAL-SERVICE", "/geo/save", jsonBody,
+ *     new ParameterizedTypeReference<String>() {});
+ * }</pre>
  */
 @Slf4j
 @Component
@@ -57,252 +71,261 @@ public class ServiceClient {
         this.circuitBreakerFactory = circuitBreakerFactory;
     }
 
-    /**
-     * Perform a non-blocking POST request to a target service.
-     *
-     * @param baseUrl      The service base URL (e.g., "http://MEMBER-SERVICE")
-     * @param path         The endpoint path (e.g., "/member/registerMember")
-     * @param body         The request body
-     * @param responseType The expected response type
-     * @param <T>          The type of data in ServiceResponse
-     * @param <R>          The type of request body
-     * @return Mono containing ServiceResponse with the result
-     */
-    public <T, R> Mono<ServiceResponse<T>> postServiceResponseReactive(String baseUrl, String path, R body,
-                                                         ParameterizedTypeReference<ServiceResponse<T>> responseType) {
-        WebClient webClient = webClientBuilder.baseUrl(baseUrl).build();
-        String serviceName = extractServiceName(baseUrl);
-        ReactiveCircuitBreaker circuitBreaker = circuitBreakerFactory.create(serviceName);
+    // ════════════════════════════════════════════════════════════════════
+    //  1. ServiceResponse Reactive — target returns ServiceResponse<T>
+    // ════════════════════════════════════════════════════════════════════
 
-        Mono<ServiceResponse<T>> call = webClient.post()
+    /** Non-blocking POST expecting {@code ServiceResponse<T>}. */
+    public <T, R> Mono<ServiceResponse<T>> postServiceResponseReactive(
+            String baseUrl, String path, R body,
+            ParameterizedTypeReference<ServiceResponse<T>> responseType) {
+
+        String serviceName = extractServiceName(baseUrl);
+        Mono<ServiceResponse<T>> call = webClientBuilder.baseUrl(baseUrl).build()
+                .post()
                 .uri(path)
                 .bodyValue(body)
                 .retrieve()
-                .onStatus(HttpStatusCode::is4xxClientError, response ->
-                        response.bodyToMono(ServiceResponse.class)
-                                .flatMap(errorResponse -> {
-                                    log.error("{} 4xx error: {} - {}",
-                                            serviceName, errorResponse.getErrorCode(), errorResponse.getMessage());
-                                    return Mono.error(new ServiceClient4xxException(
-                                            serviceName,
-                                            errorResponse.getErrorCode(),
-                                            errorResponse.getMessage(),
-                                            response.statusCode().value()
-                                    ));
-                                })
-                )
-                .onStatus(HttpStatusCode::is5xxServerError, response ->
-                        response.bodyToMono(ServiceResponse.class)
-                                .<Throwable>flatMap(errorResponse -> {
-                                    log.error("{} 5xx error: {} - {}",
-                                            serviceName, errorResponse.getErrorCode(), errorResponse.getMessage());
-                                    return Mono.error(new ServiceClient5xxException(
-                                            serviceName,
-                                            errorResponse.getErrorCode(),
-                                            errorResponse.getMessage(),
-                                            response.statusCode().value()
-                                    ));
-                                })
-                                .switchIfEmpty(Mono.error(new ServiceClient5xxException(
-                                        serviceName,
-                                        "SERVER_ERROR",
-                                        serviceName + " returned 5xx with no body",
-                                        response.statusCode().value()
-                                )))
-                )
+                .onStatus(HttpStatusCode::isError,
+                        response -> handleErrorServiceResponse(serviceName, response))
                 .bodyToMono(responseType)
                 .timeout(DEFAULT_TIMEOUT)
-                .onErrorMap(WebClientRequestException.class, ex -> {
-                    log.error("Network error calling {}: {}", serviceName, ex.getMessage());
-                    return new ServiceClient5xxException(serviceName, "SERVER_NOT_AVAILABLE",
-                            serviceName + " is not available", 503);
-                })
-                .onErrorMap(java.util.concurrent.TimeoutException.class, ex -> {
-                    log.error("Timeout calling {}{}: {}", serviceName, path, ex.getMessage());
-                    return new ServiceClient5xxException(serviceName, "SERVER_NOT_AVAILABLE",
-                            serviceName + " timed out", 503);
-                });
+                .onErrorMap(WebClientRequestException.class, ex -> networkError(serviceName, ex))
+                .onErrorMap(java.util.concurrent.TimeoutException.class, ex -> timeoutError(serviceName, path, ex));
 
-        return circuitBreaker.run(call, throwable -> {
-            if (throwable instanceof ServiceClient4xxException) {
-                return Mono.error(throwable);
-            }
-            log.error("Circuit breaker open for {}: {}", serviceName, throwable.getMessage());
-            return Mono.error(new ServiceClient5xxException(
-                    serviceName, "CIRCUIT_OPEN",
-                    serviceName + " circuit breaker is open", 503));
-        });
+        return withCircuitBreaker(serviceName, call);
     }
 
-    /**
-     * Perform a non-blocking GET request to a target service.
-     *
-     * @param baseUrl      The service base URL (e.g., "http://MEMBER-SERVICE")
-     * @param path         The endpoint path
-     * @param responseType The expected response type
-     * @param <T>          The type of data in ServiceResponse
-     * @return Mono containing ServiceResponse with the result
-     */
-    public <T> Mono<ServiceResponse<T>> getServiceResponseReactive(String baseUrl, String path,
-                                                     ParameterizedTypeReference<ServiceResponse<T>> responseType) {
-        WebClient webClient = webClientBuilder.baseUrl(baseUrl).build();
-        String serviceName = extractServiceName(baseUrl);
-        ReactiveCircuitBreaker circuitBreaker = circuitBreakerFactory.create(serviceName);
+    /** Non-blocking GET expecting {@code ServiceResponse<T>}. */
+    public <T> Mono<ServiceResponse<T>> getServiceResponseReactive(
+            String baseUrl, String path,
+            ParameterizedTypeReference<ServiceResponse<T>> responseType) {
 
-        Mono<ServiceResponse<T>> call = webClient.get()
+        String serviceName = extractServiceName(baseUrl);
+        Mono<ServiceResponse<T>> call = webClientBuilder.baseUrl(baseUrl).build()
+                .get()
                 .uri(path)
                 .retrieve()
-                .onStatus(HttpStatusCode::is4xxClientError, response ->
-                        response.bodyToMono(ServiceResponse.class)
-                                .flatMap(errorResponse -> {
-                                    log.error("{} 4xx error: {} - {}",
-                                            serviceName, errorResponse.getErrorCode(), errorResponse.getMessage());
-                                    return Mono.error(new ServiceClient4xxException(
-                                            serviceName,
-                                            errorResponse.getErrorCode(),
-                                            errorResponse.getMessage(),
-                                            response.statusCode().value()
-                                    ));
-                                })
-                )
-                .onStatus(HttpStatusCode::is5xxServerError, response ->
-                        response.bodyToMono(ServiceResponse.class)
-                                .<Throwable>flatMap(errorResponse -> {
-                                    log.error("{} 5xx error: {} - {}",
-                                            serviceName, errorResponse.getErrorCode(), errorResponse.getMessage());
-                                    return Mono.error(new ServiceClient5xxException(
-                                            serviceName,
-                                            errorResponse.getErrorCode(),
-                                            errorResponse.getMessage(),
-                                            response.statusCode().value()
-                                    ));
-                                })
-                                .switchIfEmpty(Mono.error(new ServiceClient5xxException(
-                                        serviceName,
-                                        "SERVER_ERROR",
-                                        serviceName + " returned 5xx with no body",
-                                        response.statusCode().value()
-                                )))
-                )
+                .onStatus(HttpStatusCode::isError,
+                        response -> handleErrorServiceResponse(serviceName, response))
                 .bodyToMono(responseType)
                 .timeout(DEFAULT_TIMEOUT)
-                .onErrorMap(WebClientRequestException.class, ex -> {
-                    log.error("Network error calling {}: {}", serviceName, ex.getMessage());
-                    return new ServiceClient5xxException(serviceName, "SERVER_NOT_AVAILABLE",
-                            serviceName + " is not available", 503);
-                })
-                .onErrorMap(java.util.concurrent.TimeoutException.class, ex -> {
-                    log.error("Timeout calling {}{}: {}", serviceName, path, ex.getMessage());
-                    return new ServiceClient5xxException(serviceName, "SERVER_NOT_AVAILABLE",
-                            serviceName + " timed out", 503);
-                });
+                .onErrorMap(WebClientRequestException.class, ex -> networkError(serviceName, ex))
+                .onErrorMap(java.util.concurrent.TimeoutException.class, ex -> timeoutError(serviceName, path, ex));
 
-        return circuitBreaker.run(call, throwable -> {
-            if (throwable instanceof ServiceClient4xxException) {
-                return Mono.error(throwable);
-            }
-            log.error("Circuit breaker open for {}: {}", serviceName, throwable.getMessage());
-            return Mono.error(new ServiceClient5xxException(
-                    serviceName, "CIRCUIT_OPEN",
-                    serviceName + " circuit breaker is open", 503));
-        });
+        return withCircuitBreaker(serviceName, call);
     }
 
-    // ── Blocking convenience methods for Spring MVC services ──
+    // ════════════════════════════════════════════════════════════════════
+    //  2. Raw Reactive — target returns plain entity (not ServiceResponse)
+    // ════════════════════════════════════════════════════════════════════
 
-    /**
-     * Blocking GET for services that return ServiceResponse.
-     * Convenience wrapper for Spring MVC callers.
-     */
-    public <T> ServiceResponse<T> getServiceResponseNonReactive(String baseUrl, String path,
-                                       ParameterizedTypeReference<ServiceResponse<T>> responseType) {
-        return getServiceResponseReactive(baseUrl, path, responseType).block();
+    /** Non-blocking GET returning a raw entity. */
+    public <T> Mono<T> getRawReactive(String baseUrl, String path,
+                                      ParameterizedTypeReference<T> responseType) {
+
+        String serviceName = extractServiceName(baseUrl);
+        Mono<T> call = webClientBuilder.baseUrl(baseUrl).build()
+                .get()
+                .uri(path)
+                .retrieve()
+                .onStatus(HttpStatusCode::isError,
+                        response -> handleErrorRaw(serviceName, "GET", path, response))
+                .bodyToMono(responseType)
+                .timeout(DEFAULT_TIMEOUT)
+                .onErrorMap(WebClientRequestException.class, ex -> networkError(serviceName, ex))
+                .onErrorMap(java.util.concurrent.TimeoutException.class, ex -> timeoutError(serviceName, path, ex));
+
+        return withCircuitBreaker(serviceName, call);
     }
 
-    /**
-     * Blocking POST for services that return ServiceResponse.
-     * Convenience wrapper for Spring MVC callers.
-     */
-    public <T, R> ServiceResponse<T> postServiceResponseNonReactive(String baseUrl, String path, R body,
-                                           ParameterizedTypeReference<ServiceResponse<T>> responseType) {
+    /** Non-blocking POST returning a raw entity. */
+    public <T, R> Mono<T> postRawReactive(String baseUrl, String path, R body,
+                                           ParameterizedTypeReference<T> responseType) {
+
+        String serviceName = extractServiceName(baseUrl);
+        Mono<T> call = webClientBuilder.baseUrl(baseUrl).build()
+                .post()
+                .uri(path)
+                .bodyValue(body)
+                .retrieve()
+                .onStatus(HttpStatusCode::isError,
+                        response -> handleErrorRaw(serviceName, "POST", path, response))
+                .bodyToMono(responseType)
+                .timeout(DEFAULT_TIMEOUT)
+                .onErrorMap(WebClientRequestException.class, ex -> networkError(serviceName, ex))
+                .onErrorMap(java.util.concurrent.TimeoutException.class, ex -> timeoutError(serviceName, path, ex));
+
+        return withCircuitBreaker(serviceName, call);
+    }
+
+    /** Non-blocking PUT returning a raw entity. */
+    public <T, R> Mono<T> putRawReactive(String baseUrl, String path, R body,
+                                          ParameterizedTypeReference<T> responseType) {
+
+        String serviceName = extractServiceName(baseUrl);
+        Mono<T> call = webClientBuilder.baseUrl(baseUrl).build()
+                .put()
+                .uri(path)
+                .bodyValue(body)
+                .retrieve()
+                .onStatus(HttpStatusCode::isError,
+                        response -> handleErrorRaw(serviceName, "PUT", path, response))
+                .bodyToMono(responseType)
+                .timeout(DEFAULT_TIMEOUT)
+                .onErrorMap(WebClientRequestException.class, ex -> networkError(serviceName, ex))
+                .onErrorMap(java.util.concurrent.TimeoutException.class, ex -> timeoutError(serviceName, path, ex));
+
+        return withCircuitBreaker(serviceName, call);
+    }
+
+    /** Non-blocking DELETE returning a raw entity. */
+    public <T> Mono<T> deleteRawReactive(String baseUrl, String path,
+                                          ParameterizedTypeReference<T> responseType) {
+
+        String serviceName = extractServiceName(baseUrl);
+        Mono<T> call = webClientBuilder.baseUrl(baseUrl).build()
+                .delete()
+                .uri(path)
+                .retrieve()
+                .onStatus(HttpStatusCode::isError,
+                        response -> handleErrorRaw(serviceName, "DELETE", path, response))
+                .bodyToMono(responseType)
+                .timeout(DEFAULT_TIMEOUT)
+                .onErrorMap(WebClientRequestException.class, ex -> networkError(serviceName, ex))
+                .onErrorMap(java.util.concurrent.TimeoutException.class, ex -> timeoutError(serviceName, path, ex));
+
+        return withCircuitBreaker(serviceName, call);
+    }
+
+    // ════════════════════════════════════════════════════════════════════
+    //  3. NonReactive (blocking) — convenience wrappers calling .block()
+    //     Safe on Tomcat + Java 21 virtual threads.
+    // ════════════════════════════════════════════════════════════════════
+
+    /** Blocking POST expecting {@code ServiceResponse<T>}. */
+    public <T, R> ServiceResponse<T> postServiceResponseNonReactive(
+            String baseUrl, String path, R body,
+            ParameterizedTypeReference<ServiceResponse<T>> responseType) {
         return postServiceResponseReactive(baseUrl, path, body, responseType).block();
     }
 
-    /**
-     * Blocking GET for services that return raw entities (not ServiceResponse).
-     * Convenience wrapper for Spring MVC callers.
-     */
+    /** Blocking GET expecting {@code ServiceResponse<T>}. */
+    public <T> ServiceResponse<T> getServiceResponseNonReactive(
+            String baseUrl, String path,
+            ParameterizedTypeReference<ServiceResponse<T>> responseType) {
+        return getServiceResponseReactive(baseUrl, path, responseType).block();
+    }
+
+    /** Blocking GET returning a raw entity. */
     public <T> T getRawNonReactive(String baseUrl, String path,
-                         ParameterizedTypeReference<T> responseType) {
+                                   ParameterizedTypeReference<T> responseType) {
         return getRawReactive(baseUrl, path, responseType).block();
     }
 
-    // ── Raw reactive methods for services not using ServiceResponse ──
+    /** Blocking POST returning a raw entity. */
+    public <T, R> T postRawNonReactive(String baseUrl, String path, R body,
+                                        ParameterizedTypeReference<T> responseType) {
+        return postRawReactive(baseUrl, path, body, responseType).block();
+    }
+
+    /** Blocking PUT returning a raw entity. */
+    public <T, R> T putRawNonReactive(String baseUrl, String path, R body,
+                                       ParameterizedTypeReference<T> responseType) {
+        return putRawReactive(baseUrl, path, body, responseType).block();
+    }
+
+    /** Blocking DELETE returning a raw entity. */
+    public <T> T deleteRawNonReactive(String baseUrl, String path,
+                                       ParameterizedTypeReference<T> responseType) {
+        return deleteRawReactive(baseUrl, path, responseType).block();
+    }
+
+    // ════════════════════════════════════════════════════════════════════
+    //  4. Private helpers — shared error handling & circuit breaker
+    // ════════════════════════════════════════════════════════════════════
 
     /**
-     * Perform a non-blocking GET request to a service that returns raw entities
-     * (not wrapped in ServiceResponse).
-     *
-     * @param baseUrl      The service base URL (e.g., "http://GEOSPATIAL-SERVICE")
-     * @param path         The endpoint path
-     * @param responseType The expected raw response type
-     * @param <T>          The response type
-     * @return Mono containing the raw response
+     * Error handler for ServiceResponse endpoints.
+     * Extracts errorCode and message from the ServiceResponse error body.
+     * Falls back to a generic error if the body is empty.
      */
-    public <T> Mono<T> getRawReactive(String baseUrl, String path,
-                                       ParameterizedTypeReference<T> responseType) {
-        WebClient webClient = webClientBuilder.baseUrl(baseUrl).build();
-        String serviceName = extractServiceName(baseUrl);
+    private Mono<Throwable> handleErrorServiceResponse(
+            String serviceName,
+            org.springframework.web.reactive.function.client.ClientResponse response) {
+        int status = response.statusCode().value();
+        return response.bodyToMono(ServiceResponse.class)
+                .<Throwable>flatMap(errorResponse -> {
+                    log.error("{} {} error: {} - {}",
+                            serviceName, status, errorResponse.getErrorCode(), errorResponse.getMessage());
+                    return Mono.error(new ServiceClientException(
+                            serviceName,
+                            errorResponse.getErrorCode(),
+                            errorResponse.getMessage(),
+                            status));
+                })
+                .switchIfEmpty(Mono.error(new ServiceClientException(
+                        serviceName,
+                        status >= 500 ? "SERVER_ERROR" : "CLIENT_ERROR",
+                        serviceName + " returned " + status + " with no body",
+                        status)));
+    }
+
+    /**
+     * Error handler for raw endpoints.
+     * Error responses are always ServiceResponse (built by GlobalExceptionHandler on the target service),
+     * even though success responses are plain entities.
+     */
+    private Mono<Throwable> handleErrorRaw(
+            String serviceName, String method, String path,
+            org.springframework.web.reactive.function.client.ClientResponse response) {
+        int status = response.statusCode().value();
+        return response.bodyToMono(ServiceResponse.class)
+                .<Throwable>flatMap(errorResponse -> {
+                    log.error("{} {} error on {} {}: {} - {}",
+                            serviceName, status, method, path,
+                            errorResponse.getErrorCode(), errorResponse.getMessage());
+                    return Mono.error(new ServiceClientException(
+                            serviceName,
+                            errorResponse.getErrorCode(),
+                            errorResponse.getMessage(),
+                            status));
+                })
+                .switchIfEmpty(Mono.error(new ServiceClientException(
+                        serviceName,
+                        status >= 500 ? "SERVER_ERROR" : "CLIENT_ERROR",
+                        serviceName + " returned " + status + " with no body",
+                        status)));
+    }
+
+    /** Wraps a call with circuit breaker, passing through 4xx errors. */
+    private <T> Mono<T> withCircuitBreaker(String serviceName, Mono<T> call) {
         ReactiveCircuitBreaker circuitBreaker = circuitBreakerFactory.create(serviceName);
-
-        Mono<T> call = webClient.get()
-                .uri(path)
-                .retrieve()
-                .onStatus(HttpStatusCode::is4xxClientError, response -> {
-                    log.error("{} 4xx error on GET {}", serviceName, path);
-                    return Mono.error(new ServiceClient4xxException(
-                            serviceName, "CLIENT_ERROR",
-                            serviceName + " returned " + response.statusCode().value(),
-                            response.statusCode().value()
-                    ));
-                })
-                .onStatus(HttpStatusCode::is5xxServerError, response -> {
-                    log.error("{} 5xx error on GET {}", serviceName, path);
-                    return Mono.error(new ServiceClient5xxException(
-                            serviceName, "SERVER_ERROR",
-                            serviceName + " returned " + response.statusCode().value(),
-                            response.statusCode().value()
-                    ));
-                })
-                .bodyToMono(responseType)
-                .timeout(DEFAULT_TIMEOUT)
-                .onErrorMap(WebClientRequestException.class, ex -> {
-                    log.error("Network error calling {}: {}", serviceName, ex.getMessage());
-                    return new ServiceClient5xxException(serviceName, "SERVER_NOT_AVAILABLE",
-                            serviceName + " is not available", 503);
-                })
-                .onErrorMap(java.util.concurrent.TimeoutException.class, ex -> {
-                    log.error("Timeout calling {}{}: {}", serviceName, path, ex.getMessage());
-                    return new ServiceClient5xxException(serviceName, "SERVER_NOT_AVAILABLE",
-                            serviceName + " timed out", 503);
-                });
-
         return circuitBreaker.run(call, throwable -> {
-            if (throwable instanceof ServiceClient4xxException) {
+            if (throwable instanceof ServiceClientException sce && sce.isClientError()) {
                 return Mono.error(throwable);
             }
             log.error("Circuit breaker open for {}: {}", serviceName, throwable.getMessage());
-            return Mono.error(new ServiceClient5xxException(
+            return Mono.error(new ServiceClientException(
                     serviceName, "CIRCUIT_OPEN",
                     serviceName + " circuit breaker is open", 503));
         });
     }
 
-    /**
-     * Extract service name from URL for logging.
-     * e.g., "http://MEMBER-SERVICE" → "MEMBER-SERVICE"
-     */
-    private String  extractServiceName(String baseUrl) {
+    private ServiceClientException networkError(String serviceName, WebClientRequestException ex) {
+        log.error("Network error calling {}: {}", serviceName, ex.getMessage());
+        return new ServiceClientException(serviceName, "SERVER_NOT_AVAILABLE",
+                serviceName + " is not available", 503);
+    }
+
+    private ServiceClientException timeoutError(String serviceName, String path, java.util.concurrent.TimeoutException ex) {
+        log.error("Timeout calling {}{}: {}", serviceName, path, ex.getMessage());
+        return new ServiceClientException(serviceName, "SERVER_NOT_AVAILABLE",
+                serviceName + " timed out", 503);
+    }
+
+    /** Extract service name from URL for logging (e.g., "http://MEMBER-SERVICE" -> "MEMBER-SERVICE"). */
+    private String extractServiceName(String baseUrl) {
         return baseUrl.replace("http://", "").replace("https://", "");
     }
 }

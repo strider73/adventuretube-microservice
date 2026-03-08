@@ -1,6 +1,7 @@
 package com.adventuretube.web.exceptions;
 
 import com.adventuretube.common.api.response.ServiceResponse;
+import com.adventuretube.common.client.ServiceClientException;
 import com.adventuretube.web.exceptions.base.BaseServiceException;
 import com.adventuretube.web.exceptions.code.WebErrorCode;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +16,19 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(GeoServiceException.class)
     public ResponseEntity<ServiceResponse<?>> handleGeoServiceException(GeoServiceException ex) {
         return buildErrorResponse(ex.getErrorCode(), ex);
+    }
+
+    @ExceptionHandler(ServiceClientException.class)
+    public ResponseEntity<ServiceResponse<?>> handleServiceClientException(ServiceClientException ex) {
+        log.error("Inter-service call failed: {}", ex.toString());
+        ServiceResponse<?> response = ServiceResponse.builder()
+                .success(false)
+                .message(ex.getMessage())
+                .errorCode(ex.getErrorCode())
+                .data(ex.getServiceName() + " : web-service")
+                .timestamp(java.time.LocalDateTime.now())
+                .build();
+        return ResponseEntity.status(ex.getHttpStatus()).body(response);
     }
 
     @ExceptionHandler(Exception.class)
