@@ -205,16 +205,19 @@ class AdventureTubeDataFullStackIT {
     // ── POST /geo/save ───────────────────────────────────────────────
 
     @Test
-    void save_shouldReturn202AndPublishToKafka() throws Exception {
+    void save_shouldReturn202WithTrackingIdAndPublishToKafka() throws Exception {
         AdventureTubeData input = createTestData("postSave", "video", List.of("travel"));
 
         mockMvc.perform(post("/geo/save")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(input)))
                 .andExpect(status().isAccepted())
-                .andExpect(content().string(containsString(testYoutubeId("postSave"))));
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data.trackingId").isNotEmpty())
+                .andExpect(jsonPath("$.data.status").value("PENDING"))
+                .andExpect(jsonPath("$.data.youtubeContentID").value(testYoutubeId("postSave")));
 
-        verify(kafkaProducer).sendAdventureTubeData(any(AdventureTubeData.class));
+        verify(kafkaProducer).sendAdventureTubeData(any(String.class), any(AdventureTubeData.class));
     }
 
     // ── POST /geo/save → verify data sent to Producer ─────────────────
@@ -228,11 +231,14 @@ class AdventureTubeDataFullStackIT {
                         .content(objectMapper.writeValueAsString(input)))
                 .andExpect(status().isAccepted());
 
-        org.mockito.ArgumentCaptor<AdventureTubeData> captor =
+        org.mockito.ArgumentCaptor<String> trackingIdCaptor =
+                org.mockito.ArgumentCaptor.forClass(String.class);
+        org.mockito.ArgumentCaptor<AdventureTubeData> dataCaptor =
                 org.mockito.ArgumentCaptor.forClass(AdventureTubeData.class);
-        verify(kafkaProducer).sendAdventureTubeData(captor.capture());
+        verify(kafkaProducer).sendAdventureTubeData(trackingIdCaptor.capture(), dataCaptor.capture());
 
-        AdventureTubeData captured = captor.getValue();
+        assertThat(trackingIdCaptor.getValue()).isNotBlank();
+        AdventureTubeData captured = dataCaptor.getValue();
         assertThat(captured.getYoutubeContentID()).isEqualTo(testYoutubeId("roundTrip"));
         assertThat(captured.getUserContentType()).isEqualTo("video");
         assertThat(captured.getUserContentCategory()).containsExactly("travel", "hiking");

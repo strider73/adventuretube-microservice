@@ -15,6 +15,8 @@ public enum GeoErrorCode {
 
     OWNERSHIP_MISMATCH("AdventuretubeData ownership email is not matched", HttpStatus.FORBIDDEN),
 
+    JOB_NOT_FOUND("Job status not found", HttpStatus.NOT_FOUND),
+
     //UNKNOWN EXCEPTION
     UNKNOWN_EXCEPTION("Unknown error", HttpStatus.INTERNAL_SERVER_ERROR);
     private final String message;
