@@ -2,8 +2,12 @@ package com.adventuretube.geospatial.controller;
 
 import com.adventuretube.geospatial.GeospatialServiceConfig;
 import com.adventuretube.geospatial.kafka.Producer;
+import com.adventuretube.geospatial.model.entity.JobStatus;
 import com.adventuretube.geospatial.model.entity.adventuretube.AdventureTubeData;
+import com.adventuretube.geospatial.model.enums.JobStatusEnum;
 import com.adventuretube.geospatial.service.AdventureTubeDataService;
+import com.adventuretube.geospatial.service.JobStatusService;
+import com.adventuretube.geospatial.sse.SseEmitterManager;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,10 +18,12 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -40,6 +46,12 @@ class AdventureTubeDataControllerTest {
 
     @MockitoBean
     private Producer producer;
+
+    @MockitoBean
+    private JobStatusService jobStatusService;
+
+    @MockitoBean
+    private SseEmitterManager sseEmitterManager;
 
     // --- GET /geo/data ---
 
@@ -177,17 +189,56 @@ class AdventureTubeDataControllerTest {
     // --- POST /geo/save ---
 
     @Test
-    void save_shouldReturn202AndDelegateToProducer() throws Exception {
+    void save_shouldReturn202WithTrackingId() throws Exception {
         AdventureTubeData input = new AdventureTubeData();
         input.setYoutubeContentID("yt-new");
         input.setYoutubeTitle("New Adventure");
+
+        JobStatus pendingJob = new JobStatus();
+        pendingJob.setTrackingId("test-tracking-id");
+        pendingJob.setYoutubeContentID("yt-new");
+        pendingJob.setStatus(JobStatusEnum.PENDING);
+        pendingJob.setCreatedAt(LocalDateTime.now());
+        pendingJob.setUpdatedAt(LocalDateTime.now());
+
+        when(jobStatusService.createPendingJob(anyString(), anyString())).thenReturn(pendingJob);
 
         mockMvc.perform(post("/geo/save")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(input)))
                 .andExpect(status().isAccepted())
-                .andExpect(content().string("Data accepted: youtubeContentID=yt-new"));
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data.trackingId").value("test-tracking-id"))
+                .andExpect(jsonPath("$.data.status").value("PENDING"));
 
-        verify(producer).sendAdventureTubeData(any(AdventureTubeData.class));
+        verify(producer).sendAdventureTubeData(anyString(), any(AdventureTubeData.class));
+    }
+
+    // --- GET /geo/status/{trackingId} ---
+
+    @Test
+    void getStatus_shouldReturnJobStatus_whenFound() throws Exception {
+        JobStatus job = new JobStatus();
+        job.setTrackingId("abc-123");
+        job.setStatus(JobStatusEnum.COMPLETED);
+        job.setChaptersCount(3);
+        job.setPlacesCount(2);
+
+        when(jobStatusService.findByTrackingId("abc-123")).thenReturn(Optional.of(job));
+
+        mockMvc.perform(get("/geo/status/abc-123"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data.status").value("COMPLETED"))
+                .andExpect(jsonPath("$.data.chaptersCount").value(3));
+    }
+
+    @Test
+    void getStatus_shouldReturn404_whenNotFound() throws Exception {
+        when(jobStatusService.findByTrackingId("unknown")).thenReturn(Optional.empty());
+
+        mockMvc.perform(get("/geo/status/unknown"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.errorCode").value("JOB_NOT_FOUND"));
     }
 }

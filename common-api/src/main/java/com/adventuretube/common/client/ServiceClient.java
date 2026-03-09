@@ -11,6 +11,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientRequestException;
+import org.springframework.http.MediaType;
+import org.springframework.http.codec.ServerSentEvent;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
@@ -139,6 +142,25 @@ public class ServiceClient {
                 .onErrorMap(TimeoutException.class, ex -> timeoutError(serviceName, path, ex));
 
         return withCircuitBreaker(serviceName, call);
+    }
+
+    /**
+     * Non-blocking SSE stream. Returns Flux of ServerSentEvent.
+     * Used by auth-service to proxy SSE streams from downstream services.
+     * No circuit breaker — CB is designed for request/response, not long-lived streams.
+     */
+    public Flux<ServerSentEvent<String>> getSseStreamReactive(String baseUrl, String path) {
+        String serviceName = extractServiceName(baseUrl);
+        return webClientBuilder.baseUrl(baseUrl).build()
+                .get()
+                .uri(path)
+                .accept(MediaType.TEXT_EVENT_STREAM)
+                .retrieve()
+                .onStatus(HttpStatusCode::isError, response -> handleError(serviceName, response))
+                .bodyToFlux(new ParameterizedTypeReference<ServerSentEvent<String>>() {})
+                .timeout(Duration.ofSeconds(35))
+                .onErrorMap(WebClientRequestException.class, ex -> networkError(serviceName, ex))
+                .onErrorMap(TimeoutException.class, ex -> timeoutError(serviceName, path, ex));
     }
 
     // ════════════════════════════════════════════════════════════════════

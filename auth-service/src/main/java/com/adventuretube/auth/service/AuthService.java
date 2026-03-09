@@ -12,7 +12,6 @@ import com.adventuretube.auth.model.dto.token.TokenDTO;
 import com.adventuretube.common.api.response.ServiceResponse;
 import com.adventuretube.common.client.ServiceClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,9 +43,6 @@ public class AuthService {
 
     @Value("${member-service.url:http://MEMBER-SERVICE}")
     private String memberServiceUrl;
-    @Value("${geospatial-service.url:http://GEOSPATIAL-SERVICE}")
-    private String geoServiceUrl;
-
     private final GoogleTokenCredentialProperties googleTokenCredentialProperties;
     private final ServiceClient serviceClient;
     private final JwtUtil jwtUtil;
@@ -372,35 +368,4 @@ public class AuthService {
                 .build();
     }
 
-    // ── Contents Management ──────────────────────────────────────────
-
-    /**
-     * Injects ownerEmail from JWT into the payload and forwards to Geospatial Service.
-     * Auth-service uses JsonNode (not AdventureTubeData) to avoid coupling to geospatial entity.
-     */
-    public Mono<String> createAdventuretubeData(String authorization, JsonNode body) {
-        return Mono.fromCallable(() -> {
-                    String token = authorization.replace("Bearer ", "");
-                    String email = jwtUtil.extractUsername(token);
-                    ((ObjectNode) body).put("ownerEmail", email);
-                    return body;
-                })
-                .flatMap(enrichedBody -> serviceClient.postReactive(
-                        geoServiceUrl, "/geo/save", enrichedBody,
-                        new ParameterizedTypeReference<String>() {}))
-;
-    }
-
-
-    public Mono<String> deleteAdventuretubeData(String authorization, String youtubeContentId) {
-        return Mono.fromCallable(() -> {
-                    String token = authorization.replace("Bearer ", "");
-                    return jwtUtil.extractUsername(token);
-                })
-                .flatMap(ownerEmail -> serviceClient.deleteReactive(
-                        geoServiceUrl,
-                        "/geo/data/delete/adventuretubedata?youtubeContentId=" + youtubeContentId + "&ownerEmail=" + ownerEmail,
-                        new ParameterizedTypeReference<String>() {}))
-;
-    }
 }

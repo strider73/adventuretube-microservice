@@ -88,6 +88,18 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
+    @ExceptionHandler(JobNotFoundException.class)
+    public ResponseEntity<ServiceResponse<?>> handleJobNotFoundException(JobNotFoundException ex) {
+        ServiceResponse<?> response = ServiceResponse.builder()
+                .success(false)
+                .message(ex.getErrorCode().getMessage())
+                .errorCode(ex.getErrorCode().name())
+                .data(null)
+                .timestamp(java.time.LocalDateTime.now())
+                .build();
+        return ResponseEntity.status(ex.getErrorCode().getHttpStatus()).body(response);
+    }
+
     @ExceptionHandler(OwnershipMismatchException.class)
     public ResponseEntity<ServiceResponse<?>> handleOwnershipMismatchException(OwnershipMismatchException ex) {
         ServiceResponse<?>  response = ServiceResponse.builder()
