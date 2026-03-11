@@ -50,6 +50,8 @@ public class SseEmitterManager {
             // Complete the emitter on terminal states
             if (jobStatus.getStatus() != JobStatusEnum.PENDING) {
                 emitter.complete();
+
+                log.info("SSE emitter completed for trackingId={} with status={}", trackingId, jobStatus.getStatus());
             }
         } catch (IOException e) {
             log.warn("Failed to send SSE for trackingId={}: {}", trackingId, e.getMessage());

@@ -114,12 +114,14 @@ public class AdventureTubeDataController {
 
         // If already terminal, return immediately and complete
         if (jobStatus.getStatus() != JobStatusEnum.PENDING) {
+            log.info("SSE /geo/status/stream/{} already terminal ({}), sending immediately", trackingId, jobStatus.getStatus());
             SseEmitter emitter = new SseEmitter(0L);
             try {
                 emitter.send(SseEmitter.event()
                         .name("job-status")
                         .data(jobStatus, MediaType.APPLICATION_JSON));
                 emitter.complete();
+                log.info("SSE /geo/status/stream/{} completed", trackingId);
             } catch (IOException e) {
                 emitter.completeWithError(e);
             }
@@ -134,6 +136,7 @@ public class AdventureTubeDataController {
             emitter.send(SseEmitter.event()
                     .name("job-status")
                     .data(jobStatus, MediaType.APPLICATION_JSON));
+            log.info("SSE /geo/status/stream/{} sent PENDING, waiting for Kafka consumer", trackingId);
         } catch (IOException e) {
             emitter.completeWithError(e);
         }
