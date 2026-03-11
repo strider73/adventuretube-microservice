@@ -37,9 +37,6 @@ public class CustomUserDetailService implements ReactiveUserDetailsService {
                         new ParameterizedTypeReference<ServiceResponse<MemberDTO>>() {}
                 )
                 .flatMap(response -> {
-                    if (response == null || !response.isSuccess()) {
-                        return Mono.error(new UserNotFoundException(AuthErrorCode.USER_NOT_FOUND));
-                    }
 
                     MemberDTO userFoundByEmail = response.getData();
                     if (userFoundByEmail == null) {
@@ -59,6 +56,9 @@ public class CustomUserDetailService implements ReactiveUserDetailsService {
                     return Mono.just(userDetails);
                 })
                 .onErrorMap(ServiceClientException.class, e -> {
+                    if(e.isServerError()){
+                        return e; // return 5XX propagate to the GlobalExceptionHandler as-is
+                    }
                     log.error("Service client error: {}", e.toString());
                     return new UserNotFoundException(AuthErrorCode.USER_NOT_FOUND);
                 });

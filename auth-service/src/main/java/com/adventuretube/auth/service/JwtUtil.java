@@ -46,9 +46,12 @@ public class JwtUtil {
                     .build()
                     .parseSignedClaims(token)
                     .getPayload();
-        } catch (SignatureException | ExpiredJwtException e) { // Invalid signature or expired token
-            log.error(e.getMessage());
-            throw new AccessDeniedException(AuthErrorCode.valueOf("Access denied: " + e.getMessage()));
+        } catch (ExpiredJwtException e) {
+            log.error("Token expired: {}", e.getMessage());
+            throw new AccessDeniedException(AuthErrorCode.TOKEN_EXPIRED);
+        } catch (SignatureException e) {
+            log.error("Invalid token signature: {}", e.getMessage());
+            throw new AccessDeniedException(AuthErrorCode.GOOGLE_TOKEN_INVALID);
         }
 
     }

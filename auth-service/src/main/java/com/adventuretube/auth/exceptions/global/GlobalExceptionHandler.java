@@ -132,6 +132,11 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(ex.getErrorCode(), ex);
     }
 
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ServiceResponse<?>> handleAccessDeniedException(AccessDeniedException ex) {
+        return buildErrorResponse(ex.getErrorCode(), ex);
+    }
+
     // ---------------------------
     // Member Service Exceptions
     // ---------------------------
