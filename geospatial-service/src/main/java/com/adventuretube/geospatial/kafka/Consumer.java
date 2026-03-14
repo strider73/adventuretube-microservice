@@ -1,6 +1,6 @@
 package com.adventuretube.geospatial.kafka;
 
-import com.adventuretube.geospatial.exceptions.DuplicateDataException;
+import org.springframework.dao.DuplicateKeyException;
 import com.adventuretube.geospatial.model.entity.adventuretube.AdventureTubeData;
 import com.adventuretube.geospatial.service.AdventureTubeDataService;
 import com.adventuretube.geospatial.service.JobStatusService;
@@ -52,13 +52,12 @@ public class Consumer {
                 int placesCount = saved.getPlaces() != null ? saved.getPlaces().size() : 0;
                 jobStatusService.markCompleted(trackingId, chaptersCount, placesCount);
             }
-        } catch (DuplicateDataException e) {
+        } catch (DuplicateKeyException e) {
             logger.warn("Duplicate youtubeContentID={}, skipping", data.getYoutubeContentID());
             if (trackingId != null) {
                 jobStatusService.markDuplicate(trackingId);
             }
-        } catch (Exception e) {
-            logger.error("Failed to save AdventureTubeData: {}", e.getMessage(), e);
+        } catch (Exception e) {logger.error("Failed to save AdventureTubeData: {}", e.getMessage(), e);
             if (trackingId != null) {
                 jobStatusService.markFailed(trackingId, e.getMessage());
             }

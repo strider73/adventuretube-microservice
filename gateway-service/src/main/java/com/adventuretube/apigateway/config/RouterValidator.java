@@ -20,7 +20,6 @@ import java.util.function.Predicate;
  *
  * <p><b>Secured Endpoints (JWT Required):</b></p>
  * <ul>
- *   <li>{@code /auth/token/refresh} - Requires valid refresh token</li>
  *   <li>{@code /auth/token/revoke} - Requires valid access token</li>
  *   <li>All other endpoints not listed in openEndPoints</li>
  * </ul>
@@ -40,8 +39,7 @@ public class RouterValidator {
             // === Auth Service ===
             "^/auth/users.*",              // POST: User registration (uses Google ID token, not JWT)
             "^/auth/token$",               // POST: Login only (uses Google ID token to obtain JWT)
-                                           // NOTE: /auth/token/refresh and /auth/token/revoke are SECURED (require JWT)
-
+            "^/auth/token/refresh$",
             // === Web Service (public geospatial read endpoints) ===
             "^/web/geo/.*",                // GET: Geospatial data read endpoints (no JWT required)
 

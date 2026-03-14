@@ -30,6 +30,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -224,6 +225,49 @@ class JobStatusFullFlowIT {
         String sseContent = result.getResponse().getContentAsString();
         assertThat(sseContent).contains("event:job-status");
         assertThat(sseContent).contains("COMPLETED");
+    }
+
+    @Test
+    void sseStream_shouldPushCompletedEventWhenKafkaConsumerFinishes() throws Exception {
+        // Step 1: Create a PENDING job (simulates what POST /geo/save does)
+        String trackingId = UUID.randomUUID().toString();
+        JobStatus job = jobStatusService.createPendingJob(trackingId, testYoutubeId("ssePush"));
+        createdJobIds.add(job.getId());
+
+        // Step 2: Open SSE connection asynchronously (simulates iOS calling GET /status/stream)
+        MvcResult asyncResult = mockMvc.perform(get("/geo/status/stream/{trackingId}", trackingId)
+                        .accept(MediaType.TEXT_EVENT_STREAM))
+                .andExpect(request().asyncStarted())
+                .andReturn();
+
+        // Step 3: Simulate Kafka consumer finishing — this calls sseEmitterManager.send()
+        jobStatusService.markCompleted(trackingId, 4, 2);
+
+        // Step 4: Wait for async dispatch and verify SSE events
+        mockMvc.perform(asyncDispatch(asyncResult))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("event:job-status")))
+                .andExpect(content().string(containsString("PENDING")))
+                .andExpect(content().string(containsString("COMPLETED")));
+    }
+
+    @Test
+    void sseStream_shouldPushDuplicateEventWhenKafkaConsumerDetectsDuplicate() throws Exception {
+        String trackingId = UUID.randomUUID().toString();
+        JobStatus job = jobStatusService.createPendingJob(trackingId, testYoutubeId("sseDup"));
+        createdJobIds.add(job.getId());
+
+        MvcResult asyncResult = mockMvc.perform(get("/geo/status/stream/{trackingId}", trackingId)
+                        .accept(MediaType.TEXT_EVENT_STREAM))
+                .andExpect(request().asyncStarted())
+                .andReturn();
+
+        // Simulate Kafka consumer detecting duplicate
+        jobStatusService.markDuplicate(trackingId);
+
+        mockMvc.perform(asyncDispatch(asyncResult))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("DUPLICATE")));
     }
 
     @Test
