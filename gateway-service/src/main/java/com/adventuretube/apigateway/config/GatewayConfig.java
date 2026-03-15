@@ -32,11 +32,39 @@ public class GatewayConfig {
                         .uri("lb://geospatial-service"))
 
 
-                // API routes (with filters)
-        .route("auth-service", r -> r.path("/auth/**").filters(f -> f.filter(filter)).uri("lb://auth-service"))
-        .route("member-service", r -> r.path("/member/**").filters(f -> f.filter(filter)).uri("lb://member-service"))
-        .route("geo-service", r -> r.path("/geo/**").filters(f -> f.filter(filter)).uri("lb://geospatial-service"))
-        .route("web-service", r -> r.path("/web/**").filters(f -> f.filter(filter)).uri("lb://web-service"))
+                // API routes (with auth filter + circuit breaker)
+        .route("auth-service", r -> r.path("/auth/**")
+                .filters(f -> f.filter(filter)
+                        .circuitBreaker(c -> c
+                                .setName("gw-auth-service")
+                                .setFallbackUri("forward:/fallback/auth-service")
+                                .addStatusCode("500").addStatusCode("502")
+                                .addStatusCode("503").addStatusCode("504")))
+                .uri("lb://auth-service"))
+        .route("member-service", r -> r.path("/member/**")
+                .filters(f -> f.filter(filter)
+                        .circuitBreaker(c -> c
+                                .setName("gw-member-service")
+                                .setFallbackUri("forward:/fallback/member-service")
+                                .addStatusCode("500").addStatusCode("502")
+                                .addStatusCode("503").addStatusCode("504")))
+                .uri("lb://member-service"))
+        .route("geo-service", r -> r.path("/geo/**")
+                .filters(f -> f.filter(filter)
+                        .circuitBreaker(c -> c
+                                .setName("gw-geo-service")
+                                .setFallbackUri("forward:/fallback/geospatial-service")
+                                .addStatusCode("500").addStatusCode("502")
+                                .addStatusCode("503").addStatusCode("504")))
+                .uri("lb://geospatial-service"))
+        .route("web-service", r -> r.path("/web/**")
+                .filters(f -> f.filter(filter)
+                        .circuitBreaker(c -> c
+                                .setName("gw-web-service")
+                                .setFallbackUri("forward:/fallback/web-service")
+                                .addStatusCode("500").addStatusCode("502")
+                                .addStatusCode("503").addStatusCode("504")))
+                .uri("lb://web-service"))
 
         .build();
     }
