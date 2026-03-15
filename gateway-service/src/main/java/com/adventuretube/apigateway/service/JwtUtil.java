@@ -49,6 +49,26 @@ public class JwtUtil {
         }
     }
 
+    public Claims getClaimsIgnoreExpiration(String token){
+        try{
+            if (token == null || token.isBlank()){
+                throw new IllegalArgumentException("JWT token is null or empty");
+            }
+            token = TokenSanitizer.sanitize(token);
+            return Jwts.parser()
+                    .setSigningKey(SECRET_KEY)
+                    .clockSkewSeconds(Integer.MAX_VALUE)//ignore expiration
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+        } catch (MalformedJwtException|SignatureException e){
+            log.error("JWT Token validation error: " + e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Unexpected error while extracting claims: " + e.getMessage(), e);
+        }
+    }
+
 
 }
 

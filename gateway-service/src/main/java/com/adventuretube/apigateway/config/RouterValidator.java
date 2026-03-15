@@ -39,7 +39,6 @@ public class RouterValidator {
             // === Auth Service ===
             "^/auth/users.*",              // POST: User registration (uses Google ID token, not JWT)
             "^/auth/token$",               // POST: Login only (uses Google ID token to obtain JWT)
-            "^/auth/token/refresh$",
             // === Web Service (public geospatial read endpoints) ===
             "^/web/geo/.*",                // GET: Geospatial data read endpoints (no JWT required)
 

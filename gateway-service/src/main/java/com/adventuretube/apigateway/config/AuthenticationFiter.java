@@ -1,8 +1,8 @@
 package com.adventuretube.apigateway.config;
 
-import com.adventuretube.apigateway.exception.JwtTokenNotExistException;
 import com.adventuretube.apigateway.service.JwtUtil;
 import com.adventuretube.common.api.response.ServiceResponse;
+import io.jsonwebtoken.Claims;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -14,10 +14,18 @@ import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
-
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.security.SignatureException;
+import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import java.nio.charset.StandardCharsets;
 @RefreshScope
 @AllArgsConstructor
 @Component
@@ -41,23 +49,40 @@ public class AuthenticationFiter implements GatewayFilter {
         if (validator.isSecured.test(request)) {
             log.info("request need a valid token");
 
-            // Step 2: If the Authorization header is missing, throw an exception
-            if (authMissing(request)) {
-                throw new JwtTokenNotExistException("Authorization header is missing");
+            try {
+                if (authMissing(request)) {
+                    return onError(exchange, HttpStatus.UNAUTHORIZED, "Authorization header is missing", "TOKEN_MISSING");
+                }
+
+                final String token = request.getHeaders().getOrEmpty("Authorization").get(0);
+                if (token == null || token.length() == 0) {
+                    return onError(exchange, HttpStatus.UNAUTHORIZED, "Token is not exist", "TOKEN_MISSING");
+                }
+
+                Claims claims;
+                String path = request.getURI().getRawPath();
+                if ("/auth/token/refresh".equals(path)) {
+                    claims = jwtUtils.getClaimsIgnoreExpiration(token);
+                    log.info("🔄 Refresh request - token signature validated (expiration ignored)");
+                } else {
+                    claims = jwtUtils.getClaims(token);
+                }
+                log.info("✅ Token validated successfully");
+                log.info("User ID: {}", claims.get("id"));
+                log.info("User Role: {}", claims.get("role"));
+
+            } catch (ExpiredJwtException e) {
+                return onError(exchange, HttpStatus.UNAUTHORIZED, "Expired JWT token: gateway-service", "TOKEN_EXPIRED");
+            } catch (SignatureException e) {
+                return onError(exchange, HttpStatus.UNAUTHORIZED, "Invalid JWT signature: gateway-service",
+                        "TOKEN_INVALID_SIGNATURE");
+            } catch (MalformedJwtException e) {
+                return onError(exchange, HttpStatus.UNAUTHORIZED, "Malformed JWT token: gateway-service",
+                        "TOKEN_MALFORMED");
+            } catch (Exception e) {
+                return onError(exchange, HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error: gateway-service",
+                        "INTERNAL_ERROR");
             }
-            // Step 3: Extract token from Authorization header
-            final String token = request.getHeaders().getOrEmpty("Authorization").get(0);
-            if( token == null || token.length() == 0){
-                throw  new JwtTokenNotExistException("Token is not exist");
-            }
-            // Step 4: Validate the token (signature, expiration, claims)
-            var claims = jwtUtils.getClaims(token);
-            log.info("✅ Token validated successfully");
-            log.info("📦 JWT Claims: {}", claims);
-            // You can also log individual claims if needed:
-            log.info("User ID: {}", claims.get("id"));
-            log.info("User Role: {}", claims.get("role"));
-            log.info("Token has been validate successfully !!!!");
 
 
         }else{
@@ -67,13 +92,20 @@ public class AuthenticationFiter implements GatewayFilter {
         return chain.filter(exchange);
     }
 
-    //    private Mono<Void> onError(ServerWebExchange exchange, HttpStatus httpStatus, String message) {
-//        ServerHttpResponse response = exchange.getResponse();
-//        response.setStatusCode(httpStatus);
-//        response.getHeaders().add("Error-Message", message);
-//        return response.setComplete();
-//    }
-//
+    private Mono<Void> onError(ServerWebExchange exchange, HttpStatus status, String message, String errorCode) {
+        ServerHttpResponse response = exchange.getResponse();
+        response.setStatusCode(status);
+        response.getHeaders().add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+
+        String body = String.format(
+                "{\"success\":false,\"message\":\"%s\",\"errorCode\":\"%s\",\"data\":null,\"timestamp\":\"%s\"}",
+                message, errorCode, java.time.LocalDateTime.now());
+
+        DataBuffer buffer = response.bufferFactory().wrap(body.getBytes(StandardCharsets.UTF_8));
+        return response.writeWith(Mono.just(buffer));
+    }
+
+
     // Helper method to check for missing Authorization header
     private boolean authMissing(ServerHttpRequest request) {
         return !request.getHeaders().containsKey("Authorization");
