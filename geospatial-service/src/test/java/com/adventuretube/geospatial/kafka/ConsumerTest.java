@@ -2,6 +2,7 @@ package com.adventuretube.geospatial.kafka;
 
 import com.adventuretube.geospatial.exceptions.DuplicateDataException;
 import com.adventuretube.geospatial.exceptions.code.GeoErrorCode;
+
 import com.adventuretube.geospatial.model.entity.adventuretube.AdventureTubeData;
 import com.adventuretube.geospatial.service.AdventureTubeDataService;
 import com.adventuretube.geospatial.service.JobStatusService;
@@ -54,14 +55,14 @@ class ConsumerTest {
 
         when(adventureTubeDataService.save(any())).thenReturn(saved);
 
-        KafkaMessage kafkaMessage = new KafkaMessage("tracking-123", testData);
+        KafkaMessage kafkaMessage = new KafkaMessage("tracking-123", "yt-test-123", null, KafkaAction.CREATE, testData);
         String json = objectMapper.writeValueAsString(kafkaMessage);
 
         consumer.consume(json);
 
         verify(adventureTubeDataService).save(any(AdventureTubeData.class));
         verify(jobStatusService).markCompleted("tracking-123", 0, 0);
-        verify(jobStatusService, never()).markDuplicate(anyString());
+        verify(jobStatusService, never()).markCompletedWithDuplicate(anyString());
         verify(jobStatusService, never()).markFailed(anyString(), anyString());
     }
 
@@ -70,13 +71,13 @@ class ConsumerTest {
         when(adventureTubeDataService.save(any()))
                 .thenThrow(new DuplicateDataException(GeoErrorCode.DUPLICATE_KEY));
 
-        KafkaMessage kafkaMessage = new KafkaMessage("tracking-dup", testData);
+        KafkaMessage kafkaMessage = new KafkaMessage("tracking-dup", "yt-test-123", null, KafkaAction.CREATE, testData);
         String json = objectMapper.writeValueAsString(kafkaMessage);
 
         consumer.consume(json);
 
         verify(adventureTubeDataService).save(any(AdventureTubeData.class));
-        verify(jobStatusService).markDuplicate("tracking-dup");
+        verify(jobStatusService).markCompletedWithDuplicate("tracking-dup");
         verify(jobStatusService, never()).markCompleted(anyString(), anyInt(), anyInt());
         verify(jobStatusService, never()).markFailed(anyString(), anyString());
     }
@@ -86,7 +87,7 @@ class ConsumerTest {
         when(adventureTubeDataService.save(any()))
                 .thenThrow(new RuntimeException("MongoDB connection lost"));
 
-        KafkaMessage kafkaMessage = new KafkaMessage("tracking-fail", testData);
+        KafkaMessage kafkaMessage = new KafkaMessage("tracking-fail", "yt-test-123", null, KafkaAction.CREATE, testData);
         String json = objectMapper.writeValueAsString(kafkaMessage);
 
         consumer.consume(json);
@@ -94,7 +95,7 @@ class ConsumerTest {
         verify(adventureTubeDataService).save(any(AdventureTubeData.class));
         verify(jobStatusService).markFailed("tracking-fail", "MongoDB connection lost");
         verify(jobStatusService, never()).markCompleted(anyString(), anyInt(), anyInt());
-        verify(jobStatusService, never()).markDuplicate(anyString());
+        verify(jobStatusService, never()).markCompletedWithDuplicate(anyString());
     }
 
     @Test
@@ -107,7 +108,7 @@ class ConsumerTest {
         consumer.consume(json);
 
         verify(adventureTubeDataService, never()).save(any());
-        verify(jobStatusService, never()).markDuplicate(anyString());
+        verify(jobStatusService, never()).markCompletedWithDuplicate(anyString());
         verify(jobStatusService, never()).markCompleted(anyString(), anyInt(), anyInt());
         verify(jobStatusService, never()).markFailed(anyString(), anyString());
     }
@@ -118,7 +119,7 @@ class ConsumerTest {
 
         verify(adventureTubeDataService, never()).save(any());
         verify(jobStatusService, never()).markCompleted(anyString(), anyInt(), anyInt());
-        verify(jobStatusService, never()).markDuplicate(anyString());
+        verify(jobStatusService, never()).markCompletedWithDuplicate(anyString());
         verify(jobStatusService, never()).markFailed(anyString(), anyString());
     }
 
@@ -138,7 +139,7 @@ class ConsumerTest {
 
         when(adventureTubeDataService.save(any())).thenReturn(saved);
 
-        KafkaMessage kafkaMessage = new KafkaMessage("tracking-counts", testData);
+        KafkaMessage kafkaMessage = new KafkaMessage("tracking-counts", "yt-test-123", null, KafkaAction.CREATE, testData);
         String json = objectMapper.writeValueAsString(kafkaMessage);
 
         consumer.consume(json);

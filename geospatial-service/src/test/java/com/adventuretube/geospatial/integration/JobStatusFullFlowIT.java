@@ -192,7 +192,7 @@ class JobStatusFullFlowIT {
         JobStatus job = jobStatusService.createPendingJob(trackingId, testYoutubeId("restDup"));
         createdJobIds.add(job.getId());
 
-        jobStatusService.markDuplicate(trackingId);
+        jobStatusService.markCompletedWithDuplicate(trackingId);
 
         mockMvc.perform(get("/geo/status/{trackingId}", trackingId))
                 .andExpect(status().isOk())
@@ -263,7 +263,7 @@ class JobStatusFullFlowIT {
                 .andReturn();
 
         // Simulate Kafka consumer detecting duplicate
-        jobStatusService.markDuplicate(trackingId);
+        jobStatusService.markCompletedWithDuplicate(trackingId);
 
         mockMvc.perform(asyncDispatch(asyncResult))
                 .andExpect(status().isOk())

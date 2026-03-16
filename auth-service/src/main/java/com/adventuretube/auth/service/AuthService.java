@@ -236,6 +236,7 @@ public class AuthService {
          * 3. Extract username and role from token, issue new access & refresh tokens
          */
         String token = TokenSanitizer.sanitize(rawToken);
+        log.info(">>> refreshToken: validating refresh token against member-service");
 
         return serviceClient.postReactive(
                         memberServiceUrl,
@@ -252,6 +253,7 @@ public class AuthService {
 
                     String userName = jwtUtil.extractUsername(token);
                     String role = jwtUtil.extractUserRole(token);
+                    log.info(">>> refreshToken: token found in DB, issuing new tokens for user: {}", userName);
                     String accessToken = jwtUtil.generate(userName, role, "ACCESS");
                     String refreshToken = jwtUtil.generate(userName, role, "REFRESH");
 
@@ -277,6 +279,7 @@ public class AuthService {
                                     log.error("Token store failed: {}", tokenStoredResponse != null ? tokenStoredResponse.getMessage() : "no response body");
                                     return Mono.error(new TokenSaveFailedException(AuthErrorCode.TOKEN_SAVE_FAILED));
                                 }
+                                log.info(">>> refreshToken: new tokens issued and stored successfully for user: {}", userName);
                                 return Mono.just(new MemberRegisterResponse(null, accessToken, refreshToken));
                             });
                 })

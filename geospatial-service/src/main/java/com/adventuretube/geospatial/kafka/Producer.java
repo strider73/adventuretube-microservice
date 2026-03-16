@@ -19,7 +19,7 @@ public class Producer {
     private final ObjectMapper objectMapper;
 
     public void sendAdventureTubeData(String trackingId, AdventureTubeData data) {
-        KafkaMessage kafkaMessage = new KafkaMessage(trackingId, data);
+        KafkaMessage kafkaMessage = new KafkaMessage(trackingId, null, null, KafkaAction.CREATE, data);
         String json;
         try {
             json = objectMapper.writeValueAsString(kafkaMessage);
@@ -31,6 +31,29 @@ public class Producer {
         String key = data.getYoutubeContentID();
         logger.info("Publishing to Kafka topic={} key={} trackingId={}", TOPIC, key, trackingId);
 
+        kafkaTemplate.send(TOPIC, key, json)
+                .whenComplete((result, ex) -> {
+                    if (ex != null) {
+                        logger.error("Failed to send to Kafka: topic={} key={} trackingId={}", TOPIC, key, trackingId, ex);
+                    } else {
+                        logger.info("Sent to Kafka: topic={} key={} trackingId={} offset={}",
+                                TOPIC, key, trackingId, result.getRecordMetadata().offset());
+                    }
+                });
+    }
+
+    public void deleteAdventureTubeData(String trackingId, String youtubeContentId,String ownerEmail){
+        KafkaMessage kafkaMessage = new KafkaMessage(trackingId,youtubeContentId,ownerEmail,KafkaAction.DELETE,null);
+        String json;
+        try {
+            json = objectMapper.writeValueAsString(kafkaMessage);
+        } catch (JsonProcessingException e) {
+            logger.error("Failed to serialize KafkaMessage: {}", e.getMessage(), e);
+            throw new RuntimeException("Failed to serialize KafkaMessage", e);
+        }
+
+        String key = youtubeContentId;
+        logger.info("Publishing to Kafka topic={} key={} trackingId={}", TOPIC, key, trackingId);
         kafkaTemplate.send(TOPIC, key, json)
                 .whenComplete((result, ex) -> {
                     if (ex != null) {

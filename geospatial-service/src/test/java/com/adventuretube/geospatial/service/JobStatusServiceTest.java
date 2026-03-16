@@ -67,7 +67,7 @@ class JobStatusServiceTest {
     }
 
     @Test
-    void markDuplicate_shouldUpdateStatusAndPushSSE() {
+    void markCompletedWithDuplicate_shouldUpdateStatusAndPushSSE() {
         JobStatus existing = new JobStatus();
         existing.setTrackingId("track-2");
         existing.setStatus(JobStatusEnum.PENDING);
@@ -75,10 +75,10 @@ class JobStatusServiceTest {
         when(jobStatusRepository.findByTrackingId("track-2")).thenReturn(Optional.of(existing));
         when(jobStatusRepository.save(any(JobStatus.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        JobStatus result = jobStatusService.markDuplicate("track-2");
+        JobStatus result = jobStatusService.markCompletedWithDuplicate("track-2");
 
-        assertThat(result.getStatus()).isEqualTo(JobStatusEnum.DUPLICATE);
-        assertThat(result.getErrorMessage()).isEqualTo("Duplicate youtubeContentID");
+        assertThat(result.getStatus()).isEqualTo(JobStatusEnum.COMPLETED);
+        assertThat(result.getErrorMessage()).isEqualTo("DUPLICATE YOUTUBE ID");
 
         verify(sseEmitterManager).send(eq("track-2"), any(JobStatus.class));
     }

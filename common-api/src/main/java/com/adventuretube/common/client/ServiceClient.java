@@ -195,8 +195,8 @@ public class ServiceClient {
     private <T> Mono<T> withCircuitBreaker(String serviceName, Mono<T> call) {
         ReactiveCircuitBreaker circuitBreaker = circuitBreakerFactory.create(serviceName);
         return circuitBreaker.run(call, throwable -> {
-            if (throwable instanceof ServiceClientException sce && sce.isClientError()) {
-                return Mono.error(throwable);
+            if (throwable instanceof ServiceClientException sce && sce.isClientError()) {//checking 400-499
+                return Mono.error(throwable);//pass the original error to caller without counting it against circuit breaker
             }
             log.error("Circuit breaker open for {}: {}", serviceName, throwable.getMessage());
             return Mono.error(new ServiceClientException(

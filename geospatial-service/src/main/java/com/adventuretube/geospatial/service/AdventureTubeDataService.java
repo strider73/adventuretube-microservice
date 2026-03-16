@@ -49,14 +49,14 @@ public class AdventureTubeDataService {
                 .orElseThrow(() -> new IllegalArgumentException("AdventureTubeData not found with id: " + id));
     }
 
-    public void delete(String id) {
-        if (!repository.existsById(id)) {
-            throw new IllegalArgumentException("AdventureTubeData not found with id: " + id);
-        }
-        repository.deleteById(id);
-    }
+//    public void delete(String id) {
+//        if (!repository.existsById(id)) {
+//            throw new IllegalArgumentException("AdventureTubeData not found with id: " + id);
+//        }
+//        repository.deleteById(id);
+//    }
 
-    public String deleteByYoutubeContentIdAndOwnerEmail(String youtubeContentId, String ownerEmail) {
+    public void deleteByYoutubeContentIdAndOwnerEmail(String youtubeContentId, String ownerEmail) {
         AdventureTubeData data = repository.findByYoutubeContentID(youtubeContentId)
                 .orElseThrow(() -> new IllegalArgumentException(
                         "AdventureTubeData not found with youtubeContentID: " + youtubeContentId));
@@ -66,7 +66,6 @@ public class AdventureTubeDataService {
         }
 
         repository.deleteById(data.getId());
-        return data.getCoreDataID();
     }
 
 

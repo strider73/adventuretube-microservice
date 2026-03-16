@@ -36,9 +36,10 @@ public class JobStatusService {
         return updateStatus(trackingId, JobStatusEnum.COMPLETED, null, chaptersCount, placesCount);
     }
 
-    public JobStatus markDuplicate(String trackingId) {
-        return updateStatus(trackingId, JobStatusEnum.DUPLICATE, "Duplicate youtubeContentID", 0, 0);
+    public JobStatus markCompletedWithDuplicate(String trackingId) {
+        return updateStatus(trackingId, JobStatusEnum.COMPLETED,"DUPLICATE YOUTUBE ID",0,0);
     }
+
 
     public JobStatus markFailed(String trackingId, String errorMessage) {
         return updateStatus(trackingId, JobStatusEnum.FAILED, errorMessage, 0, 0);

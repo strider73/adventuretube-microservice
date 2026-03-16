@@ -10,5 +10,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class KafkaMessage {
     private String trackingId;
+    private String youtubeContentId;
+    private String ownerEmail;
+    private KafkaAction action;
+
     private AdventureTubeData data;
+
 }
