@@ -7,6 +7,7 @@ pipeline {
 
     environment {
         ENVIRONMENT = "pi2" // Set the environment dynamically if needed
+        PI2_IP = "192.168.1.105"
     }
     stages {
         stage('Setup Environment Files') {
@@ -29,7 +30,7 @@ pipeline {
         stage('Sync Host Repo') {
             steps {
                 // Jenkins container SSHs into Pi2 as strider, then strider pulls from GitHub
-                sh 'ssh -i /home/jenkins/.ssh/id_rsa -o StrictHostKeyChecking=no strider@192.168.1.105 "cd ~/adventuretube-microservice && git checkout -- . && git pull"'
+                sh "ssh -i /home/jenkins/.ssh/id_rsa -o StrictHostKeyChecking=no strider@${PI2_IP} \"cd ~/adventuretube-microservice && git checkout -- . && git pull\""
             }
         }
 
