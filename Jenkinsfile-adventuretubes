@@ -26,6 +26,13 @@ pipeline {
             }
         }
 
+        stage('Sync Host Repo') {
+            steps {
+                // Jenkins container SSHs into Pi2 as strider, then strider pulls from GitHub
+                sh 'ssh -i /home/jenkins/.ssh/id_rsa -o StrictHostKeyChecking=no strider@192.168.1.105 "cd ~/adventuretube-microservice && git checkout -- . && git pull"'
+            }
+        }
+
         stage('Run Deployment Script') {
             steps {
                 script {
