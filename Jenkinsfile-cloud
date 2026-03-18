@@ -1,35 +1,40 @@
-pipeline {
+all of these pipeline {
     agent {label 'jenkins-agent2'}
 
     parameters {
         string(name: 'BRANCH', defaultValue: 'main', description: 'Git branch to build and deploy')
     }
 
-    environment {
-        PI2_IP = "192.168.1.105"
-    }
-
     stages {
-        stage('Sync Host Repo') {
-            steps {
-                // Jenkins container SSHs into Pi2 as strider, then strider pulls from GitHub
-                sh "ssh -i /home/jenkins/.ssh/id_rsa -o StrictHostKeyChecking=no strider@${PI2_IP} \"cd ~/adventuretube-microservice && git checkout -- . && git pull\""
-            }
-        }
-
-        stage('Run Deployment Script') {
+        stage('Setup Environment Files') {
             steps {
                 withCredentials([
                     file(credentialsId: 'env.pi', variable: 'ENV_PI_FILE'),
                     file(credentialsId: 'env.pi2', variable: 'ENV_PI2_FILE')
                 ]) {
-                    script {
-                        sh "rm -f ./env.pi ./env.pi2"
-                        sh "cp \$ENV_PI_FILE ./env.pi"
-                        sh "cp \$ENV_PI2_FILE ./env.pi2"
-                        sh "./adventuretube-cloud-redeploy.sh pi2 \"${params.BRANCH}\""
-                    }
+                    sh '''
+                        rm -f env.pi env.pi2
+                        cp $ENV_PI_FILE ./env.pi
+                        cp $ENV_PI2_FILE ./env.pi2
+                        chmod 644 env.pi env.pi2
+                    '''
                 }
+            }
+        }
+
+        stage('Sync Host Repo') {
+            steps {
+                // Jenkins container SSHs into Pi2 as strider, then strider pulls from GitHub
+                sh '''
+                    . ./env.pi2
+                    ssh -i /home/jenkins/.ssh/id_rsa -o StrictHostKeyChecking=no strider@$PI2_IP "cd ~/adventuretube-microservice && git checkout -- . && git pull"
+                '''
+            }
+        }
+
+        stage('Run Deployment Script') {
+            steps {
+                sh "./adventuretube-cloud-redeploy.sh pi2 \"${params.BRANCH}\""
             }
         }
         
