@@ -26,6 +26,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import java.nio.charset.StandardCharsets;
+import com.fasterxml.jackson.databind.ObjectMapper;
 @RefreshScope
 @AllArgsConstructor
 @Component
@@ -33,6 +34,7 @@ import java.nio.charset.StandardCharsets;
 public class AuthenticationFiter implements GatewayFilter {
     private final RouterValidator validator;
     private final JwtUtil jwtUtils;
+    private final ObjectMapper objectMapper;
 
     @Operation(summary = "Authenticate user")
     @ApiResponses(value = {
@@ -61,12 +63,8 @@ public class AuthenticationFiter implements GatewayFilter {
 
                 Claims claims;
                 String path = request.getURI().getRawPath();
-                if ("/auth/token/refresh".equals(path)) {
-                    claims = jwtUtils.getClaimsIgnoreExpiration(token);
-                    log.info("🔄 Refresh request - token signature validated (expiration ignored)");
-                } else {
-                    claims = jwtUtils.getClaims(token);
-                }
+                //here all refresh and access token expiration check will be done
+                claims = jwtUtils.getClaims(token);
                 log.info("✅ Token validated successfully");
                 log.info("User ID: {}", claims.get("id"));
                 log.info("User Role: {}", claims.get("role"));
@@ -97,11 +95,23 @@ public class AuthenticationFiter implements GatewayFilter {
         response.setStatusCode(status);
         response.getHeaders().add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
 
-        String body = String.format(
-                "{\"success\":false,\"message\":\"%s\",\"errorCode\":\"%s\",\"data\":null,\"timestamp\":\"%s\"}",
-                message, errorCode, java.time.LocalDateTime.now());
 
-        DataBuffer buffer = response.bufferFactory().wrap(body.getBytes(StandardCharsets.UTF_8));
+        ServiceResponse<Void> serviceResponse = ServiceResponse.<Void>builder()
+                .success(false)
+                .message(message)
+                .errorCode(errorCode)
+                .data(null)
+                .timestamp(java.time.LocalDateTime.now())
+                .build();
+
+        byte[] bytes;
+        try {
+            bytes = objectMapper.writeValueAsBytes(serviceResponse);
+        } catch (Exception e) {
+            bytes = "{}".getBytes(StandardCharsets.UTF_8);
+        }
+
+        DataBuffer buffer = response.bufferFactory().wrap(bytes);
         return response.writeWith(Mono.just(buffer));
     }
 
