@@ -1,6 +1,5 @@
 package com.adventuretube.geospatial.controller;
 
-import com.adventuretube.geospatial.GeospatialServiceConfig;
 import com.adventuretube.geospatial.kafka.Producer;
 import com.adventuretube.geospatial.model.entity.JobStatus;
 import com.adventuretube.geospatial.model.entity.adventuretube.AdventureTubeData;
@@ -12,7 +11,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -31,7 +29,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(AdventureTubeDataController.class)
-@Import(GeospatialServiceConfig.class)
 @ActiveProfiles("test")
 class AdventureTubeDataControllerTest {
 
