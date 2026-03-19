@@ -1,14 +1,10 @@
 package com.adventuretube.auth.service;
 
 
-import com.adventuretube.auth.exceptions.AccessDeniedException;
-import com.adventuretube.auth.exceptions.code.AuthErrorCode;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import io.jsonwebtoken.security.SignatureException;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,20 +36,12 @@ public class JwtUtil {
     }
 
     public Claims getClaims(String token) {
-        try {
-            return Jwts.parser()
-                    .setSigningKey(SECRET_KEY)
-                    .build()
-                    .parseSignedClaims(token)
-                    .getPayload();
-        } catch (ExpiredJwtException e) {
-            log.error("Token expired: {}", e.getMessage());
-            throw new AccessDeniedException(AuthErrorCode.TOKEN_EXPIRED);
-        } catch (SignatureException e) {
-            log.error("Invalid token signature: {}", e.getMessage());
-            throw new AccessDeniedException(AuthErrorCode.GOOGLE_TOKEN_INVALID);
-        }
-
+        return Jwts.parser()
+                .setSigningKey(SECRET_KEY)
+                .clockSkewSeconds(Integer.MAX_VALUE) // expiry validated at Gateway, not here
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
     }
 
     public <T> T getClaim(String token, Function<Claims, T> claimsResolver) {
