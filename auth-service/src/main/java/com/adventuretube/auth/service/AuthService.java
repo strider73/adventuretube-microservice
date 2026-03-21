@@ -65,7 +65,7 @@ public class AuthService {
         this.memberMapper = memberMapper;
     }
 
-    public Mono<MemberRegisterResponse> createUser(MemberRegisterRequest request) {
+    public Mono<ServiceResponse<MemberRegisterResponse>> createUser(MemberRegisterRequest request) {
 
         // MARK: Validate Google ID token + build MemberDTO (both blocking — offloaded to boundedElastic)
         return Mono.fromCallable(() -> {
@@ -134,10 +134,14 @@ public class AuthService {
                                                 || !tokenStoredResponse.isSuccess()
                                                 || !Boolean.TRUE.equals(tokenStoredResponse.getData())) {
                                             log.error("Token store failed: {}", tokenStoredResponse != null ? tokenStoredResponse.getMessage() : "no response body");
-                                            return Mono.<MemberRegisterResponse>error(new TokenSaveFailedException(AuthErrorCode.TOKEN_SAVE_FAILED));
+                                            return Mono.error(new TokenSaveFailedException(AuthErrorCode.TOKEN_SAVE_FAILED));
                                         }
                                         logger.info("Token stored successfully for user: {}", registeredUser.getEmail());
-                                        return Mono.just(new MemberRegisterResponse(registeredUser.getId(), accessToken, refreshToken));
+                                        return Mono.just(ServiceResponse.<MemberRegisterResponse>builder()
+                                                .success(true)
+                                                .data(new MemberRegisterResponse(registeredUser.getId(), accessToken, refreshToken))
+                                                .timestamp(java.time.LocalDateTime.now())
+                                                .build());
                                     });
                         })
                 )
@@ -145,7 +149,7 @@ public class AuthService {
     }
 
 
-    public Mono<MemberRegisterResponse> issueToken(MemberLoginRequest request) {
+    public Mono<ServiceResponse<MemberRegisterResponse>> issueToken(MemberLoginRequest request) {
 
         // MARK: STEP1 validate google IdToken (blocking — offloaded to boundedElastic)
         return Mono.fromCallable(() -> {
@@ -192,7 +196,11 @@ public class AuthService {
                                                 return Mono.error(new TokenSaveFailedException(AuthErrorCode.TOKEN_SAVE_FAILED));
                                             }
                                             logger.info("Token stored successfully for user: {}", email);
-                                            return Mono.just(new MemberRegisterResponse(null, accessToken, refreshToken));
+                                            return Mono.just(ServiceResponse.<MemberRegisterResponse>builder()
+                                                    .success(true)
+                                                    .data(new MemberRegisterResponse(null, accessToken, refreshToken))
+                                                    .timestamp(java.time.LocalDateTime.now())
+                                                    .build());
                                         });
                             });
                 })
@@ -228,7 +236,7 @@ public class AuthService {
 ;
     }
 
-    public Mono<MemberRegisterResponse> refreshToken(String rawToken) {
+    public Mono<ServiceResponse<MemberRegisterResponse>> refreshToken(String rawToken) {
         /*
          * Refresh Token Flow:
          * 1. JWT signature & expiration validated at Gateway (RouterValidator secures /auth/token/refresh)
@@ -280,14 +288,18 @@ public class AuthService {
                                     return Mono.error(new TokenSaveFailedException(AuthErrorCode.TOKEN_SAVE_FAILED));
                                 }
                                 log.info(">>> refreshToken: new tokens issued and stored successfully for user: {}", userName);
-                                return Mono.just(new MemberRegisterResponse(null, accessToken, refreshToken));
+                                return Mono.just(ServiceResponse.<MemberRegisterResponse>builder()
+                                        .success(true)
+                                        .data(new MemberRegisterResponse(null, accessToken, refreshToken))
+                                        .timestamp(java.time.LocalDateTime.now())
+                                        .build());
                             });
                 })
 ;
     }
 
 
-    public Mono<ServiceResponse<Boolean>> deleteUser(String email) {
+    public Mono<ServiceResponse<?>> deleteUser(String email) {
         return serviceClient.postReactive(
                         memberServiceUrl,
                         "/member/deleteUser",
@@ -301,13 +313,7 @@ public class AuthService {
                         return Mono.error(new InternalServerException(AuthErrorCode.MEMBER_DELETION_FAILED));
                     }
                     logger.info("User deleted successfully: {}", email);
-                    ServiceResponse<Boolean> response = ServiceResponse.<Boolean>builder()
-                            .success(true)
-                            .message("User deleted successfully")
-                            .data(true)
-                            .timestamp(java.time.LocalDateTime.now())
-                            .build();
-                    return Mono.just(response);
+                    return Mono.just(deleteResponse);
                 })
 ;
     }

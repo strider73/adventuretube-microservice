@@ -174,12 +174,13 @@ class AuthServiceComponentTest {
 
         StepVerifier.create(authService.createUser(request))
                 .assertNext(response -> {
-                    assertThat(response.getUserId()).isEqualTo(userId);
-                    assertThat(response.getAccessToken()).isNotBlank();
-                    assertThat(response.getRefreshToken()).isNotBlank();
+                    assertThat(response.isSuccess()).isTrue();
+                    assertThat(response.getData().getUserId()).isEqualTo(userId);
+                    assertThat(response.getData().getAccessToken()).isNotBlank();
+                    assertThat(response.getData().getRefreshToken()).isNotBlank();
                     // Verify tokens are valid JWTs
-                    assertThat(jwtUtil.extractUsername(response.getAccessToken())).isEqualTo(TEST_EMAIL);
-                    assertThat(jwtUtil.extractUsername(response.getRefreshToken())).isEqualTo(TEST_EMAIL);
+                    assertThat(jwtUtil.extractUsername(response.getData().getAccessToken())).isEqualTo(TEST_EMAIL);
+                    assertThat(jwtUtil.extractUsername(response.getData().getRefreshToken())).isEqualTo(TEST_EMAIL);
                 })
                 .verifyComplete();
     }
@@ -269,9 +270,10 @@ class AuthServiceComponentTest {
 
         StepVerifier.create(authService.issueToken(request))
                 .assertNext(response -> {
-                    assertThat(response.getAccessToken()).isNotBlank();
-                    assertThat(response.getRefreshToken()).isNotBlank();
-                    assertThat(response.getUserId()).isNull();
+                    assertThat(response.isSuccess()).isTrue();
+                    assertThat(response.getData().getAccessToken()).isNotBlank();
+                    assertThat(response.getData().getRefreshToken()).isNotBlank();
+                    assertThat(response.getData().getUserId()).isNull();
                 })
                 .verifyComplete();
     }
@@ -305,12 +307,13 @@ class AuthServiceComponentTest {
 
         StepVerifier.create(authService.refreshToken("Bearer " + existingToken))
                 .assertNext(response -> {
-                    assertThat(response.getAccessToken()).isNotBlank();
-                    assertThat(response.getRefreshToken()).isNotBlank();
+                    assertThat(response.isSuccess()).isTrue();
+                    assertThat(response.getData().getAccessToken()).isNotBlank();
+                    assertThat(response.getData().getRefreshToken()).isNotBlank();
                     // Verify new tokens are valid JWTs with correct claims
-                    assertThat(jwtUtil.extractUsername(response.getAccessToken())).isEqualTo(TEST_EMAIL);
-                    assertThat(jwtUtil.extractUserRole(response.getAccessToken())).isEqualTo(TEST_ROLE);
-                    assertThat(jwtUtil.extractUsername(response.getRefreshToken())).isEqualTo(TEST_EMAIL);
+                    assertThat(jwtUtil.extractUsername(response.getData().getAccessToken())).isEqualTo(TEST_EMAIL);
+                    assertThat(jwtUtil.extractUserRole(response.getData().getAccessToken())).isEqualTo(TEST_ROLE);
+                    assertThat(jwtUtil.extractUsername(response.getData().getRefreshToken())).isEqualTo(TEST_EMAIL);
                 })
                 .verifyComplete();
     }

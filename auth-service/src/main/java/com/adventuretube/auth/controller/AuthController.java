@@ -1,6 +1,7 @@
 package com.adventuretube.auth.controller;
 
 
+import com.adventuretube.auth.exceptions.code.AuthErrorCode;
 import com.adventuretube.auth.model.request.MemberLoginRequest;
 import com.adventuretube.auth.model.response.MemberLoginResponse;
 import com.adventuretube.auth.model.request.MemberRegisterRequest;
@@ -21,6 +22,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.URI;
+import java.time.LocalDateTime;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -63,34 +65,39 @@ public class AuthController {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "201",
-                    description = "User registered successfully."
-            ),
-            @ApiResponse(
-                    responseCode = "401",
-                    description = "Unauthorized - Invalid or expired Google ID token.",
+                    description = "User registered successfully. Returns ServiceResponse<MemberRegisterResponse>.",
                     content = @Content(schema = @Schema(implementation = ServiceResponse.class))
             ),
             @ApiResponse(
-                    responseCode = "409",
-                    description = "Conflict - Email or Username already exists.",
+                    responseCode = "400",
+                    description = "Validation failed - Invalid request body.",
+                    content = @Content(schema = @Schema(implementation = ServiceResponse.class))
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized - Invalid Google ID token, email mismatch, or duplicate email.",
                     content = @Content(schema = @Schema(implementation = ServiceResponse.class))
             ),
             @ApiResponse(
                     responseCode = "500",
-                    description = "Internal Server Error - Unexpected server error during registration.",
+                    description = "Internal Server Error.",
+                    content = @Content(schema = @Schema(implementation = ServiceResponse.class))
+            ),
+            @ApiResponse(
+                    responseCode = "503",
+                    description = "Service Unavailable - Member service unreachable.",
                     content = @Content(schema = @Schema(implementation = ServiceResponse.class))
             )
     })
     // This logic will be used when user logs in for the first time from the iOS application
     @PostMapping(value = "/users")
-    public Mono<ResponseEntity<MemberRegisterResponse>> registerUser(@Valid @RequestBody MemberRegisterRequest request) {
+    public Mono<ResponseEntity<?>> registerUser(@Valid @RequestBody MemberRegisterRequest request) {
         return authService.createUser(request)
-                .map(response -> {
-                    URI uri = UriComponentsBuilder.fromPath("/users/{id}")
-                            .buildAndExpand(response.getUserId())
-                            .toUri();
-                    return ResponseEntity.created(uri).body(response);
-                });
+                .map(response -> ResponseEntity.created(
+                        UriComponentsBuilder.fromPath("/users/{id}")
+                                .buildAndExpand(response.getData().getUserId())
+                                .toUri()
+                ).body(response));
     }
 
     // =========================
@@ -117,21 +124,27 @@ public class AuthController {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Tokens issued successfully."
-            ),
-            @ApiResponse(
-                    responseCode = "401",
-                    description = "Unauthorized - Invalid credentials or expired Google ID token.",
+                    description = "Tokens issued successfully. Returns ServiceResponse<MemberRegisterResponse>.",
                     content = @Content(schema = @Schema(implementation = ServiceResponse.class))
             ),
             @ApiResponse(
-                    responseCode = "404",
-                    description = "User not found.",
+                    responseCode = "400",
+                    description = "Validation failed - Invalid request body.",
+                    content = @Content(schema = @Schema(implementation = ServiceResponse.class))
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized - Invalid credentials, expired Google ID token, or user not found.",
                     content = @Content(schema = @Schema(implementation = ServiceResponse.class))
             ),
             @ApiResponse(
                     responseCode = "500",
-                    description = "Internal Server Error - Unexpected authentication error.",
+                    description = "Internal Server Error.",
+                    content = @Content(schema = @Schema(implementation = ServiceResponse.class))
+            ),
+            @ApiResponse(
+                    responseCode = "503",
+                    description = "Service Unavailable - Member service unreachable.",
                     content = @Content(schema = @Schema(implementation = ServiceResponse.class))
             )
     })
@@ -166,22 +179,22 @@ public class AuthController {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Access token refreshed successfully.",
-                    content = @Content(schema = @Schema(implementation = MemberLoginResponse.class))
-            ),
-            @ApiResponse(
-                    responseCode = "401",
-                    description = "Unauthorized - Refresh token is missing, invalid, or expired.",
+                    description = "Access token refreshed successfully. Returns ServiceResponse<MemberRegisterResponse>.",
                     content = @Content(schema = @Schema(implementation = ServiceResponse.class))
             ),
             @ApiResponse(
-                    responseCode = "404",
-                    description = "User not found.",
+                    responseCode = "401",
+                    description = "Unauthorized - Refresh token is missing, invalid, expired, or not found.",
                     content = @Content(schema = @Schema(implementation = ServiceResponse.class))
             ),
             @ApiResponse(
                     responseCode = "500",
-                    description = "Internal Server Error - Unexpected failure during token refresh.",
+                    description = "Internal Server Error.",
+                    content = @Content(schema = @Schema(implementation = ServiceResponse.class))
+            ),
+            @ApiResponse(
+                    responseCode = "503",
+                    description = "Service Unavailable - Member service unreachable.",
                     content = @Content(schema = @Schema(implementation = ServiceResponse.class))
             )
     })
@@ -262,17 +275,17 @@ public class AuthController {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "User deleted successfully.",
-                    content = @Content(schema = @Schema(implementation = ServiceResponse.class))
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "User not found.",
+                    description = "User deleted successfully. Returns ServiceResponse<Boolean>.",
                     content = @Content(schema = @Schema(implementation = ServiceResponse.class))
             ),
             @ApiResponse(
                     responseCode = "500",
                     description = "Internal Server Error - User deletion failed.",
+                    content = @Content(schema = @Schema(implementation = ServiceResponse.class))
+            ),
+            @ApiResponse(
+                    responseCode = "503",
+                    description = "Service Unavailable - Member service unreachable.",
                     content = @Content(schema = @Schema(implementation = ServiceResponse.class))
             )
     })
