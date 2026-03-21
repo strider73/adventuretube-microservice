@@ -59,17 +59,8 @@ public class MemberController {
     @PostMapping("/deleteAllToken")
     public ResponseEntity<ServiceResponse<Boolean>> deleteAllToken(@RequestBody String token) {
         boolean deleted = memberService.deleteAllToken(token);
-        if (deleted) {
-            return ResponseEntity.ok(buildResponse("Token deleted successfully", true));
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(ServiceResponse.<Boolean>builder()
-                            .success(false)
-                            .message("Token not found")
-                            .data(false)
-                            .timestamp(LocalDateTime.now())
-                            .build());
-        }
+        String message = deleted ? "Token deleted successfully" : "Token not found";
+        return ResponseEntity.ok(buildResponse(message, deleted));
     }
 
     @PostMapping("/deleteUser")

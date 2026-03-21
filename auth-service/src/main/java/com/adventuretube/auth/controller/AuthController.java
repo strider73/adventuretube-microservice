@@ -83,8 +83,8 @@ public class AuthController {
     })
     // This logic will be used when user logs in for the first time from the iOS application
     @PostMapping(value = "/users")
-    public Mono<ResponseEntity<MemberRegisterResponse>> registerUser(@Valid @RequestBody Mono<MemberRegisterRequest> request) {
-        return request.flatMap(req -> authService.createUser(req))
+    public Mono<ResponseEntity<MemberRegisterResponse>> registerUser(@Valid @RequestBody MemberRegisterRequest request) {
+        return authService.createUser(request)
                 .map(response -> {
                     URI uri = UriComponentsBuilder.fromPath("/users/{id}")
                             .buildAndExpand(response.getUserId())
@@ -136,8 +136,8 @@ public class AuthController {
             )
     })
     @PostMapping(value = "/token")
-    public Mono<ResponseEntity<?>> issueToken(@Valid @RequestBody Mono<MemberLoginRequest> request) {
-        return request.flatMap(req -> authService.issueToken(req))
+    public Mono<ResponseEntity<?>> issueToken(@Valid @RequestBody MemberLoginRequest request) {
+        return authService.issueToken(request)
                 .map(response -> ResponseEntity.ok(response));
     }
 

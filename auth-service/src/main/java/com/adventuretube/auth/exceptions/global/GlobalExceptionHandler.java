@@ -11,7 +11,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.support.WebExchangeBindException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -28,9 +28,8 @@ public class GlobalExceptionHandler {
     // ---------------------------
     // Validation & Input Handling
     // ---------------------------
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<ServiceResponse<?>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+    @ExceptionHandler(WebExchangeBindException.class)
+    public ResponseEntity<ServiceResponse<?>> handleValidationExceptions(WebExchangeBindException ex) {
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getAllErrors().forEach((error) -> {
             String fieldName = ((FieldError) error).getField();
@@ -93,7 +92,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(InternalAuthenticationServiceException.class)
     public ResponseEntity<ServiceResponse<?>> handleInternalAuthenticationServiceException(InternalAuthenticationServiceException ex) {
-        return buildErrorResponse(AuthErrorCode.USER_DOES_NOT_EXIST);
+        return buildErrorResponse(AuthErrorCode.USER_NOT_FOUND);
     }
 
     // ---------------------------
@@ -124,6 +123,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(TokenNotFoundException.class)
     public ResponseEntity<ServiceResponse<?>> handleTokenNotFoundException(TokenNotFoundException ex) {
+        log.warn("Token not found: {} [origin={}]", ex.getErrorCode().getMessage(), ex.getOrigin());
         return buildErrorResponse(ex.getErrorCode(), ex);
     }
 
