@@ -7,6 +7,13 @@ import com.adventuretube.geospatial.model.entity.JobStatus;
 import com.adventuretube.geospatial.model.enums.JobStatusEnum;
 import com.adventuretube.geospatial.service.JobStatusService;
 import com.adventuretube.geospatial.sse.SseEmitterManager;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -24,11 +31,28 @@ import java.time.LocalDateTime;
 @RestController
 @RequestMapping(value = "/geo")
 @RequiredArgsConstructor
+@Tag(name = "Job Status Controller", description = "Job status polling and SSE streaming for async geospatial operations.")
 public class JobStatusSSEController {
 
     private final JobStatusService jobStatusService;
     private final SseEmitterManager sseEmitterManager;
 
+    @Operation(summary = "Stream job status updates via Server-Sent Events")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "SSE stream opened."),
+            @ApiResponse(responseCode = "404", description = "Job not found.",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ServiceResponse.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "success": false,
+                                      "message": "Job status not found",
+                                      "errorCode": "JOB_NOT_FOUND",
+                                      "data": null,
+                                      "timestamp": "2026-03-23T14:00:00"
+                                    }
+                                    """)))
+    })
     @GetMapping(value = "/status/stream/{trackingId}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter streamJobStatus(@PathVariable String trackingId) {
         log.info("SSE /geo/status/stream/{} requested", trackingId);
@@ -68,6 +92,22 @@ public class JobStatusSSEController {
         return emitter;
     }
 
+    @Operation(summary = "Get job status by tracking ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Job status retrieved."),
+            @ApiResponse(responseCode = "404", description = "Job not found.",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ServiceResponse.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "success": false,
+                                      "message": "Job status not found",
+                                      "errorCode": "JOB_NOT_FOUND",
+                                      "data": null,
+                                      "timestamp": "2026-03-23T14:00:00"
+                                    }
+                                    """)))
+    })
     @GetMapping("/status/{trackingId}")
     public ResponseEntity<ServiceResponse<JobStatus>> getJobStatus(@PathVariable String trackingId) {
         log.info("GET /geo/status/{} requested", trackingId);

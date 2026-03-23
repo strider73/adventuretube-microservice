@@ -1,0 +1,1647 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="a2d07b1e-3701-4ae0-a05d-ffdee57b581a" name="Changes" comment="Remove expiration logic using  &quot;.clockSkewSeconds(Integer.MAX_VALUE) &quot;&#10;because all Gateway will be the only place for expiration check">
+      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/auth-service/src/main/java/com/adventuretube/auth/controller/AuthController.java" beforeDir="false" afterPath="$PROJECT_DIR$/auth-service/src/main/java/com/adventuretube/auth/controller/AuthController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gateway-service/src/main/java/com/adventuretube/apigateway/config/TracingFilterConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/gateway-service/src/main/java/com/adventuretube/apigateway/config/TracingFilterConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/geospatial-service/src/main/java/com/adventuretube/geospatial/controller/AdventureTubeDataController.java" beforeDir="false" afterPath="$PROJECT_DIR$/geospatial-service/src/main/java/com/adventuretube/geospatial/controller/AdventureTubeDataController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/geospatial-service/src/main/java/com/adventuretube/geospatial/controller/JobStatusSSEController.java" beforeDir="false" afterPath="$PROJECT_DIR$/geospatial-service/src/main/java/com/adventuretube/geospatial/controller/JobStatusSSEController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/member-service/src/main/java/com/adventuretube/member/controller/MemberController.java" beforeDir="false" afterPath="$PROJECT_DIR$/member-service/src/main/java/com/adventuretube/member/controller/MemberController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web-service/src/main/java/com/adventuretube/web/controller/GeoDataController.java" beforeDir="false" afterPath="$PROJECT_DIR$/web-service/src/main/java/com/adventuretube/web/controller/GeoDataController.java" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="CompilerWorkspaceConfiguration">
+    <option name="MAKE_PROJECT_ON_SAVE" value="true" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Kotlin Class" />
+        <option value="Dockerfile" />
+        <option value="Enum" />
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="PUSH_AUTO_UPDATE" value="true" />
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="fix/JWT-validatation-adjust" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;git@github.com:strider73/adventuretube-microservice.git&quot;,
+    &quot;accountId&quot;: &quot;98c14b35-2d76-48b5-810b-c0809644d554&quot;
+  }
+}</component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="jar://$MAVEN_REPOSITORY$/org/springframework/cloud/spring-cloud-context/4.2.0/spring-cloud-context-4.2.0.jar!/org/springframework/cloud/context/scope/GenericScope.class" root0="SKIP_INSPECTION" />
+    <setting file="jar://$MAVEN_REPOSITORY$/org/springframework/spring-aop/6.2.0/spring-aop-6.2.0-sources.jar!/org/springframework/aop/framework/CglibAopProxy.java" root0="SKIP_INSPECTION" />
+    <setting file="jar://$MAVEN_REPOSITORY$/org/springframework/spring-core/6.2.0/spring-core-6.2.0.jar!/org/springframework/util/ReflectionUtils.class" root0="SKIP_INSPECTION" />
+    <setting file="file://$PROJECT_DIR$/adventuretube-cloud-redeploy.sh" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/member-service/src/main/java/com/adventuretube/member/MemberServiceConfig.java" root0="FORCE_HIGHLIGHTING" />
+  </component>
+  <component name="JpbToolWindowState">
+    <option name="isToolWindowVisible" value="false" />
+  </component>
+  <component name="KubernetesApiPersistence">{}</component>
+  <component name="KubernetesApiProvider">{
+  &quot;isMigrated&quot;: true
+}</component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="MavenImportPreferences">
+    <option name="generalSettings">
+      <MavenGeneralSettings>
+        <option name="mavenHomeTypeForPersistence" value="WRAPPER" />
+      </MavenGeneralSettings>
+    </option>
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 2
+}</component>
+  <component name="ProjectId" id="2ge5sWLPI4ZRW1dyy0EcRsIajrU" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showExcludedFiles" value="false" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Docker.AdventureTube-Clouds.executor": "Run",
+    "Docker.AdventureTube-Services.executor": "Run",
+    "Docker.Adventuretube-Kafka.executor": "Run",
+    "Docker.Adventuretube-Storage.executor": "Run",
+    "Docker.Dockerfile.mac builder.executor": "Run",
+    "Docker.auth-service/Dockerfile.executor": "Run",
+    "Docker.docker-compose-adventuretubes.yml: Compose Deployment.executor": "Run",
+    "Docker.docker-compose-clouds.yml: Compose Deployment.executor": "Run",
+    "Docker.docker-compose-kafka.yml: Compose Deployment.executor": "Run",
+    "Docker.docker-compose-storages.yml: Compose Deployment.executor": "Run",
+    "Docker.docker-compose.yml.auth-service: Compose Deployment.executor": "Run",
+    "Docker.docker-compose.yml.eureka-server: Compose Deployment.executor": "Run",
+    "Docker.docker-compose.yml.gateway-service: Compose Deployment.executor": "Run",
+    "Docker.docker-compose.yml: Compose Deployment.executor": "Run",
+    "Docker.kafka-service: Compose Deployment.executor": "Run",
+    "Docker.kafka/docker-compose.kafka.yml: Compose Deployment.executor": "Run",
+    "Docker.web-service/Dockerfile.executor": "Run",
+    "JUnit.AdventureTubeDataControllerTest.executor": "Run",
+    "JUnit.AdventureTubeDataFullStackIT.executor": "Run",
+    "JUnit.AdventureTubeDataRepositoryIT.executor": "Run",
+    "JUnit.AdventureTubeDataServiceTest.executor": "Run",
+    "JUnit.AuthControllerIT.executor": "Run",
+    "JUnit.AuthControllerIT.testLoginAfterRegistration.executor": "Debug",
+    "JUnit.AuthControllerIT.testLogout.executor": "Run",
+    "JUnit.AuthControllerIT.testRefreshToken.executor": "Run",
+    "JUnit.AuthControllerIT.testRegisterUser.executor": "Debug",
+    "JUnit.AuthControllerIntegrationTest.executor": "Run",
+    "JUnit.AuthControllerIntegrationTest.testLogin.executor": "Debug",
+    "JUnit.AuthControllerIntegrationTest.testLoginAfterRegistration.executor": "Debug",
+    "JUnit.AuthControllerIntegrationTest.testLogout.executor": "Run",
+    "JUnit.AuthControllerIntegrationTest.testRefreshToken.executor": "Run",
+    "JUnit.AuthControllerIntegrationTest.testRegisterUser.executor": "Debug",
+    "JUnit.AuthServiceComponentTest.executor": "Run",
+    "JUnit.AuthTokenRevocationIT.executor": "Run",
+    "JUnit.CustomUserDetailServiceIT.executor": "Run",
+    "JUnit.CustomUserDetailServiceSecurityIT.authenticateUser_shouldSucceed_whenValidCredentials.executor": "Run",
+    "JUnit.CustomUserDetailServiceSecurityIT.executor": "Debug",
+    "JUnit.GatewayJwtFilterIT.executor": "Debug",
+    "JUnit.GatewaySecurityIT.executor": "Run",
+    "JUnit.GoogleRefreshTokenTest.executor": "Run",
+    "JUnit.GoogleRefreshTokenTest.testGoogleIdTokenUsingRefreshToken.executor": "Debug",
+    "JUnit.GoogleTokenTest.executor": "Run",
+    "JUnit.JwtWebFilterTest.executor": "Run",
+    "JUnit.LoginFlowGatewayIT.executor": "Run",
+    "JUnit.LoginFlowIT.executor": "Run",
+    "JUnit.LoginFlowIntegrationTest.executor": "Run",
+    "JUnit.LoginFlowModuleApiIT.executor": "Debug",
+    "JUnit.LoginFlowModuleApiIT.step2_registerUser.executor": "Debug",
+    "JUnit.LoginFlowModuleApiIT.step4_refreshToken.executor": "Run",
+    "JUnit.LoginFlowModuleApiIT.step5_logout.executor": "Debug",
+    "JUnit.LoginFlowModuleApiIT.testInvalidGoogleToken.executor": "Run",
+    "JUnit.LoginFlowModuleApiIT.testMissingAuthHeader.executor": "Run",
+    "JUnit.LogoutFlowIT.executor": "Run",
+    "JUnit.MemberMapperSpringTest (1).executor": "Run",
+    "JUnit.MemberMapperSpringTest.executor": "Run",
+    "JUnit.MemberMapperSpringTest.testMemberDTOtoMember.executor": "Debug",
+    "JUnit.MemberMapperSpringTest.testUserDetailToMemberDTO.executor": "Run",
+    "JUnit.ReactiveAuthenticationManagerIT.authenticateUser_shouldSucceed_whenValidCredentials.executor": "Debug",
+    "JUnit.ReactiveAuthenticationManagerTest (1).executor": "Run",
+    "JUnit.ReactiveAuthenticationManagerTest.executor": "Run",
+    "JUnit.RegistrationFlowIT.executor": "Run",
+    "JUnit.SequentialFlowTestIT.executor": "Run",
+    "JUnit.StressTestIT.executor": "Run",
+    "JUnit.StressTestIT.stressTestLogin.executor": "Run",
+    "JUnit.StressTestIT.warmup.executor": "Run",
+    "Maven.adventuretube-microservice [clean].executor": "Run",
+    "Maven.adventuretube-microservice [compile].executor": "Run",
+    "Maven.adventuretube-microservice [install].executor": "Run",
+    "Maven.adventuretube-microservice [org.springframework.boot:spring-boot-maven-plugin:3.2.5:build-image].executor": "Run",
+    "Maven.adventuretube-microservice [package].executor": "Run",
+    "Maven.adventuretube-microservice [site].executor": "Run",
+    "Maven.adventuretube-microservice [test].executor": "Run",
+    "Maven.adventuretube-microservice [validate].executor": "Run",
+    "Maven.adventuretube-microservice [verify].executor": "Run",
+    "Maven.auth-service [clean].executor": "Run",
+    "Maven.auth-service [compile].executor": "Run",
+    "Maven.auth-service [org.springframework.boot:spring-boot-maven-plugin:3.2.5:build-image].executor": "Run",
+    "Maven.auth-service [package].executor": "Run",
+    "Maven.auth-service [test].executor": "Run",
+    "Maven.auth-service [validate].executor": "Run",
+    "Maven.common-domain [org.springframework.boot:spring-boot-maven-plugin:3.2.5:build-image].executor": "Run",
+    "Maven.config-service [org.springframework.boot:spring-boot-maven-plugin:3.2.5:build-image-no-fork].executor": "Run",
+    "Maven.config-service [org.springframework.boot:spring-boot-maven-plugin:3.2.5:build-image].executor": "Run",
+    "Maven.config-service [org.springframework.boot:spring-boot-maven-plugin:3.2.5:run].executor": "Run",
+    "Maven.config-service [org.springframework.boot:spring-boot-maven-plugin:3.2.5:start].executor": "Run",
+    "Maven.eureka-server [org.springframework.boot:spring-boot-maven-plugin:3.2.5:build-image].executor": "Run",
+    "Maven.member-service [clean].executor": "Run",
+    "Maven.member-service [compile].executor": "Run",
+    "Maven.member-service [install].executor": "Run",
+    "Maven.member-service [package].executor": "Run",
+    "Maven.member-service [test].executor": "Run",
+    "Remote JVM Debug.Unnamed.executor": "Debug",
+    "Remote JVM Debug.auth-debug.executor": "Debug",
+    "Remote JVM Debug.gateway-debug.executor": "Debug",
+    "Remote JVM Debug.geospatial-debug.executor": "Debug",
+    "Remote JVM Debug.member-debug.executor": "Debug",
+    "Remote JVM Debug.member-pi-debug.executor": "Debug",
+    "Remote JVM Debug.web-debug.executor": "Debug",
+    "RequestMappingsPanelOrder0": "0",
+    "RequestMappingsPanelOrder1": "1",
+    "RequestMappingsPanelWidth0": "75",
+    "RequestMappingsPanelWidth1": "75",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "SHELLCHECK.PATH": "/Users/chrislee/Library/Application Support/JetBrains/IntelliJIdea2024.1/plugins/Shell Script/shellcheck",
+    "Shell Script.adventuretube-cloud-redeploy.sh.executor": "Debug",
+    "Spring Boot.Adventuretube.executor": "Debug",
+    "Spring Boot.AuthServiceApplication.executor": "Run",
+    "Spring Boot.ConfigServiceApplication.executor": "Run",
+    "Spring Boot.EurekaServerApplication.executor": "Run",
+    "Spring Boot.GatewayApplication.executor": "Run",
+    "Spring Boot.GeospatialServiceApplication.executor": "Run",
+    "Spring Boot.MemberServiceApplication.executor": "Run",
+    "Spring Boot.WebServiceApplication.executor": "Run",
+    "Spring Boot.geospatial-service.executor": "Debug",
+    "TODO_SCOPE": "All Places",
+    "WebServerToolWindowFactoryState": "false",
+    "deletionFromPopupRequiresConfirmation": "false",
+    "git-widget-placeholder": "feature/auth/web-return-type-serviceresponse-only",
+    "jdk.selected.JAVA_MODULE": "17",
+    "kotlin-language-version-configured": "true",
+    "last_directory_selection": "/Volumes/Programming HD/AdventureTube/adventuretube-microservice/common-api/src/main/java/com/adventuretube/common/api",
+    "last_opened_file_path": "/Volumes/Programming HD/AdventureTube/adventuretube-microservice/.claude",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Project",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.46896553",
+    "run.configurations.included.in.services": "true",
+    "service.view.auto.scroll.to.source": "true",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "spring.configuration.checksum": "ba4180c424d1148c4a3c5976cb495d2f",
+    "vue.rearranger.settings.migration": "true"
+  },
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "documentdb",
+      "mongo",
+      "postgresql"
+    ]
+  }
+}]]></component>
+  <component name="Push.Settings">
+    <force-push-targets>
+      <force-push-target remote-path="origin" branch="main" />
+      <force-push-target remote-path="origin" branch="feature/api-documentation" />
+    </force-push-targets>
+  </component>
+  <component name="ReactorSettings">
+    <option name="notificationShown" value="true" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CreateClassDialog.RecentsKey">
+      <recent name="com.adventuretube.member.exceptions.error" />
+      <recent name="com.adventuretube.auth.exceptions.base" />
+      <recent name="com.adventuretube.auth.exceptions" />
+      <recent name="com.adventuretube.security.entity" />
+      <recent name="com.adventuretube.security.entity\" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/.claude" />
+      <recent name="$PROJECT_DIR$" />
+      <recent name="$PROJECT_DIR$/data" />
+      <recent name="$PROJECT_DIR$/auth-service/src/test/resources" />
+      <recent name="$PROJECT_DIR$/geospatial-service/src/main/java/com/adventuretube/geospatial/exceptions" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/.claude" />
+      <recent name="$PROJECT_DIR$" />
+      <recent name="$PROJECT_DIR$/data" />
+      <recent name="$PROJECT_DIR$/wordpress-content" />
+      <recent name="$PROJECT_DIR$/auth-service/src/main/java/com/adventuretube/auth/model" />
+    </key>
+    <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
+      <recent name="com.adventuretube.geospatial.controller" />
+      <recent name="com.adventuretube.auth.integration" />
+      <recent name="com.adventuretube.auth.config.google" />
+      <recent name="com.adventuretube.eureka.config" />
+      <recent name="com.adventuretube.member.model.mapper" />
+    </key>
+    <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="com.adventuretube.geospatial.exceptions" />
+      <recent name="com.adventuretube.apigateway.common.response" />
+      <recent name="com.adventuretube.geospatial.exceptions.error" />
+      <recent name="com.adventuretube.apigateway.service" />
+      <recent name="com.adventuretube.web.config" />
+    </key>
+  </component>
+  <component name="RunDashboard">
+    <option name="configurationTypes">
+      <set>
+        <option value="MicronautRunConfigurationType" />
+        <option value="QuarkusRunConfigurationType" />
+        <option value="ShConfigurationType" />
+        <option value="SpringBootApplicationConfigurationType" />
+      </set>
+    </option>
+    <option name="excludedTypes">
+      <set>
+        <option value="HttpClient.HttpRequestRunConfigurationType" />
+      </set>
+    </option>
+    <option name="hiddenConfigurations">
+      <map>
+        <entry key="SpringBootApplicationConfigurationType">
+          <value>
+            <set>
+              <option value="ConfigServiceApplication" />
+              <option value="EurekaServerApplication" />
+              <option value="GatewayApplication" />
+            </set>
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="configurationStatuses">
+      <map>
+        <entry key="SpringBootApplicationConfigurationType">
+          <value>
+            <map>
+              <entry key="AuthServiceApplication" value="STOPPED" />
+              <entry key="GeospatialServiceApplication" value="STOPPED" />
+              <entry key="MemberServiceApplication" value="STOPPED" />
+              <entry key="WebServiceApplication" value="STOPPED" />
+            </map>
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="openRunningConfigInTab" value="true" />
+  </component>
+  <component name="RunManager" selected="Spring Boot.AuthServiceApplication">
+    <configuration default="true" type="docker-deploy" factoryName="docker-compose.yml" temporary="true">
+      <deployment type="docker-compose.yml">
+        <settings />
+      </deployment>
+      <method v="2" />
+    </configuration>
+    <configuration name="AdventureTubeDataControllerTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="geospatial-service" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.adventuretube.geospatial.controller.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.adventuretube.geospatial.controller" />
+      <option name="MAIN_CLASS_NAME" value="com.adventuretube.geospatial.controller.AdventureTubeDataControllerTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="AdventureTubeDataFullStackIT" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="geospatial-service" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.adventuretube.geospatial.integration.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <extension name="net.ashald.envfile">
+        <option name="IS_ENABLED" value="true" />
+        <option name="IS_SUBST" value="false" />
+        <option name="IS_PATH_MACRO_SUPPORTED" value="false" />
+        <option name="IS_IGNORE_MISSING_FILES" value="false" />
+        <option name="IS_ENABLE_EXPERIMENTAL_INTEGRATIONS" value="false" />
+        <ENTRIES>
+          <ENTRY IS_ENABLED="true" PARSER="runconfig" IS_EXECUTABLE="false" />
+          <ENTRY IS_ENABLED="true" PARSER="env" IS_EXECUTABLE="false" PATH="env.mac" />
+        </ENTRIES>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.adventuretube.geospatial.integration" />
+      <option name="MAIN_CLASS_NAME" value="com.adventuretube.geospatial.integration.AdventureTubeDataFullStackIT" />
+      <option name="METHOD_NAME" value="" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="AdventureTubeDataRepositoryIT" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="geospatial-service" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.adventuretube.geospatial.integration.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <extension name="net.ashald.envfile">
+        <option name="IS_ENABLED" value="true" />
+        <option name="IS_SUBST" value="false" />
+        <option name="IS_PATH_MACRO_SUPPORTED" value="false" />
+        <option name="IS_IGNORE_MISSING_FILES" value="false" />
+        <option name="IS_ENABLE_EXPERIMENTAL_INTEGRATIONS" value="false" />
+        <ENTRIES>
+          <ENTRY IS_ENABLED="true" PARSER="runconfig" IS_EXECUTABLE="false" />
+          <ENTRY IS_ENABLED="true" PARSER="env" IS_EXECUTABLE="false" PATH="env.mac" />
+        </ENTRIES>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.adventuretube.geospatial.integration" />
+      <option name="MAIN_CLASS_NAME" value="com.adventuretube.geospatial.integration.AdventureTubeDataRepositoryIT" />
+      <option name="METHOD_NAME" value="" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="LoginFlowIT" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="auth-service" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.adventuretube.auth.integration.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.adventuretube.auth.integration" />
+      <option name="MAIN_CLASS_NAME" value="com.adventuretube.auth.integration.LoginFlowIT" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="RegistrationFlowIT" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="auth-service" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.adventuretube.auth.integration.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.adventuretube.auth.integration" />
+      <option name="MAIN_CLASS_NAME" value="com.adventuretube.auth.integration.RegistrationFlowIT" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="auth-debug" type="Remote">
+      <module name="auth-service" />
+      <option name="USE_SOCKET_TRANSPORT" value="true" />
+      <option name="SERVER_MODE" value="false" />
+      <option name="SHMEM_ADDRESS" />
+      <option name="HOST" value="adventuretube.net" />
+      <option name="PORT" value="5005" />
+      <option name="AUTO_RESTART" value="false" />
+      <RunnerSettings RunnerId="Debug">
+        <option name="DEBUG_PORT" value="5005" />
+        <option name="LOCAL" value="false" />
+      </RunnerSettings>
+      <method v="2" />
+    </configuration>
+    <configuration name="auth-debug" type="Remote">
+      <module name="auth-service" />
+      <option name="USE_SOCKET_TRANSPORT" value="true" />
+      <option name="SERVER_MODE" value="false" />
+      <option name="SHMEM_ADDRESS" />
+      <option name="HOST" value="localhost" />
+      <option name="PORT" value="5005" />
+      <option name="AUTO_RESTART" value="false" />
+      <RunnerSettings RunnerId="Debug">
+        <option name="DEBUG_PORT" value="5005" />
+        <option name="LOCAL" value="false" />
+      </RunnerSettings>
+      <method v="2" />
+    </configuration>
+    <configuration name="gateway-debug" type="Remote">
+      <module name="gateway-service" />
+      <option name="USE_SOCKET_TRANSPORT" value="true" />
+      <option name="SERVER_MODE" value="false" />
+      <option name="SHMEM_ADDRESS" />
+      <option name="HOST" value="192.168.1.105" />
+      <option name="PORT" value="5004" />
+      <option name="AUTO_RESTART" value="false" />
+      <RunnerSettings RunnerId="Debug">
+        <option name="DEBUG_PORT" value="5004" />
+        <option name="LOCAL" value="false" />
+      </RunnerSettings>
+      <method v="2" />
+    </configuration>
+    <configuration name="geospatial-debug" type="Remote">
+      <module name="geospatial-service" />
+      <option name="USE_SOCKET_TRANSPORT" value="true" />
+      <option name="SERVER_MODE" value="false" />
+      <option name="SHMEM_ADDRESS" />
+      <option name="HOST" value="192.168.1.105" />
+      <option name="PORT" value="5008" />
+      <option name="AUTO_RESTART" value="false" />
+      <RunnerSettings RunnerId="Debug">
+        <option name="DEBUG_PORT" value="5008" />
+        <option name="LOCAL" value="false" />
+      </RunnerSettings>
+      <method v="2" />
+    </configuration>
+    <configuration name="member-debug" type="Remote">
+      <module name="member-service" />
+      <option name="USE_SOCKET_TRANSPORT" value="true" />
+      <option name="SERVER_MODE" value="false" />
+      <option name="SHMEM_ADDRESS" />
+      <option name="HOST" value="adventuretube.net" />
+      <option name="PORT" value="5006" />
+      <option name="AUTO_RESTART" value="false" />
+      <RunnerSettings RunnerId="Debug">
+        <option name="DEBUG_PORT" value="5006" />
+        <option name="LOCAL" value="false" />
+      </RunnerSettings>
+      <method v="2" />
+    </configuration>
+    <configuration name="web-debug" type="Remote">
+      <module name="web-service" />
+      <option name="USE_SOCKET_TRANSPORT" value="true" />
+      <option name="SERVER_MODE" value="false" />
+      <option name="SHMEM_ADDRESS" />
+      <option name="HOST" value="192.168.1.105" />
+      <option name="PORT" value="5007" />
+      <option name="AUTO_RESTART" value="false" />
+      <RunnerSettings RunnerId="Debug">
+        <option name="DEBUG_PORT" value="5007" />
+        <option name="LOCAL" value="false" />
+      </RunnerSettings>
+      <method v="2" />
+    </configuration>
+    <configuration name="AuthServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <option name="ACTIVE_PROFILES" value="mac" />
+      <envs>
+        <env name="CONFIG_SERVER_URL" value="http://192.168.1.105:9297" />
+        <env name="ENV_TARGET" value="mac" />
+      </envs>
+      <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UpdateClassesAndResources" />
+      <module name="auth-service" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.adventuretube.auth.AuthServiceApplication" />
+      <extension name="net.ashald.envfile">
+        <option name="IS_ENABLED" value="false" />
+        <option name="IS_SUBST" value="false" />
+        <option name="IS_PATH_MACRO_SUPPORTED" value="false" />
+        <option name="IS_IGNORE_MISSING_FILES" value="false" />
+        <option name="IS_ENABLE_EXPERIMENTAL_INTEGRATIONS" value="false" />
+        <ENTRIES>
+          <ENTRY IS_ENABLED="true" PARSER="runconfig" IS_EXECUTABLE="false" />
+        </ENTRIES>
+      </extension>
+      <extension name="software.aws.toolkits.jetbrains.core.execution.JavaAwsConnectionExtension">
+        <option name="credential" />
+        <option name="region" />
+        <option name="useCurrentConnection" value="false" />
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ConfigServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UpdateClassesAndResources" />
+      <module name="config-service" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.adventuretube.ConfigServiceApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="EurekaServerApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="eureka-server" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.adventuretube.EurekaServerApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="GatewayApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <option name="ACTIVE_PROFILES" value="mac" />
+      <envs>
+        <env name="CONFIG_SERVER_URL" value="http://192.168.1.105:9297" />
+        <env name="ENV_TARGET" value="mac" />
+      </envs>
+      <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UpdateClassesAndResources" />
+      <module name="gateway-service" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.adventuretube.apigateway.GatewayApplication" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.adventuretube.apigateway.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <extension name="net.ashald.envfile">
+        <option name="IS_ENABLED" value="false" />
+        <option name="IS_SUBST" value="false" />
+        <option name="IS_PATH_MACRO_SUPPORTED" value="false" />
+        <option name="IS_IGNORE_MISSING_FILES" value="false" />
+        <option name="IS_ENABLE_EXPERIMENTAL_INTEGRATIONS" value="false" />
+        <ENTRIES>
+          <ENTRY IS_ENABLED="true" PARSER="runconfig" IS_EXECUTABLE="false" />
+        </ENTRIES>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="GeospatialServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <option name="ACTIVE_PROFILES" value="mac" />
+      <envs>
+        <env name="CONFIG_SERVER_URL" value="http://192.168.1.105:9297" />
+        <env name="ENV_TARGET" value="mac" />
+      </envs>
+      <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UpdateClassesAndResources" />
+      <module name="geospatial-service" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.adventuretube.geospatial.GeospatialServiceApplication" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.adventuretube.geospatial.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <extension name="software.aws.toolkits.jetbrains.core.execution.JavaAwsConnectionExtension">
+        <option name="credential" />
+        <option name="region" />
+        <option name="useCurrentConnection" value="false" />
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="MemberServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <option name="ACTIVE_PROFILES" value="mac" />
+      <envs>
+        <env name="CONFIG_SERVER_URL" value="http://192.168.1.105:9297" />
+        <env name="ENV_TARGET" value="mac" />
+      </envs>
+      <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UpdateClassesAndResources" />
+      <module name="member-service" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.adventuretube.member.MemberServiceApplication" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.adventuretube.member.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <extension name="software.aws.toolkits.jetbrains.core.execution.JavaAwsConnectionExtension">
+        <option name="credential" />
+        <option name="region" />
+        <option name="useCurrentConnection" value="false" />
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="WebServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <option name="ACTIVE_PROFILES" value="mac" />
+      <envs>
+        <env name="CONFIG_SERVER_URL" value="http://192.168.1.105:9297" />
+        <env name="ENV_TARGET" value="mac" />
+      </envs>
+      <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UpdateClassesAndResources" />
+      <module name="web-service" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.adventuretube.web.WebServiceApplication" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.adventuretube.web.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <extension name="software.aws.toolkits.jetbrains.core.execution.JavaAwsConnectionExtension">
+        <option name="credential" />
+        <option name="region" />
+        <option name="useCurrentConnection" value="false" />
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="AdventureTube-Clouds" type="docker-deploy" factoryName="docker-compose.yml" server-name="Docker">
+      <deployment type="docker-compose.yml">
+        <settings>
+          <option name="envFilePath" value="" />
+          <option name="envFilePaths">
+            <list>
+              <option value="" />
+            </list>
+          </option>
+          <option name="envVars">
+            <list>
+              <DockerEnvVarImpl>
+                <option name="name" value="DOCKERFILE" />
+                <option name="value" value="Dockerfile" />
+              </DockerEnvVarImpl>
+            </list>
+          </option>
+          <option name="removeOrphansOnComposeDown" value="false" />
+          <option name="sourceFilePath" value="docker-compose-clouds.yml" />
+        </settings>
+      </deployment>
+      <method v="2" />
+    </configuration>
+    <configuration name="Adventuretube-Kafka" type="docker-deploy" factoryName="docker-compose.yml" server-name="Docker">
+      <deployment type="docker-compose.yml">
+        <settings>
+          <option name="envFilePath" value="" />
+          <option name="envFilePaths">
+            <list>
+              <option value="" />
+            </list>
+          </option>
+          <option name="removeOrphansOnComposeDown" value="false" />
+          <option name="sourceFilePath" value="docker-compose-kafka.yml" />
+        </settings>
+      </deployment>
+      <method v="2" />
+    </configuration>
+    <configuration name="Adventuretube-Storage" type="docker-deploy" factoryName="docker-compose.yml" server-name="Docker">
+      <deployment type="docker-compose.yml">
+        <settings>
+          <option name="envFilePath" value="" />
+          <option name="envFilePaths">
+            <list>
+              <option value="" />
+            </list>
+          </option>
+          <option name="envVars">
+            <list>
+              <DockerEnvVarImpl>
+                <option name="name" value="DOCKERFILE" />
+                <option name="value" value="Docker" />
+              </DockerEnvVarImpl>
+            </list>
+          </option>
+          <option name="removeOrphansOnComposeDown" value="false" />
+          <option name="sourceFilePath" value="docker-compose-storages.yml" />
+        </settings>
+      </deployment>
+      <method v="2">
+        <option name="RunConfigurationTask" enabled="true" run_configuration_name="Adventuretube-Kafka" run_configuration_type="docker-deploy" />
+      </method>
+    </configuration>
+    <configuration default="true" type="docker-deploy" factoryName="docker-compose.yml" temporary="true">
+      <deployment type="docker-compose.yml">
+        <settings />
+      </deployment>
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="docker-deploy" factoryName="dockerfile" temporary="true">
+      <deployment type="dockerfile">
+        <settings />
+      </deployment>
+      <method v="2" />
+    </configuration>
+    <configuration name="docker-compose-clouds.yml: Compose Deployment" type="docker-deploy" factoryName="docker-compose.yml" server-name="Docker">
+      <deployment type="docker-compose.yml">
+        <settings>
+          <option name="envFilePath" value="" />
+          <option name="envFilePaths">
+            <list>
+              <option value="" />
+            </list>
+          </option>
+          <option name="envVars">
+            <list>
+              <DockerEnvVarImpl>
+                <option name="name" value="DOCKERFILE" />
+                <option name="value" value="Dockerfile" />
+              </DockerEnvVarImpl>
+            </list>
+          </option>
+          <option name="removeOrphansOnComposeDown" value="false" />
+          <option name="sourceFilePath" value="docker-compose-clouds.yml" />
+        </settings>
+      </deployment>
+      <method v="2" />
+    </configuration>
+    <configuration name="docker-compose-kafka.yml: Compose Deployment" type="docker-deploy" factoryName="docker-compose.yml" server-name="Docker">
+      <deployment type="docker-compose.yml">
+        <settings>
+          <option name="envFilePath" value="" />
+          <option name="envFilePaths">
+            <list>
+              <option value="" />
+            </list>
+          </option>
+          <option name="removeOrphansOnComposeDown" value="false" />
+          <option name="sourceFilePath" value="docker-compose-kafka.yml" />
+        </settings>
+      </deployment>
+      <method v="2" />
+    </configuration>
+    <configuration name="docker-compose-storages.yml: Compose Deployment" type="docker-deploy" factoryName="docker-compose.yml" server-name="Docker">
+      <deployment type="docker-compose.yml">
+        <settings>
+          <option name="envFilePath" value="" />
+          <option name="envFilePaths">
+            <list>
+              <option value="" />
+            </list>
+          </option>
+          <option name="envVars">
+            <list>
+              <DockerEnvVarImpl>
+                <option name="name" value="DOCKERFILE" />
+                <option name="value" value="Docker" />
+              </DockerEnvVarImpl>
+            </list>
+          </option>
+          <option name="removeOrphansOnComposeDown" value="false" />
+          <option name="sourceFilePath" value="docker-compose-storages.yml" />
+        </settings>
+      </deployment>
+      <method v="2">
+        <option name="RunConfigurationTask" enabled="true" run_configuration_name="Adventuretube-Kafka" run_configuration_type="docker-deploy" />
+      </method>
+    </configuration>
+    <list>
+      <item itemvalue="Docker.AdventureTube-Clouds" />
+      <item itemvalue="Docker.Adventuretube-Kafka" />
+      <item itemvalue="Docker.Adventuretube-Storage" />
+      <item itemvalue="Docker.docker-compose-clouds.yml: Compose Deployment" />
+      <item itemvalue="Docker.docker-compose-kafka.yml: Compose Deployment" />
+      <item itemvalue="Docker.docker-compose-storages.yml: Compose Deployment" />
+      <item itemvalue="JUnit.AdventureTubeDataRepositoryIT" />
+      <item itemvalue="JUnit.AdventureTubeDataControllerTest" />
+      <item itemvalue="JUnit.AdventureTubeDataFullStackIT" />
+      <item itemvalue="JUnit.LoginFlowIT" />
+      <item itemvalue="JUnit.RegistrationFlowIT" />
+      <item itemvalue="Remote JVM Debug.geospatial-debug" />
+      <item itemvalue="Remote JVM Debug.member-debug" />
+      <item itemvalue="Remote JVM Debug.web-debug" />
+      <item itemvalue="Remote JVM Debug.gateway-debug" />
+      <item itemvalue="Remote JVM Debug.auth-debug" />
+      <item itemvalue="Spring Boot.ConfigServiceApplication" />
+      <item itemvalue="Spring Boot.EurekaServerApplication" />
+      <item itemvalue="Spring Boot.GatewayApplication" />
+      <item itemvalue="Spring Boot.GeospatialServiceApplication" />
+      <item itemvalue="Spring Boot.MemberServiceApplication" />
+      <item itemvalue="Spring Boot.WebServiceApplication" />
+      <item itemvalue="Spring Boot.AuthServiceApplication" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="JUnit.RegistrationFlowIT" />
+        <item itemvalue="JUnit.LoginFlowIT" />
+        <item itemvalue="JUnit.AdventureTubeDataFullStackIT" />
+        <item itemvalue="JUnit.AdventureTubeDataControllerTest" />
+        <item itemvalue="JUnit.AdventureTubeDataRepositoryIT" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-bf35d07a577b-intellij.indexing.shared.core-IU-252.23892.409" />
+        <option value="bundled-js-predefined-d6986cc7102b-e03c56caf84a-JavaScript-IU-252.23892.409" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="a2d07b1e-3701-4ae0-a05d-ffdee57b581a" name="Changes" comment="" />
+      <created>1716045411343</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1716045411343</updated>
+      <workItem from="1716045412758" duration="673000" />
+      <workItem from="1716046107861" duration="33584000" />
+      <workItem from="1716170473190" duration="8678000" />
+      <workItem from="1716179544299" duration="193000" />
+      <workItem from="1716179743863" duration="2607000" />
+      <workItem from="1716204462061" duration="20905000" />
+      <workItem from="1716478864143" duration="4220000" />
+      <workItem from="1716483327987" duration="1480000" />
+      <workItem from="1716484818175" duration="3972000" />
+      <workItem from="1716518543862" duration="37000" />
+      <workItem from="1716518685050" duration="277000" />
+      <workItem from="1716519020810" duration="65000" />
+      <workItem from="1716519173503" duration="1111000" />
+      <workItem from="1716527906973" duration="3339000" />
+      <workItem from="1716531407046" duration="272000" />
+      <workItem from="1716531777737" duration="4403000" />
+      <workItem from="1716562218822" duration="2801000" />
+      <workItem from="1716565261879" duration="11680000" />
+      <workItem from="1716647000035" duration="19507000" />
+      <workItem from="1716772798182" duration="1833000" />
+      <workItem from="1716863365430" duration="31013000" />
+      <workItem from="1717128177723" duration="31536000" />
+      <workItem from="1717267789086" duration="1471000" />
+      <workItem from="1717322889063" duration="622000" />
+      <workItem from="1717326231534" duration="14066000" />
+      <workItem from="1717416112396" duration="282000" />
+      <workItem from="1717416509333" duration="10437000" />
+      <workItem from="1717427105516" duration="2803000" />
+      <workItem from="1717475211067" duration="15529000" />
+      <workItem from="1717581844363" duration="148214000" />
+      <workItem from="1718138736593" duration="62572000" />
+      <workItem from="1718414958131" duration="4643000" />
+      <workItem from="1718448930244" duration="13629000" />
+      <workItem from="1718629908335" duration="5568000" />
+      <workItem from="1718635499819" duration="6797000" />
+      <workItem from="1718667125444" duration="12174000" />
+      <workItem from="1718711716328" duration="21514000" />
+      <workItem from="1718805700472" duration="3535000" />
+      <workItem from="1718809247775" duration="45879000" />
+      <workItem from="1719077965114" duration="47785000" />
+      <workItem from="1719417463548" duration="15120000" />
+      <workItem from="1719808331852" duration="14816000" />
+      <workItem from="1719930498358" duration="961000" />
+      <workItem from="1719972965578" duration="50257000" />
+      <workItem from="1720398712859" duration="12582000" />
+      <workItem from="1720493580281" duration="8584000" />
+      <workItem from="1720573516384" duration="17204000" />
+      <workItem from="1720760253150" duration="4342000" />
+      <workItem from="1720995499027" duration="20005000" />
+      <workItem from="1721631554401" duration="17223000" />
+      <workItem from="1722818304468" duration="1933000" />
+      <workItem from="1722990807329" duration="2199000" />
+      <workItem from="1723023930258" duration="2954000" />
+      <workItem from="1723257158593" duration="2120000" />
+      <workItem from="1723357208774" duration="1204000" />
+      <workItem from="1723957397077" duration="748000" />
+      <workItem from="1724024380199" duration="943000" />
+      <workItem from="1724048729516" duration="3904000" />
+      <workItem from="1724378112413" duration="691000" />
+      <workItem from="1724378812687" duration="407000" />
+      <workItem from="1724384334233" duration="822000" />
+      <workItem from="1724419083054" duration="599000" />
+      <workItem from="1725344178371" duration="8105000" />
+      <workItem from="1725584427443" duration="1460000" />
+      <workItem from="1725585981260" duration="15488000" />
+      <workItem from="1726446274599" duration="29377000" />
+      <workItem from="1727052659314" duration="16074000" />
+      <workItem from="1727147279187" duration="3623000" />
+      <workItem from="1727219496842" duration="1181000" />
+      <workItem from="1727221357024" duration="19900000" />
+      <workItem from="1727399844591" duration="9752000" />
+      <workItem from="1727762333723" duration="4534000" />
+      <workItem from="1728280037343" duration="2166000" />
+      <workItem from="1728443288180" duration="5240000" />
+      <workItem from="1728563246127" duration="617000" />
+      <workItem from="1729654238896" duration="948000" />
+      <workItem from="1729655485857" duration="6043000" />
+      <workItem from="1730009719026" duration="11418000" />
+      <workItem from="1730069045930" duration="19002000" />
+      <workItem from="1730680974874" duration="7052000" />
+      <workItem from="1730945308192" duration="399000" />
+      <workItem from="1730945717735" duration="17000" />
+      <workItem from="1730945766529" duration="6220000" />
+      <workItem from="1731027997280" duration="2121000" />
+      <workItem from="1731099863611" duration="1980000" />
+      <workItem from="1731103650146" duration="245000" />
+      <workItem from="1731123143210" duration="3195000" />
+      <workItem from="1731131725818" duration="1435000" />
+      <workItem from="1731277708698" duration="4749000" />
+      <workItem from="1731288376736" duration="54000" />
+      <workItem from="1731288536938" duration="1263000" />
+      <workItem from="1731289814203" duration="9516000" />
+      <workItem from="1731379436305" duration="21518000" />
+      <workItem from="1731573840989" duration="6761000" />
+      <workItem from="1731650337661" duration="226000" />
+      <workItem from="1731650699831" duration="3365000" />
+      <workItem from="1731826782667" duration="27612000" />
+      <workItem from="1732056216009" duration="554000" />
+      <workItem from="1732748237885" duration="3690000" />
+      <workItem from="1732926945336" duration="9375000" />
+      <workItem from="1733033855996" duration="45777000" />
+      <workItem from="1733203623968" duration="30633000" />
+      <workItem from="1733712696084" duration="4631000" />
+      <workItem from="1733723359982" duration="16000" />
+      <workItem from="1733723391850" duration="29738000" />
+      <workItem from="1734315840828" duration="2256000" />
+      <workItem from="1734478202182" duration="1726000" />
+      <workItem from="1734499297403" duration="767000" />
+      <workItem from="1734597107680" duration="7403000" />
+      <workItem from="1734780850483" duration="773000" />
+      <workItem from="1734916137751" duration="604000" />
+      <workItem from="1734920827730" duration="2375000" />
+      <workItem from="1735005519625" duration="2561000" />
+      <workItem from="1735028902996" duration="1811000" />
+      <workItem from="1735045553537" duration="464000" />
+      <workItem from="1735046221204" duration="45574000" />
+      <workItem from="1736374573665" duration="1913000" />
+      <workItem from="1736421032709" duration="19515000" />
+      <workItem from="1736987630780" duration="10990000" />
+      <workItem from="1737017949214" duration="43123000" />
+      <workItem from="1737508265457" duration="1743000" />
+      <workItem from="1737510720081" duration="606000" />
+      <workItem from="1737511377884" duration="7817000" />
+      <workItem from="1737588544132" duration="127000" />
+      <workItem from="1737590013093" duration="70443000" />
+      <workItem from="1738016818034" duration="18350000" />
+      <workItem from="1738121422964" duration="16565000" />
+      <workItem from="1738202909952" duration="2276000" />
+      <workItem from="1738234689511" duration="2548000" />
+      <workItem from="1738288418820" duration="304000" />
+      <workItem from="1738288762933" duration="3091000" />
+      <workItem from="1738537452427" duration="18178000" />
+      <workItem from="1739316211705" duration="4175000" />
+      <workItem from="1739528919734" duration="338000" />
+      <workItem from="1740010903589" duration="7308000" />
+      <workItem from="1740187828587" duration="4685000" />
+      <workItem from="1740359424851" duration="7364000" />
+      <workItem from="1740872176143" duration="479000" />
+      <workItem from="1740964590046" duration="23159000" />
+      <workItem from="1741392599528" duration="62000" />
+      <workItem from="1741392716842" duration="18098000" />
+      <workItem from="1741579398123" duration="5980000" />
+      <workItem from="1741640447687" duration="21553000" />
+      <workItem from="1741907944330" duration="3161000" />
+      <workItem from="1741922893571" duration="54841000" />
+      <workItem from="1742436017865" duration="11481000" />
+      <workItem from="1742516022713" duration="37253000" />
+      <workItem from="1743290236645" duration="84000" />
+      <workItem from="1743381908842" duration="5316000" />
+      <workItem from="1743395598025" duration="21003000" />
+      <workItem from="1743485895854" duration="2337000" />
+      <workItem from="1743546371043" duration="37491000" />
+      <workItem from="1743996135127" duration="12821000" />
+      <workItem from="1744109791975" duration="33178000" />
+      <workItem from="1744413232412" duration="10703000" />
+      <workItem from="1744506766868" duration="20494000" />
+      <workItem from="1744636437458" duration="19585000" />
+      <workItem from="1745211394883" duration="27427000" />
+      <workItem from="1745554192243" duration="9693000" />
+      <workItem from="1745799598997" duration="23398000" />
+      <workItem from="1745983973363" duration="1030000" />
+      <workItem from="1745985200609" duration="23134000" />
+      <workItem from="1746397426774" duration="6496000" />
+      <workItem from="1746485832061" duration="20101000" />
+      <workItem from="1747016746365" duration="3626000" />
+      <workItem from="1747023697301" duration="8588000" />
+      <workItem from="1747096112711" duration="12483000" />
+      <workItem from="1747282764139" duration="36465000" />
+      <workItem from="1747607141647" duration="44855000" />
+      <workItem from="1747806381761" duration="18148000" />
+      <workItem from="1747983640195" duration="50313000" />
+      <workItem from="1748509165307" duration="1683000" />
+      <workItem from="1748574582446" duration="7332000" />
+      <workItem from="1748845111351" duration="5565000" />
+      <workItem from="1748992557377" duration="58180000" />
+      <workItem from="1749431490804" duration="11207000" />
+      <workItem from="1749451647374" duration="159000" />
+      <workItem from="1749452911687" duration="3903000" />
+      <workItem from="1749516344848" duration="47293000" />
+      <workItem from="1749709855616" duration="24607000" />
+      <workItem from="1749815825615" duration="4596000" />
+      <workItem from="1749894309051" duration="179000" />
+      <workItem from="1749894493198" duration="2862000" />
+      <workItem from="1749981668120" duration="3921000" />
+      <workItem from="1750040680554" duration="8723000" />
+      <workItem from="1750218995484" duration="2819000" />
+      <workItem from="1750338410566" duration="1293000" />
+      <workItem from="1750643302307" duration="2096000" />
+      <workItem from="1750720894309" duration="1816000" />
+      <workItem from="1750823361916" duration="22811000" />
+      <workItem from="1751034507776" duration="7411000" />
+      <workItem from="1751283565180" duration="22728000" />
+      <workItem from="1751795119128" duration="366000" />
+      <workItem from="1751854010341" duration="5382000" />
+      <workItem from="1752024065419" duration="30668000" />
+      <workItem from="1752146225722" duration="203000" />
+      <workItem from="1752146449320" duration="541000" />
+      <workItem from="1752203451113" duration="13607000" />
+      <workItem from="1752237420296" duration="6953000" />
+      <workItem from="1752284148032" duration="20283000" />
+      <workItem from="1752470190212" duration="584000" />
+      <workItem from="1753329944111" duration="4346000" />
+      <workItem from="1753339886525" duration="224000" />
+      <workItem from="1754449665015" duration="9720000" />
+      <workItem from="1754537685137" duration="11297000" />
+      <workItem from="1754630397272" duration="2404000" />
+      <workItem from="1754873821506" duration="138000" />
+      <workItem from="1754874035714" duration="15586000" />
+      <workItem from="1754990647360" duration="883000" />
+      <workItem from="1754991994418" duration="109000" />
+      <workItem from="1754992112362" duration="100000" />
+      <workItem from="1754992223101" duration="410000" />
+      <workItem from="1754995803934" duration="3960000" />
+      <workItem from="1755041669382" duration="98000" />
+      <workItem from="1755041779073" duration="378000" />
+      <workItem from="1755042180064" duration="890000" />
+      <workItem from="1755046155150" duration="2355000" />
+      <workItem from="1755049801586" duration="11391000" />
+      <workItem from="1755159633248" duration="893000" />
+      <workItem from="1755576459648" duration="3049000" />
+      <workItem from="1757900241890" duration="18224000" />
+      <workItem from="1758169917058" duration="13090000" />
+      <workItem from="1758253940103" duration="5469000" />
+      <workItem from="1758407104745" duration="31533000" />
+      <workItem from="1758529176799" duration="14829000" />
+      <workItem from="1758679703721" duration="26230000" />
+      <workItem from="1766634722668" duration="164000" />
+      <workItem from="1766634915316" duration="703000" />
+      <workItem from="1766635627001" duration="369000" />
+      <workItem from="1766748091380" duration="469000" />
+      <workItem from="1767933007710" duration="3406000" />
+      <workItem from="1768734205906" duration="6074000" />
+      <workItem from="1768880629089" duration="5704000" />
+      <workItem from="1768924480509" duration="3440000" />
+      <workItem from="1768954824930" duration="6763000" />
+      <workItem from="1768969818763" duration="6200000" />
+      <workItem from="1768984889971" duration="17900000" />
+      <workItem from="1769008579267" duration="749000" />
+      <workItem from="1769049976021" duration="12682000" />
+      <workItem from="1769081895214" duration="2733000" />
+      <workItem from="1769089982302" duration="4171000" />
+      <workItem from="1769125976453" duration="9014000" />
+      <workItem from="1769207636797" duration="13470000" />
+      <workItem from="1769297611265" duration="3589000" />
+      <workItem from="1769306143272" duration="39739000" />
+      <workItem from="1769555072256" duration="19473000" />
+      <workItem from="1769655045455" duration="6632000" />
+      <workItem from="1769737784796" duration="13388000" />
+      <workItem from="1769915552563" duration="329000" />
+      <workItem from="1769999677702" duration="6146000" />
+      <workItem from="1770601976934" duration="854000" />
+      <workItem from="1770615512785" duration="19495000" />
+      <workItem from="1770955527757" duration="15000" />
+      <workItem from="1770955551261" duration="742000" />
+      <workItem from="1771021131116" duration="679000" />
+      <workItem from="1771126860914" duration="6543000" />
+      <workItem from="1771285696789" duration="2246000" />
+      <workItem from="1771288420033" duration="12226000" />
+      <workItem from="1771309552762" duration="59455000" />
+      <workItem from="1771814338046" duration="10884000" />
+      <workItem from="1771884196694" duration="15304000" />
+      <workItem from="1771971317523" duration="29942000" />
+      <workItem from="1772056209899" duration="18601000" />
+      <workItem from="1772100336394" duration="2910000" />
+      <workItem from="1772155549721" duration="16247000" />
+      <workItem from="1772286623519" duration="16959000" />
+      <workItem from="1772409648765" duration="25151000" />
+      <workItem from="1772591347673" duration="23489000" />
+      <workItem from="1772663284392" duration="44885000" />
+      <workItem from="1772803292689" duration="8310000" />
+      <workItem from="1772922364510" duration="78573000" />
+      <workItem from="1773270059046" duration="9788000" />
+      <workItem from="1773290834546" duration="2803000" />
+      <workItem from="1773308078435" duration="13108000" />
+      <workItem from="1773526113970" duration="8997000" />
+      <workItem from="1773609309930" duration="90000" />
+      <workItem from="1773609447830" duration="36618000" />
+      <workItem from="1773693298708" duration="15699000" />
+      <workItem from="1773835381721" duration="22305000" />
+      <workItem from="1774046193508" duration="21591000" />
+      <workItem from="1774141255980" duration="1925000" />
+      <workItem from="1774148511404" duration="7456000" />
+      <workItem from="1774221571154" duration="2123000" />
+    </task>
+    <task id="LOCAL-00060" summary="update jwt.expireation for access-token/refresh-token">
+      <created>1718718153787</created>
+      <option name="number" value="00060" />
+      <option name="presentableId" value="LOCAL-00060" />
+      <option name="project" value="LOCAL" />
+      <updated>1718718153787</updated>
+    </task>
+    <task id="LOCAL-00061" summary="Create AuthFilter in geospatial-service &#10;&#10; 1 add dependencies for JWT token &#10; 2 create JwtUtil&#10; 3 create CustomUserDetailService&#10; 4 add jwt.expiration properties in geospatial-service.yml&#10; 5 create JwtAuthFilter&#10; 6 add JwtAuthFilter to GeospatialServiceConfig">
+      <created>1718718656896</created>
+      <option name="number" value="00061" />
+      <option name="presentableId" value="LOCAL-00061" />
+      <option name="project" value="LOCAL" />
+      <updated>1718718656896</updated>
+    </task>
+    <task id="LOCAL-00062" summary="Nothing but format the indentation">
+      <created>1718718816425</created>
+      <option name="number" value="00062" />
+      <option name="presentableId" value="LOCAL-00062" />
+      <option name="project" value="LOCAL" />
+      <updated>1718718816425</updated>
+    </task>
+    <task id="LOCAL-00063" summary="spring-boot-starter-web  dependency was missing so service was not able to start.&#10;no idea !!!!">
+      <created>1718718893804</created>
+      <option name="number" value="00063" />
+      <option name="presentableId" value="LOCAL-00063" />
+      <option name="project" value="LOCAL" />
+      <updated>1718718893804</updated>
+    </task>
+    <task id="LOCAL-00064" summary="miss commit for JwtAuthFilter creation">
+      <created>1718718932221</created>
+      <option name="number" value="00064" />
+      <option name="presentableId" value="LOCAL-00064" />
+      <option name="project" value="LOCAL" />
+      <updated>1718718932221</updated>
+    </task>
+    <task id="LOCAL-00065" summary="gateway-service &#10;   1. token null check has been added &#10;       JwtTokenNotExistException and GlobalExceptionHandler has been updated &#10;   2. remove jwtUtil validation and use just getClaims instead">
+      <created>1718719054293</created>
+      <option name="number" value="00065" />
+      <option name="presentableId" value="LOCAL-00065" />
+      <option name="project" value="LOCAL" />
+      <updated>1718719054293</updated>
+    </task>
+    <task id="LOCAL-00066" summary="Jwt.expiration doesn't required except security-service">
+      <created>1718719661412</created>
+      <option name="number" value="00066" />
+      <option name="presentableId" value="LOCAL-00066" />
+      <option name="project" value="LOCAL" />
+      <updated>1718719661412</updated>
+    </task>
+    <task id="LOCAL-00067" summary="Add JwtAuthFilter in security-service &#10; and add logic to check the null token &#10; also add null token check in the geospatial for just in case">
+      <created>1718759874963</created>
+      <option name="number" value="00067" />
+      <option name="presentableId" value="LOCAL-00067" />
+      <option name="project" value="LOCAL" />
+      <updated>1718759874963</updated>
+    </task>
+    <task id="LOCAL-00068" summary="First try of MapStruct framework using instead BeanUtil class&#10;  1. create XXXMapper class&#10;  2. add mapstruct dependency &#10;  3. finally remove bean util and replace with Mapper &#10;  &#10;  so what is benefit of using a mapstruct instead bean-util ?????&#10;     1. Compile-time Type Safety&#10;     MapStruct generates the mapping code at compile time, which means that any issues with the mapping (such as missing fields or incompatible types) are caught during compilation&#10;     &#10;     2. MapStruct generates bytecode directly, making the mapping process much faster than reflection-based solutions like BeanUtils.copyProperties. &#10;     &#10;     3.Maintainability and Readability&#10;       MapStruct allows for a more declarative style of defining mappings. The mappings are clear and concise, and they are directly within the interface, which improves code readability and maintainability. This contrasts with BeanUtils.copyProperties, which can result in boilerplate code and less clarity about what fields are being mapped.&#10;       &#10;       4. Custom Mappings&#10;       MapStruct provides more flexibility and control over the mapping process. You can define custom mappings for specific fields, use expressions, and apply conversions during the mapping. This level of customization is more complex to achieve with BeanUtils.copyProperties.&#10;       &#10;       5. Less Boilerplate Code&#10;       Using MapStruct reduces the amount of boilerplate code. With BeanUtils.copyProperties, you need to write additional code to handle special cases, whereas MapStruct can handle these within the mapping interface, keeping your service layer cleaner.">
+      <created>1718803313799</created>
+      <option name="number" value="00068" />
+      <option name="presentableId" value="LOCAL-00068" />
+      <option name="project" value="LOCAL" />
+      <updated>1718803313799</updated>
+    </task>
+    <task id="LOCAL-00069" summary="MapStruct has been move to Parent pom.xml from security-service&#10;   method name has been renamed with  first small letter &#10;   Mapper doesn't need spring been injection any more just access INSTANCE directly&#10;   from interface &#10;   SINCE @Mapper annotation will do the job for me">
+      <created>1718807519654</created>
+      <option name="number" value="00069" />
+      <option name="presentableId" value="LOCAL-00069" />
+      <option name="project" value="LOCAL" />
+      <updated>1718807519654</updated>
+    </task>
+    <task id="LOCAL-00070" summary="Class name refactoring for &#10;AuthDTO.java and AuthRequest.java&#10;MemberDTO and MemberRegisterRequest and MemberRegisterResponse">
+      <created>1718808192071</created>
+      <option name="number" value="00070" />
+      <option name="presentableId" value="LOCAL-00070" />
+      <option name="project" value="LOCAL" />
+      <updated>1718808192071</updated>
+    </task>
+    <task id="LOCAL-00071" summary="All BeanUtil has been removed and replaced with MapStruct !!!!!!">
+      <created>1718808703862</created>
+      <option name="number" value="00071" />
+      <option name="presentableId" value="LOCAL-00071" />
+      <option name="project" value="LOCAL" />
+      <updated>1718808703862</updated>
+    </task>
+    <task id="LOCAL-00072" summary="install dev-tool for all service except for Eureka">
+      <created>1718809146657</created>
+      <option name="number" value="00072" />
+      <option name="presentableId" value="LOCAL-00072" />
+      <option name="project" value="LOCAL" />
+      <updated>1718809146657</updated>
+    </task>
+    <task id="LOCAL-00073" summary="Add /auth/refreshToken access point for everyone &#10;=&gt; it doesn't mean that this point won't go through authentication process .&#10;    every single request will still going authentication process.">
+      <created>1718859504577</created>
+      <option name="number" value="00073" />
+      <option name="presentableId" value="LOCAL-00073" />
+      <option name="project" value="LOCAL" />
+      <updated>1718859504577</updated>
+    </task>
+    <task id="LOCAL-00074" summary="Add /auth/refreshToken access point for everyone &#10;=&gt; it doesn't mean that this point won't go through authentication process .&#10;    every single request will still going authentication process.">
+      <created>1718859532575</created>
+      <option name="number" value="00074" />
+      <option name="presentableId" value="LOCAL-00074" />
+      <option name="project" value="LOCAL" />
+      <updated>1718859532575</updated>
+    </task>
+    <task id="LOCAL-00075" summary="Refresh Token function has been added&#10;&#10; 1. Refresh token process&#10;     going through JwtAuthFiler and not skipping Token validation &#10;     which is checking user's data from local server throughout CustomUserDetailService (and also basic validation on the Gateway)&#10;     &#10;     and create both access and refresh token .&#10;     &#10;     Since i dont want any other input value but just refresh token in here &#10;     using HttpServletRequest is enough and clean.">
+      <created>1718859864560</created>
+      <option name="number" value="00075" />
+      <option name="presentableId" value="LOCAL-00075" />
+      <option name="project" value="LOCAL" />
+      <updated>1718859864560</updated>
+    </task>
+    <task id="LOCAL-00076" summary="Refactoring AuthController to remove all business logic to service layer and&#10;change mapping name from getToken to login">
+      <created>1718945483723</created>
+      <option name="number" value="00076" />
+      <option name="presentableId" value="LOCAL-00076" />
+      <option name="project" value="LOCAL" />
+      <updated>1718945483723</updated>
+    </task>
+    <task id="LOCAL-00077" summary="Refactoring name of authenticateManager to customAuthenticationManager &#10;and add comment for different layer customization from &#10;SecurityServiceConfig&#10;  whcih is either AuthenticationMAnager level or AuthentiocationProvider level">
+      <created>1718946151361</created>
+      <option name="number" value="00077" />
+      <option name="presentableId" value="LOCAL-00077" />
+      <option name="project" value="LOCAL" />
+      <updated>1718946151361</updated>
+    </task>
+    <task id="LOCAL-00078" summary="Name of module security-service change to auth-service">
+      <created>1718978698555</created>
+      <option name="number" value="00078" />
+      <option name="presentableId" value="LOCAL-00078" />
+      <option name="project" value="LOCAL" />
+      <updated>1718978698555</updated>
+    </task>
+    <task id="LOCAL-00079" summary=" common-service now have a &#10;         spring-boot-starter-data-jpa&#10;         and spring-boot-starter-security&#10;         &#10;  Gateway-service &#10;  Geospatial-service&#10;  Web-service&#10;   doesn't need data-jpa so exclude from common-lib">
+      <created>1719144930939</created>
+      <option name="number" value="00079" />
+      <option name="presentableId" value="LOCAL-00079" />
+      <option name="project" value="LOCAL" />
+      <updated>1719144930940</updated>
+    </task>
+    <task id="LOCAL-00080" summary="Create Token Store Function when user register &#10;&#10;   1. Token, TokenDTO , TokenMapper , TokenRepository&#10;        TokenMApper.tokenTDOToToken has a very special function that transform MemberDTO property to Member !!!!!&#10;      &#10;   2. AuthService include token store logic using member-service &#10;   3. Member has typo for channelId&#10;   4. MemberController / MemberService add token store method &#10;   5. MemberServiceApplication now able to create the bean that has been imported from common-service">
+      <created>1719145479915</created>
+      <option name="number" value="00080" />
+      <option name="presentableId" value="LOCAL-00080" />
+      <option name="project" value="LOCAL" />
+      <updated>1719145479915</updated>
+    </task>
+    <task id="LOCAL-00081" summary="Create Token Store Function when user register &#10;&#10;   1. Token, TokenDTO , TokenMapper , TokenRepository&#10;        TokenMApper.tokenTDOToToken has a very special function that transform MemberDTO property to Member !!!!!&#10;      &#10;   2. AuthService include token store logic using member-service &#10;   3. Member has typo for channelId&#10;   4. MemberController / MemberService add token store method &#10;   5. MemberServiceApplication now able to create the bean that has been imported from common-service">
+      <created>1719145507985</created>
+      <option name="number" value="00081" />
+      <option name="presentableId" value="LOCAL-00081" />
+      <option name="project" value="LOCAL" />
+      <updated>1719145507985</updated>
+    </task>
+    <task id="LOCAL-00082" summary="MemberMapper has been moved from under dto package to under com.adventuretube.auth.">
+      <created>1719146206332</created>
+      <option name="number" value="00082" />
+      <option name="presentableId" value="LOCAL-00082" />
+      <option name="project" value="LOCAL" />
+      <updated>1719146206332</updated>
+    </task>
+    <task id="LOCAL-00083" summary="Properties for maven compiler and sourceEncoding  has been moved up to parents">
+      <created>1719190434386</created>
+      <option name="number" value="00083" />
+      <option name="presentableId" value="LOCAL-00083" />
+      <option name="project" value="LOCAL" />
+      <updated>1719190434386</updated>
+    </task>
+    <task id="LOCAL-00084" summary="Properties for maven compiler and sourceEncoding  has been moved up to parents">
+      <created>1719190600944</created>
+      <option name="number" value="00084" />
+      <option name="presentableId" value="LOCAL-00084" />
+      <option name="project" value="LOCAL" />
+      <updated>1719190600944</updated>
+    </task>
+    <task id="LOCAL-00085" summary="add kafka-service using a docker">
+      <created>1719202354128</created>
+      <option name="number" value="00085" />
+      <option name="presentableId" value="LOCAL-00085" />
+      <option name="project" value="LOCAL" />
+      <updated>1719202354129</updated>
+    </task>
+    <task id="LOCAL-00086" summary="add logout function &#10;    AuthController&#10;    AuthService&#10;        method name  authenticate change to loginWithIdAndPassword&#10;        add logout method  &#10;    add &quot;/auth/logout&quot; to AuthServiceConfig&#10;    &#10;    add required function in member-service &#10;      MemberController &#10;           findToken &#10;           deleteAllToken&#10;      MemberService&#10;            findMemberByEmailAndTokenCheck&#10;            findToken&#10;            deleteAllToken&#10;            &#10;      TokenRepository&#10;             deleteAppTokenByAccessToken =&gt; to revoke all existing token before create the new one">
+      <created>1719416023384</created>
+      <option name="number" value="00086" />
+      <option name="presentableId" value="LOCAL-00086" />
+      <option name="project" value="LOCAL" />
+      <updated>1719416023384</updated>
+    </task>
+    <task id="LOCAL-00087" summary="Test Basic kafka to geospatial-service">
+      <created>1719416071512</created>
+      <option name="number" value="00087" />
+      <option name="presentableId" value="LOCAL-00087" />
+      <option name="project" value="LOCAL" />
+      <updated>1719416071512</updated>
+    </task>
+    <task id="LOCAL-00088" summary="Setting mDNS(muliticast DNS) for Eureka server and Kafka server in the rasberry-pi">
+      <created>1719553201628</created>
+      <option name="number" value="00088" />
+      <option name="presentableId" value="LOCAL-00088" />
+      <option name="project" value="LOCAL" />
+      <updated>1719553201628</updated>
+    </task>
+    <task id="LOCAL-00089" summary="kafka setting and test&#10;    Kafka configuration has to be ip address">
+      <created>1719893389441</created>
+      <option name="number" value="00089" />
+      <option name="presentableId" value="LOCAL-00089" />
+      <option name="project" value="LOCAL" />
+      <updated>1719893389441</updated>
+    </task>
+    <task id="LOCAL-00090" summary="Token repository delete will look &#10;      access or refreshToken together">
+      <created>1719893431278</created>
+      <option name="number" value="00090" />
+      <option name="presentableId" value="LOCAL-00090" />
+      <option name="project" value="LOCAL" />
+      <updated>1719893431278</updated>
+    </task>
+    <task id="LOCAL-00091" summary="Rename RestAPIErrorResponse.java to RestAPIResponse">
+      <created>1719893540677</created>
+      <option name="number" value="00091" />
+      <option name="presentableId" value="LOCAL-00091" />
+      <option name="project" value="LOCAL" />
+      <updated>1719893540677</updated>
+    </task>
+    <task id="LOCAL-00092" summary="Remove ResponseEntity from Service LAyer">
+      <created>1719895772895</created>
+      <option name="number" value="00092" />
+      <option name="presentableId" value="LOCAL-00092" />
+      <option name="project" value="LOCAL" />
+      <updated>1719895772896</updated>
+    </task>
+    <task id="LOCAL-00093" summary="Change Docker Compose file name for storages">
+      <created>1719928556034</created>
+      <option name="number" value="00093" />
+      <option name="presentableId" value="LOCAL-00093" />
+      <option name="project" value="LOCAL" />
+      <updated>1719928556034</updated>
+    </task>
+    <task id="LOCAL-00094" summary="just add  developer link as a commend">
+      <created>1720071120862</created>
+      <option name="number" value="00094" />
+      <option name="presentableId" value="LOCAL-00094" />
+      <option name="project" value="LOCAL" />
+      <updated>1720071120862</updated>
+    </task>
+    <task id="LOCAL-00095" summary="Nothing but Eureka server change from strider-pi to local">
+      <created>1720101512298</created>
+      <option name="number" value="00095" />
+      <option name="presentableId" value="LOCAL-00095" />
+      <option name="project" value="LOCAL" />
+      <updated>1720101512298</updated>
+    </task>
+    <task id="LOCAL-00096" summary="Member and Token id field change to UUID &#10;and return value after register member will &#10;return that UUID to iOS application">
+      <created>1720101593143</created>
+      <option name="number" value="00096" />
+      <option name="presentableId" value="LOCAL-00096" />
+      <option name="project" value="LOCAL" />
+      <updated>1720101593143</updated>
+    </task>
+    <task id="LOCAL-00097" summary="Nothing but change to localhost">
+      <created>1720701733548</created>
+      <option name="number" value="00097" />
+      <option name="presentableId" value="LOCAL-00097" />
+      <option name="project" value="LOCAL" />
+      <updated>1720701733548</updated>
+    </task>
+    <task id="LOCAL-00098" summary="Auto indentation">
+      <created>1720701903976</created>
+      <option name="number" value="00098" />
+      <option name="presentableId" value="LOCAL-00098" />
+      <option name="project" value="LOCAL" />
+      <updated>1720701903976</updated>
+    </task>
+    <task id="LOCAL-00099" summary="update logging setting">
+      <created>1720701935509</created>
+      <option name="number" value="00099" />
+      <option name="presentableId" value="LOCAL-00099" />
+      <option name="project" value="LOCAL" />
+      <updated>1720701935509</updated>
+    </task>
+    <task id="LOCAL-00100" summary="Add logging">
+      <created>1720701959643</created>
+      <option name="number" value="00100" />
+      <option name="presentableId" value="LOCAL-00100" />
+      <option name="project" value="LOCAL" />
+      <updated>1720701959643</updated>
+    </task>
+    <task id="LOCAL-00101" summary="Add comment for the How JWT filter and Spring Security work together">
+      <created>1720702002195</created>
+      <option name="number" value="00101" />
+      <option name="presentableId" value="LOCAL-00101" />
+      <option name="project" value="LOCAL" />
+      <updated>1720702002195</updated>
+    </task>
+    <task id="LOCAL-00102" summary="Dockerfile not in use">
+      <created>1720702088229</created>
+      <option name="number" value="00102" />
+      <option name="presentableId" value="LOCAL-00102" />
+      <option name="project" value="LOCAL" />
+      <updated>1720702088229</updated>
+    </task>
+    <task id="LOCAL-00103" summary="Add CreateAt Token table">
+      <created>1720702765875</created>
+      <option name="number" value="00103" />
+      <option name="presentableId" value="LOCAL-00103" />
+      <option name="project" value="LOCAL" />
+      <updated>1720702765875</updated>
+    </task>
+    <task id="LOCAL-00104" summary="Add MongoDB  and Json dependency  and Model to Common-module">
+      <created>1720766816356</created>
+      <option name="number" value="00104" />
+      <option name="presentableId" value="LOCAL-00104" />
+      <option name="project" value="LOCAL" />
+      <updated>1720766816356</updated>
+    </task>
+    <task id="LOCAL-00105" summary="refactoring all mongo db to move from Common to geospatial-service">
+      <created>1721006818369</created>
+      <option name="number" value="00105" />
+      <option name="presentableId" value="LOCAL-00105" />
+      <option name="project" value="LOCAL" />
+      <updated>1721006818370</updated>
+    </task>
+    <task id="LOCAL-00106" summary="All GlobalExceptionHandler update for error message that include where the error come from">
+      <created>1721043907649</created>
+      <option name="number" value="00106" />
+      <option name="presentableId" value="LOCAL-00106" />
+      <option name="project" value="LOCAL" />
+      <updated>1721043907649</updated>
+    </task>
+    <task id="LOCAL-00107" summary="ios will not send user information">
+      <created>1721043939035</created>
+      <option name="number" value="00107" />
+      <option name="presentableId" value="LOCAL-00107" />
+      <option name="project" value="LOCAL" />
+      <updated>1721043939035</updated>
+    </task>
+    <task id="LOCAL-00108" summary="1 MemberRegisterResponse : remove userDetails object and add userId only for security reason &#10;&#10;2 refactory register/login method to user google idToken only without using any other information &#10;for security reason">
+      <created>1721050371563</created>
+      <option name="number" value="00108" />
+      <option name="presentableId" value="LOCAL-00108" />
+      <option name="project" value="LOCAL" />
+      <updated>1721050371563</updated>
+    </task>
+    <option name="localTasksCounter" value="511" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="UnknownFeatures">
+    <option featureType="dependencySupport" implementationName="java:org.springframework.security:spring-security-core" />
+    <option featureType="dependencySupport" implementationName="java:org.springframework:spring-core" />
+    <option featureType="dependencySupport" implementationName="java:jakarta.validation:jakarta.validation-api" />
+    <option featureType="dependencySupport" implementationName="java:io.projectreactor:reactor-core" />
+    <option featureType="dependencySupport" implementationName="java:org.springframework.data:spring-data-commons" />
+    <option featureType="dependencySupport" implementationName="executable:kubectl" />
+    <option featureType="dependencySupport" implementationName="java:org.springframework.cloud:spring-cloud-context" />
+    <option featureType="dependencySupport" implementationName="java:org.hibernate.validator:hibernate-validator" />
+    <option featureType="dependencySupport" implementationName="executable:terraform" />
+    <option featureType="dependencySupport" implementationName="java:org.springframework:spring-webmvc" />
+    <option featureType="dependencySupport" implementationName="java:org.projectlombok:lombok" />
+    <option featureType="dependencySupport" implementationName="executable:docker" />
+    <option featureType="dependencySupport" implementationName="java:jakarta.persistence:jakarta.persistence-api" />
+    <option featureType="dependencySupport" implementationName="java:jakarta.ws.rs:jakarta.ws.rs-api" />
+    <option featureType="dependencySupport" implementationName="java:org.springframework:spring-messaging" />
+    <option featureType="dependencySupport" implementationName="java:org.springframework.boot:spring-boot" />
+  </component>
+  <component name="Vcs.Log.History.Properties">
+    <option name="COLUMN_ID_ORDER">
+      <list>
+        <option value="Default.Root" />
+        <option value="Default.Author" />
+        <option value="Default.Date" />
+        <option value="Default.Subject" />
+        <option value="GitHub.CommitStatus" />
+      </list>
+    </option>
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="RECENT_FILTERS">
+      <map>
+        <entry key="Branch">
+          <value>
+            <list>
+              <RecentGroup>
+                <option name="FILTER_VALUES">
+                  <option value="main" />
+                </option>
+              </RecentGroup>
+              <RecentGroup>
+                <option name="FILTER_VALUES">
+                  <option value="HEAD" />
+                </option>
+              </RecentGroup>
+              <RecentGroup>
+                <option name="FILTER_VALUES">
+                  <option value="feature/web-service-java21" />
+                </option>
+              </RecentGroup>
+              <RecentGroup>
+                <option name="FILTER_VALUES">
+                  <option value="feature/api-documentation" />
+                </option>
+              </RecentGroup>
+            </list>
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="CUSTOM_BOOLEAN_PROPERTIES">
+                <map>
+                  <entry key="Show.Git.Branches" value="true" />
+                </map>
+              </option>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="feature/remove-internal-service-security" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+              <option name="TEXT_FILTER_SETTINGS">
+                <TextFilterSettings>
+                  <option name="REGEX" value="true" />
+                </TextFilterSettings>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="  What was changed:&#10;&#10;  - Removed unreachable code: No more if/else logic&#10;  - Simplified to success path only: Controller only handles successful deletion&#10;  - Exception delegation: When user not found, MemberNotFoundException flows to GlobalExceptionHandler&#10;&#10;  Now the flow is:&#10;&#10;  1. Success case: User exists → deleted → HTTP 200 OK&#10;  2. Failure case: User not found → MemberNotFoundException → GlobalExceptionHandler → HTTP 404 NOT_FOUND&#10;&#10;  This matches your documentation's Approach 2: GlobalExceptionHandler Delegation for business operations that require follow-up processing." />
+    <MESSAGE value="⏺ Add deployment script for complete service rebuild&#10;&#10;  - Created adventuretube-service-redeploy-for-current-branch.sh&#10;  - Automates Maven clean/package, Docker cleanup, and fresh deployment&#10;  - Includes error handling and status reporting for reliable rebuilds" />
+    <MESSAGE value="⏺ Fix deployment script environment and Docker Compose issues&#10;&#10;  - Add proper environment file parameter handling with validation&#10;  - Update all commands from docker-compose to docker compose&#10;  - Ensure consistent env file usage throughout script execution&#10;  - Add usage instructions for proper script invocation" />
+    <MESSAGE value="remove git pulling session" />
+    <MESSAGE value="update docker-compose-kafka.yml" />
+    <MESSAGE value="&#10;  1. Removes old Docker images specifically for your services (step 6.5)&#10;  2. Uses --no-cache flag to force fresh builds (step 7)&#10;  3. Adds --volumes --remove-orphans for complete cleanup (step 6)&#10;&#10;  This ensures:&#10;  - No cached Docker layers from previous builds&#10;  - Fresh compilation of your Java code changes&#10;  - Complete cleanup of old containers and volumes&#10;  - Prevention of &quot;stale cache&quot; issues&#10;&#10;  The script now provides a true clean rebuild every time you run it." />
+    <MESSAGE value="remove &quot;--remove-orphans&quot;" />
+    <MESSAGE value="  1. Decodes the JWT token to extract the payload&#10;  2. Compares the aud (audience) claim with your expected client ID&#10;  3. Logs both values for debugging&#10;  4. Returns null early if there's a mismatch&#10;  5. Only proceeds with Google's verifier if the client ID matches" />
+    <MESSAGE value="syntax error" />
+    <MESSAGE value="1. Skip JWT validation for health check requests&#10;  2. Stop the spam logs you're seeing every 10 seconds&#10;  3. Allow Docker health checks to work without authentication&#10;  4. Improve performance by not processing JWT tokens for health checks" />
+    <MESSAGE value="add web-client dependency" />
+    <MESSAGE value=" R2DBC configuration (replaces datasource/JPA)" />
+    <MESSAGE value="Test Refactor: Migrate MemberController to functional RouterFunction + Handler&#10;    &#10;      Replace annotation-based @RestController with Spring WebFlux functional&#10;      endpoints (RouterFunction + HandlerFunction) for idiomatic reactive API design.&#10;    &#10;      - Add MemberHandler with 7 handler methods (ServerRequest → Mono&lt;ServerResponse&gt;)&#10;      - Add MemberRouterConfig with RouterFunction bean chaining all POST routes&#10;      - Add GlobalWebExceptionHandler (WebExceptionHandler) replacing @ControllerAdvice&#10;        which does not work with functional endpoints&#10;      - Delete MemberController and GlobalExceptionHandler&#10;    &#10;      URL paths and ServiceResponse JSON format remain unchanged —&#10;      no caller-side (auth-service) changes needed." />
+    <MESSAGE value="Step 0+1: Migrate auth-service security layer from Servlet to WebFlux&#10;&#10;  ── Step 0: ServiceClient reactive + dependency cleanup ──&#10;&#10;    common-api/ServiceClient.java (MODIFIED)&#10;      - Add postReactive() and getReactive() methods returning Mono&lt;ServiceResponse&lt;T&gt;&gt;&#10;        instead of calling .block(), enabling non-blocking reactive pipelines&#10;      - Existing blocking post()/get() unchanged for other services&#10;&#10;    auth-service/pom.xml (MODIFIED)&#10;      - Remove spring-boot-starter-web: eliminates servlet container (Tomcat),&#10;        auth-service now runs on Netty via spring-boot-starter-webflux&#10;      - Remove spring-boot-starter-data-jpa: auth-service has no database,&#10;        all data operations go through REST calls to member-service&#10;      - Remove postgresql driver: same reason, no direct DB access&#10;&#10;  ── Step 1: Security Servlet → WebFlux ──&#10;&#10;    Security Config:&#10;      AuthServiceConfig.java (MODIFIED)&#10;        - @EnableWebSecurity → @EnableWebFluxSecurity: Spring Security's servlet&#10;          config does not work on the reactive (Netty) stack&#10;        - SecurityFilterChain → SecurityWebFilterChain: WebFlux equivalent&#10;        - HttpSecurity → ServerHttpSecurity: reactive security DSL&#10;        - New ReactiveAuthenticationManager bean replaces the servlet-based&#10;          AuthenticationManager + CustomAuthenticationProvider chain&#10;&#10;    JWT Filter:&#10;      JwtWebFilter.java (NEW)&#10;        - Replaces JwtAuthFilter because OncePerRequestFilter is a servlet filter&#10;          that depends on HttpServletRequest/HttpServletResponse, which don't exist&#10;          in the reactive stack&#10;        - Implements WebFilter (reactive equivalent) using ServerWebExchange&#10;        - Sets authentication via ReactiveSecurityContextHolder (context-propagation)&#10;          instead of thread-local SecurityContextHolder&#10;&#10;      JwtAuthFilter.java (DELETED)&#10;        - Extends OncePerRequestFilter (servlet API), incompatible with Netty/WebFlux&#10;&#10;    User Details:&#10;      CustomUserDetailService.java (MODIFIED)&#10;        - UserDetailsService → ReactiveUserDetailsService: the servlet interface's&#10;          blocking loadUserByUsername() would block the Netty event loop&#10;        - findByUsername() returns Mono&lt;UserDetails&gt;, using postReactive() for&#10;          non-blocking member-service calls&#10;&#10;    Authentication Provider:&#10;      CustomAuthenticationProvider.java (DELETED)&#10;        - Extends DaoAuthenticationProvider which internally calls the blocking&#10;          UserDetailsService.loadUserByUsername(), incompatible with reactive stack&#10;        - Same logic (find user → compare password → return auth token) now lives&#10;          in ReactiveAuthenticationManager bean in AuthServiceConfig as a reactive&#10;          lambda chain&#10;&#10;    Unused JPA Entities:&#10;      Member.java (DELETED)&#10;        - JPA @Entity requiring Hibernate/JPA runtime which was removed from pom.xml&#10;        - Auth-service has no database; member data comes from member-service via REST&#10;      Token.java (DELETED)&#10;        - Same reason: JPA entity with @ManyToOne relationship, never used since&#10;          token storage is handled by member-service&#10;&#10;    Adapted for compilation (will be fully rewritten in Step 2):&#10;      AuthService.java (MODIFIED)&#10;        - Remove @Transactional: no JPA/datasource exists in auth-service&#10;        - AuthenticationManager → ReactiveAuthenticationManager with temporary&#10;          .block() call until Step 2 converts to full reactive chain&#10;        - HttpServletRequest params → String token params: servlet API no longer&#10;          on classpath, token extraction moves to controller layer&#10;&#10;      AuthController.java (MODIFIED)&#10;        - HttpServletRequest → @RequestHeader(&quot;Authorization&quot;): servlet API removed,&#10;          header extraction is now explicit&#10;        - ServletUriComponentsBuilder → UriComponentsBuilder: servlet-free URI builder&#10;&#10;  ── Tests ──&#10;      ServiceClientReactiveTest.java (NEW) - StepVerifier tests for postReactive/getReactive&#10;      JwtWebFilterTest.java (NEW) - WebFilter behavior for open/protected endpoints&#10;      SecurityConfigTest.java (NEW) - SecurityWebFilterChain endpoint access rules" />
+    <MESSAGE value="add missing reactor test" />
+    <MESSAGE value="⏺ Step 1 (cont): Migrate integration tests from Servlet to WebFlux&#10;&#10;    LoginFlowSpringBootIT.java (MODIFIED)&#10;      - MockMvc → WebTestClient: MockMvc depends on servlet DispatcherServlet&#10;        which no longer exists on the Netty runtime&#10;      - @AutoConfigureMockMvc → @AutoConfigureWebTestClient&#10;      - All test assertions use WebTestClient fluent API (.exchange().expectStatus()...)&#10;&#10;    CustomUserDetailServiceSecurityIT.java (MODIFIED)&#10;      - AuthenticationManager → ReactiveAuthenticationManager: servlet-based&#10;        AuthenticationManager bean no longer exists after security migration&#10;      - MockRestServiceServer + RestTemplate → @MockBean ServiceClient with&#10;        Mockito stubbing: WebFlux uses WebClient internally, MockRestServiceServer&#10;        only works with RestTemplate&#10;      - Assertions use StepVerifier for reactive Mono&lt;Authentication&gt; result&#10;&#10;    RestTemplateTestConfig.java (DELETED)&#10;      - Provided RestTemplate bean for CustomUserDetailServiceSecurityIT&#10;      - No longer needed since test now mocks ServiceClient directly" />
+    <MESSAGE value="All test package has been updated:&#10; 1) categorize by unit/component/integration/stress test.&#10; &#10; 2) for the test that need spring test initialization , EnvFile plugin configuration  has been added. Maintain rule of no hard corded env value. &#10; &#10; 3) loginProcess related test need to clean up many redundant code yet." />
+    <MESSAGE value="update kafka  producer connection info" />
+    <MESSAGE value="Add ZIPKIN URL for config_server" />
+    <MESSAGE value="update token field lenght" />
+    <MESSAGE value="create delete by youtubeContentID process" />
+    <MESSAGE value="1 Consumer : Mongo return DuplicateKeyException NOT DuplicateDataException &#10;&#10;2./auth/token/refresh need to be open end point" />
+    <MESSAGE value="update Jenkinsfile-cloud wrong syntax error" />
+    <MESSAGE value="update gateway function for checking expiration day for both access and refresh" />
+    <MESSAGE value="Remove expiration logic using  &quot;.clockSkewSeconds(Integer.MAX_VALUE) &quot;&#10;because all Gateway will be the only place for expiration check" />
+    <option name="LAST_COMMIT_MESSAGE" value="Remove expiration logic using  &quot;.clockSkewSeconds(Integer.MAX_VALUE) &quot;&#10;because all Gateway will be the only place for expiration check" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint type="java-line">
+          <url>file://$PROJECT_DIR$/auth-service/src/main/java/com/adventuretube/auth/controller/AuthController.java</url>
+          <line>388</line>
+          <option name="timeStamp" value="285" />
+        </line-breakpoint>
+        <line-breakpoint type="java-line">
+          <url>file://$PROJECT_DIR$/auth-service/src/test/java/com/adventuretube/auth/support/GoogleTokenUtil.java</url>
+          <line>26</line>
+          <option name="timeStamp" value="294" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/gateway-service/src/test/java/com/adventuretube/apigateway/integration/GatewayJwtFilterIT.java</url>
+          <line>128</line>
+          <option name="timeStamp" value="297" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+    <pin-to-top-manager>
+      <pinned-members>
+        <PinnedItemInfo parentTag="org.springframework.security.web.firewall.StrictHttpFirewall$StrictFirewalledRequest" memberName="this$0" />
+        <PinnedItemInfo parentTag="com.adventuretube.common.client.ServiceClient" memberName="circuitBreakerFactory" />
+      </pinned-members>
+    </pin-to-top-manager>
+    <watches-manager>
+      <configuration name="JUnit">
+        <watch expression="request" />
+      </configuration>
+      <configuration name="SpringBootApplicationConfigurationType">
+        <watch expression="uri" />
+      </configuration>
+    </watches-manager>
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
+  </component>
+</project>

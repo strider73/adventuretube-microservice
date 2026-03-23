@@ -65,28 +65,95 @@ public class AuthController {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "201",
-                    description = "User registered successfully. Returns ServiceResponse<MemberRegisterResponse>.",
-                    content = @Content(schema = @Schema(implementation = ServiceResponse.class))
+                    description = "User registered successfully.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ServiceResponse.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "success": true,
+                                      "message": null,
+                                      "errorCode": null,
+                                      "data": {
+                                        "userId": "550e8400-e29b-41d4-a716-446655440000",
+                                        "accessToken": "eyJhbGciOiJIUzI1NiJ9...",
+                                        "refreshToken": "eyJhbGciOiJIUzI1NiJ9..."
+                                      },
+                                      "timestamp": "2026-03-22T14:00:00"
+                                    }
+                                    """)
+                    )
             ),
             @ApiResponse(
                     responseCode = "400",
                     description = "Validation failed - Invalid request body.",
-                    content = @Content(schema = @Schema(implementation = ServiceResponse.class))
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ServiceResponse.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "success": false,
+                                      "message": "Validation failed",
+                                      "errorCode": "VALIDATION_FAILED",
+                                      "data": {
+                                        "email": "Invalid email format",
+                                        "password": "Password must be between 6 and 20 characters"
+                                      },
+                                      "timestamp": "2026-03-22T14:00:00"
+                                    }
+                                    """)
+                    )
             ),
             @ApiResponse(
                     responseCode = "401",
                     description = "Unauthorized - Invalid Google ID token, email mismatch, or duplicate email.",
-                    content = @Content(schema = @Schema(implementation = ServiceResponse.class))
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ServiceResponse.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "success": false,
+                                      "message": "Google ID token is invalid",
+                                      "errorCode": "GOOGLE_TOKEN_INVALID",
+                                      "data": null,
+                                      "timestamp": "2026-03-22T14:00:00"
+                                    }
+                                    """)
+                    )
             ),
             @ApiResponse(
                     responseCode = "500",
                     description = "Internal Server Error.",
-                    content = @Content(schema = @Schema(implementation = ServiceResponse.class))
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ServiceResponse.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "success": false,
+                                      "message": "Internal server error",
+                                      "errorCode": "INTERNAL_ERROR",
+                                      "data": null,
+                                      "timestamp": "2026-03-22T14:00:00"
+                                    }
+                                    """)
+                    )
             ),
             @ApiResponse(
                     responseCode = "503",
                     description = "Service Unavailable - Member service unreachable.",
-                    content = @Content(schema = @Schema(implementation = ServiceResponse.class))
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ServiceResponse.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "success": false,
+                                      "message": "Member service is unavailable",
+                                      "errorCode": "SERVICE_UNAVAILABLE",
+                                      "data": null,
+                                      "timestamp": "2026-03-22T14:00:00"
+                                    }
+                                    """)
+                    )
             )
     })
     // This logic will be used when user logs in for the first time from the iOS application
@@ -124,28 +191,95 @@ public class AuthController {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Tokens issued successfully. Returns ServiceResponse<MemberRegisterResponse>.",
-                    content = @Content(schema = @Schema(implementation = ServiceResponse.class))
+                    description = "Tokens issued successfully.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ServiceResponse.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "success": true,
+                                      "message": null,
+                                      "errorCode": null,
+                                      "data": {
+                                        "userId": null,
+                                        "accessToken": "eyJhbGciOiJIUzI1NiJ9...",
+                                        "refreshToken": "eyJhbGciOiJIUzI1NiJ9..."
+                                      },
+                                      "timestamp": "2026-03-22T14:00:00"
+                                    }
+                                    """)
+                    )
             ),
             @ApiResponse(
                     responseCode = "400",
                     description = "Validation failed - Invalid request body.",
-                    content = @Content(schema = @Schema(implementation = ServiceResponse.class))
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ServiceResponse.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "success": false,
+                                      "message": "Validation failed",
+                                      "errorCode": "VALIDATION_FAILED",
+                                      "data": {
+                                        "email": "Invalid email format",
+                                        "password": "Password must be between 6 and 20 characters"
+                                      },
+                                      "timestamp": "2026-03-22T14:00:00"
+                                    }
+                                    """)
+                    )
             ),
             @ApiResponse(
                     responseCode = "401",
                     description = "Unauthorized - Invalid credentials, expired Google ID token, or user not found.",
-                    content = @Content(schema = @Schema(implementation = ServiceResponse.class))
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ServiceResponse.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "success": false,
+                                      "message": "Google ID token is invalid",
+                                      "errorCode": "GOOGLE_TOKEN_INVALID",
+                                      "data": null,
+                                      "timestamp": "2026-03-22T14:00:00"
+                                    }
+                                    """)
+                    )
             ),
             @ApiResponse(
                     responseCode = "500",
                     description = "Internal Server Error.",
-                    content = @Content(schema = @Schema(implementation = ServiceResponse.class))
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ServiceResponse.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "success": false,
+                                      "message": "Internal server error",
+                                      "errorCode": "INTERNAL_ERROR",
+                                      "data": null,
+                                      "timestamp": "2026-03-22T14:00:00"
+                                    }
+                                    """)
+                    )
             ),
             @ApiResponse(
                     responseCode = "503",
                     description = "Service Unavailable - Member service unreachable.",
-                    content = @Content(schema = @Schema(implementation = ServiceResponse.class))
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ServiceResponse.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "success": false,
+                                      "message": "Member service is unavailable",
+                                      "errorCode": "SERVICE_UNAVAILABLE",
+                                      "data": null,
+                                      "timestamp": "2026-03-22T14:00:00"
+                                    }
+                                    """)
+                    )
             )
     })
     @PostMapping(value = "/token")
@@ -179,23 +313,75 @@ public class AuthController {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Access token refreshed successfully. Returns ServiceResponse<MemberRegisterResponse>.",
-                    content = @Content(schema = @Schema(implementation = ServiceResponse.class))
+                    description = "Access token refreshed successfully.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ServiceResponse.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "success": true,
+                                      "message": null,
+                                      "errorCode": null,
+                                      "data": {
+                                        "userId": null,
+                                        "accessToken": "eyJhbGciOiJIUzI1NiJ9...",
+                                        "refreshToken": "eyJhbGciOiJIUzI1NiJ9..."
+                                      },
+                                      "timestamp": "2026-03-22T14:00:00"
+                                    }
+                                    """)
+                    )
             ),
             @ApiResponse(
                     responseCode = "401",
                     description = "Unauthorized - Refresh token is missing, invalid, expired, or not found.",
-                    content = @Content(schema = @Schema(implementation = ServiceResponse.class))
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ServiceResponse.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "success": false,
+                                      "message": "Token not found in the database",
+                                      "errorCode": "TOKEN_NOT_FOUND",
+                                      "data": null,
+                                      "timestamp": "2026-03-22T14:00:00"
+                                    }
+                                    """)
+                    )
             ),
             @ApiResponse(
                     responseCode = "500",
                     description = "Internal Server Error.",
-                    content = @Content(schema = @Schema(implementation = ServiceResponse.class))
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ServiceResponse.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "success": false,
+                                      "message": "Internal server error",
+                                      "errorCode": "INTERNAL_ERROR",
+                                      "data": null,
+                                      "timestamp": "2026-03-22T14:00:00"
+                                    }
+                                    """)
+                    )
             ),
             @ApiResponse(
                     responseCode = "503",
                     description = "Service Unavailable - Member service unreachable.",
-                    content = @Content(schema = @Schema(implementation = ServiceResponse.class))
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ServiceResponse.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "success": false,
+                                      "message": "Member service is unavailable",
+                                      "errorCode": "SERVICE_UNAVAILABLE",
+                                      "data": null,
+                                      "timestamp": "2026-03-22T14:00:00"
+                                    }
+                                    """)
+                    )
             )
     })
     @PostMapping(value = "/token/refresh")
@@ -234,17 +420,53 @@ public class AuthController {
             @ApiResponse(
                     responseCode = "200",
                     description = "User successfully logged out. Refresh token deleted.",
-                    content = @Content(schema = @Schema(implementation = ServiceResponse.class))
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ServiceResponse.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "success": true,
+                                      "message": "Logout has been successful",
+                                      "errorCode": null,
+                                      "data": true,
+                                      "timestamp": "2026-03-22T14:00:00"
+                                    }
+                                    """)
+                    )
             ),
             @ApiResponse(
                     responseCode = "401",
                     description = "Unauthorized - Invalid or missing refresh token.",
-                    content = @Content(schema = @Schema(implementation = ServiceResponse.class))
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ServiceResponse.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "success": false,
+                                      "message": "Token deletion failed",
+                                      "errorCode": "TOKEN_DELETION_FAILED",
+                                      "data": null,
+                                      "timestamp": "2026-03-22T14:00:00"
+                                    }
+                                    """)
+                    )
             ),
             @ApiResponse(
                     responseCode = "500",
                     description = "Internal Server Error - Token revocation failed.",
-                    content = @Content(schema = @Schema(implementation = ServiceResponse.class))
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ServiceResponse.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "success": false,
+                                      "message": "Internal server error",
+                                      "errorCode": "INTERNAL_ERROR",
+                                      "data": null,
+                                      "timestamp": "2026-03-22T14:00:00"
+                                    }
+                                    """)
+                    )
             )
     })
     @PostMapping(value = "/token/revoke")
@@ -275,18 +497,54 @@ public class AuthController {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "User deleted successfully. Returns ServiceResponse<Boolean>.",
-                    content = @Content(schema = @Schema(implementation = ServiceResponse.class))
+                    description = "User deleted successfully.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ServiceResponse.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "success": true,
+                                      "message": "User deleted successfully",
+                                      "errorCode": null,
+                                      "data": true,
+                                      "timestamp": "2026-03-22T14:00:00"
+                                    }
+                                    """)
+                    )
             ),
             @ApiResponse(
                     responseCode = "500",
                     description = "Internal Server Error - User deletion failed.",
-                    content = @Content(schema = @Schema(implementation = ServiceResponse.class))
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ServiceResponse.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "success": false,
+                                      "message": "Member deletion failed",
+                                      "errorCode": "MEMBER_DELETION_FAILED",
+                                      "data": null,
+                                      "timestamp": "2026-03-22T14:00:00"
+                                    }
+                                    """)
+                    )
             ),
             @ApiResponse(
                     responseCode = "503",
                     description = "Service Unavailable - Member service unreachable.",
-                    content = @Content(schema = @Schema(implementation = ServiceResponse.class))
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ServiceResponse.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "success": false,
+                                      "message": "Member service is unavailable",
+                                      "errorCode": "SERVICE_UNAVAILABLE",
+                                      "data": null,
+                                      "timestamp": "2026-03-22T14:00:00"
+                                    }
+                                    """)
+                    )
             )
     })
     @DeleteMapping(value = "/users")
