@@ -44,4 +44,11 @@ public class GeoDataService {
         return serviceClient.<JsonNode>getReactive(BASE_URL, "/geo/data/count",
                 new ParameterizedTypeReference<>() {}).block();
     }
+
+    public JsonNode findWithinBounds(double swLat, double swLng, double neLat, double neLng) {
+        String path = String.format("/geo/data/bounds?swLat=%s&swLng=%s&neLat=%s&neLng=%s",
+                swLat, swLng, neLat, neLng);
+        return serviceClient.<JsonNode>getReactive(BASE_URL, path,
+                new ParameterizedTypeReference<>() {}).block();
+    }
 }

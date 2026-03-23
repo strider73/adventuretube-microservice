@@ -37,7 +37,7 @@ public class JobStatusService {
     }
 
     public JobStatus markCompletedWithDuplicate(String trackingId) {
-        return updateStatus(trackingId, JobStatusEnum.COMPLETED,"DUPLICATE YOUTUBE ID",0,0);
+        return updateStatus(trackingId, JobStatusEnum.DUPLICATED,"DUPLICATE YOUTUBE ID",0,0);
     }
 
 

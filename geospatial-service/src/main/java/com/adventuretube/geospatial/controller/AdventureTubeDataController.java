@@ -85,6 +85,18 @@ public class AdventureTubeDataController {
         return ResponseEntity.ok(adventureTubeDataService.count());
     }
 
+    @Operation(summary = "Get geospatial data within bounding box")
+    @ApiResponse(responseCode = "200", description = "Data within bounds retrieved.")
+    @GetMapping("/data/bounds")
+    public ResponseEntity<List<AdventureTubeData>> findWithinBounds(
+            @RequestParam double swLat,
+            @RequestParam double swLng,
+            @RequestParam double neLat,
+            @RequestParam double neLng) {
+        log.info("GET /geo/data/bounds swLat={}, swLng={}, neLat={}, neLng={}", swLat, swLng, neLat, neLng);
+        return ResponseEntity.ok(adventureTubeDataService.findWithinBounds(swLng, swLat, neLng, neLat));
+    }
+
     @Operation(summary = "Update geospatial data by ID")
     @ApiResponse(responseCode = "200", description = "Data updated.")
     @PutMapping("/data/{id}")

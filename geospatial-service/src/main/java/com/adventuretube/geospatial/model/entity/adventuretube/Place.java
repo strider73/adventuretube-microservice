@@ -3,6 +3,8 @@ package com.adventuretube.geospatial.model.entity.adventuretube;
 import com.fasterxml.jackson.annotation.*;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.GeoSpatialIndexType;
+import org.springframework.data.mongodb.core.index.GeoSpatialIndexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
@@ -31,6 +33,7 @@ public class Place {
     private long youtubeTime;
     private String placeID;
     private String name;
+    @GeoSpatialIndexed(type = GeoSpatialIndexType.GEO_2DSPHERE)
     private Location location;
 
 

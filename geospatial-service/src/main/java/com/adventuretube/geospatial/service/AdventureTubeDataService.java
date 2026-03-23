@@ -5,6 +5,11 @@ import com.adventuretube.geospatial.exceptions.code.GeoErrorCode;
 import com.adventuretube.geospatial.model.entity.adventuretube.AdventureTubeData;
 import com.adventuretube.geospatial.repository.AdventureTubeDataRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.geo.Box;
+import org.springframework.data.geo.Point;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,6 +20,7 @@ import java.util.Optional;
 public class AdventureTubeDataService {
 
     private final AdventureTubeDataRepository repository;
+    private final MongoTemplate mongoTemplate;
 
     public List<AdventureTubeData> findAll() {
         return repository.findAll();
@@ -68,6 +74,14 @@ public class AdventureTubeDataService {
         repository.deleteById(data.getId());
     }
 
+
+    public List<AdventureTubeData> findWithinBounds(double swLng, double swLat, double neLng, double neLat) {
+        Query query = new Query(
+                Criteria.where("places.location")
+                        .within(new Box(new Point(swLng, swLat), new Point(neLng, neLat)))
+        );
+        return mongoTemplate.find(query, AdventureTubeData.class);
+    }
 
     public long count() {
         return repository.count();

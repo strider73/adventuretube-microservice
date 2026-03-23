@@ -75,6 +75,18 @@ public class GeoDataController {
         return ResponseEntity.ok(wrapResponse("Geospatial data retrieved", geoDataService.findByCategory(category)));
     }
 
+    @Operation(summary = "Get geospatial data within bounding box")
+    @ApiResponse(responseCode = "200", description = "Data within bounds retrieved.")
+    @GetMapping("/data/bounds")
+    public ResponseEntity<ServiceResponse<JsonNode>> findWithinBounds(
+            @RequestParam double swLat,
+            @RequestParam double swLng,
+            @RequestParam double neLat,
+            @RequestParam double neLng) {
+        return ResponseEntity.ok(wrapResponse("Geospatial data within bounds retrieved",
+                geoDataService.findWithinBounds(swLat, swLng, neLat, neLng)));
+    }
+
     @Operation(summary = "Get total count of geospatial data")
     @ApiResponse(responseCode = "200", description = "Count retrieved.")
     @GetMapping("/data/count")
