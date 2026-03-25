@@ -19,7 +19,7 @@ spec:
         image: docker.io/library/adventuretube-microservice-eureka-server:latest
         imagePullPolicy: Never
         ports:
-        - containerPort: 8761
+        - containerPort: 30761
         env:
         - name: EUREKA_CLIENT_REGISTER_WITH_EUREKA
           value: "false"
@@ -32,14 +32,14 @@ spec:
         readinessProbe:
           httpGet:
             path: /actuator/health
-            port: 8761
+            port: 30761
           initialDelaySeconds: 30
           periodSeconds: 10
           timeoutSeconds: 5
         livenessProbe:
           httpGet:
             path: /actuator/health
-            port: 8761
+            port: 30761
           initialDelaySeconds: 60
           periodSeconds: 15
           timeoutSeconds: 5
@@ -53,8 +53,8 @@ spec:
   selector:
     app: eureka-server
   ports:
-  - port: 8761
-    targetPort: 8761
+  - port: 30761
+    targetPort: 30761
     nodePort: 30761
 ---
 # Config Service
@@ -77,7 +77,7 @@ spec:
         image: docker.io/library/adventuretube-microservice-config-service:latest
         imagePullPolicy: Never
         ports:
-        - containerPort: 9297
+        - containerPort: 30297
         env:
         - name: SPRING_CLOUD_CONFIG_SERVER_NATIVE_SEARCH_LOCATIONS
           value: "file:/config"
@@ -88,14 +88,14 @@ spec:
         readinessProbe:
           httpGet:
             path: /actuator/health
-            port: 9297
+            port: 30297
           initialDelaySeconds: 30
           periodSeconds: 10
           timeoutSeconds: 5
         livenessProbe:
           httpGet:
             path: /actuator/health
-            port: 9297
+            port: 30297
           initialDelaySeconds: 60
           periodSeconds: 15
           timeoutSeconds: 5
@@ -109,8 +109,8 @@ spec:
   selector:
     app: config-service
   ports:
-  - port: 9297
-    targetPort: 9297
+  - port: 30297
+    targetPort: 30297
     nodePort: 30297
 ---
 # Gateway Service
@@ -133,7 +133,7 @@ spec:
         image: docker.io/library/adventuretube-microservice-gateway-service:latest
         imagePullPolicy: Never
         ports:
-        - containerPort: 8030
+        - containerPort: 30030
         - containerPort: 5004
         env:
         - name: CONFIG_SERVER_URL
@@ -149,14 +149,14 @@ spec:
         readinessProbe:
           httpGet:
             path: /actuator/health
-            port: 8030
+            port: 30030
           initialDelaySeconds: 45
           periodSeconds: 10
           timeoutSeconds: 5
         livenessProbe:
           httpGet:
             path: /actuator/health
-            port: 8030
+            port: 30030
           initialDelaySeconds: 90
           periodSeconds: 15
           timeoutSeconds: 5
@@ -171,8 +171,8 @@ spec:
     app: gateway-service
   ports:
   - name: http
-    port: 8030
-    targetPort: 8030
+    port: 30030
+    targetPort: 30030
     nodePort: 30030
   - name: debug
     port: 5004
