@@ -5,63 +5,77 @@ pipeline {
         string(name: 'BRANCH', defaultValue: 'main', description: 'Git branch to build and deploy')
     }
 
+    environment {
+        PI2_HOST = '192.168.1.105'
+        PI1_HOST = '192.168.1.199'
+        SSH_KEY  = '/home/jenkins/.ssh/id_rsa'
+        SSH_OPTS = '-o StrictHostKeyChecking=no'
+        REMOTE_DIR = '/home/strider/adventuretube-microservice'
+        CLOUD_IMAGES = 'eureka-server config-service gateway-service'
+    }
+
     stages {
+        stage('Sync Host Repo') {
+            steps {
+                sh """
+                    ssh -i ${SSH_KEY} ${SSH_OPTS} strider@${PI2_HOST} \
+                        "cd ${REMOTE_DIR} && git checkout -- . && git checkout ${params.BRANCH} && git pull origin ${params.BRANCH}"
+                """
+            }
+        }
+
         stage('Setup Environment Files') {
             steps {
                 withCredentials([
                     file(credentialsId: 'env.pi', variable: 'ENV_PI_FILE'),
                     file(credentialsId: 'env.pi2', variable: 'ENV_PI2_FILE')
                 ]) {
-                    sh '''
-                        rm -f env.pi env.pi2
-                        cp $ENV_PI_FILE ./env.pi
-                        cp $ENV_PI2_FILE ./env.pi2
-                        chmod 644 env.pi env.pi2
-                    '''
+                    sh """
+                        scp -i ${SSH_KEY} ${SSH_OPTS} \$ENV_PI_FILE strider@${PI2_HOST}:${REMOTE_DIR}/env.pi
+                        scp -i ${SSH_KEY} ${SSH_OPTS} \$ENV_PI2_FILE strider@${PI2_HOST}:${REMOTE_DIR}/env.pi2
+                    """
                 }
-            }
-        }
-
-        stage('Sync Host Repo') {
-            steps {
-                sh '''
-                    . ./env.pi2
-                    ssh -i /home/jenkins/.ssh/id_rsa -o StrictHostKeyChecking=no strider@$PI2_IP "cd ~/adventuretube-microservice && git checkout -- . && git pull"
-                '''
             }
         }
 
         stage('Build Maven & Docker Images') {
             steps {
-                sh "./adventuretube-cloud-create-dockerimage.sh pi2 \"${params.BRANCH}\""
+                sh """
+                    ssh -i ${SSH_KEY} ${SSH_OPTS} strider@${PI2_HOST} \
+                        "cd ${REMOTE_DIR} && ./adventuretube-cloud-create-dockerimage.sh pi2 ${params.BRANCH}"
+                """
             }
         }
 
         stage('Import Images to K3s') {
             steps {
-                sh '''
-                    . ./env.pi2
+                sh """
                     echo "Importing Docker images into K3s containerd on PI2..."
-                    ssh -i /home/jenkins/.ssh/id_rsa -o StrictHostKeyChecking=no strider@$PI2_IP "docker save adventuretube-microservice-eureka-server:latest | sudo k3s ctr images import -"
-                    ssh -i /home/jenkins/.ssh/id_rsa -o StrictHostKeyChecking=no strider@$PI2_IP "docker save adventuretube-microservice-config-service:latest | sudo k3s ctr images import -"
-                    ssh -i /home/jenkins/.ssh/id_rsa -o StrictHostKeyChecking=no strider@$PI2_IP "docker save adventuretube-microservice-gateway-service:latest | sudo k3s ctr images import -"
+                    for IMAGE in ${CLOUD_IMAGES}; do
+                        echo "  Importing adventuretube-microservice-\${IMAGE}:latest on PI2..."
+                        ssh -i ${SSH_KEY} ${SSH_OPTS} strider@${PI2_HOST} \
+                            "docker save adventuretube-microservice-\${IMAGE}:latest | sudo k3s ctr images import -"
+                    done
 
                     echo "Importing Docker images into K3s containerd on PI1..."
-                    ssh -i /home/jenkins/.ssh/id_rsa -o StrictHostKeyChecking=no strider@$PI2_IP "docker save adventuretube-microservice-eureka-server:latest" | ssh -i /home/jenkins/.ssh/id_rsa -o StrictHostKeyChecking=no strider@$PI1_IP "sudo k3s ctr images import -"
-                    ssh -i /home/jenkins/.ssh/id_rsa -o StrictHostKeyChecking=no strider@$PI2_IP "docker save adventuretube-microservice-config-service:latest" | ssh -i /home/jenkins/.ssh/id_rsa -o StrictHostKeyChecking=no strider@$PI1_IP "sudo k3s ctr images import -"
-                    ssh -i /home/jenkins/.ssh/id_rsa -o StrictHostKeyChecking=no strider@$PI2_IP "docker save adventuretube-microservice-gateway-service:latest" | ssh -i /home/jenkins/.ssh/id_rsa -o StrictHostKeyChecking=no strider@$PI1_IP "sudo k3s ctr images import -"
-                '''
+                    for IMAGE in ${CLOUD_IMAGES}; do
+                        echo "  Transferring adventuretube-microservice-\${IMAGE}:latest to PI1..."
+                        ssh -i ${SSH_KEY} ${SSH_OPTS} strider@${PI2_HOST} \
+                            "docker save adventuretube-microservice-\${IMAGE}:latest | ssh -i /home/strider/.ssh/id_ed25519 -o StrictHostKeyChecking=no strider@${PI1_HOST} 'sudo k3s ctr images import -'"
+                    done
+                """
             }
         }
 
         stage('Deploy to K3s') {
             steps {
-                sh '''
-                    . ./env.pi2
+                sh """
                     echo "Deploying to K3s via PI1 control plane..."
-                    ssh -i /home/jenkins/.ssh/id_rsa -o StrictHostKeyChecking=no strider@$PI1_IP "sudo kubectl apply --validate=false -f -" < k8s/cloud-services.yaml
-                    ssh -i /home/jenkins/.ssh/id_rsa -o StrictHostKeyChecking=no strider@$PI1_IP "sudo kubectl rollout restart deployment/eureka-server deployment/config-service deployment/gateway-service"
-                '''
+                    ssh -i ${SSH_KEY} ${SSH_OPTS} strider@${PI2_HOST} "cat ${REMOTE_DIR}/k8s/cloud-services.yaml" \
+                        | ssh -i ${SSH_KEY} ${SSH_OPTS} strider@${PI1_HOST} "sudo kubectl apply --validate=false -f -"
+                    ssh -i ${SSH_KEY} ${SSH_OPTS} strider@${PI1_HOST} \
+                        "sudo kubectl rollout restart deployment/eureka-server deployment/config-service deployment/gateway-service"
+                """
             }
         }
 
@@ -75,8 +89,8 @@ pipeline {
                         for (int i = 0; i < 10; i++) {
                             def status = sh(
                                 script: """
-                                    . ./env.pi2
-                                    ssh -i /home/jenkins/.ssh/id_rsa -o StrictHostKeyChecking=no strider@\$PI1_IP "sudo kubectl get deployment ${service} -o jsonpath='{.status.readyReplicas}'" || echo '0'
+                                    ssh -i ${SSH_KEY} ${SSH_OPTS} strider@${PI1_HOST} \
+                                        "sudo kubectl get deployment ${service} -o jsonpath='{.status.readyReplicas}'" || echo '0'
                                 """,
                                 returnStdout: true
                             ).trim()
