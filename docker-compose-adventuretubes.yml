@@ -91,16 +91,16 @@ services:
         BASE_IMAGE: ${BASE_IMAGE}
         MODULE_NAME: geospatial-service
         APP_PORT: ${GEO_PORT}
-        DEBUG_PORT: ${GEOSPATIAL_DEBUG_PORT}
+        DEBUG_PORT: ${GEO_DEBUG_PORT}
     ports:
       - "${GEO_PORT}:${GEO_PORT}"
-      - "${GEOSPATIAL_DEBUG_PORT}:${GEOSPATIAL_DEBUG_PORT}"
+      - "${GEO_DEBUG_PORT}:${GEO_DEBUG_PORT}"
     environment:
       - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
       - ENV_TARGET=${ENV_TARGET}
-      - JAVA_DEBUG_PORT=${GEOSPATIAL_DEBUG_PORT}
+      - JAVA_DEBUG_PORT=${GEO_DEBUG_PORT}
       - CONFIG_SERVER_URL=${CONFIG_SERVER_URL}
-      - JAVA_TOOL_OPTIONS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:${GEOSPATIAL_DEBUG_PORT}"
+      - JAVA_TOOL_OPTIONS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:${GEO_DEBUG_PORT}"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://geospatial-service:${GEO_PORT}/actuator/health"]
       interval: 10s
