@@ -45,11 +45,9 @@ pipeline {
                     ssh -i /home/jenkins/.ssh/id_rsa -o StrictHostKeyChecking=no strider@$PI2_IP "docker save adventuretube-microservice-eureka-server:latest | sudo k3s ctr images import -"
                     ssh -i /home/jenkins/.ssh/id_rsa -o StrictHostKeyChecking=no strider@$PI2_IP "docker save adventuretube-microservice-config-service:latest | sudo k3s ctr images import -"
                     ssh -i /home/jenkins/.ssh/id_rsa -o StrictHostKeyChecking=no strider@$PI2_IP "docker save adventuretube-microservice-gateway-service:latest | sudo k3s ctr images import -"
-
-                    echo "Importing Docker images into K3s containerd on PI1..."
-                    ssh -i /home/jenkins/.ssh/id_rsa -o StrictHostKeyChecking=no strider@$PI2_IP "docker save adventuretube-microservice-eureka-server:latest" | ssh -i /home/jenkins/.ssh/id_rsa -o StrictHostKeyChecking=no strider@$PI1_IP "sudo k3s ctr images import -"
-                    ssh -i /home/jenkins/.ssh/id_rsa -o StrictHostKeyChecking=no strider@$PI2_IP "docker save adventuretube-microservice-config-service:latest" | ssh -i /home/jenkins/.ssh/id_rsa -o StrictHostKeyChecking=no strider@$PI1_IP "sudo k3s ctr images import -"
-                    ssh -i /home/jenkins/.ssh/id_rsa -o StrictHostKeyChecking=no strider@$PI2_IP "docker save adventuretube-microservice-gateway-service:latest" | ssh -i /home/jenkins/.ssh/id_rsa -o StrictHostKeyChecking=no strider@$PI1_IP "sudo k3s ctr images import -"
+                    echo "PI2 K3s image import completed."
+                    echo "Note: PI1 image sync skipped in pipeline (too heavy for Jenkins agent). Run manually if needed:"
+                    echo "  ssh strider@PI2 'docker save <image>:latest' | ssh strider@PI1 'sudo k3s ctr images import -'"
                 '''
             }
         }
