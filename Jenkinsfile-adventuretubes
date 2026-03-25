@@ -56,6 +56,8 @@ pipeline {
                         echo "  Importing adventuretube-microservice-\${IMAGE}:latest on PI2..."
                         ssh -i ${SSH_KEY} ${SSH_OPTS} strider@${PI2_HOST} \
                             "docker save adventuretube-microservice-\${IMAGE}:latest | sudo k3s ctr images import -"
+                        ssh -i ${SSH_KEY} ${SSH_OPTS} strider@${PI2_HOST} \
+                            "sync && echo 3 | sudo tee /proc/sys/vm/drop_caches > /dev/null"
                     done
 
                     echo "Importing Docker images into K3s containerd on PI1..."
@@ -63,6 +65,8 @@ pipeline {
                         echo "  Transferring adventuretube-microservice-\${IMAGE}:latest to PI1..."
                         ssh -i ${SSH_KEY} ${SSH_OPTS} strider@${PI2_HOST} \
                             "docker save adventuretube-microservice-\${IMAGE}:latest | ssh -i /home/strider/.ssh/id_ed25519 -o StrictHostKeyChecking=no strider@${PI1_HOST} 'sudo k3s ctr images import -'"
+                        ssh -i ${SSH_KEY} ${SSH_OPTS} strider@${PI2_HOST} \
+                            "sync && echo 3 | sudo tee /proc/sys/vm/drop_caches > /dev/null"
                     done
                 """
             }
