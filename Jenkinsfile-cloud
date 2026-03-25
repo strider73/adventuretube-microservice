@@ -24,7 +24,6 @@ pipeline {
 
         stage('Sync Host Repo') {
             steps {
-                // Jenkins container SSHs into Pi2 as strider, then strider pulls from GitHub
                 sh '''
                     . ./env.pi2
                     ssh -i /home/jenkins/.ssh/id_rsa -o StrictHostKeyChecking=no strider@$PI2_IP "cd ~/adventuretube-microservice && git checkout -- . && git pull"
@@ -32,34 +31,63 @@ pipeline {
             }
         }
 
-        stage('Run Deployment Script') {
+        stage('Build Maven & Docker Images') {
             steps {
-                sh "./adventuretube-cloud-redeploy.sh pi2 \"${params.BRANCH}\""
+                sh "./adventuretube-cloud-create-dockerimage.sh pi2 \"${params.BRANCH}\""
             }
         }
-        
-        stage('Check Docker Container Health') {
+
+        stage('Import Images to K3s') {
+            steps {
+                sh '''
+                    . ./env.pi2
+                    echo "Importing Docker images into K3s containerd on PI2..."
+                    ssh -i /home/jenkins/.ssh/id_rsa -o StrictHostKeyChecking=no strider@$PI2_IP "docker save adventuretube-microservice-eureka-server:latest | sudo k3s ctr images import -"
+                    ssh -i /home/jenkins/.ssh/id_rsa -o StrictHostKeyChecking=no strider@$PI2_IP "docker save adventuretube-microservice-config-service:latest | sudo k3s ctr images import -"
+                    ssh -i /home/jenkins/.ssh/id_rsa -o StrictHostKeyChecking=no strider@$PI2_IP "docker save adventuretube-microservice-gateway-service:latest | sudo k3s ctr images import -"
+
+                    echo "Importing Docker images into K3s containerd on PI1..."
+                    ssh -i /home/jenkins/.ssh/id_rsa -o StrictHostKeyChecking=no strider@$PI2_IP "docker save adventuretube-microservice-eureka-server:latest" | ssh -i /home/jenkins/.ssh/id_rsa -o StrictHostKeyChecking=no strider@$PI1_IP "sudo k3s ctr images import -"
+                    ssh -i /home/jenkins/.ssh/id_rsa -o StrictHostKeyChecking=no strider@$PI2_IP "docker save adventuretube-microservice-config-service:latest" | ssh -i /home/jenkins/.ssh/id_rsa -o StrictHostKeyChecking=no strider@$PI1_IP "sudo k3s ctr images import -"
+                    ssh -i /home/jenkins/.ssh/id_rsa -o StrictHostKeyChecking=no strider@$PI2_IP "docker save adventuretube-microservice-gateway-service:latest" | ssh -i /home/jenkins/.ssh/id_rsa -o StrictHostKeyChecking=no strider@$PI1_IP "sudo k3s ctr images import -"
+                '''
+            }
+        }
+
+        stage('Deploy to K3s') {
+            steps {
+                sh '''
+                    . ./env.pi2
+                    echo "Deploying to K3s via PI1 control plane..."
+                    ssh -i /home/jenkins/.ssh/id_rsa -o StrictHostKeyChecking=no strider@$PI1_IP "sudo kubectl apply --validate=false -f -" < k8s/cloud-services.yaml
+                    ssh -i /home/jenkins/.ssh/id_rsa -o StrictHostKeyChecking=no strider@$PI1_IP "sudo kubectl rollout restart deployment/eureka-server deployment/config-service deployment/gateway-service"
+                '''
+            }
+        }
+
+        stage('Check K3s Pod Health') {
             steps {
                 script {
-                    def services = ["adventuretube-microservice-eureka-server-1",
-                                    "adventuretube-microservice-config-service-1",
-                                    "adventuretube-microservice-gateway-service-1"]
+                    def services = ["eureka-server", "config-service", "gateway-service"]
 
                     services.each { service ->
                         def serviceReady = false
-                        for (int i = 0; i < 5; i++) {
+                        for (int i = 0; i < 10; i++) {
                             def status = sh(
-                                script: "docker inspect --format='{{.State.Health.Status}}' ${service} || echo 'unhealthy'",
+                                script: """
+                                    . ./env.pi2
+                                    ssh -i /home/jenkins/.ssh/id_rsa -o StrictHostKeyChecking=no strider@\$PI1_IP "sudo kubectl get deployment ${service} -o jsonpath='{.status.readyReplicas}'" || echo '0'
+                                """,
                                 returnStdout: true
                             ).trim()
 
-                            if (status == 'healthy') {
+                            if (status == '1') {
                                 serviceReady = true
-                                echo "${service} is healthy."
+                                echo "${service} is ready."
                                 break
                             }
 
-                            echo "${service} is not ready yet. Retrying in 30 seconds..."
+                            echo "${service} is not ready yet (ready: ${status}). Retrying in 30 seconds..."
                             sleep(30)
                         }
 

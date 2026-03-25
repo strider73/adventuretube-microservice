@@ -1,0 +1,180 @@
+---
+# Eureka Server
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eureka-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: eureka-server
+  template:
+    metadata:
+      labels:
+        app: eureka-server
+    spec:
+      containers:
+      - name: eureka-server
+        image: docker.io/library/adventuretube-microservice-eureka-server:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8761
+        env:
+        - name: EUREKA_CLIENT_REGISTER_WITH_EUREKA
+          value: "false"
+        - name: EUREKA_CLIENT_FETCH_REGISTRY
+          value: "false"
+        - name: SPRING_PROFILES_ACTIVE
+          value: "pi2"
+        - name: ENV_TARGET
+          value: "pi2"
+        readinessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8761
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8761
+          initialDelaySeconds: 60
+          periodSeconds: 15
+          timeoutSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: eureka-server
+spec:
+  type: NodePort
+  selector:
+    app: eureka-server
+  ports:
+  - port: 8761
+    targetPort: 8761
+    nodePort: 30761
+---
+# Config Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: config-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: config-service
+  template:
+    metadata:
+      labels:
+        app: config-service
+    spec:
+      containers:
+      - name: config-service
+        image: docker.io/library/adventuretube-microservice-config-service:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 9297
+        env:
+        - name: SPRING_CLOUD_CONFIG_SERVER_NATIVE_SEARCH_LOCATIONS
+          value: "file:/config"
+        - name: SPRING_PROFILES_ACTIVE
+          value: "pi2"
+        - name: ENV_TARGET
+          value: "pi2"
+        readinessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 9297
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 9297
+          initialDelaySeconds: 60
+          periodSeconds: 15
+          timeoutSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: config-service
+spec:
+  type: NodePort
+  selector:
+    app: config-service
+  ports:
+  - port: 9297
+    targetPort: 9297
+    nodePort: 30297
+---
+# Gateway Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gateway-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gateway-service
+  template:
+    metadata:
+      labels:
+        app: gateway-service
+    spec:
+      containers:
+      - name: gateway-service
+        image: docker.io/library/adventuretube-microservice-gateway-service:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8030
+        - containerPort: 5004
+        env:
+        - name: CONFIG_SERVER_URL
+          value: "http://192.168.1.199:30297"
+        - name: SPRING_PROFILES_ACTIVE
+          value: "pi2"
+        - name: ENV_TARGET
+          value: "pi2"
+        - name: JAVA_TOOL_OPTIONS
+          value: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5004"
+        - name: JAVA_DEBUG_PORT
+          value: "5004"
+        readinessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8030
+          initialDelaySeconds: 45
+          periodSeconds: 10
+          timeoutSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8030
+          initialDelaySeconds: 90
+          periodSeconds: 15
+          timeoutSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gateway-service
+spec:
+  type: NodePort
+  selector:
+    app: gateway-service
+  ports:
+  - name: http
+    port: 8030
+    targetPort: 8030
+    nodePort: 30030
+  - name: debug
+    port: 5004
+    targetPort: 5004
+    nodePort: 30004
