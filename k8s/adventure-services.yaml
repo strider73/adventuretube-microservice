@@ -14,6 +14,8 @@ spec:
       labels:
         app: auth-service
     spec:
+      nodeSelector:
+        kubernetes.io/hostname: strider-pi2
       containers:
       - name: auth-service
         image: docker.io/library/adventuretube-microservice-auth-service:latest
@@ -71,6 +73,8 @@ spec:
       labels:
         app: member-service
     spec:
+      nodeSelector:
+        kubernetes.io/hostname: strider-pi2
       containers:
       - name: member-service
         image: docker.io/library/adventuretube-microservice-member-service:latest
@@ -128,6 +132,8 @@ spec:
       labels:
         app: web-service
     spec:
+      nodeSelector:
+        kubernetes.io/hostname: strider-pi2
       containers:
       - name: web-service
         image: docker.io/library/adventuretube-microservice-web-service:latest
@@ -185,6 +191,8 @@ spec:
       labels:
         app: geospatial-service
     spec:
+      nodeSelector:
+        kubernetes.io/hostname: strider-pi2
       containers:
       - name: geospatial-service
         image: docker.io/library/adventuretube-microservice-geospatial-service:latest

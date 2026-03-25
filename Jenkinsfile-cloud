@@ -60,14 +60,8 @@ pipeline {
                             "sync && echo 3 | sudo tee /proc/sys/vm/drop_caches > /dev/null"
                     done
 
-                    echo "Importing Docker images into K3s containerd on PI1..."
-                    for IMAGE in ${CLOUD_IMAGES}; do
-                        echo "  Transferring adventuretube-microservice-\${IMAGE}:latest to PI1..."
-                        ssh -i ${SSH_KEY} ${SSH_OPTS} strider@${PI2_HOST} \
-                            "docker save adventuretube-microservice-\${IMAGE}:latest | ssh -i /home/strider/.ssh/id_ed25519 -o StrictHostKeyChecking=no strider@${PI1_HOST} 'sudo k3s ctr images import -'"
-                        ssh -i ${SSH_KEY} ${SSH_OPTS} strider@${PI2_HOST} \
-                            "sync && echo 3 | sudo tee /proc/sys/vm/drop_caches > /dev/null"
-                    done
+                    # PI1 transfer skipped — pods pinned to PI2 via nodeSelector
+                    # Re-enable when PI2 has more RAM or Docker is replaced with nerdctl
                 """
             }
         }

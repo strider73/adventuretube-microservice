@@ -14,6 +14,8 @@ spec:
       labels:
         app: eureka-server
     spec:
+      nodeSelector:
+        kubernetes.io/hostname: strider-pi2
       containers:
       - name: eureka-server
         image: docker.io/library/adventuretube-microservice-eureka-server:latest
@@ -72,6 +74,8 @@ spec:
       labels:
         app: config-service
     spec:
+      nodeSelector:
+        kubernetes.io/hostname: strider-pi2
       containers:
       - name: config-service
         image: docker.io/library/adventuretube-microservice-config-service:latest
@@ -128,6 +132,8 @@ spec:
       labels:
         app: gateway-service
     spec:
+      nodeSelector:
+        kubernetes.io/hostname: strider-pi2
       containers:
       - name: gateway-service
         image: docker.io/library/adventuretube-microservice-gateway-service:latest
