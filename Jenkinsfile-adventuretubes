@@ -1,80 +1,108 @@
+// Host-native pipeline: all heavy work runs on PI2 host via SSH
 pipeline {
-    agent { label 'jenkins-agent2' }
+    agent {label 'jenkins-agent2'}
 
     parameters {
         string(name: 'BRANCH', defaultValue: 'main', description: 'Git branch to build and deploy')
     }
 
     environment {
-        ENVIRONMENT = "pi2" // Set the environment dynamically if needed
+        PI2_HOST = '192.168.1.105'
+        PI1_HOST = '192.168.1.199'
+        SSH_KEY  = '/home/jenkins/.ssh/id_rsa'
+        SSH_OPTS = '-o StrictHostKeyChecking=no'
+        REMOTE_DIR = '/home/strider/adventuretube-microservice'
+        SERVICE_IMAGES = 'auth-service member-service web-service geospatial-service'
     }
-    stages {
-        stage('Setup Environment Files') {
-            steps {
-                // Extract env files from Jenkins credentials to workspace
-                withCredentials([
-                    file(credentialsId: 'env.pi2', variable: 'ENV_PI2'),
-                    file(credentialsId: 'env.pi', variable: 'ENV_PI')
-                ]) {
-                    sh '''
-                        rm -f env.pi2 env.pi
-                        cat $ENV_PI2 > env.pi2
-                        cat $ENV_PI > env.pi
-                        chmod 644 env.pi2 env.pi
-                    '''
-                }
-            }
-        }
 
+    stages {
         stage('Sync Host Repo') {
             steps {
-                // Jenkins container SSHs into Pi2 as strider, then strider pulls from GitHub
-                sh '''
-                    . ./env.pi2
-                    ssh -i /home/jenkins/.ssh/id_rsa -o StrictHostKeyChecking=no strider@$PI2_IP "cd ~/adventuretube-microservice && git checkout -- . && git pull"
-                '''
+                sh """
+                    ssh -i ${SSH_KEY} ${SSH_OPTS} strider@${PI2_HOST} \
+                        "cd ${REMOTE_DIR} && git checkout -- . && git checkout ${params.BRANCH} && git pull origin ${params.BRANCH}"
+                """
             }
         }
 
-        stage('Run Deployment Script') {
+        stage('Setup Environment Files') {
             steps {
-                script {
-                    // Execute the deployment shell script for service modules
+                withCredentials([
+                    file(credentialsId: 'env.pi', variable: 'ENV_PI_FILE'),
+                    file(credentialsId: 'env.pi2', variable: 'ENV_PI2_FILE')
+                ]) {
                     sh """
-                    chmod +x adventuretube-service-redeploy.sh
-                    ./adventuretube-service-redeploy.sh ${ENVIRONMENT} "${params.BRANCH}"
+                        scp -i ${SSH_KEY} ${SSH_OPTS} \$ENV_PI_FILE strider@${PI2_HOST}:${REMOTE_DIR}/env.pi
+                        scp -i ${SSH_KEY} ${SSH_OPTS} \$ENV_PI2_FILE strider@${PI2_HOST}:${REMOTE_DIR}/env.pi2
                     """
                 }
             }
         }
 
-        stage('Check Docker Container Health') {
+        stage('Build Maven & Docker Images') {
+            steps {
+                sh """
+                    ssh -i ${SSH_KEY} ${SSH_OPTS} strider@${PI2_HOST} \
+                        "cd ${REMOTE_DIR} && ./adventuretube-service-create-dockerimage.sh pi2 ${params.BRANCH}"
+                """
+            }
+        }
+
+        stage('Import Images to K3s') {
+            steps {
+                sh """
+                    echo "Importing Docker images into K3s containerd on PI2..."
+                    for IMAGE in ${SERVICE_IMAGES}; do
+                        echo "  Importing adventuretube-microservice-\${IMAGE}:latest on PI2..."
+                        ssh -i ${SSH_KEY} ${SSH_OPTS} strider@${PI2_HOST} \
+                            "docker save adventuretube-microservice-\${IMAGE}:latest | sudo k3s ctr images import -"
+                    done
+
+                    echo "Importing Docker images into K3s containerd on PI1..."
+                    for IMAGE in ${SERVICE_IMAGES}; do
+                        echo "  Transferring adventuretube-microservice-\${IMAGE}:latest to PI1..."
+                        ssh -i ${SSH_KEY} ${SSH_OPTS} strider@${PI2_HOST} \
+                            "docker save adventuretube-microservice-\${IMAGE}:latest | ssh -i /home/strider/.ssh/id_ed25519 -o StrictHostKeyChecking=no strider@${PI1_HOST} 'sudo k3s ctr images import -'"
+                    done
+                """
+            }
+        }
+
+        stage('Deploy to K3s') {
+            steps {
+                sh """
+                    echo "Deploying to K3s via PI1 control plane..."
+                    ssh -i ${SSH_KEY} ${SSH_OPTS} strider@${PI2_HOST} "cat ${REMOTE_DIR}/k8s/adventure-services.yaml" \
+                        | ssh -i ${SSH_KEY} ${SSH_OPTS} strider@${PI1_HOST} "sudo kubectl apply --validate=false -f -"
+                    ssh -i ${SSH_KEY} ${SSH_OPTS} strider@${PI1_HOST} \
+                        "sudo kubectl rollout restart deployment/auth-service deployment/member-service deployment/web-service deployment/geospatial-service"
+                """
+            }
+        }
+
+        stage('Check K3s Pod Health') {
             steps {
                 script {
-                    // List of service containers to check
-                    def services = [
-                        "adventuretube-microservice-auth-service-1",
-                        "adventuretube-microservice-member-service-1",
-                        "adventuretube-microservice-web-service-1",
-                        "adventuretube-microservice-geospatial-service-1"
-                    ]
+                    def services = ["auth-service", "member-service", "web-service", "geospatial-service"]
 
-                    // Check health for each container
                     services.each { service ->
                         def serviceReady = false
                         for (int i = 0; i < 10; i++) {
                             def status = sh(
-                                script: "docker inspect --format='{{.State.Health.Status}}' ${service} || echo 'unhealthy'",
+                                script: """
+                                    ssh -i ${SSH_KEY} ${SSH_OPTS} strider@${PI1_HOST} \
+                                        "sudo kubectl get deployment ${service} -o jsonpath='{.status.readyReplicas}'" || echo '0'
+                                """,
                                 returnStdout: true
                             ).trim()
 
-                            if (status == 'healthy') {
+                            if (status == '1') {
                                 serviceReady = true
-                                echo "${service} is healthy."
+                                echo "${service} is ready."
                                 break
                             }
 
-                            echo "${service} is not ready yet. Retrying in 30 seconds..."
+                            echo "${service} is not ready yet (ready: ${status}). Retrying in 30 seconds..."
                             sleep(30)
                         }
 
