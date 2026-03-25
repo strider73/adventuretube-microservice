@@ -1,5 +1,5 @@
 server:
-  port: ${GEOSPATIAL_SERVICE_PORT}
+  port: ${GEO_PORT}
 
 spring:
   # Network interface selection for Eureka registration

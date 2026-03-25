@@ -8,10 +8,10 @@ services:
       args:
         BASE_IMAGE: ${BASE_IMAGE}
         MODULE_NAME: auth-service
-        APP_PORT: ${AUTH_SERVICE_PORT}
+        APP_PORT: ${AUTH_PORT}
         DEBUG_PORT: ${AUTH_DEBUG_PORT}
     ports:
-      - "${AUTH_SERVICE_PORT}:${AUTH_SERVICE_PORT}"
+      - "${AUTH_PORT}:${AUTH_PORT}"
       - "${AUTH_DEBUG_PORT}:${AUTH_DEBUG_PORT}"
     environment:
       - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
@@ -21,7 +21,7 @@ services:
       - JAVA_TOOL_OPTIONS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:${AUTH_DEBUG_PORT}"
 
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://auth-service:${AUTH_SERVICE_PORT}/actuator/health"]
+      test: ["CMD", "curl", "-f", "http://auth-service:${AUTH_PORT}/actuator/health"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -36,10 +36,10 @@ services:
       args:
         BASE_IMAGE: ${BASE_IMAGE}
         MODULE_NAME: member-service
-        APP_PORT: ${MEMBER_SERVICE_PORT}
+        APP_PORT: ${MEMBER_PORT}
         DEBUG_PORT: ${MEMBER_DEBUG_PORT}
     ports:
-      - "${MEMBER_SERVICE_PORT}:${MEMBER_SERVICE_PORT}"
+      - "${MEMBER_PORT}:${MEMBER_PORT}"
       - "${MEMBER_DEBUG_PORT}:${MEMBER_DEBUG_PORT}"
     environment:
       - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
@@ -48,7 +48,7 @@ services:
       - CONFIG_SERVER_URL=${CONFIG_SERVER_URL}
       - JAVA_TOOL_OPTIONS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:${MEMBER_DEBUG_PORT}"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://member-service:${MEMBER_SERVICE_PORT}/actuator/health"]
+      test: ["CMD", "curl", "-f", "http://member-service:${MEMBER_PORT}/actuator/health"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -63,10 +63,10 @@ services:
       args:
         BASE_IMAGE: ${BASE_IMAGE}
         MODULE_NAME: web-service
-        APP_PORT: ${WEB_SERVICE_PORT}
+        APP_PORT: ${WEB_PORT}
         DEBUG_PORT: ${WEB_DEBUG_PORT}
     ports:
-      - "${WEB_SERVICE_PORT}:${WEB_SERVICE_PORT}"
+      - "${WEB_PORT}:${WEB_PORT}"
       - "${WEB_DEBUG_PORT}:${WEB_DEBUG_PORT}"
     environment:
       - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
@@ -75,7 +75,7 @@ services:
       - CONFIG_SERVER_URL=${CONFIG_SERVER_URL}
       - JAVA_TOOL_OPTIONS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:${WEB_DEBUG_PORT}"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://web-service:${WEB_SERVICE_PORT}/actuator/health"]
+      test: ["CMD", "curl", "-f", "http://web-service:${WEB_PORT}/actuator/health"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -90,10 +90,10 @@ services:
       args:
         BASE_IMAGE: ${BASE_IMAGE}
         MODULE_NAME: geospatial-service
-        APP_PORT: ${GEOSPATIAL_SERVICE_PORT}
+        APP_PORT: ${GEO_PORT}
         DEBUG_PORT: ${GEOSPATIAL_DEBUG_PORT}
     ports:
-      - "${GEOSPATIAL_SERVICE_PORT}:${GEOSPATIAL_SERVICE_PORT}"
+      - "${GEO_PORT}:${GEO_PORT}"
       - "${GEOSPATIAL_DEBUG_PORT}:${GEOSPATIAL_DEBUG_PORT}"
     environment:
       - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
@@ -102,7 +102,7 @@ services:
       - CONFIG_SERVER_URL=${CONFIG_SERVER_URL}
       - JAVA_TOOL_OPTIONS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:${GEOSPATIAL_DEBUG_PORT}"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://geospatial-service:${GEOSPATIAL_SERVICE_PORT}/actuator/health"]
+      test: ["CMD", "curl", "-f", "http://geospatial-service:${GEO_PORT}/actuator/health"]
       interval: 10s
       timeout: 5s
       retries: 5

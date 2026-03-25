@@ -1,5 +1,5 @@
 server:
-  port: ${WEB_SERVICE_PORT}
+  port: ${WEB_PORT}
 
 spring:
   # Network interface selection for Eureka registration
