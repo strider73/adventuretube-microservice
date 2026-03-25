@@ -1,3 +1,4 @@
+// Host-native pipeline: all heavy work runs on PI2 host via SSH
 pipeline {
     agent {label 'jenkins-agent2'}
 
