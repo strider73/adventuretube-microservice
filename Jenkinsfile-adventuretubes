@@ -71,9 +71,9 @@ pipeline {
                 sh """
                     echo "Deploying to K3s via PI1 control plane..."
                     ssh -i ${SSH_KEY} ${SSH_OPTS} strider@${PI2_HOST} "cat ${REMOTE_DIR}/k8s/adventure-services.yaml" \
-                        | ssh -i ${SSH_KEY} ${SSH_OPTS} strider@${PI1_HOST} "sudo kubectl apply --validate=false -f -"
+                        | ssh -i ${SSH_KEY} ${SSH_OPTS} strider@${PI1_HOST} "sudo kubectl apply --validate=false -f - -n adventuretube"
                     ssh -i ${SSH_KEY} ${SSH_OPTS} strider@${PI1_HOST} \
-                        "sudo kubectl rollout restart deployment/auth-service deployment/member-service deployment/web-service deployment/geospatial-service"
+                        "sudo kubectl rollout restart deployment/auth-service deployment/member-service deployment/web-service deployment/geospatial-service -n adventuretube"
                 """
             }
         }
@@ -89,7 +89,7 @@ pipeline {
                             def status = sh(
                                 script: """
                                     ssh -i ${SSH_KEY} ${SSH_OPTS} strider@${PI1_HOST} \
-                                        "sudo kubectl get deployment ${service} -o jsonpath='{.status.readyReplicas}'" || echo '0'
+                                        "sudo kubectl get deployment ${service} -n adventuretube -o jsonpath='{.status.readyReplicas}'" || echo '0'
                                 """,
                                 returnStdout: true
                             ).trim()

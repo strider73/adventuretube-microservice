@@ -4,6 +4,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: auth-service
+  namespace: adventuretube
 spec:
   replicas: 1
   selector:
@@ -48,6 +49,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: auth-service
+  namespace: adventuretube
 spec:
   type: NodePort
   selector:
@@ -63,6 +65,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: member-service
+  namespace: adventuretube
 spec:
   replicas: 1
   selector:
@@ -107,6 +110,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: member-service
+  namespace: adventuretube
 spec:
   type: NodePort
   selector:
@@ -122,6 +126,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: web-service
+  namespace: adventuretube
 spec:
   replicas: 1
   selector:
@@ -166,6 +171,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: web-service
+  namespace: adventuretube
 spec:
   type: NodePort
   selector:
@@ -181,6 +187,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: geospatial-service
+  namespace: adventuretube
 spec:
   replicas: 1
   selector:
@@ -225,6 +232,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: geospatial-service
+  namespace: adventuretube
 spec:
   type: NodePort
   selector:
