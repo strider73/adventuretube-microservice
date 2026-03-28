@@ -3,7 +3,7 @@ package com.adventuretube.geospatial.kafka;
 import org.springframework.dao.DuplicateKeyException;
 import com.adventuretube.geospatial.model.entity.adventuretube.AdventureTubeData;
 import com.adventuretube.geospatial.service.AdventureTubeDataService;
-import com.adventuretube.geospatial.service.JobStatusService;
+import com.adventuretube.geospatial.service.PublishStoryJobStatusService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -14,12 +14,14 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class Consumer {
-    private static final Logger logger = LoggerFactory.getLogger(Consumer.class);
+public class PublishStoryConsumer {
+    private static final Logger logger = LoggerFactory.getLogger(PublishStoryConsumer.class);
 
     private final AdventureTubeDataService adventureTubeDataService;
-    private final JobStatusService jobStatusService;
+    private final PublishStoryJobStatusService publishStoryJobStatusService;
     private final ObjectMapper objectMapper;
+
+    private final Producer producer;
 
     @KafkaListener(topics = "adventuretube-data", groupId = "${spring.kafka.consumer.group-id}")
     public void consume(String message) {
@@ -45,7 +47,7 @@ public class Consumer {
             case DELETE -> handleDelete(kafkaMessage, trackingId);
             default -> {
                 logger.error("Unknown action: {}, skipping", kafkaMessage.getAction());
-                jobStatusService.markFailed(trackingId, "Unknown action: " + kafkaMessage.getAction());
+                publishStoryJobStatusService.markFailed(trackingId, "Unknown action: " + kafkaMessage.getAction());
             }
         }
     }
@@ -54,7 +56,7 @@ public class Consumer {
         AdventureTubeData data = kafkaMessage.getData();
         if (data == null) {
             logger.error("SAVE action but data is null, trackingId={}", trackingId);
-            jobStatusService.markFailed(trackingId, "Data is null");
+            publishStoryJobStatusService.markFailed(trackingId, "Data is null");
             return;
         }
 
@@ -63,13 +65,16 @@ public class Consumer {
             logger.info("Saved AdventureTubeData: youtubeContentID={}", saved.getYoutubeContentID());
             int chaptersCount = saved.getChapters() != null ? saved.getChapters().size() : 0;
             int placesCount = saved.getPlaces() != null ? saved.getPlaces().size() : 0;
-            jobStatusService.markCompleted(trackingId, chaptersCount, placesCount);
+            publishStoryJobStatusService.markCompleted(trackingId, chaptersCount, placesCount);
+            //trigger async screenshot generation
+            producer.sendScreenshotRequest(data.getYoutubeContentID(), data);
+
         } catch (DuplicateKeyException e) {
             logger.warn("Duplicate youtubeContentID={}, skipping", data.getYoutubeContentID());
-            jobStatusService.markCompletedWithDuplicate(trackingId);
+            publishStoryJobStatusService.markCompletedWithDuplicate(trackingId);
         } catch (Exception e) {
             logger.error("Failed to save AdventureTubeData: {}", e.getMessage(), e);
-            jobStatusService.markFailed(trackingId, e.getMessage());
+            publishStoryJobStatusService.markFailed(trackingId, e.getMessage());
         }
     }
 
@@ -79,17 +84,17 @@ public class Consumer {
 
         if (youtubeContentId == null || ownerEmail == null) {
             logger.error("DELETE action but missing youtubeContentId or ownerEmail, trackingId={}", trackingId);
-            jobStatusService.markFailed(trackingId, "Missing youtubeContentId or ownerEmail");
+            publishStoryJobStatusService.markFailed(trackingId, "Missing youtubeContentId or ownerEmail");
             return;
         }
 
         try {
             adventureTubeDataService.deleteByYoutubeContentIdAndOwnerEmail(youtubeContentId, ownerEmail);
             logger.info("Deleted AdventureTubeData: youtubeContentID={}", youtubeContentId);
-            jobStatusService.markCompleted(trackingId, 0, 0);
+            publishStoryJobStatusService.markCompleted(trackingId, 0, 0);
         } catch (Exception e) {
             logger.error("Failed to delete AdventureTubeData: {}", e.getMessage(), e);
-            jobStatusService.markFailed(trackingId, e.getMessage());
+            publishStoryJobStatusService.markFailed(trackingId, e.getMessage());
         }
     }
 }

@@ -1,11 +1,11 @@
 package com.adventuretube.geospatial.controller;
 
 import com.adventuretube.geospatial.kafka.Producer;
-import com.adventuretube.geospatial.model.entity.JobStatus;
+import com.adventuretube.geospatial.model.entity.PublishStoryJobStatus;
 import com.adventuretube.geospatial.model.entity.adventuretube.AdventureTubeData;
-import com.adventuretube.geospatial.model.enums.JobStatusEnum;
+import com.adventuretube.geospatial.model.enums.PublishStoryJobStatusEnum;
 import com.adventuretube.geospatial.service.AdventureTubeDataService;
-import com.adventuretube.geospatial.service.JobStatusService;
+import com.adventuretube.geospatial.service.PublishStoryJobStatusService;
 import com.adventuretube.geospatial.sse.SseEmitterManager;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -45,7 +45,7 @@ class AdventureTubeDataControllerTest {
     private Producer producer;
 
     @MockitoBean
-    private JobStatusService jobStatusService;
+    private PublishStoryJobStatusService publishStoryJobStatusService;
 
     @MockitoBean
     private SseEmitterManager sseEmitterManager;
@@ -191,14 +191,14 @@ class AdventureTubeDataControllerTest {
         input.setYoutubeContentID("yt-new");
         input.setYoutubeTitle("New Adventure");
 
-        JobStatus pendingJob = new JobStatus();
+        PublishStoryJobStatus pendingJob = new PublishStoryJobStatus();
         pendingJob.setTrackingId("test-tracking-id");
         pendingJob.setYoutubeContentID("yt-new");
-        pendingJob.setStatus(JobStatusEnum.PENDING);
+        pendingJob.setStatus(PublishStoryJobStatusEnum.PENDING);
         pendingJob.setCreatedAt(LocalDateTime.now());
         pendingJob.setUpdatedAt(LocalDateTime.now());
 
-        when(jobStatusService.createPendingJob(anyString(), anyString())).thenReturn(pendingJob);
+        when(publishStoryJobStatusService.createPendingJob(anyString(), anyString())).thenReturn(pendingJob);
 
         mockMvc.perform(post("/geo/save")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -211,31 +211,4 @@ class AdventureTubeDataControllerTest {
         verify(producer).sendAdventureTubeData(anyString(), any(AdventureTubeData.class));
     }
 
-    // --- GET /geo/status/{trackingId} ---
-
-    @Test
-    void getStatus_shouldReturnJobStatus_whenFound() throws Exception {
-        JobStatus job = new JobStatus();
-        job.setTrackingId("abc-123");
-        job.setStatus(JobStatusEnum.COMPLETED);
-        job.setChaptersCount(3);
-        job.setPlacesCount(2);
-
-        when(jobStatusService.findByTrackingId("abc-123")).thenReturn(Optional.of(job));
-
-        mockMvc.perform(get("/geo/status/abc-123"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.data.status").value("COMPLETED"))
-                .andExpect(jsonPath("$.data.chaptersCount").value(3));
-    }
-
-    @Test
-    void getStatus_shouldReturn404_whenNotFound() throws Exception {
-        when(jobStatusService.findByTrackingId("unknown")).thenReturn(Optional.empty());
-
-        mockMvc.perform(get("/geo/status/unknown"))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.errorCode").value("JOB_NOT_FOUND"));
-    }
 }

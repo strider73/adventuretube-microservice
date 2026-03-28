@@ -1,42 +1,41 @@
 server:
   port: ${GATEWAY_PORT}
 
-spring:
-  # Network interface selection for Eureka registration
-  # Problem: Mac has multiple network interfaces (WiFi, Thunderbolt, Docker, etc.)
-  # Eureka may auto-detect wrong IP (e.g., 169.254.x.x link-local address)
-  # Solution: Force Spring to use 192.168.1.x network and ignore virtual interfaces
-  cloud:
-    inetutils:
-      preferred-networks:
-        - 192.168.1
-      ignored-interfaces:
-        - en14          # Thunderbolt/USB adapter (link-local 169.254.x.x)
-        - docker*       # Docker virtual interfaces
-        - veth*         # Docker container interfaces
-        - br-*          # Docker bridge interfaces
-  application:
-  #  cloud:
-  #    gateway:
-  #      routes:
-  #        - id: member-service
-  #          uri: lb://MEMBER-SERVICE
-  #          predicates:
-  #            - Path=/member/**
-  #        - id: web-service
-  #          uri: lb://WEB-SERVICE
-  #          predicates:
-  #            - Path=/web/**
-
 eureka:
   instance:
     prefer-ip-address: true
   client:
     service-url:
-       defaultZone: ${EUREKA_SERVER_URL}
+      defaultZone: ${EUREKA_SERVER_URL}
     fetch-registry: true
     register-with-eureka: true
 
+jwt:
+  secret: ${JWT_SECRET}
+
+logging:
+  pattern:
+    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
+  level:
+    root: INFO
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,circuitbreakers,circuitbreakerevents,metrics
+  endpoint:
+    health:
+      show-details: always
+  health:
+    circuitbreakers:
+      enabled: true
+  tracing:
+    sampling:
+      probability: 1.0
+  zipkin:
+    tracing:
+      endpoint: ${ZIPKIN_URL}/api/v2/spans
 
 springdoc:
   swagger-ui:
@@ -52,14 +51,6 @@ springdoc:
       - name: Geospatial Service
         url: /geo-service/v3/api-docs
 
-
-logging:
-  pattern:
-    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
-  level:
-    root: INFO
-
-# Circuit Breaker (Resilience4j) configuration for gateway routes (Layer 1)
 resilience4j:
   circuitbreaker:
     instances:
@@ -105,25 +96,3 @@ resilience4j:
         timeout-duration: 10s
       gw-web-service:
         timeout-duration: 10s
-
-# Actuator endpoints for circuit breaker monitoring + distributed tracing
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,circuitbreakers,circuitbreakerevents,metrics
-  endpoint:
-    health:
-      show-details: always
-  health:
-    circuitbreakers:
-      enabled: true
-  tracing:
-    sampling:
-      probability: 1.0
-  zipkin:
-    tracing:
-      endpoint: ${ZIPKIN_URL}/api/v2/spans
-
-jwt:
-  secret: ${JWT_SECRET}

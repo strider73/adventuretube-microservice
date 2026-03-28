@@ -2,19 +2,6 @@ server:
   port: ${GEO_PORT}
 
 spring:
-  # Network interface selection for Eureka registration
-  # Problem: Mac has multiple network interfaces (WiFi, Thunderbolt, Docker, etc.)
-  # Eureka may auto-detect wrong IP (e.g., 169.254.x.x link-local address)
-  # Solution: Force Spring to use 192.168.1.x network and ignore virtual interfaces
-  cloud:
-    inetutils:
-      preferred-networks:
-        - 192.168.1
-      ignored-interfaces:
-        - en14          # Thunderbolt/USB adapter (link-local 169.254.x.x)
-        - docker*       # Docker virtual interfaces
-        - veth*         # Docker container interfaces
-        - br-*          # Docker bridge interfaces
   data:
     mongodb:
       authentication-database: ${MONGO_AUTH_DB}
@@ -26,26 +13,6 @@ spring:
       auto-index-creation: true
     rest:
       base-path: /api/rest
-  datasource:
-    url: jdbc:postgresql:${POSTGRES_HOST}}
-    username: ${POSTGRES_USER}
-    password: ${POSTGRES_PASSWORD}
-    hikari:
-      maximum-pool-size: 10         # Maximum number of connections in the pool
-      minimum-idle: 5               # Minimum number of idle connections
-      max-lifetime: 2700000         # Max lifetime of a connection in milliseconds (27 minutes)
-      idle-timeout: 600000          # Time that a connection can sit idle in milliseconds (10 minutes)
-      validation-timeout: 5000      # Timeout for connection validation in milliseconds (5 seconds)
-      connection-test-query: SELECT 1  # Query to validate connections
-  jpa:
-    hibernate:
-      ddl-auto: update
-      show-sql: true
-      properties:
-        hibernate:
-          dialect: org.hibernate.dialect.PostgreSQLDialect
-          default_schema: public  # <-- Add this line
-          format_sql: true
   kafka:
     template:
       observation-enabled: true
@@ -61,12 +28,10 @@ spring:
       bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
-#in here hostname and ip address id where the this submodule is running
-#which is case of direct connection from the mac to the pi HOST_IP should eureka clinet ip address which is mac local network ip address
-#instead ip address of pi
+
 eureka:
   instance:
-    prefer-ip-address: true   # Forces Eureka to use IP instead of hostname
+    prefer-ip-address: true
   client:
     service-url:
       defaultZone: ${EUREKA_SERVER_URL}
@@ -74,7 +39,14 @@ eureka:
     register-with-eureka: true
     enabled: true
 
+minio:
+  endpoint: ${MINIO_ENDPOINT}
+  access-key: ${MINIO_ACCESS_KEY}
+  secret-key: ${MINIO_SECRET_KEY}
+  bucket-name: ${MINIO_BUCKET_NAME}
 
+jwt:
+  secret: ${JWT_SECRET}
 
 logging:
   pattern:
@@ -90,12 +62,8 @@ management:
     tracing:
       endpoint: ${ZIPKIN_URL}/api/v2/spans
 
-jwt:
-  secret: ${JWT_SECRET}
-
 springdoc:
   api-docs:
     path: /v3/api-docs
   swagger-ui:
     path: /swagger-ui.html
-

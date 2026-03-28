@@ -14,54 +14,50 @@ import org.springframework.stereotype.Service;
 public class Producer {
     private static final Logger logger = LoggerFactory.getLogger(Producer.class);
     private static final String TOPIC = "adventuretube-data";
+    private static final String SCREENSHOT_TOPIC = "adventuretube-screenshots";
 
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final ObjectMapper objectMapper;
 
     public void sendAdventureTubeData(String trackingId, AdventureTubeData data) {
         KafkaMessage kafkaMessage = new KafkaMessage(trackingId, null, null, KafkaAction.CREATE, data);
-        String json;
-        try {
-            json = objectMapper.writeValueAsString(kafkaMessage);
-        } catch (JsonProcessingException e) {
-            logger.error("Failed to serialize KafkaMessage: {}", e.getMessage(), e);
-            throw new RuntimeException("Failed to serialize KafkaMessage", e);
-        }
+        String json = serializeMessage(kafkaMessage);
+        sendToKafka(TOPIC, data.getYoutubeContentID(), json, "trackingId=" + trackingId);
+    }
 
-        String key = data.getYoutubeContentID();
-        logger.info("Publishing to Kafka topic={} key={} trackingId={}", TOPIC, key, trackingId);
+    public void deleteAdventureTubeData(String trackingId, String youtubeContentId, String ownerEmail) {
+        KafkaMessage kafkaMessage = new KafkaMessage(trackingId, youtubeContentId, ownerEmail, KafkaAction.DELETE,
+                null);
+        String json = serializeMessage(kafkaMessage);
+        sendToKafka(TOPIC, youtubeContentId, json, "trackingId=" + trackingId);
+    }
 
-        kafkaTemplate.send(TOPIC, key, json)
+    public void sendScreenshotRequest(String youtubeContentID, AdventureTubeData data) {
+        KafkaMessage kafkaMessage = new KafkaMessage(null, youtubeContentID, null,
+                KafkaAction.GENERATE_SCREENSHOTS, data);
+        String json = serializeMessage(kafkaMessage);
+        sendToKafka(SCREENSHOT_TOPIC, youtubeContentID, json, "youtubeContentID=" + youtubeContentID);
+    }
+    private void sendToKafka(String topic, String key, String json,String logContext){
+        logger.info("Publishing to Kafka: topic={} key={} {}", topic, key, logContext);
+        kafkaTemplate.send(topic, key, json)
                 .whenComplete((result, ex) -> {
                     if (ex != null) {
-                        logger.error("Failed to send to Kafka: topic={} key={} trackingId={}", TOPIC, key, trackingId, ex);
+                        logger.error("Failed to send to Kafka: topic={} key={} {}", topic, key, logContext, ex);
                     } else {
-                        logger.info("Sent to Kafka: topic={} key={} trackingId={} offset={}",
-                                TOPIC, key, trackingId, result.getRecordMetadata().offset());
+                        logger.info("Sent to Kafka: topic={} key={} {} offset={}",
+                                topic, key, logContext, result.getRecordMetadata().offset());
                     }
                 });
     }
 
-    public void deleteAdventureTubeData(String trackingId, String youtubeContentId,String ownerEmail){
-        KafkaMessage kafkaMessage = new KafkaMessage(trackingId,youtubeContentId,ownerEmail,KafkaAction.DELETE,null);
-        String json;
+
+    private String serializeMessage(KafkaMessage kafkaMessage){
         try {
-            json = objectMapper.writeValueAsString(kafkaMessage);
+            return objectMapper.writeValueAsString(kafkaMessage);
         } catch (JsonProcessingException e) {
             logger.error("Failed to serialize KafkaMessage: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to serialize KafkaMessage", e);
         }
-
-        String key = youtubeContentId;
-        logger.info("Publishing to Kafka topic={} key={} trackingId={}", TOPIC, key, trackingId);
-        kafkaTemplate.send(TOPIC, key, json)
-                .whenComplete((result, ex) -> {
-                    if (ex != null) {
-                        logger.error("Failed to send to Kafka: topic={} key={} trackingId={}", TOPIC, key, trackingId, ex);
-                    } else {
-                        logger.info("Sent to Kafka: topic={} key={} trackingId={} offset={}",
-                                TOPIC, key, trackingId, result.getRecordMetadata().offset());
-                    }
-                });
     }
 }

@@ -1,7 +1,7 @@
 package com.adventuretube.geospatial.sse;
 
-import com.adventuretube.geospatial.model.entity.JobStatus;
-import com.adventuretube.geospatial.model.enums.JobStatusEnum;
+import com.adventuretube.geospatial.model.entity.PublishStoryJobStatus;
+import com.adventuretube.geospatial.model.enums.PublishStoryJobStatusEnum;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -33,9 +33,9 @@ class SseEmitterManagerTest {
 
     @Test
     void send_shouldNotThrow_whenNoEmitterRegistered() {
-        JobStatus status = new JobStatus();
+        PublishStoryJobStatus status = new PublishStoryJobStatus();
         status.setTrackingId("unknown");
-        status.setStatus(JobStatusEnum.COMPLETED);
+        status.setStatus(PublishStoryJobStatusEnum.COMPLETED);
 
         // No emitter registered — should be a silent no-op
         assertThatCode(() -> manager.send("unknown", status)).doesNotThrowAnyException();
@@ -43,9 +43,9 @@ class SseEmitterManagerTest {
 
     @Test
     void send_shouldBeIdempotent_whenCalledMultipleTimesForUnknownTrackingId() {
-        JobStatus status = new JobStatus();
+        PublishStoryJobStatus status = new PublishStoryJobStatus();
         status.setTrackingId("nonexistent");
-        status.setStatus(JobStatusEnum.FAILED);
+        status.setStatus(PublishStoryJobStatusEnum.FAILED);
 
         assertThatCode(() -> {
             manager.send("nonexistent", status);

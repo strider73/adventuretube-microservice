@@ -30,6 +30,7 @@ public class Chapter {
     private String youtubeID;
     private long youtubeTime;
     private List<String> categories;
+    private String screenshotUrl;
 
     @JsonProperty("place")
     public Place getPlace() { return place; }
@@ -50,4 +51,9 @@ public class Chapter {
     public List<String> getCategories() { return categories; }
     @JsonProperty("categories")
     public void setCategories(List<String> value) { this.categories = value; }
+
+    @JsonProperty("screenshotUrl")
+    public String getScreenshotUrl() { return screenshotUrl; }
+    @JsonProperty("screenshotUrl")
+    public void setScreenshotUrl(String value) { this.screenshotUrl = value; }
 }

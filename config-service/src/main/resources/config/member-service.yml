@@ -1,21 +1,7 @@
-
 server:
   port: ${MEMBER_PORT}
 
 spring:
-  # Network interface selection for Eureka registration
-  # Problem: Mac has multiple network interfaces (WiFi, Thunderbolt, Docker, etc.)
-  # Eureka may auto-detect wrong IP (e.g., 169.254.x.x link-local address)
-  # Solution: Force Spring to use 192.168.1.x network and ignore virtual interfaces
-  cloud:
-    inetutils:
-      preferred-networks:
-        - 192.168.1
-      ignored-interfaces:
-        - en14          # Thunderbolt/USB adapter (link-local 169.254.x.x)
-        - docker*       # Docker virtual interfaces
-        - veth*         # Docker container interfaces
-        - br-*          # Docker bridge interfaces
   threads:
     virtual:
       enabled: true
@@ -40,15 +26,12 @@ spring:
           default_schema: public
           format_sql: true
 
-#in here hostname and ip address id where the this submodule is running
-#which is case of direct connection from the mac to the pi HOST_IP should eureka clinet ip address which is mac local network ip address
-#instead ip address of pi
 eureka:
   instance:
-    prefer-ip-address: true   # Forces Eureka to use IP instead of hostname
+    prefer-ip-address: true
   client:
     service-url:
-      defaultZone:  ${EUREKA_SERVER_URL}
+      defaultZone: ${EUREKA_SERVER_URL}
     fetch-registry: true
     register-with-eureka: true
     enabled: true

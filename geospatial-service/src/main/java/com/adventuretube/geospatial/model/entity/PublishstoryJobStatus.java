@@ -1,7 +1,10 @@
 package com.adventuretube.geospatial.model.entity;
 
-import com.adventuretube.geospatial.model.enums.JobStatusEnum;
+import com.adventuretube.geospatial.model.enums.PublishStoryJobStatusEnum;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -9,8 +12,11 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.LocalDateTime;
 
 @Data
-@Document(collection = "jobStatus")
-public class JobStatus {
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Document(collection = "publishStoryJobStatus")
+public class PublishStoryJobStatus {
     @Id
     private String id;
 
@@ -18,7 +24,7 @@ public class JobStatus {
     private String trackingId;
 
     private String youtubeContentID;
-    private JobStatusEnum status;
+    private PublishStoryJobStatusEnum status;
     private String errorMessage;
     private int chaptersCount;
     private int placesCount;

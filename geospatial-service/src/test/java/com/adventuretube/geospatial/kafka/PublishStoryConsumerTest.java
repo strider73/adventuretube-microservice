@@ -1,11 +1,8 @@
 package com.adventuretube.geospatial.kafka;
 
-import com.adventuretube.geospatial.exceptions.DuplicateDataException;
-import com.adventuretube.geospatial.exceptions.code.GeoErrorCode;
-
 import com.adventuretube.geospatial.model.entity.adventuretube.AdventureTubeData;
 import com.adventuretube.geospatial.service.AdventureTubeDataService;
-import com.adventuretube.geospatial.service.JobStatusService;
+import com.adventuretube.geospatial.service.PublishStoryJobStatusService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,19 +18,22 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class ConsumerTest {
+class PublishStoryConsumerTest {
 
     @Mock
     private AdventureTubeDataService adventureTubeDataService;
 
     @Mock
-    private JobStatusService jobStatusService;
+    private PublishStoryJobStatusService publishStoryJobStatusService;
+
+    @Mock
+    private Producer producer;
 
     @Spy
     private ObjectMapper objectMapper = new ObjectMapper();
 
     @InjectMocks
-    private Consumer consumer;
+    private PublishStoryConsumer publishStoryConsumer;
 
     private AdventureTubeData testData;
 
@@ -58,28 +58,28 @@ class ConsumerTest {
         KafkaMessage kafkaMessage = new KafkaMessage("tracking-123", "yt-test-123", null, KafkaAction.CREATE, testData);
         String json = objectMapper.writeValueAsString(kafkaMessage);
 
-        consumer.consume(json);
+        publishStoryConsumer.consume(json);
 
         verify(adventureTubeDataService).save(any(AdventureTubeData.class));
-        verify(jobStatusService).markCompleted("tracking-123", 0, 0);
-        verify(jobStatusService, never()).markCompletedWithDuplicate(anyString());
-        verify(jobStatusService, never()).markFailed(anyString(), anyString());
+        verify(publishStoryJobStatusService).markCompleted("tracking-123", 0, 0);
+        verify(publishStoryJobStatusService, never()).markCompletedWithDuplicate(anyString());
+        verify(publishStoryJobStatusService, never()).markFailed(anyString(), anyString());
     }
 
     @Test
-    void consume_shouldMarkDuplicate_whenDuplicateDataException() throws Exception {
+    void consume_shouldMarkDuplicate_whenDuplicateKeyException() throws Exception {
         when(adventureTubeDataService.save(any()))
-                .thenThrow(new DuplicateDataException(GeoErrorCode.DUPLICATE_KEY));
+                .thenThrow(new org.springframework.dao.DuplicateKeyException("duplicate key"));
 
         KafkaMessage kafkaMessage = new KafkaMessage("tracking-dup", "yt-test-123", null, KafkaAction.CREATE, testData);
         String json = objectMapper.writeValueAsString(kafkaMessage);
 
-        consumer.consume(json);
+        publishStoryConsumer.consume(json);
 
         verify(adventureTubeDataService).save(any(AdventureTubeData.class));
-        verify(jobStatusService).markCompletedWithDuplicate("tracking-dup");
-        verify(jobStatusService, never()).markCompleted(anyString(), anyInt(), anyInt());
-        verify(jobStatusService, never()).markFailed(anyString(), anyString());
+        verify(publishStoryJobStatusService).markCompletedWithDuplicate("tracking-dup");
+        verify(publishStoryJobStatusService, never()).markCompleted(anyString(), anyInt(), anyInt());
+        verify(publishStoryJobStatusService, never()).markFailed(anyString(), anyString());
     }
 
     @Test
@@ -90,37 +90,37 @@ class ConsumerTest {
         KafkaMessage kafkaMessage = new KafkaMessage("tracking-fail", "yt-test-123", null, KafkaAction.CREATE, testData);
         String json = objectMapper.writeValueAsString(kafkaMessage);
 
-        consumer.consume(json);
+        publishStoryConsumer.consume(json);
 
         verify(adventureTubeDataService).save(any(AdventureTubeData.class));
-        verify(jobStatusService).markFailed("tracking-fail", "MongoDB connection lost");
-        verify(jobStatusService, never()).markCompleted(anyString(), anyInt(), anyInt());
-        verify(jobStatusService, never()).markCompletedWithDuplicate(anyString());
+        verify(publishStoryJobStatusService).markFailed("tracking-fail", "MongoDB connection lost");
+        verify(publishStoryJobStatusService, never()).markCompleted(anyString(), anyInt(), anyInt());
+        verify(publishStoryJobStatusService, never()).markCompletedWithDuplicate(anyString());
     }
 
     @Test
     void consume_shouldSkipProcessing_whenKafkaMessageHasNullTrackingIdAndData() throws Exception {
         // KafkaMessage with trackingId=null, data has value → fails the && check
         // Falls back to parsing as raw AdventureTubeData which fails (unknown fields).
-        // Consumer logs error and returns without saving or updating job status.
+        // PublishStoryConsumer logs error and returns without saving or updating job status.
         String json = "{\"trackingId\":null,\"data\":" + objectMapper.writeValueAsString(testData) + "}";
 
-        consumer.consume(json);
+        publishStoryConsumer.consume(json);
 
         verify(adventureTubeDataService, never()).save(any());
-        verify(jobStatusService, never()).markCompletedWithDuplicate(anyString());
-        verify(jobStatusService, never()).markCompleted(anyString(), anyInt(), anyInt());
-        verify(jobStatusService, never()).markFailed(anyString(), anyString());
+        verify(publishStoryJobStatusService, never()).markCompletedWithDuplicate(anyString());
+        verify(publishStoryJobStatusService, never()).markCompleted(anyString(), anyInt(), anyInt());
+        verify(publishStoryJobStatusService, never()).markFailed(anyString(), anyString());
     }
 
     @Test
     void consume_shouldSkip_whenInvalidJson() {
-        consumer.consume("not valid json {{{}}}");
+        publishStoryConsumer.consume("not valid json {{{}}}");
 
         verify(adventureTubeDataService, never()).save(any());
-        verify(jobStatusService, never()).markCompleted(anyString(), anyInt(), anyInt());
-        verify(jobStatusService, never()).markCompletedWithDuplicate(anyString());
-        verify(jobStatusService, never()).markFailed(anyString(), anyString());
+        verify(publishStoryJobStatusService, never()).markCompleted(anyString(), anyInt(), anyInt());
+        verify(publishStoryJobStatusService, never()).markCompletedWithDuplicate(anyString());
+        verify(publishStoryJobStatusService, never()).markFailed(anyString(), anyString());
     }
 
     @Test
@@ -142,8 +142,8 @@ class ConsumerTest {
         KafkaMessage kafkaMessage = new KafkaMessage("tracking-counts", "yt-test-123", null, KafkaAction.CREATE, testData);
         String json = objectMapper.writeValueAsString(kafkaMessage);
 
-        consumer.consume(json);
+        publishStoryConsumer.consume(json);
 
-        verify(jobStatusService).markCompleted("tracking-counts", 3, 2);
+        verify(publishStoryJobStatusService).markCompleted("tracking-counts", 3, 2);
     }
 }
