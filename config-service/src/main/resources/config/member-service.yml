@@ -2,6 +2,15 @@ server:
   port: ${MEMBER_PORT}
 
 spring:
+  cloud:
+    inetutils:
+      preferred-networks:
+        - 192.168.1
+      ignored-interfaces:
+        - en14
+        - docker*
+        - veth*
+        - br-*
   threads:
     virtual:
       enabled: true

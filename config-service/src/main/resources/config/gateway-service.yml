@@ -1,6 +1,17 @@
 server:
   port: ${GATEWAY_PORT}
 
+spring:
+  cloud:
+    inetutils:
+      preferred-networks:
+        - 192.168.1
+      ignored-interfaces:
+        - en14
+        - docker*
+        - veth*
+        - br-*
+
 eureka:
   instance:
     prefer-ip-address: true
