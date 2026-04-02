@@ -1,6 +1,7 @@
 package com.adventuretube.geospatial.service;
 
 import com.adventuretube.geospatial.model.entity.ScreenshotJobStatus;
+import com.adventuretube.geospatial.model.entity.adventuretube.AdventureTubeData;
 import com.adventuretube.geospatial.model.entity.adventuretube.Chapter;
 import com.adventuretube.geospatial.model.enums.ScreenshotJobStatusEnum;
 import com.adventuretube.geospatial.repository.AdventureTubeDataRepository;
@@ -9,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.File;
@@ -39,19 +42,31 @@ public class ScreenshotService {
         this.screenshotJobStatusRepository = screenshotJobStatusRepository;
     }
 
+
     public void processScreenshotJob(String youtubeContentID, List<Chapter> chapters) {
-        //initial setting as a pending job
-        ScreenshotJobStatus jobStatus = screenshotJobStatusRepository.save(
-                ScreenshotJobStatus.builder()
-                        .youtubeContentID(youtubeContentID)
-                        .status(ScreenshotJobStatusEnum.PENDING)
-                        .totalChapters(chapters.size())
-                        .completedChapters(0)
-                        .createdAt(LocalDateTime.now())
-                        .updatedAt(LocalDateTime.now())
-                        .expireAt(LocalDateTime.now())
-                        .build()
-                );
+        //find existing or create new job status
+        ScreenshotJobStatus jobStatus = screenshotJobStatusRepository.findByYoutubeContentID(youtubeContentID)
+                .map(existing -> {
+                    log.info("Data already exist for youtubeContentID:"+existing.getYoutubeContentID()+" withs status :"+existing.getStatus() +"will be set as pending ");
+                    existing.setStatus(ScreenshotJobStatusEnum.PENDING);
+                    existing.setTotalChapters(chapters.size());
+                    existing.setCompletedChapters(0);
+                    existing.setErrorMessage(null);
+                    existing.setUpdatedAt(LocalDateTime.now());
+                    existing.setExpireAt(LocalDateTime.now());
+                    return screenshotJobStatusRepository.save(existing);
+                })
+                .orElseGet(() -> screenshotJobStatusRepository.save(
+                        ScreenshotJobStatus.builder()
+                                .youtubeContentID(youtubeContentID)
+                                .status(ScreenshotJobStatusEnum.PENDING)
+                                .totalChapters(chapters.size())
+                                .completedChapters(0)
+                                .createdAt(LocalDateTime.now())
+                                .updatedAt(LocalDateTime.now())
+                                .expireAt(LocalDateTime.now())
+                                .build()
+                ));
 
 
         Path tempDir = null;
@@ -150,6 +165,21 @@ public class ScreenshotService {
 
     }
 
+    public void deleteScreenshots(String youtubeContentID, AdventureTubeData adventureTubeData) {
+
+        adventureTubeData.getChapters().forEach(chapter -> {
+            s3Client.deleteObject(
+                    DeleteObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(chapter.getScreenshotUrl())
+                    .build());
+            log.info("Deleted screenshot: {}", chapter.getScreenshotUrl());
+        });
+        log.info("All screenshots deleted for {}", youtubeContentID);
+
+
+
+    }
 
     private String formatTime(long totalSeconds) {
         long hours = totalSeconds / 3600;

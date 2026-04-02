@@ -1,7 +1,7 @@
 package com.adventuretube.geospatial.sse;
 
-import com.adventuretube.geospatial.model.entity.PublishStoryJobStatus;
-import com.adventuretube.geospatial.model.enums.PublishStoryJobStatusEnum;
+import com.adventuretube.geospatial.model.entity.StoryJobStatus;
+import com.adventuretube.geospatial.model.enums.StoryJobStatusEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -36,7 +36,7 @@ public class SseEmitterManager {
         return emitter;
     }
 
-    public void send(String trackingId, PublishStoryJobStatus jobStatus) {
+    public void send(String trackingId, StoryJobStatus jobStatus) {
         SseEmitter emitter = emitters.get(trackingId);
         if (emitter == null) {
             log.debug("No SSE emitter registered for trackingId={}", trackingId);
@@ -48,7 +48,7 @@ public class SseEmitterManager {
                     .data(jobStatus, MediaType.APPLICATION_JSON));
 
             // Complete the emitter on terminal states
-            if (jobStatus.getStatus() != PublishStoryJobStatusEnum.PENDING) {
+            if (jobStatus.getStatus() != StoryJobStatusEnum.PENDING) {
                 emitter.complete();
 
                 log.info("SSE emitter completed for trackingId={} with status={}", trackingId, jobStatus.getStatus());

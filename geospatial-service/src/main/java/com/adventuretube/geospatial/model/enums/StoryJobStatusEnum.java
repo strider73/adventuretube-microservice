@@ -1,6 +1,6 @@
 package com.adventuretube.geospatial.model.enums;
 
-public enum PublishStoryJobStatusEnum {
+public enum StoryJobStatusEnum {
     PENDING,
     COMPLETED,
     DUPLICATED,

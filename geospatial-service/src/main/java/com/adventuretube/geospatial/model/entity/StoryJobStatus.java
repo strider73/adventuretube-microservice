@@ -1,6 +1,6 @@
 package com.adventuretube.geospatial.model.entity;
 
-import com.adventuretube.geospatial.model.enums.PublishStoryJobStatusEnum;
+import com.adventuretube.geospatial.model.enums.StoryJobStatusEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Document(collection = "publishStoryJobStatus")
-public class PublishStoryJobStatus {
+public class StoryJobStatus {
     @Id
     private String id;
 
@@ -24,7 +24,7 @@ public class PublishStoryJobStatus {
     private String trackingId;
 
     private String youtubeContentID;
-    private PublishStoryJobStatusEnum status;
+    private StoryJobStatusEnum status;
     private String errorMessage;
     private int chaptersCount;
     private int placesCount;

@@ -1,11 +1,11 @@
 package com.adventuretube.geospatial.controller;
 
 import com.adventuretube.geospatial.kafka.Producer;
-import com.adventuretube.geospatial.model.entity.PublishStoryJobStatus;
+import com.adventuretube.geospatial.model.entity.StoryJobStatus;
 import com.adventuretube.geospatial.model.entity.adventuretube.AdventureTubeData;
-import com.adventuretube.geospatial.model.enums.PublishStoryJobStatusEnum;
+import com.adventuretube.geospatial.model.enums.StoryJobStatusEnum;
 import com.adventuretube.geospatial.service.AdventureTubeDataService;
-import com.adventuretube.geospatial.service.PublishStoryJobStatusService;
+import com.adventuretube.geospatial.service.JobStatusService;
 import com.adventuretube.geospatial.sse.SseEmitterManager;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -45,7 +45,7 @@ class AdventureTubeDataControllerTest {
     private Producer producer;
 
     @MockitoBean
-    private PublishStoryJobStatusService publishStoryJobStatusService;
+    private JobStatusService jobStatusService;
 
     @MockitoBean
     private SseEmitterManager sseEmitterManager;
@@ -191,14 +191,14 @@ class AdventureTubeDataControllerTest {
         input.setYoutubeContentID("yt-new");
         input.setYoutubeTitle("New Adventure");
 
-        PublishStoryJobStatus pendingJob = new PublishStoryJobStatus();
+        StoryJobStatus pendingJob = new StoryJobStatus();
         pendingJob.setTrackingId("test-tracking-id");
         pendingJob.setYoutubeContentID("yt-new");
-        pendingJob.setStatus(PublishStoryJobStatusEnum.PENDING);
+        pendingJob.setStatus(StoryJobStatusEnum.PENDING);
         pendingJob.setCreatedAt(LocalDateTime.now());
         pendingJob.setUpdatedAt(LocalDateTime.now());
 
-        when(publishStoryJobStatusService.createPendingJob(anyString(), anyString())).thenReturn(pendingJob);
+        when(jobStatusService.createPendingJob(anyString(), anyString())).thenReturn(pendingJob);
 
         mockMvc.perform(post("/geo/save")
                         .contentType(MediaType.APPLICATION_JSON)

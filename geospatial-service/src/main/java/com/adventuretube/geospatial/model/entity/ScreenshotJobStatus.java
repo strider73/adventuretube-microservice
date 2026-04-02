@@ -35,4 +35,5 @@ public class ScreenshotJobStatus {
     @Indexed(expireAfter = "7d")
     private LocalDateTime expireAt;
 
+
 }

@@ -1,9 +1,13 @@
 package com.adventuretube.geospatial.kafka;
 
+import com.adventuretube.geospatial.exceptions.DataNotFoundException;
+import com.adventuretube.geospatial.exceptions.OwnershipMismatchException;
+import com.adventuretube.geospatial.exceptions.code.GeoErrorCode;
+import com.adventuretube.geospatial.service.JobStatusService;
+import com.adventuretube.geospatial.service.ScreenshotService;
 import org.springframework.dao.DuplicateKeyException;
 import com.adventuretube.geospatial.model.entity.adventuretube.AdventureTubeData;
 import com.adventuretube.geospatial.service.AdventureTubeDataService;
-import com.adventuretube.geospatial.service.PublishStoryJobStatusService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -14,11 +18,12 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class PublishStoryConsumer {
-    private static final Logger logger = LoggerFactory.getLogger(PublishStoryConsumer.class);
+public class StoryConsumer {
+    private static final Logger logger = LoggerFactory.getLogger(StoryConsumer.class);
 
     private final AdventureTubeDataService adventureTubeDataService;
-    private final PublishStoryJobStatusService publishStoryJobStatusService;
+    private final ScreenshotService screenshotService;
+    private final JobStatusService jobStatusService;
     private final ObjectMapper objectMapper;
 
     private final Producer producer;
@@ -47,7 +52,7 @@ public class PublishStoryConsumer {
             case DELETE -> handleDelete(kafkaMessage, trackingId);
             default -> {
                 logger.error("Unknown action: {}, skipping", kafkaMessage.getAction());
-                publishStoryJobStatusService.markFailed(trackingId, "Unknown action: " + kafkaMessage.getAction());
+                jobStatusService.markFailed(trackingId, "Unknown action: " + kafkaMessage.getAction());
             }
         }
     }
@@ -56,7 +61,7 @@ public class PublishStoryConsumer {
         AdventureTubeData data = kafkaMessage.getData();
         if (data == null) {
             logger.error("SAVE action but data is null, trackingId={}", trackingId);
-            publishStoryJobStatusService.markFailed(trackingId, "Data is null");
+            jobStatusService.markFailed(trackingId, "Data is null");
             return;
         }
 
@@ -65,36 +70,61 @@ public class PublishStoryConsumer {
             logger.info("Saved AdventureTubeData: youtubeContentID={}", saved.getYoutubeContentID());
             int chaptersCount = saved.getChapters() != null ? saved.getChapters().size() : 0;
             int placesCount = saved.getPlaces() != null ? saved.getPlaces().size() : 0;
-            publishStoryJobStatusService.markCompleted(trackingId, chaptersCount, placesCount);
-            //trigger async screenshot generation
-            producer.sendScreenshotRequest(data.getYoutubeContentID(), data);
+            jobStatusService.markCompleted(trackingId, chaptersCount, placesCount);
+            //trigger async screenshot generation  NO jobStatus created!!! iOS need a polling to check later
+            producer.sendScreenshotRequest(data.getYoutubeContentID(), trackingId, data);
 
         } catch (DuplicateKeyException e) {
             logger.warn("Duplicate youtubeContentID={}, skipping", data.getYoutubeContentID());
-            publishStoryJobStatusService.markCompletedWithDuplicate(trackingId);
+            jobStatusService.markCompletedWithDuplicate(trackingId);
         } catch (Exception e) {
             logger.error("Failed to save AdventureTubeData: {}", e.getMessage(), e);
-            publishStoryJobStatusService.markFailed(trackingId, e.getMessage());
+            jobStatusService.markFailed(trackingId, e.getMessage());
         }
     }
 
+    //deletion process will be one unified process for both delete screenshot and delete database
+    //1. check the ownership of story
+    //2. call the screenshot consumer for deletion
+    //3. delete database
+    //4. mark the job as completed
     private void handleDelete(KafkaMessage kafkaMessage, String trackingId) {
         String youtubeContentId = kafkaMessage.getYoutubeContentId();
         String ownerEmail = kafkaMessage.getOwnerEmail();
 
         if (youtubeContentId == null || ownerEmail == null) {
             logger.error("DELETE action but missing youtubeContentId or ownerEmail, trackingId={}", trackingId);
-            publishStoryJobStatusService.markFailed(trackingId, "Missing youtubeContentId or ownerEmail");
             return;
         }
 
         try {
+            //check the ownership of story
+            AdventureTubeData adventureTubeData = adventureTubeDataService.findByYoutubeContentID(youtubeContentId)
+                    .map(data -> {
+                        if (!data.getOwnerEmail().equals(ownerEmail)) {
+                            logger.error("Unauthorized: ownerEmail does not match");
+                            throw new OwnershipMismatchException(GeoErrorCode.OWNERSHIP_MISMATCH);
+                        }
+                        return data;
+                    }).orElseThrow(() -> new DataNotFoundException(GeoErrorCode.DATA_NOT_FOUND));
+
+            //delete screenshot
+            screenshotService.deleteScreenshots(youtubeContentId,adventureTubeData );
+            //delete story
+            //2 delete all stories from MongoDB
             adventureTubeDataService.deleteByYoutubeContentIdAndOwnerEmail(youtubeContentId, ownerEmail);
-            logger.info("Deleted AdventureTubeData: youtubeContentID={}", youtubeContentId);
-            publishStoryJobStatusService.markCompleted(trackingId, 0, 0);
+            //3 mark the job as completed
+            jobStatusService.markCompleted(trackingId, 0, 0);
+
         } catch (Exception e) {
-            logger.error("Failed to delete AdventureTubeData: {}", e.getMessage(), e);
-            publishStoryJobStatusService.markFailed(trackingId, e.getMessage());
+            logger.error("Failed to delete: {}", e.getMessage(), e);
+            jobStatusService.markFailed(trackingId, e.getMessage());
         }
+
+
+
+
+
+
     }
 }

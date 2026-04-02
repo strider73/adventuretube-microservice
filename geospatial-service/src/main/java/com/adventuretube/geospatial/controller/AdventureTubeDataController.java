@@ -2,10 +2,10 @@ package com.adventuretube.geospatial.controller;
 
 import com.adventuretube.common.api.response.ServiceResponse;
 import com.adventuretube.geospatial.kafka.Producer;
-import com.adventuretube.geospatial.model.entity.PublishStoryJobStatus;
+import com.adventuretube.geospatial.model.entity.StoryJobStatus;
 import com.adventuretube.geospatial.model.entity.adventuretube.AdventureTubeData;
 import com.adventuretube.geospatial.service.AdventureTubeDataService;
-import com.adventuretube.geospatial.service.PublishStoryJobStatusService;
+import com.adventuretube.geospatial.service.JobStatusService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -30,7 +30,7 @@ import java.util.UUID;
 public class AdventureTubeDataController {
 
     private final AdventureTubeDataService adventureTubeDataService;
-    private final PublishStoryJobStatusService publishStoryJobStatusService;
+    private final JobStatusService jobStatusService;
     private final Producer producer;
 
     @Operation(summary = "Get all geospatial data")
@@ -129,12 +129,12 @@ public class AdventureTubeDataController {
                                     """)))
     })
     @DeleteMapping("/data/delete/adventuretubedata")
-    public ResponseEntity<ServiceResponse<PublishStoryJobStatus>> deleteByYoutubeContentID(@RequestParam String youtubeContentId, @RequestParam String ownerEmail) {
+    public ResponseEntity<ServiceResponse<StoryJobStatus>> deleteByYoutubeContentID(@RequestParam String youtubeContentId, @RequestParam String ownerEmail) {
         log.info("DELETE /geo/data/delete/adventuretubedata youtubeContentId={}, ownerEmail={}", youtubeContentId, ownerEmail);
         String trackingId = UUID.randomUUID().toString();
-        PublishStoryJobStatus pendingJob = publishStoryJobStatusService.createPendingJob(trackingId,youtubeContentId);
+        StoryJobStatus pendingJob = jobStatusService.createPendingJob(trackingId,youtubeContentId);
         producer.deleteAdventureTubeData(trackingId, youtubeContentId, ownerEmail);
-        ServiceResponse<PublishStoryJobStatus> response = ServiceResponse.<PublishStoryJobStatus>builder()
+        ServiceResponse<StoryJobStatus> response = ServiceResponse.<StoryJobStatus>builder()
                 .success(true)
                 .message("Deletion accepted and processing")
                 .data(pendingJob)
@@ -160,14 +160,14 @@ public class AdventureTubeDataController {
                                     """)))
     })
     @PostMapping("/save")
-    public ResponseEntity<ServiceResponse<PublishStoryJobStatus>> save(@RequestBody AdventureTubeData data) {
+    public ResponseEntity<ServiceResponse<StoryJobStatus>> save(@RequestBody AdventureTubeData data) {
         log.info("POST /geo/save received: youtubeContentID={}", data.getYoutubeContentID());
 
         String trackingId = UUID.randomUUID().toString();
-        PublishStoryJobStatus pendingJob = publishStoryJobStatusService.createPendingJob(trackingId, data.getYoutubeContentID());
+        StoryJobStatus pendingJob = jobStatusService.createPendingJob(trackingId, data.getYoutubeContentID());
         producer.sendAdventureTubeData(trackingId, data);
 
-        ServiceResponse<PublishStoryJobStatus> response = ServiceResponse.<PublishStoryJobStatus>builder()
+        ServiceResponse<StoryJobStatus> response = ServiceResponse.<StoryJobStatus>builder()
                 .success(true)
                 .message("Data accepted and processing")
                 .data(pendingJob)

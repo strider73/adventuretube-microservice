@@ -4,5 +4,6 @@ public enum KafkaAction {
     CREATE,
     UPDATE,
     DELETE ,
-    GENERATE_SCREENSHOTS
+    GENERATE_SCREENSHOTS,
+    DELETE_SCREENSHOTS
 }

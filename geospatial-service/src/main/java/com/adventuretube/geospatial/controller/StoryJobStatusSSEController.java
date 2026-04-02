@@ -3,9 +3,9 @@ package com.adventuretube.geospatial.controller;
 import com.adventuretube.common.api.response.ServiceResponse;
 import com.adventuretube.geospatial.exceptions.JobNotFoundException;
 import com.adventuretube.geospatial.exceptions.code.GeoErrorCode;
-import com.adventuretube.geospatial.model.entity.PublishStoryJobStatus;
-import com.adventuretube.geospatial.model.enums.PublishStoryJobStatusEnum;
-import com.adventuretube.geospatial.service.PublishStoryJobStatusService;
+import com.adventuretube.geospatial.model.entity.StoryJobStatus;
+import com.adventuretube.geospatial.model.enums.StoryJobStatusEnum;
+import com.adventuretube.geospatial.service.JobStatusService;
 import com.adventuretube.geospatial.sse.SseEmitterManager;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -32,9 +32,9 @@ import java.time.LocalDateTime;
 @RequestMapping(value = "/geo")
 @RequiredArgsConstructor
 @Tag(name = "Job Status Controller", description = "Job status polling and SSE streaming for async geospatial operations.")
-public class PublishStoryJobStatusSSEController {
+public class StoryJobStatusSSEController {
 
-    private final PublishStoryJobStatusService publishStoryJobStatusService;
+    private final JobStatusService jobStatusService;
     private final SseEmitterManager sseEmitterManager;
 
     @Operation(summary = "Stream job status updates via Server-Sent Events")
@@ -57,11 +57,11 @@ public class PublishStoryJobStatusSSEController {
     public SseEmitter streamJobStatus(@PathVariable String trackingId) {
         log.info("SSE /geo/status/stream/{} requested", trackingId);
 
-        PublishStoryJobStatus jobStatus = publishStoryJobStatusService.findByTrackingId(trackingId)
+        StoryJobStatus jobStatus = jobStatusService.findByTrackingId(trackingId)
                 .orElseThrow(() -> new JobNotFoundException(GeoErrorCode.JOB_NOT_FOUND));
 
         // If already terminal, return immediately and complete
-        if (jobStatus.getStatus() != PublishStoryJobStatusEnum.PENDING) {
+        if (jobStatus.getStatus() != StoryJobStatusEnum.PENDING) {
             log.info("SSE /geo/status/stream/{} already terminal ({}), sending immediately", trackingId, jobStatus.getStatus());
             SseEmitter emitter = new SseEmitter(0L);
             try {
@@ -109,12 +109,12 @@ public class PublishStoryJobStatusSSEController {
                                     """)))
     })
     @GetMapping("/status/{trackingId}")
-    public ResponseEntity<ServiceResponse<PublishStoryJobStatus>> getJobStatus(@PathVariable String trackingId) {
+    public ResponseEntity<ServiceResponse<StoryJobStatus>> getJobStatus(@PathVariable String trackingId) {
         log.info("GET /geo/status/{} requested", trackingId);
-        PublishStoryJobStatus jobStatus = publishStoryJobStatusService.findByTrackingId(trackingId)
+        StoryJobStatus jobStatus = jobStatusService.findByTrackingId(trackingId)
                 .orElseThrow(() -> new JobNotFoundException(GeoErrorCode.JOB_NOT_FOUND));
 
-        ServiceResponse<PublishStoryJobStatus> response = ServiceResponse.<PublishStoryJobStatus>builder()
+        ServiceResponse<StoryJobStatus> response = ServiceResponse.<StoryJobStatus>builder()
                 .success(true)
                 .message("Job status retrieved")
                 .data(jobStatus)

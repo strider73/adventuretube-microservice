@@ -1,14 +1,14 @@
 package com.adventuretube.geospatial.integration;
 
-import com.adventuretube.geospatial.model.entity.PublishStoryJobStatus;
+import com.adventuretube.geospatial.model.entity.StoryJobStatus;
 import com.adventuretube.geospatial.model.entity.adventuretube.AdventureTubeData;
 import com.adventuretube.geospatial.model.entity.adventuretube.Chapter;
 import com.adventuretube.geospatial.model.entity.adventuretube.Location;
 import com.adventuretube.geospatial.model.entity.adventuretube.Place;
-import com.adventuretube.geospatial.model.enums.PublishStoryJobStatusEnum;
+import com.adventuretube.geospatial.model.enums.StoryJobStatusEnum;
 import com.adventuretube.geospatial.repository.AdventureTubeDataRepository;
-import com.adventuretube.geospatial.repository.PublishStoryJobStatusRepository;
-import com.adventuretube.geospatial.service.PublishStoryJobStatusService;
+import com.adventuretube.geospatial.repository.StoryJobStatusRepository;
+import com.adventuretube.geospatial.service.JobStatusService;
 import com.adventuretube.geospatial.kafka.Producer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;
@@ -41,19 +41,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @ActiveProfiles("integration")
-class PublishStoryJobStatusFullFlowIT {
+class StoryJobStatusFullFlowIT {
 
     @Autowired
     private MockMvc mockMvc;
 
     @Autowired
-    private PublishStoryJobStatusRepository publishStoryJobStatusRepository;
+    private StoryJobStatusRepository storyJobStatusRepository;
 
     @Autowired
     private AdventureTubeDataRepository adventureTubeDataRepository;
 
     @Autowired
-    private PublishStoryJobStatusService publishStoryJobStatusService;
+    private JobStatusService jobStatusService;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -69,7 +69,7 @@ class PublishStoryJobStatusFullFlowIT {
     @AfterEach
     void cleanup() {
         if (!createdJobIds.isEmpty()) {
-            publishStoryJobStatusRepository.deleteAllById(createdJobIds);
+            storyJobStatusRepository.deleteAllById(createdJobIds);
         }
         if (!createdDataIds.isEmpty()) {
             adventureTubeDataRepository.deleteAllById(createdDataIds);
@@ -149,9 +149,9 @@ class PublishStoryJobStatusFullFlowIT {
         String responseJson = result.getResponse().getContentAsString();
         String trackingId = objectMapper.readTree(responseJson).at("/data/trackingId").asText();
 
-        Optional<PublishStoryJobStatus> job = publishStoryJobStatusRepository.findByTrackingId(trackingId);
+        Optional<StoryJobStatus> job = storyJobStatusRepository.findByTrackingId(trackingId);
         assertThat(job).isPresent();
-        assertThat(job.get().getStatus()).isEqualTo(PublishStoryJobStatusEnum.PENDING);
+        assertThat(job.get().getStatus()).isEqualTo(StoryJobStatusEnum.PENDING);
         createdJobIds.add(job.get().getId());
     }
 
@@ -160,7 +160,7 @@ class PublishStoryJobStatusFullFlowIT {
     @Test
     void getStatus_shouldReturnPendingJob() throws Exception {
         String trackingId = UUID.randomUUID().toString();
-        PublishStoryJobStatus job = publishStoryJobStatusService.createPendingJob(trackingId, testYoutubeId("restPending"));
+        StoryJobStatus job = jobStatusService.createPendingJob(trackingId, testYoutubeId("restPending"));
         createdJobIds.add(job.getId());
 
         mockMvc.perform(get("/geo/status/{trackingId}", trackingId))
@@ -173,10 +173,10 @@ class PublishStoryJobStatusFullFlowIT {
     @Test
     void getStatus_shouldReturnCompletedJob() throws Exception {
         String trackingId = UUID.randomUUID().toString();
-        PublishStoryJobStatus job = publishStoryJobStatusService.createPendingJob(trackingId, testYoutubeId("restCompleted"));
+        StoryJobStatus job = jobStatusService.createPendingJob(trackingId, testYoutubeId("restCompleted"));
         createdJobIds.add(job.getId());
 
-        publishStoryJobStatusService.markCompleted(trackingId, 3, 2);
+        jobStatusService.markCompleted(trackingId, 3, 2);
 
         mockMvc.perform(get("/geo/status/{trackingId}", trackingId))
                 .andExpect(status().isOk())
@@ -188,10 +188,10 @@ class PublishStoryJobStatusFullFlowIT {
     @Test
     void getStatus_shouldReturnDuplicateJob() throws Exception {
         String trackingId = UUID.randomUUID().toString();
-        PublishStoryJobStatus job = publishStoryJobStatusService.createPendingJob(trackingId, testYoutubeId("restDup"));
+        StoryJobStatus job = jobStatusService.createPendingJob(trackingId, testYoutubeId("restDup"));
         createdJobIds.add(job.getId());
 
-        publishStoryJobStatusService.markCompletedWithDuplicate(trackingId);
+        jobStatusService.markCompletedWithDuplicate(trackingId);
 
         mockMvc.perform(get("/geo/status/{trackingId}", trackingId))
                 .andExpect(status().isOk())
@@ -211,10 +211,10 @@ class PublishStoryJobStatusFullFlowIT {
     @Test
     void sseStream_shouldReturnImmediatelyForTerminalStatus() throws Exception {
         String trackingId = UUID.randomUUID().toString();
-        PublishStoryJobStatus job = publishStoryJobStatusService.createPendingJob(trackingId, testYoutubeId("sseTerminal"));
+        StoryJobStatus job = jobStatusService.createPendingJob(trackingId, testYoutubeId("sseTerminal"));
         createdJobIds.add(job.getId());
 
-        publishStoryJobStatusService.markCompleted(trackingId, 5, 3);
+        jobStatusService.markCompleted(trackingId, 5, 3);
 
         MvcResult result = mockMvc.perform(get("/geo/status/stream/{trackingId}", trackingId)
                         .accept(MediaType.TEXT_EVENT_STREAM))
@@ -230,7 +230,7 @@ class PublishStoryJobStatusFullFlowIT {
     void sseStream_shouldPushCompletedEventWhenKafkaConsumerFinishes() throws Exception {
         // Step 1: Create a PENDING job (simulates what POST /geo/save does)
         String trackingId = UUID.randomUUID().toString();
-        PublishStoryJobStatus job = publishStoryJobStatusService.createPendingJob(trackingId, testYoutubeId("ssePush"));
+        StoryJobStatus job = jobStatusService.createPendingJob(trackingId, testYoutubeId("ssePush"));
         createdJobIds.add(job.getId());
 
         // Step 2: Open SSE connection asynchronously (simulates iOS calling GET /status/stream)
@@ -240,7 +240,7 @@ class PublishStoryJobStatusFullFlowIT {
                 .andReturn();
 
         // Step 3: Simulate Kafka consumer finishing — this calls sseEmitterManager.send()
-        publishStoryJobStatusService.markCompleted(trackingId, 4, 2);
+        jobStatusService.markCompleted(trackingId, 4, 2);
 
         // Step 4: Wait for async dispatch and verify SSE events
         mockMvc.perform(asyncDispatch(asyncResult))
@@ -253,7 +253,7 @@ class PublishStoryJobStatusFullFlowIT {
     @Test
     void sseStream_shouldPushDuplicateEventWhenKafkaConsumerDetectsDuplicate() throws Exception {
         String trackingId = UUID.randomUUID().toString();
-        PublishStoryJobStatus job = publishStoryJobStatusService.createPendingJob(trackingId, testYoutubeId("sseDup"));
+        StoryJobStatus job = jobStatusService.createPendingJob(trackingId, testYoutubeId("sseDup"));
         createdJobIds.add(job.getId());
 
         MvcResult asyncResult = mockMvc.perform(get("/geo/status/stream/{trackingId}", trackingId)
@@ -262,7 +262,7 @@ class PublishStoryJobStatusFullFlowIT {
                 .andReturn();
 
         // Simulate Kafka consumer detecting duplicate
-        publishStoryJobStatusService.markCompletedWithDuplicate(trackingId);
+        jobStatusService.markCompletedWithDuplicate(trackingId);
 
         mockMvc.perform(asyncDispatch(asyncResult))
                 .andExpect(status().isOk())
@@ -276,26 +276,26 @@ class PublishStoryJobStatusFullFlowIT {
                 .andExpect(status().isNotFound());
     }
 
-    // ── PublishStoryJobStatusService unit-level checks via integration context ────
+    // ── JobStatusService unit-level checks via integration context ────
 
     @Test
     void markFailed_shouldSetErrorMessage() {
         String trackingId = UUID.randomUUID().toString();
-        PublishStoryJobStatus job = publishStoryJobStatusService.createPendingJob(trackingId, testYoutubeId("failed"));
+        StoryJobStatus job = jobStatusService.createPendingJob(trackingId, testYoutubeId("failed"));
         createdJobIds.add(job.getId());
 
-        publishStoryJobStatusService.markFailed(trackingId, "Connection refused");
+        jobStatusService.markFailed(trackingId, "Connection refused");
 
-        Optional<PublishStoryJobStatus> updated = publishStoryJobStatusRepository.findByTrackingId(trackingId);
+        Optional<StoryJobStatus> updated = storyJobStatusRepository.findByTrackingId(trackingId);
         assertThat(updated).isPresent();
-        assertThat(updated.get().getStatus()).isEqualTo(PublishStoryJobStatusEnum.FAILED);
+        assertThat(updated.get().getStatus()).isEqualTo(StoryJobStatusEnum.FAILED);
         assertThat(updated.get().getErrorMessage()).isEqualTo("Connection refused");
     }
 
     @Test
     void createPendingJob_shouldSetExpireAtForTTL() {
         String trackingId = UUID.randomUUID().toString();
-        PublishStoryJobStatus job = publishStoryJobStatusService.createPendingJob(trackingId, testYoutubeId("ttl"));
+        StoryJobStatus job = jobStatusService.createPendingJob(trackingId, testYoutubeId("ttl"));
         createdJobIds.add(job.getId());
 
         assertThat(job.getExpireAt()).isNotNull();
