@@ -1,7 +1,7 @@
 package com.adventuretube.youtubeservice.service;
 
 
-import com.adventuretube.youtubeservice.kafka.ScreenshotProducer;
+import com.adventuretube.youtubeservice.kafka.ScreenProducer;
 import com.adventuretube.youtubeservice.model.entity.adventuretube.AdventureTubeData;
 import com.adventuretube.youtubeservice.model.entity.adventuretube.Chapter;
 
@@ -18,7 +18,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
-import java.util.UUID;
 
 
 @Slf4j
@@ -26,19 +25,21 @@ import java.util.UUID;
 public class ScreenshotService {
     private final S3Client s3Client;
     private final String bucketName;
-    private final ScreenshotProducer screenshotProducer;
+    private final ScreenProducer screenProducer;
 
     public ScreenshotService(S3Client s3Client,
                              @Value("${minio.bucket-name}")String bucketName,
-                             ScreenshotProducer screenshotProducer) {
+                             ScreenProducer screenProducer) {
         this.s3Client = s3Client;
         this.bucketName = bucketName;
-        this.screenshotProducer = screenshotProducer;
+        this.screenProducer = screenProducer;
 
     }
 
 
-    public void processScreenshotJob(String youtubeContentID, List<Chapter> chapters) {
+    public void processScreenshotJob(String youtubeContentID,
+                                     String trackingId ,
+                                     List<Chapter> chapters) {
         //find existing or create new job status
 
 
@@ -93,10 +94,8 @@ public class ScreenshotService {
                                 .build(),
                         screenshotFile);
 
-                // Step 4: Update chapter so adventuretubeData can be updated
+                // Step 4: Set screenshot URL on chapter
                 chapter.setScreenshotUrl(s3Key);
-
-
 
                 log.info("Screenshot uploaded: {}/{}", bucketName, s3Key);
             }
@@ -104,10 +103,9 @@ public class ScreenshotService {
 
             log.info("All screenshots completed for {}", youtubeContentID);
             //TODO create kafka message to update screenshots URL in geospatial-servic
-            String trackingId = UUID.randomUUID().toString();
             AdventureTubeData data = new AdventureTubeData();
             data.setChapters(chapters);
-            screenshotProducer.returnScreenshotURL(youtubeContentID,trackingId,data);
+            screenProducer.returnScreenshotURL(youtubeContentID,trackingId,data);
 
         } catch (IOException | InterruptedException e) {
             log.error("Screenshot processing failed for {}: {}", youtubeContentID, e.getMessage(), e);
@@ -128,20 +126,25 @@ public class ScreenshotService {
 
     }
 
-    public void deleteScreenshots(String youtubeContentID, AdventureTubeData adventureTubeData) {
+    public void deleteScreenshots(String youtubeContentID, String trackingId, AdventureTubeData adventureTubeData) {
 
         adventureTubeData.getChapters().forEach(chapter -> {
             if (chapter.getScreenshotUrl() != null) {
+                log.info("chapter url :"+chapter.getScreenshotUrl());
                 s3Client.deleteObject(
                         DeleteObjectRequest.builder()
                         .bucket(bucketName)
                         .key(chapter.getScreenshotUrl())
                         .build());
+                chapter.setScreenshotUrl(null);//remove screenshot url from chapter
                 log.info("Deleted screenshot: {}", chapter.getScreenshotUrl());
             }
+
         });
         log.info("All screenshots deleted for {}", youtubeContentID);
 
+        //create kafka message to update all deletion has been completed
+        screenProducer.returnDeleteResult(youtubeContentID, trackingId, adventureTubeData);
 
 
     }

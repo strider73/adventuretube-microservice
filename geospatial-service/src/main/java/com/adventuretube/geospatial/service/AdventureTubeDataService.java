@@ -83,6 +83,15 @@ public class AdventureTubeDataService {
     }
 
 
+    public void deleteByYoutubeContentId(String youtubeContentId) {
+        AdventureTubeData data = repository.findByYoutubeContentID(youtubeContentId)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "AdventureTubeData not found with youtubeContentID: " + youtubeContentId));
+        repository.deleteById(data.getId());
+
+    }
+
+
     // Called by: AdventureTubeDataController (REST)
     public List<AdventureTubeData> findWithinBounds(double swLng, double swLat, double neLng, double neLat) {
         Query query = new Query(

@@ -97,6 +97,7 @@ public class StoryConsumer {
 
         if (youtubeContentId == null || ownerEmail == null) {
             logger.error("DELETE action but missing youtubeContentId or ownerEmail, trackingId={}", trackingId);
+            jobStatusService.markFailed(trackingId, "youtubeContentId or email is null");
             return;
         }
 
@@ -111,13 +112,11 @@ public class StoryConsumer {
                         return data;
                     }).orElseThrow(() -> new DataNotFoundException(GeoErrorCode.DATA_NOT_FOUND));
 
-            //delete screenshot
-            screenshotService.deleteScreenshots(youtubeContentId,adventureTubeData );
-            //delete story
-            //2 delete all stories from MongoDB
-            adventureTubeDataService.deleteByYoutubeContentIdAndOwnerEmail(youtubeContentId, ownerEmail);
-            //3 mark the job as completed
-            jobStatusService.markCompleted(trackingId, 0, 0);
+            //TODO: Deleting image from S3 need to be implemented from  youtube-service  completed at geospatial-service
+
+            //This will be the request point to create producer for deleting request that will be listened from youtube-service
+            screenshotService.deleteScreenshots(youtubeContentId,trackingId,adventureTubeData );
+
 
         } catch (Exception e) {
             logger.error("Failed to delete: {}", e.getMessage(), e);

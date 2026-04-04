@@ -1,4 +1,4 @@
-package com.adventuretube.geospatial.kafka.entity;
+package com.adventuretube.youtubeservice.kafka.entity;
 
 public enum KafkaAction {
     CREATE,
@@ -10,4 +10,5 @@ public enum KafkaAction {
     //result
     SCREENSHOTS_COMPLETED,
     SCREENSHOTS_DELETED
+
 }

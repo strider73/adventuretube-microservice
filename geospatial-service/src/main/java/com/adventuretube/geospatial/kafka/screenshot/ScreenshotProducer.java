@@ -30,6 +30,9 @@ public class ScreenshotProducer extends BaseProducer {
     }
 
 
+
+    //This request will be listened from youtube-service not the geospatial-service
+    //because topic name of adventuretube-screenshots  and kafka action of DELETE_SCREENSHOTS
     public void deleteScreenshotRequest(String youtubeContentID,String trackingId,AdventureTubeData data){
         KafkaMessage kafkaMessage = new KafkaMessage(trackingId, youtubeContentID, null, KafkaAction.DELETE_SCREENSHOTS, data);
         String json = serializeMessage(kafkaMessage);

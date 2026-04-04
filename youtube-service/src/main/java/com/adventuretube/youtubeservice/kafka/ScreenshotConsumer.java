@@ -1,5 +1,6 @@
 package com.adventuretube.youtubeservice.kafka;
 
+import com.adventuretube.youtubeservice.kafka.entity.KafkaMessage;
 import com.adventuretube.youtubeservice.service.ScreenshotService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -56,11 +57,12 @@ public class ScreenshotConsumer {
 
         String youtubeContentID = kafkaMessage.getYoutubeContentId();
         log.info("Starting screenshot generation for youtubeContentID={}", youtubeContentID);
-        screenshotService.processScreenshotJob(youtubeContentID, kafkaMessage.getData().getChapters());
+        screenshotService.processScreenshotJob(youtubeContentID,trackingId,kafkaMessage.getData().getChapters());
+
 
 
     }
-    //Story consumer already check for adventuretubeData exist using youtubeContentId and data already added to kafkaMessage
+    //Listening delete request from geospatial-service & ownership validation done in story consumer in geospatial-service
     private void handleDeleteScreenshots(KafkaMessage kafkaMessage, String trackingId) {
         //double check the data and chapter exist
         if (kafkaMessage.getData() == null || kafkaMessage.getData().getChapters() == null) {
@@ -70,7 +72,7 @@ public class ScreenshotConsumer {
 
         String youtubeContentID = kafkaMessage.getYoutubeContentId();
         log.info("Starting screenshot deletion for youtubeContentID={}", youtubeContentID);
-        screenshotService.deleteScreenshots(youtubeContentID, kafkaMessage.getData());
+        screenshotService.deleteScreenshots(youtubeContentID,trackingId ,kafkaMessage.getData());
 
     }
 }

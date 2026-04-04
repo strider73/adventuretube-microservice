@@ -1,5 +1,6 @@
-package com.adventuretube.youtubeservice.kafka;
+package com.adventuretube.youtubeservice.kafka.entity;
 
+import com.adventuretube.youtubeservice.kafka.entity.KafkaAction;
 import com.adventuretube.youtubeservice.model.entity.adventuretube.AdventureTubeData;
 import lombok.AllArgsConstructor;
 import lombok.Data;
