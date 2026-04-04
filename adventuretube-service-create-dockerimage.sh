@@ -43,7 +43,7 @@ echo "$(date) - Installing common-api module..."
 
 # Step 4: Clean and build Maven project
 echo "$(date) - Cleaning and building Maven project..."
-MODULES=${3:-auth-service,member-service,web-service,geospatial-service}
+MODULES=${3:-auth-service,member-service,web-service,geospatial-service,youtube-service}
 ./mvnw clean package -DskipTests -pl $MODULES
 if [ $? -ne 0 ]; then
     echo "$(date) - Maven build failed."
@@ -60,4 +60,4 @@ fi
 
 # Completion message
 echo "$(date) - Docker images created successfully!"
-echo "$(date) - Images ready: auth-service, member-service, web-service, geospatial-service"
+echo "$(date) - Images ready: auth-service, member-service, web-service, geospatial-service, youtube-service"

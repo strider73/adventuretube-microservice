@@ -12,7 +12,7 @@ pipeline {
         SSH_KEY  = '/home/jenkins/.ssh/id_rsa'
         SSH_OPTS = '-o StrictHostKeyChecking=no'
         REMOTE_DIR = '/home/strider/adventuretube-microservice'
-        SERVICE_IMAGES = 'auth-service member-service web-service geospatial-service'
+        SERVICE_IMAGES = 'auth-service member-service web-service geospatial-service youtube-service'
     }
 
     stages {
@@ -73,7 +73,7 @@ pipeline {
                     ssh -i ${SSH_KEY} ${SSH_OPTS} strider@${PI2_HOST} "cat ${REMOTE_DIR}/k8s/adventure-services.yaml" \
                         | ssh -i ${SSH_KEY} ${SSH_OPTS} strider@${PI1_HOST} "sudo kubectl apply --validate=false -f - -n adventuretube"
                     ssh -i ${SSH_KEY} ${SSH_OPTS} strider@${PI1_HOST} \
-                        "sudo kubectl rollout restart deployment/auth-service deployment/member-service deployment/web-service deployment/geospatial-service -n adventuretube"
+                        "sudo kubectl rollout restart deployment/auth-service deployment/member-service deployment/web-service deployment/geospatial-service deployment/youtube-service -n adventuretube"
                 """
             }
         }
@@ -81,7 +81,7 @@ pipeline {
         stage('Check K3s Pod Health') {
             steps {
                 script {
-                    def services = ["auth-service", "member-service", "web-service", "geospatial-service"]
+                    def services = ["auth-service", "member-service", "web-service", "geospatial-service", "youtube-service"]
 
                     services.each { service ->
                         def serviceReady = false

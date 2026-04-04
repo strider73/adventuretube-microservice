@@ -110,6 +110,28 @@ services:
       - adventuretube-jenkins-network
     restart: no
 
+  youtube-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.pi.youtube
+      args:
+        BASE_IMAGE: ${BASE_IMAGE}
+        MODULE_NAME: youtube-service
+        APP_PORT: ${YOUTUBE_PORT}
+        DEBUG_PORT: ${YOUTUBE_DEBUG_PORT}
+    ports:
+      - "${YOUTUBE_PORT}:${YOUTUBE_PORT}"
+      - "${YOUTUBE_DEBUG_PORT}:${YOUTUBE_DEBUG_PORT}"
+    environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+      - ENV_TARGET=${ENV_TARGET}
+      - JAVA_DEBUG_PORT=${YOUTUBE_DEBUG_PORT}
+      - CONFIG_SERVER_URL=${CONFIG_SERVER_URL}
+      - JAVA_TOOL_OPTIONS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:${YOUTUBE_DEBUG_PORT}"
+    networks:
+      - adventuretube-jenkins-network
+    restart: no
+
 networks:
   adventuretube-jenkins-network:
     driver: bridge
