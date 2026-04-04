@@ -1,42 +1,28 @@
-package com.adventuretube.geospatial.kafka;
+package com.adventuretube.youtubeservice.kafka;
 
-import com.adventuretube.geospatial.model.entity.adventuretube.AdventureTubeData;
+
+import com.adventuretube.youtubeservice.model.entity.adventuretube.AdventureTubeData;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Service
 @RequiredArgsConstructor
-public class Producer {
-    private static final Logger logger = LoggerFactory.getLogger(Producer.class);
-    private static final String STORY_CREATE_TOPIC = "adventuretube-data";
-    private static final String STORY_DELETE_TOPIC = "adventuretube-data";
+public class ScreenshotProducer {
 
+    private static final Logger logger = LoggerFactory.getLogger(ScreenshotProducer.class);
     private static final String SCREENSHOT_CREATE_TOPIC = "adventuretube-screenshots";
     private static final String SCREENSHOT_DELETE_TOPIC = "adventuretube-screenshots";
-
 
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final ObjectMapper objectMapper;
 
-    public void sendAdventureTubeData(String trackingId, AdventureTubeData data) {
-        KafkaMessage kafkaMessage = new KafkaMessage(trackingId, null, null, KafkaAction.CREATE, data);
-        String json = serializeMessage(kafkaMessage);
-        sendToKafka(STORY_CREATE_TOPIC, data.getYoutubeContentID(), json, "trackingId=" + trackingId);
-    }
-
-    public void deleteAdventureTubeData(String trackingId, String youtubeContentId, String ownerEmail) {
-        KafkaMessage kafkaMessage = new KafkaMessage(trackingId, youtubeContentId, ownerEmail, KafkaAction.DELETE,
-                null);
-        String json = serializeMessage(kafkaMessage);
-        sendToKafka(STORY_DELETE_TOPIC, youtubeContentId, json, "trackingId=" + trackingId);
-    }
-
-    public void sendScreenshotRequest(String youtubeContentID,String trackingId, AdventureTubeData data) {
+    public void returnScreenshotURL(String youtubeContentID, String trackingId, AdventureTubeData data) {
         KafkaMessage kafkaMessage = new KafkaMessage(trackingId, youtubeContentID, null,
                 KafkaAction.GENERATE_SCREENSHOTS, data);
         String json = serializeMessage(kafkaMessage);

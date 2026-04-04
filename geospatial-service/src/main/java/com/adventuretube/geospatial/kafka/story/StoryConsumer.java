@@ -1,8 +1,10 @@
-package com.adventuretube.geospatial.kafka;
+package com.adventuretube.geospatial.kafka.story;
 
 import com.adventuretube.geospatial.exceptions.DataNotFoundException;
 import com.adventuretube.geospatial.exceptions.OwnershipMismatchException;
 import com.adventuretube.geospatial.exceptions.code.GeoErrorCode;
+import com.adventuretube.geospatial.kafka.entity.KafkaMessage;
+import com.adventuretube.geospatial.kafka.screenshot.ScreenshotProducer;
 import com.adventuretube.geospatial.service.JobStatusService;
 import com.adventuretube.geospatial.service.ScreenshotService;
 import org.springframework.dao.DuplicateKeyException;
@@ -26,7 +28,8 @@ public class StoryConsumer {
     private final JobStatusService jobStatusService;
     private final ObjectMapper objectMapper;
 
-    private final Producer producer;
+    private final StoryProducer storyProducer;
+    private final ScreenshotProducer screenshotProducer;
 
     @KafkaListener(topics = "adventuretube-data", groupId = "${spring.kafka.consumer.group-id}")
     public void consume(String message) {
@@ -72,7 +75,7 @@ public class StoryConsumer {
             int placesCount = saved.getPlaces() != null ? saved.getPlaces().size() : 0;
             jobStatusService.markCompleted(trackingId, chaptersCount, placesCount);
             //trigger async screenshot generation  NO jobStatus created!!! iOS need a polling to check later
-            producer.sendScreenshotRequest(data.getYoutubeContentID(), trackingId, data);
+            screenshotProducer.sendScreenshotRequest(data.getYoutubeContentID(), trackingId, data);
 
         } catch (DuplicateKeyException e) {
             logger.warn("Duplicate youtubeContentID={}, skipping", data.getYoutubeContentID());

@@ -1,34 +1,30 @@
-package com.adventuretube.geospatial.kafka;
+package com.adventuretube.youtubeservice.kafka;
 
-import com.adventuretube.geospatial.service.JobStatusService;
-import com.adventuretube.geospatial.service.ScreenshotService;
+import com.adventuretube.youtubeservice.service.ScreenshotService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
-import  org.slf4j.LoggerFactory;
+import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
-
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class ScreenshotConsumer {
     private static final Logger logger = LoggerFactory.getLogger(ScreenshotConsumer.class);
-
-
-    private final ScreenshotService screenshotService;
     private final ObjectMapper objectMapper;
-    private final JobStatusService jobStatusService;
+    private final ScreenshotService screenshotService;
 
     @KafkaListener(topics = "adventuretube-screenshots", groupId = "${spring.kafka.consumer.group-id}")
-    public void consume(String message) {
+    public void consume(String message){
         log.info("Consumed screenshot message: {}",
                 message.length() > 200 ? message.substring(0, 200) + "..." : message);
 
         KafkaMessage kafkaMessage;
+
         try {
             kafkaMessage = objectMapper.readValue(message, KafkaMessage.class);
         } catch (JsonProcessingException e) {
@@ -49,11 +45,8 @@ public class ScreenshotConsumer {
             case DELETE_SCREENSHOTS -> handleDeleteScreenshots(kafkaMessage,trackingId);
             default -> {
                 log.error("Unexpected action on screenshot topic: {}", kafkaMessage.getAction());
-                jobStatusService.markFailed(trackingId, "Unknown action: " + kafkaMessage.getAction());
             }
         }
-
-
     }
     private void handleGenerateScreenshots(KafkaMessage kafkaMessage, String trackingId) {
         if (kafkaMessage.getData() == null || kafkaMessage.getData().getChapters() == null) {
@@ -63,8 +56,9 @@ public class ScreenshotConsumer {
 
         String youtubeContentID = kafkaMessage.getYoutubeContentId();
         log.info("Starting screenshot generation for youtubeContentID={}", youtubeContentID);
-
         screenshotService.processScreenshotJob(youtubeContentID, kafkaMessage.getData().getChapters());
+
+
     }
     //Story consumer already check for adventuretubeData exist using youtubeContentId and data already added to kafkaMessage
     private void handleDeleteScreenshots(KafkaMessage kafkaMessage, String trackingId) {
@@ -77,5 +71,6 @@ public class ScreenshotConsumer {
         String youtubeContentID = kafkaMessage.getYoutubeContentId();
         log.info("Starting screenshot deletion for youtubeContentID={}", youtubeContentID);
         screenshotService.deleteScreenshots(youtubeContentID, kafkaMessage.getData());
+
     }
 }

@@ -1,6 +1,6 @@
 package com.adventuretube.geospatial.controller;
 
-import com.adventuretube.geospatial.kafka.Producer;
+import com.adventuretube.geospatial.kafka.story.StoryProducer;
 import com.adventuretube.geospatial.model.entity.StoryJobStatus;
 import com.adventuretube.geospatial.model.entity.adventuretube.AdventureTubeData;
 import com.adventuretube.geospatial.model.enums.StoryJobStatusEnum;
@@ -42,7 +42,7 @@ class AdventureTubeDataControllerTest {
     private AdventureTubeDataService adventureTubeDataService;
 
     @MockitoBean
-    private Producer producer;
+    private StoryProducer storyProducer;
 
     @MockitoBean
     private JobStatusService jobStatusService;
@@ -208,7 +208,7 @@ class AdventureTubeDataControllerTest {
                 .andExpect(jsonPath("$.data.trackingId").value("test-tracking-id"))
                 .andExpect(jsonPath("$.data.status").value("PENDING"));
 
-        verify(producer).sendAdventureTubeData(anyString(), any(AdventureTubeData.class));
+        verify(storyProducer).sendAdventureTubeData(anyString(), any(AdventureTubeData.class));
     }
 
 }

@@ -1,6 +1,6 @@
-package com.adventuretube.geospatial.kafka;
+package com.adventuretube.youtubeservice.kafka;
 
-import com.adventuretube.geospatial.model.entity.adventuretube.AdventureTubeData;
+import com.adventuretube.youtubeservice.model.entity.adventuretube.AdventureTubeData;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

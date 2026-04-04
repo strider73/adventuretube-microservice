@@ -1,4 +1,4 @@
-package com.adventuretube.geospatial.kafka;
+package com.adventuretube.youtubeservice.kafka;
 
 public enum KafkaAction {
     CREATE,

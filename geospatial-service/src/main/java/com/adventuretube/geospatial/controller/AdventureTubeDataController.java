@@ -1,7 +1,7 @@
 package com.adventuretube.geospatial.controller;
 
 import com.adventuretube.common.api.response.ServiceResponse;
-import com.adventuretube.geospatial.kafka.Producer;
+import com.adventuretube.geospatial.kafka.story.StoryProducer;
 import com.adventuretube.geospatial.model.entity.StoryJobStatus;
 import com.adventuretube.geospatial.model.entity.adventuretube.AdventureTubeData;
 import com.adventuretube.geospatial.service.AdventureTubeDataService;
@@ -31,7 +31,7 @@ public class AdventureTubeDataController {
 
     private final AdventureTubeDataService adventureTubeDataService;
     private final JobStatusService jobStatusService;
-    private final Producer producer;
+    private final StoryProducer storyProducer;
 
     @Operation(summary = "Get all geospatial data")
     @ApiResponse(responseCode = "200", description = "All geospatial data retrieved.")
@@ -133,7 +133,7 @@ public class AdventureTubeDataController {
         log.info("DELETE /geo/data/delete/adventuretubedata youtubeContentId={}, ownerEmail={}", youtubeContentId, ownerEmail);
         String trackingId = UUID.randomUUID().toString();
         StoryJobStatus pendingJob = jobStatusService.createPendingJob(trackingId,youtubeContentId);
-        producer.deleteAdventureTubeData(trackingId, youtubeContentId, ownerEmail);
+        storyProducer.deleteAdventureTubeData(trackingId, youtubeContentId, ownerEmail);
         ServiceResponse<StoryJobStatus> response = ServiceResponse.<StoryJobStatus>builder()
                 .success(true)
                 .message("Deletion accepted and processing")
@@ -165,7 +165,7 @@ public class AdventureTubeDataController {
 
         String trackingId = UUID.randomUUID().toString();
         StoryJobStatus pendingJob = jobStatusService.createPendingJob(trackingId, data.getYoutubeContentID());
-        producer.sendAdventureTubeData(trackingId, data);
+        storyProducer.sendAdventureTubeData(trackingId, data);
 
         ServiceResponse<StoryJobStatus> response = ServiceResponse.<StoryJobStatus>builder()
                 .success(true)

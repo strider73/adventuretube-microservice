@@ -1,7 +1,7 @@
-geospatial-service:
+youtube-service:
   yml:
 server:
-  port: ${GEO_PORT}
+  port: ${YOUTUBE_PORT}
 
 spring:
   cloud:
@@ -13,17 +13,6 @@ spring:
         - docker*
         - veth*
         - br-*
-  data:
-    mongodb:
-      authentication-database: ${MONGO_AUTH_DB}
-      username: ${MONGO_USERNAME}
-      password: ${MONGO_PASSWORD}
-      database: ${MONGO_DB}
-      port: ${MONGO_PORT}
-      host: ${MONGO_HOST}
-      auto-index-creation: true
-    rest:
-      base-path: /api/rest
   kafka:
     template:
       observation-enabled: true
@@ -31,7 +20,7 @@ spring:
       observation-enabled: true
     consumer:
       bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
-      group-id: ${GEO_KAFKA_GROUP_ID}
+      group-id: ${YOUTUBE_KAFKA_GROUP_ID}
       auto-offset-reset: ${KAFKA_AUTO_OFFSET_RESET}
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
@@ -56,9 +45,6 @@ minio:
   secret-key: ${MINIO_SECRET_KEY}
   bucket-name: ${MINIO_BUCKET_NAME}
 
-jwt:
-  secret: ${JWT_SECRET}
-
 logging:
   pattern:
     level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
@@ -73,8 +59,8 @@ management:
     tracing:
       endpoint: ${ZIPKIN_URL}/api/v2/spans
 
-springdoc:
-  api-docs:
-    path: /v3/api-docs
-  swagger-ui:
-    path: /swagger-ui.html
+#springdoc:
+#  api-docs:
+#    path: /v3/api-docs
+#  swagger-ui:
+#    path: /swagger-ui.html

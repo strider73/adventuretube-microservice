@@ -1,5 +1,9 @@
 package com.adventuretube.geospatial.kafka;
 
+import com.adventuretube.geospatial.kafka.entity.KafkaAction;
+import com.adventuretube.geospatial.kafka.entity.KafkaMessage;
+import com.adventuretube.geospatial.kafka.story.StoryConsumer;
+import com.adventuretube.geospatial.kafka.story.StoryProducer;
 import com.adventuretube.geospatial.model.entity.adventuretube.AdventureTubeData;
 import com.adventuretube.geospatial.service.AdventureTubeDataService;
 import com.adventuretube.geospatial.service.JobStatusService;
@@ -27,7 +31,7 @@ class StoryConsumerTest {
     private JobStatusService jobStatusService;
 
     @Mock
-    private Producer producer;
+    private StoryProducer storyProducer;
 
     @Spy
     private ObjectMapper objectMapper = new ObjectMapper();

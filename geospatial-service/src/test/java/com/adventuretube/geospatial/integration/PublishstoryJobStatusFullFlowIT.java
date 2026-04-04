@@ -1,5 +1,6 @@
 package com.adventuretube.geospatial.integration;
 
+import com.adventuretube.geospatial.kafka.story.StoryProducer;
 import com.adventuretube.geospatial.model.entity.StoryJobStatus;
 import com.adventuretube.geospatial.model.entity.adventuretube.AdventureTubeData;
 import com.adventuretube.geospatial.model.entity.adventuretube.Chapter;
@@ -9,7 +10,6 @@ import com.adventuretube.geospatial.model.enums.StoryJobStatusEnum;
 import com.adventuretube.geospatial.repository.AdventureTubeDataRepository;
 import com.adventuretube.geospatial.repository.StoryJobStatusRepository;
 import com.adventuretube.geospatial.service.JobStatusService;
-import com.adventuretube.geospatial.kafka.Producer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -36,7 +36,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 /**
  * Integration tests for the Job Status tracking + SSE flow.
- * Uses real MongoDB, mocks Kafka Producer (same pattern as AdventureTubeDataFullStackIT).
+ * Uses real MongoDB, mocks Kafka StoryProducer (same pattern as AdventureTubeDataFullStackIT).
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
@@ -58,9 +58,9 @@ class StoryJobStatusFullFlowIT {
     @Autowired
     private ObjectMapper objectMapper;
 
-    /** Mock Kafka Producer to avoid requiring a Kafka broker */
+    /** Mock Kafka StoryProducer to avoid requiring a Kafka broker */
     @MockitoBean
-    private Producer kafkaProducer;
+    private StoryProducer kafkaStoryProducer;
 
     private final List<String> createdJobIds = new ArrayList<>();
     private final List<String> createdDataIds = new ArrayList<>();

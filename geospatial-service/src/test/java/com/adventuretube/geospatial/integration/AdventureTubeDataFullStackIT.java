@@ -1,5 +1,6 @@
 package com.adventuretube.geospatial.integration;
 
+import com.adventuretube.geospatial.kafka.story.StoryProducer;
 import com.adventuretube.geospatial.model.entity.adventuretube.AdventureTubeData;
 import com.adventuretube.geospatial.model.entity.adventuretube.Chapter;
 import com.adventuretube.geospatial.model.entity.adventuretube.Location;
@@ -7,7 +8,6 @@ import com.adventuretube.geospatial.model.entity.adventuretube.Place;
 import com.adventuretube.geospatial.repository.AdventureTubeDataRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import com.adventuretube.geospatial.kafka.Producer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -43,9 +43,9 @@ class AdventureTubeDataFullStackIT {
     @Autowired
     private ObjectMapper objectMapper;
 
-    /** Mock Kafka Producer to avoid requiring a Kafka broker in integration tests */
+    /** Mock Kafka StoryProducer to avoid requiring a Kafka broker in integration tests */
     @MockitoBean
-    private Producer kafkaProducer;
+    private StoryProducer kafkaStoryProducer;
 
     private final List<String> createdIds = new ArrayList<>();
     private final String testRunId = UUID.randomUUID().toString().substring(0, 8);
@@ -217,10 +217,10 @@ class AdventureTubeDataFullStackIT {
                 .andExpect(jsonPath("$.data.status").value("PENDING"))
                 .andExpect(jsonPath("$.data.youtubeContentID").value(testYoutubeId("postSave")));
 
-        verify(kafkaProducer).sendAdventureTubeData(any(String.class), any(AdventureTubeData.class));
+        verify(kafkaStoryProducer).sendAdventureTubeData(any(String.class), any(AdventureTubeData.class));
     }
 
-    // ── POST /geo/save → verify data sent to Producer ─────────────────
+    // ── POST /geo/save → verify data sent to StoryProducer ─────────────────
 
     @Test
     void save_shouldSendCorrectDataToProducer() throws Exception {
@@ -235,7 +235,7 @@ class AdventureTubeDataFullStackIT {
                 org.mockito.ArgumentCaptor.forClass(String.class);
         org.mockito.ArgumentCaptor<AdventureTubeData> dataCaptor =
                 org.mockito.ArgumentCaptor.forClass(AdventureTubeData.class);
-        verify(kafkaProducer).sendAdventureTubeData(trackingIdCaptor.capture(), dataCaptor.capture());
+        verify(kafkaStoryProducer).sendAdventureTubeData(trackingIdCaptor.capture(), dataCaptor.capture());
 
         assertThat(trackingIdCaptor.getValue()).isNotBlank();
         AdventureTubeData captured = dataCaptor.getValue();
