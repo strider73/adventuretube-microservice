@@ -1,8 +1,8 @@
-package com.adventuretube.geospatial.service;
+package com.adventuretube.geospatial.service.jobstatus;
 
 import com.adventuretube.geospatial.exceptions.JobNotFoundException;
 import com.adventuretube.geospatial.exceptions.code.GeoErrorCode;
-import com.adventuretube.geospatial.model.entity.StoryJobStatus;
+import com.adventuretube.geospatial.model.entity.jobstatus.StoryJobStatus;
 import com.adventuretube.geospatial.model.enums.StoryJobStatusEnum;
 import com.adventuretube.geospatial.repository.StoryJobStatusRepository;
 import com.adventuretube.geospatial.sse.SseEmitterManager;
@@ -16,7 +16,7 @@ import java.util.Optional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class JobStatusService {
+public class StoryJobStatusService {
 
     private final StoryJobStatusRepository storyJobStatusRepository;
     private final SseEmitterManager sseEmitterManager;
@@ -62,5 +62,9 @@ public class JobStatusService {
         // Push update to SSE client (no-op if no client is listening)
         sseEmitterManager.send(trackingId, saved);
         return saved;
+    }
+
+    public void deleteByTrackingId(String trackingId) {
+        storyJobStatusRepository.deleteByTrackingId(trackingId);
     }
 }

@@ -1,6 +1,6 @@
 package com.adventuretube.geospatial.sse;
 
-import com.adventuretube.geospatial.model.entity.StoryJobStatus;
+import com.adventuretube.geospatial.model.entity.jobstatus.StoryJobStatus;
 import com.adventuretube.geospatial.model.enums.StoryJobStatusEnum;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

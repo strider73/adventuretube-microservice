@@ -1,9 +1,10 @@
 package com.adventuretube.geospatial.service;
 
 import com.adventuretube.geospatial.exceptions.JobNotFoundException;
-import com.adventuretube.geospatial.model.entity.StoryJobStatus;
+import com.adventuretube.geospatial.model.entity.jobstatus.StoryJobStatus;
 import com.adventuretube.geospatial.model.enums.StoryJobStatusEnum;
 import com.adventuretube.geospatial.repository.StoryJobStatusRepository;
+import com.adventuretube.geospatial.service.jobstatus.StoryJobStatusService;
 import com.adventuretube.geospatial.sse.SseEmitterManager;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,7 +20,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class JobStatusServiceTest {
+class StoryJobStatusServiceTest {
 
     @Mock
     private StoryJobStatusRepository storyJobStatusRepository;
@@ -28,13 +29,13 @@ class JobStatusServiceTest {
     private SseEmitterManager sseEmitterManager;
 
     @InjectMocks
-    private JobStatusService jobStatusService;
+    private StoryJobStatusService storyJobStatusService;
 
     @Test
     void createPendingJob_shouldSaveWithCorrectFields() {
         when(storyJobStatusRepository.save(any(StoryJobStatus.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        StoryJobStatus result = jobStatusService.createPendingJob("track-1", "yt-123");
+        StoryJobStatus result = storyJobStatusService.createPendingJob("track-1", "yt-123");
 
         assertThat(result.getTrackingId()).isEqualTo("track-1");
         assertThat(result.getYoutubeContentID()).isEqualTo("yt-123");
@@ -55,7 +56,7 @@ class JobStatusServiceTest {
         when(storyJobStatusRepository.findByTrackingId("track-1")).thenReturn(Optional.of(existing));
         when(storyJobStatusRepository.save(any(StoryJobStatus.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        StoryJobStatus result = jobStatusService.markCompleted("track-1", 5, 3);
+        StoryJobStatus result = storyJobStatusService.markCompleted("track-1", 5, 3);
 
         assertThat(result.getStatus()).isEqualTo(StoryJobStatusEnum.COMPLETED);
         assertThat(result.getChaptersCount()).isEqualTo(5);
@@ -74,7 +75,7 @@ class JobStatusServiceTest {
         when(storyJobStatusRepository.findByTrackingId("track-2")).thenReturn(Optional.of(existing));
         when(storyJobStatusRepository.save(any(StoryJobStatus.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        StoryJobStatus result = jobStatusService.markCompletedWithDuplicate("track-2");
+        StoryJobStatus result = storyJobStatusService.markCompletedWithDuplicate("track-2");
 
         assertThat(result.getStatus()).isEqualTo(StoryJobStatusEnum.DUPLICATED);
         assertThat(result.getErrorMessage()).isEqualTo("DUPLICATE YOUTUBE ID");
@@ -91,7 +92,7 @@ class JobStatusServiceTest {
         when(storyJobStatusRepository.findByTrackingId("track-3")).thenReturn(Optional.of(existing));
         when(storyJobStatusRepository.save(any(StoryJobStatus.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        StoryJobStatus result = jobStatusService.markFailed("track-3", "Connection refused");
+        StoryJobStatus result = storyJobStatusService.markFailed("track-3", "Connection refused");
 
         assertThat(result.getStatus()).isEqualTo(StoryJobStatusEnum.FAILED);
         assertThat(result.getErrorMessage()).isEqualTo("Connection refused");
@@ -103,7 +104,7 @@ class JobStatusServiceTest {
     void markCompleted_shouldThrow_whenTrackingIdNotFound() {
         when(storyJobStatusRepository.findByTrackingId("unknown")).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> jobStatusService.markCompleted("unknown", 0, 0))
+        assertThatThrownBy(() -> storyJobStatusService.markCompleted("unknown", 0, 0))
                 .isInstanceOf(JobNotFoundException.class);
 
         verify(sseEmitterManager, never()).send(anyString(), any());
@@ -116,7 +117,7 @@ class JobStatusServiceTest {
 
         when(storyJobStatusRepository.findByTrackingId("track-4")).thenReturn(Optional.of(job));
 
-        Optional<StoryJobStatus> result = jobStatusService.findByTrackingId("track-4");
+        Optional<StoryJobStatus> result = storyJobStatusService.findByTrackingId("track-4");
 
         assertThat(result).isPresent();
         assertThat(result.get().getTrackingId()).isEqualTo("track-4");
@@ -126,7 +127,7 @@ class JobStatusServiceTest {
     void findByTrackingId_shouldReturnEmpty_whenNotFound() {
         when(storyJobStatusRepository.findByTrackingId("unknown")).thenReturn(Optional.empty());
 
-        Optional<StoryJobStatus> result = jobStatusService.findByTrackingId("unknown");
+        Optional<StoryJobStatus> result = storyJobStatusService.findByTrackingId("unknown");
 
         assertThat(result).isEmpty();
     }

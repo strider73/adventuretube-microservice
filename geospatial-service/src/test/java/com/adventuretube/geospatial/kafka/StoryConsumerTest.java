@@ -6,7 +6,7 @@ import com.adventuretube.geospatial.kafka.story.StoryConsumer;
 import com.adventuretube.geospatial.kafka.story.StoryProducer;
 import com.adventuretube.geospatial.model.entity.adventuretube.AdventureTubeData;
 import com.adventuretube.geospatial.service.AdventureTubeDataService;
-import com.adventuretube.geospatial.service.JobStatusService;
+import com.adventuretube.geospatial.service.jobstatus.StoryJobStatusService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,7 +28,7 @@ class StoryConsumerTest {
     private AdventureTubeDataService adventureTubeDataService;
 
     @Mock
-    private JobStatusService jobStatusService;
+    private StoryJobStatusService storyJobStatusService;
 
     @Mock
     private StoryProducer storyProducer;
@@ -65,9 +65,9 @@ class StoryConsumerTest {
         storyConsumer.consume(json);
 
         verify(adventureTubeDataService).save(any(AdventureTubeData.class));
-        verify(jobStatusService).markCompleted("tracking-123", 0, 0);
-        verify(jobStatusService, never()).markCompletedWithDuplicate(anyString());
-        verify(jobStatusService, never()).markFailed(anyString(), anyString());
+        verify(storyJobStatusService).markCompleted("tracking-123", 0, 0);
+        verify(storyJobStatusService, never()).markCompletedWithDuplicate(anyString());
+        verify(storyJobStatusService, never()).markFailed(anyString(), anyString());
     }
 
     @Test
@@ -81,9 +81,9 @@ class StoryConsumerTest {
         storyConsumer.consume(json);
 
         verify(adventureTubeDataService).save(any(AdventureTubeData.class));
-        verify(jobStatusService).markCompletedWithDuplicate("tracking-dup");
-        verify(jobStatusService, never()).markCompleted(anyString(), anyInt(), anyInt());
-        verify(jobStatusService, never()).markFailed(anyString(), anyString());
+        verify(storyJobStatusService).markCompletedWithDuplicate("tracking-dup");
+        verify(storyJobStatusService, never()).markCompleted(anyString(), anyInt(), anyInt());
+        verify(storyJobStatusService, never()).markFailed(anyString(), anyString());
     }
 
     @Test
@@ -97,9 +97,9 @@ class StoryConsumerTest {
         storyConsumer.consume(json);
 
         verify(adventureTubeDataService).save(any(AdventureTubeData.class));
-        verify(jobStatusService).markFailed("tracking-fail", "MongoDB connection lost");
-        verify(jobStatusService, never()).markCompleted(anyString(), anyInt(), anyInt());
-        verify(jobStatusService, never()).markCompletedWithDuplicate(anyString());
+        verify(storyJobStatusService).markFailed("tracking-fail", "MongoDB connection lost");
+        verify(storyJobStatusService, never()).markCompleted(anyString(), anyInt(), anyInt());
+        verify(storyJobStatusService, never()).markCompletedWithDuplicate(anyString());
     }
 
     @Test
@@ -112,9 +112,9 @@ class StoryConsumerTest {
         storyConsumer.consume(json);
 
         verify(adventureTubeDataService, never()).save(any());
-        verify(jobStatusService, never()).markCompletedWithDuplicate(anyString());
-        verify(jobStatusService, never()).markCompleted(anyString(), anyInt(), anyInt());
-        verify(jobStatusService, never()).markFailed(anyString(), anyString());
+        verify(storyJobStatusService, never()).markCompletedWithDuplicate(anyString());
+        verify(storyJobStatusService, never()).markCompleted(anyString(), anyInt(), anyInt());
+        verify(storyJobStatusService, never()).markFailed(anyString(), anyString());
     }
 
     @Test
@@ -122,9 +122,9 @@ class StoryConsumerTest {
         storyConsumer.consume("not valid json {{{}}}");
 
         verify(adventureTubeDataService, never()).save(any());
-        verify(jobStatusService, never()).markCompleted(anyString(), anyInt(), anyInt());
-        verify(jobStatusService, never()).markCompletedWithDuplicate(anyString());
-        verify(jobStatusService, never()).markFailed(anyString(), anyString());
+        verify(storyJobStatusService, never()).markCompleted(anyString(), anyInt(), anyInt());
+        verify(storyJobStatusService, never()).markCompletedWithDuplicate(anyString());
+        verify(storyJobStatusService, never()).markFailed(anyString(), anyString());
     }
 
     @Test
@@ -148,6 +148,6 @@ class StoryConsumerTest {
 
         storyConsumer.consume(json);
 
-        verify(jobStatusService).markCompleted("tracking-counts", 3, 2);
+        verify(storyJobStatusService).markCompleted("tracking-counts", 3, 2);
     }
 }

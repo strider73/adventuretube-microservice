@@ -1,6 +1,7 @@
-package com.adventuretube.geospatial.model.entity;
+package com.adventuretube.geospatial.model.entity.jobstatus;
 
-import com.adventuretube.geospatial.model.enums.StoryJobStatusEnum;
+
+import com.adventuretube.geospatial.model.enums.ScreenshotJobStatusEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,23 +16,30 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "publishStoryJobStatus")
-public class StoryJobStatus {
+@Document
+public class ScreenshotJobStatus implements JobStatus{
     @Id
     private String id;
-
     @Indexed(unique = true)
-    private String trackingId;
-
+    //The unique index on youtubeContentID prevents duplicate screenshot jobs for the same video
     private String youtubeContentID;
-    private StoryJobStatusEnum status;
+    private String trackingId;
+    private ScreenshotJobStatusEnum status;
+
+    private int totalChapters;
+    private int completedChapters;
+
     private String errorMessage;
-    private int chaptersCount;
-    private int placesCount;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
     @Indexed(expireAfter = "7d")
     private LocalDateTime expireAt;
+
+
+    public boolean isTerminalState() {
+        return status != ScreenshotJobStatusEnum.PENDING;
+    }
+
 }

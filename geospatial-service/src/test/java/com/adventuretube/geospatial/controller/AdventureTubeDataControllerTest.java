@@ -1,11 +1,11 @@
 package com.adventuretube.geospatial.controller;
 
 import com.adventuretube.geospatial.kafka.story.StoryProducer;
-import com.adventuretube.geospatial.model.entity.StoryJobStatus;
+import com.adventuretube.geospatial.model.entity.jobstatus.StoryJobStatus;
 import com.adventuretube.geospatial.model.entity.adventuretube.AdventureTubeData;
 import com.adventuretube.geospatial.model.enums.StoryJobStatusEnum;
 import com.adventuretube.geospatial.service.AdventureTubeDataService;
-import com.adventuretube.geospatial.service.JobStatusService;
+import com.adventuretube.geospatial.service.jobstatus.StoryJobStatusService;
 import com.adventuretube.geospatial.sse.SseEmitterManager;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -45,7 +45,7 @@ class AdventureTubeDataControllerTest {
     private StoryProducer storyProducer;
 
     @MockitoBean
-    private JobStatusService jobStatusService;
+    private StoryJobStatusService storyJobStatusService;
 
     @MockitoBean
     private SseEmitterManager sseEmitterManager;
@@ -198,7 +198,7 @@ class AdventureTubeDataControllerTest {
         pendingJob.setCreatedAt(LocalDateTime.now());
         pendingJob.setUpdatedAt(LocalDateTime.now());
 
-        when(jobStatusService.createPendingJob(anyString(), anyString())).thenReturn(pendingJob);
+        when(storyJobStatusService.createPendingJob(anyString(), anyString())).thenReturn(pendingJob);
 
         mockMvc.perform(post("/geo/save")
                         .contentType(MediaType.APPLICATION_JSON)

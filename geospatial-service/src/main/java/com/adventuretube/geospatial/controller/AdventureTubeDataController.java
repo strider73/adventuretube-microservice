@@ -2,10 +2,10 @@ package com.adventuretube.geospatial.controller;
 
 import com.adventuretube.common.api.response.ServiceResponse;
 import com.adventuretube.geospatial.kafka.story.StoryProducer;
-import com.adventuretube.geospatial.model.entity.StoryJobStatus;
+import com.adventuretube.geospatial.model.entity.jobstatus.StoryJobStatus;
 import com.adventuretube.geospatial.model.entity.adventuretube.AdventureTubeData;
 import com.adventuretube.geospatial.service.AdventureTubeDataService;
-import com.adventuretube.geospatial.service.JobStatusService;
+import com.adventuretube.geospatial.service.jobstatus.StoryJobStatusService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -30,7 +30,7 @@ import java.util.UUID;
 public class AdventureTubeDataController {
 
     private final AdventureTubeDataService adventureTubeDataService;
-    private final JobStatusService jobStatusService;
+    private final StoryJobStatusService storyJobStatusService;
     private final StoryProducer storyProducer;
 
     @Operation(summary = "Get all geospatial data")
@@ -132,7 +132,7 @@ public class AdventureTubeDataController {
     public ResponseEntity<ServiceResponse<StoryJobStatus>> deleteByYoutubeContentID(@RequestParam String youtubeContentId, @RequestParam String ownerEmail) {
         log.info("DELETE /geo/data/delete/adventuretubedata youtubeContentId={}, ownerEmail={}", youtubeContentId, ownerEmail);
         String trackingId = UUID.randomUUID().toString();
-        StoryJobStatus pendingJob = jobStatusService.createPendingJob(trackingId,youtubeContentId);
+        StoryJobStatus pendingJob = storyJobStatusService.createPendingJob(trackingId,youtubeContentId);
         storyProducer.deleteAdventureTubeData(trackingId, youtubeContentId, ownerEmail);
         ServiceResponse<StoryJobStatus> response = ServiceResponse.<StoryJobStatus>builder()
                 .success(true)
@@ -164,7 +164,7 @@ public class AdventureTubeDataController {
         log.info("POST /geo/save received: youtubeContentID={}", data.getYoutubeContentID());
 
         String trackingId = UUID.randomUUID().toString();
-        StoryJobStatus pendingJob = jobStatusService.createPendingJob(trackingId, data.getYoutubeContentID());
+        StoryJobStatus pendingJob = storyJobStatusService.createPendingJob(trackingId, data.getYoutubeContentID());
         storyProducer.sendAdventureTubeData(trackingId, data);
 
         ServiceResponse<StoryJobStatus> response = ServiceResponse.<StoryJobStatus>builder()

@@ -4,7 +4,8 @@ package com.adventuretube.geospatial.kafka.screenshot;
 import com.adventuretube.geospatial.kafka.entity.KafkaMessage;
 import com.adventuretube.geospatial.model.entity.adventuretube.AdventureTubeData;
 import com.adventuretube.geospatial.service.AdventureTubeDataService;
-import com.adventuretube.geospatial.service.JobStatusService;
+import com.adventuretube.geospatial.service.jobstatus.ScreenshotJobStatusService;
+import com.adventuretube.geospatial.service.jobstatus.StoryJobStatusService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +22,8 @@ public class ScreenshotConsumer {
 
     private final AdventureTubeDataService adventureTubeDataService;
     private final ObjectMapper objectMapper;
-    private final JobStatusService jobStatusService;
+    private final StoryJobStatusService storyJobStatusService;
+    private final ScreenshotJobStatusService screenshotJobStatusService;
 
 
     @KafkaListener(topics = "adventuretube-screenshots-result", groupId = "${spring.kafka.consumer.group-id}")
@@ -44,53 +46,67 @@ public class ScreenshotConsumer {
         }
 
         switch (kafkaMessage.getAction()) {
-            case SCREENSHOTS_COMPLETED -> handleSave(kafkaMessage, trackingId);
-            case SCREENSHOTS_DELETED -> handleDelete(kafkaMessage, trackingId);
+            case SCREENSHOTS_COMPLETED -> storeScreenshotData(kafkaMessage);
+            case SCREENSHOTS_DELETED -> deleteAdventureTubeData(kafkaMessage, trackingId);
             default -> {
                 logger.error("Unknown action: {}, skipping", kafkaMessage.getAction());
             }
         }
     }
 
-
-    private void handleSave(KafkaMessage kafkaMessage, String trackingId) {
+    // Screenshot save flow (end of sequence):
+    // 1. StoryConsumer.handleSave() → saves AdventureTubeData → marks StoryJobStatus COMPLETED (SSE to iOS)
+    // 2. StoryConsumer creates ScreenshotJobStatus PENDING → sends GENERATE_SCREENSHOTS to youtube-service via Kafka
+    // 3. youtube-service runs yt-dlp + ffmpeg → uploads to S3 → sends SCREENSHOTS_COMPLETED back via Kafka
+    // 4. This method: updates chapter screenshotUrls in MongoDB → marks ScreenshotJobStatus COMPLETED
+    private void storeScreenshotData(KafkaMessage kafkaMessage) {
         AdventureTubeData data = kafkaMessage.getData();
+        String youtubeContentId = kafkaMessage.getYoutubeContentId();
         if (data == null) {
-            logger.error("SAVE action but data is null, trackingId={}", trackingId);
+            logger.error("SCREENSHOTS_COMPLETED but data is null, youtubeContentId={}", youtubeContentId);
+            screenshotJobStatusService.markFailed(youtubeContentId, "Screenshot result data is null");
             return;
         }
-        //TODO: handle save process currently use entire adventuretube-data instead chapter only
         try {
-            //TODO: need a update process instead save
-            adventureTubeDataService.findByYoutubeContentID(kafkaMessage.getYoutubeContentId())
+            adventureTubeDataService.findByYoutubeContentID(youtubeContentId)
                     .ifPresent(existing -> {
                         existing.setChapters(data.getChapters());
                         adventureTubeDataService.save(existing);
                     });
 
-
-            logger.info("Update AdventureTubeData ScreenShot URL : youtubeContentID={}", kafkaMessage.getYoutubeContentId());
-
+            int completedChapters = (int) data.getChapters().stream()
+                    .filter(ch -> ch.getScreenshotUrl() != null)
+                    .count();
+            screenshotJobStatusService.markCompleted(youtubeContentId, completedChapters);
+            logger.info("Updated screenshot URLs and marked ScreenshotJobStatus COMPLETED: youtubeContentID={}, completedChapters={}",
+                    youtubeContentId, completedChapters);
 
         } catch (DuplicateKeyException e) {
             logger.warn("Duplicate youtubeContentID={}, skipping", data.getYoutubeContentID());
         } catch (Exception e) {
-            logger.error("Failed to save AdventureTubeData: {}", e.getMessage(), e);
+            logger.error("Failed to save screenshot results: {}", e.getMessage(), e);
+            screenshotJobStatusService.markFailed(youtubeContentId, e.getMessage());
         }
     }
 
-    private  void handleDelete(KafkaMessage kafkaMessage, String trackingId) {
-        //Deleting image from S3 has been completed by youtube-service
-        //Delete Story from mongo now
+    // Delete flow (end of sequence):
+    // 1. StoryConsumer.handleDelete() → validates ownership → creates StoryJobStatus PENDING
+    // 2. ScreenshotProducer sends DELETE_SCREENSHOTS to youtube-service via Kafka
+    // 3. youtube-service deletes images from S3 → sends SCREENSHOTS_DELETED back via Kafka
+    // 4. This method: deletes AdventureTubeData from MongoDB → marks StoryJobStatus COMPLETED
+    //
+    // storyJobStatusService.markCompleted() here closes the delete trackingId loop —
+    // telling iOS "your delete request is done"
+    private void deleteAdventureTubeData(KafkaMessage kafkaMessage, String trackingId) {
         try {
-            //find AdventureTubeData by youtubeContentID
             adventureTubeDataService.findByYoutubeContentID(kafkaMessage.getYoutubeContentId())
                     .ifPresent(existing -> {
                         adventureTubeDataService.deleteByYoutubeContentId(kafkaMessage.getYoutubeContentId());
                     });
-            //update job status to completed
-            AdventureTubeData adventureTubeData = kafkaMessage.getData();
-            jobStatusService.markCompleted(trackingId,0,0);
+            // 1. Mark completed(not much important) + send SSE to iOS (must be done)
+            storyJobStatusService.markCompleted(trackingId, 0, 0);
+            //clean up job status records here can  make a jobStatus not found error
+
 
         } catch (Exception e) {
             logger.error("Failed to delete AdventureTubeData: {}", e.getMessage(), e);

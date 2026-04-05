@@ -1,8 +1,9 @@
 package com.adventuretube.geospatial.sse;
 
-import com.adventuretube.geospatial.model.entity.StoryJobStatus;
+import com.adventuretube.geospatial.model.entity.jobstatus.JobStatus;
 import com.adventuretube.geospatial.model.enums.StoryJobStatusEnum;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -36,7 +37,7 @@ public class SseEmitterManager {
         return emitter;
     }
 
-    public void send(String trackingId, StoryJobStatus jobStatus) {
+    public <T extends JobStatus> void send(String trackingId, T jobStatus) {
         SseEmitter emitter = emitters.get(trackingId);
         if (emitter == null) {
             log.debug("No SSE emitter registered for trackingId={}", trackingId);
@@ -48,10 +49,10 @@ public class SseEmitterManager {
                     .data(jobStatus, MediaType.APPLICATION_JSON));
 
             // Complete the emitter on terminal states
-            if (jobStatus.getStatus() != StoryJobStatusEnum.PENDING) {
+            if (jobStatus.isTerminalState()) {
                 emitter.complete();
 
-                log.info("SSE emitter completed for trackingId={} with status={}", trackingId, jobStatus.getStatus());
+                log.info("SSE emitter completed for trackingId={} with status={}", trackingId, jobStatus.isTerminalState());
             }
         } catch (IOException e) {
             log.warn("Failed to send SSE for trackingId={}: {}", trackingId, e.getMessage());
