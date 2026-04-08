@@ -2,7 +2,8 @@ package com.adventuretube.web.exceptions;
 
 import com.adventuretube.common.api.response.ServiceResponse;
 import com.adventuretube.common.client.ServiceClientException;
-import com.adventuretube.web.exceptions.base.BaseServiceException;
+import com.adventuretube.common.exception.BaseServiceException;
+import com.adventuretube.common.exception.ErrorCode;
 import com.adventuretube.web.exceptions.code.WebErrorCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -37,7 +38,7 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(WebErrorCode.INTERNAL_ERROR);
     }
 
-    private ResponseEntity<ServiceResponse<?>> buildErrorResponse(WebErrorCode errorCode) {
+    private ResponseEntity<ServiceResponse<?>> buildErrorResponse(ErrorCode errorCode) {
         return new ResponseEntity<>(
                 ServiceResponse.builder()
                         .success(false)
@@ -50,7 +51,7 @@ public class GlobalExceptionHandler {
         );
     }
 
-    private ResponseEntity<ServiceResponse<?>> buildErrorResponse(WebErrorCode errorCode, BaseServiceException ex) {
+    private ResponseEntity<ServiceResponse<?>> buildErrorResponse(ErrorCode errorCode, BaseServiceException ex) {
         return new ResponseEntity<>(
                 ServiceResponse.builder()
                         .success(false)

@@ -1,7 +1,7 @@
 package com.adventuretube.auth.exceptions;
 
-import com.adventuretube.auth.exceptions.base.BaseServiceException;
 import com.adventuretube.auth.exceptions.code.AuthErrorCode;
+import com.adventuretube.common.exception.BaseServiceException;
 
 public class TokenNotFoundException extends BaseServiceException {
     public TokenNotFoundException(AuthErrorCode errorCode) {
