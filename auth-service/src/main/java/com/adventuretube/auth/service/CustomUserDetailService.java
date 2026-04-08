@@ -36,35 +36,31 @@ public class CustomUserDetailService implements ReactiveUserDetailsService {
                         email,
                         new ParameterizedTypeReference<ServiceResponse<MemberDTO>>() {}
                 )
-                .flatMap(response -> {
+                .flatMap(response -> Mono.justOrEmpty(response.getData())
+                        .switchIfEmpty(Mono.error(new UserNotFoundException(AuthErrorCode.USER_NOT_FOUND)))
+                        .flatMap(userFoundByEmail -> {
+                            if (userFoundByEmail.getEmail() == null || userFoundByEmail.getPassword() == null) {
+                                return Mono.error(new BadCredentialsException("User details are incomplete: email: " + email));
+                            }
 
-                    MemberDTO userFoundByEmail = response.getData();
-                    if (userFoundByEmail == null) {
-                        return Mono.error(new UserNotFoundException(AuthErrorCode.USER_NOT_FOUND));
-                    }
+                            UserDetails userDetails = User.builder()
+                                    .username(userFoundByEmail.getEmail())
+                                    .password(userFoundByEmail.getPassword())
+                                    .authorities(userFoundByEmail.getRole())
+                                    .build();
 
-                    if (userFoundByEmail.getEmail() == null || userFoundByEmail.getPassword() == null) {
-                        return Mono.error(new BadCredentialsException("User details are incomplete: email: " + email));
-                    }
-
-                    UserDetails userDetails = User.builder()
-                            .username(userFoundByEmail.getEmail())
-                            .password(userFoundByEmail.getPassword())
-                            .authorities(userFoundByEmail.getRole())
-                            .build();
-
-                    return Mono.just(userDetails);
-                })
+                            return Mono.just(userDetails);
+                        }))
                 .onErrorMap(ServiceClientException.class, e -> {
-                    if(e.isServerError()){
+                    if (e.isServerError()) {
                         return e; // return 5XX propagate to the GlobalExceptionHandler as-is
                     }
-                    if (e.getHttpStatus()== 404) {
+                    if (e.getHttpStatus() == 404) {
                         log.debug("User not found for email: {}", email);
-                        return new UserNotFoundException(AuthErrorCode.USER_NOT_FOUND);
+                        return new UserNotFoundException(AuthErrorCode.USER_NOT_FOUND, e);
                     }
                     // Other 4XX — these are our bugs or auth/rate-limit issues, not "user not found"
-                    log.error("Unexpected client error from user service: {}", e.toString());
+                    log.error("Unexpected client error from user service for email {}", email, e);
                     return e;  // propagate; let global handler classify it
                 });
     }
