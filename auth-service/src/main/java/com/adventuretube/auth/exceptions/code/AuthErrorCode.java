@@ -1,10 +1,11 @@
 package com.adventuretube.auth.exceptions.code;
 
+import com.adventuretube.common.exception.ErrorCode;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 @Getter
-public enum AuthErrorCode {
+public enum AuthErrorCode implements ErrorCode {
 
     // --- 400 BAD_REQUEST ---
     VALIDATION_FAILED("Validation failed", HttpStatus.BAD_REQUEST),
