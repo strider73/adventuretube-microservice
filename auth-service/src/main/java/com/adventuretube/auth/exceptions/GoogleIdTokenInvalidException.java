@@ -7,4 +7,8 @@ public class GoogleIdTokenInvalidException extends BaseServiceException {
     public GoogleIdTokenInvalidException(AuthErrorCode errorCode) {
         super(errorCode);
     }
+
+    public GoogleIdTokenInvalidException(AuthErrorCode errorCode, Throwable cause) {
+        super(errorCode, cause);
+    }
 }

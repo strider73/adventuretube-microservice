@@ -8,4 +8,8 @@ public class DuplicateException extends BaseServiceException {
   public DuplicateException(MemberErrorCode errorCode) {
     super(errorCode);
   }
+
+  public DuplicateException(MemberErrorCode errorCode, Throwable cause) {
+    super(errorCode, cause);
+  }
 }

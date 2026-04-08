@@ -8,4 +8,8 @@ public class EnvFileException extends BaseServiceException {
     public EnvFileException(GeoErrorCode errorCode) {
         super(errorCode);
     }
+
+    public EnvFileException(GeoErrorCode errorCode, Throwable cause) {
+        super(errorCode, cause);
+    }
 }

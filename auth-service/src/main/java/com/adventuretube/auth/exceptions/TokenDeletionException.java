@@ -7,4 +7,8 @@ public class TokenDeletionException extends BaseServiceException {
     public TokenDeletionException(AuthErrorCode errorCode) {
         super(errorCode);
     }
+
+    public TokenDeletionException(AuthErrorCode errorCode, Throwable cause) {
+        super(errorCode, cause);
+    }
 }

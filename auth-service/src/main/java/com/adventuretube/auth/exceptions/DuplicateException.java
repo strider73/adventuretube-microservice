@@ -9,4 +9,8 @@ public class DuplicateException extends BaseServiceException {
         super(errorCode);
     }
 
+    public DuplicateException(AuthErrorCode errorCode, Throwable cause) {
+        super(errorCode, cause);
+    }
+
 }

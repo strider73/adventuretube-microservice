@@ -8,5 +8,9 @@ public class InternalServerException extends BaseServiceException {
         super(errorCode);
     }
 
+    public InternalServerException(AuthErrorCode errorCode, Throwable cause) {
+        super(errorCode, cause);
+    }
+
 
 }

@@ -8,4 +8,8 @@ public class EnvFileException  extends BaseServiceException {
     public EnvFileException(MemberErrorCode errorCode) {
         super(errorCode);
     }
+
+    public EnvFileException(MemberErrorCode errorCode, Throwable cause) {
+        super(errorCode, cause);
+    }
 }
