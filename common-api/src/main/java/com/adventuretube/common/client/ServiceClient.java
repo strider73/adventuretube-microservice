@@ -198,23 +198,23 @@ public class ServiceClient {
             if (throwable instanceof ServiceClientException sce && sce.isClientError()) {//checking 400-499
                 return Mono.error(throwable);//pass the original error to caller without counting it against circuit breaker
             }
-            log.error("Circuit breaker open for {}: {}", serviceName, throwable.getMessage());
+            log.error("Circuit breaker open for {}", serviceName, throwable);
             return Mono.error(new ServiceClientException(
                     serviceName, "CIRCUIT_OPEN",
-                    serviceName + " circuit breaker is open", 503));
+                    serviceName + " circuit breaker is open", 503, throwable));
         });
     }
 
     private ServiceClientException networkError(String serviceName, WebClientRequestException ex) {
-        log.error("Network error calling {}: {}", serviceName, ex.getMessage());
+        log.error("Network error calling {}", serviceName, ex);
         return new ServiceClientException(serviceName, "SERVER_NOT_AVAILABLE",
-                serviceName + " is not available", 503);
+                serviceName + " is not available", 503, ex);
     }
 
     private ServiceClientException timeoutError(String serviceName, String path, TimeoutException ex) {
-        log.error("Timeout calling {}{}: {}", serviceName, path, ex.getMessage());
+        log.error("Timeout calling {}{}", serviceName, path, ex);
         return new ServiceClientException(serviceName, "SERVER_NOT_AVAILABLE",
-                serviceName + " timed out", 503);
+                serviceName + " timed out", 503, ex);
     }
 
     /** Extract service name from URL for logging (e.g., "http://MEMBER-SERVICE" -> "MEMBER-SERVICE"). */

@@ -27,6 +27,19 @@ public class ServiceClientException extends RuntimeException {
         this.httpStatus = httpStatus;
     }
 
+    /**
+     * Cause-preserving constructor. Use this when wrapping an upstream exception
+     * (e.g. WebClientRequestException, TimeoutException, or another ServiceClientException)
+     * so the original failure is reachable via {@link #getCause()} and shows up
+     * as a "Caused by:" line in stack traces and log entries.
+     */
+    public ServiceClientException(String serviceName, String errorCode, String message, int httpStatus, Throwable cause) {
+        super(message, cause);
+        this.serviceName = serviceName;
+        this.errorCode = errorCode;
+        this.httpStatus = httpStatus;
+    }
+
     public boolean isClientError() { return httpStatus >= 400 && httpStatus < 500; }
     public boolean isServerError() { return httpStatus >= 500; }
 
