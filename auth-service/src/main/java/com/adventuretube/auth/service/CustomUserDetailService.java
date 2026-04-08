@@ -59,8 +59,13 @@ public class CustomUserDetailService implements ReactiveUserDetailsService {
                     if(e.isServerError()){
                         return e; // return 5XX propagate to the GlobalExceptionHandler as-is
                     }
-                    log.error("Service client error: {}", e.toString());
-                    return new UserNotFoundException(AuthErrorCode.USER_NOT_FOUND);
+                    if (e.getHttpStatus()== 404) {
+                        log.debug("User not found for email: {}", email);
+                        return new UserNotFoundException(AuthErrorCode.USER_NOT_FOUND);
+                    }
+                    // Other 4XX — these are our bugs or auth/rate-limit issues, not "user not found"
+                    log.error("Unexpected client error from user service: {}", e.toString());
+                    return e;  // propagate; let global handler classify it
                 });
     }
 }
