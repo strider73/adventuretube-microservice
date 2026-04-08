@@ -1,10 +1,11 @@
 package com.adventuretube.auth.exceptions.global;
 
 import com.adventuretube.auth.exceptions.*;
-import com.adventuretube.auth.exceptions.base.BaseServiceException;
 import com.adventuretube.auth.exceptions.code.AuthErrorCode;
 import com.adventuretube.common.api.response.ServiceResponse;
 import com.adventuretube.common.client.ServiceClientException;
+import com.adventuretube.common.exception.BaseServiceException;
+import com.adventuretube.common.exception.ErrorCode;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -51,7 +52,7 @@ public class GlobalExceptionHandler {
     // ---------------------------
     // Helper Methods
     // ---------------------------
-    private ResponseEntity<ServiceResponse<?>> buildErrorResponse(AuthErrorCode errorCode) {
+    private ResponseEntity<ServiceResponse<?>> buildErrorResponse(ErrorCode errorCode) {
         return new ResponseEntity<>(
                 ServiceResponse.builder()
                         .success(false)
@@ -64,7 +65,7 @@ public class GlobalExceptionHandler {
         );
     }
 
-    private ResponseEntity<ServiceResponse<?>> buildErrorResponse(AuthErrorCode errorCode, BaseServiceException ex) {
+    private ResponseEntity<ServiceResponse<?>> buildErrorResponse(ErrorCode errorCode, BaseServiceException ex) {
         return new ResponseEntity<>(
                 ServiceResponse.builder()
                         .success(false)

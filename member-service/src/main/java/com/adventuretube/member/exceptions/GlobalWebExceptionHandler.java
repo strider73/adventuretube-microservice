@@ -1,6 +1,7 @@
 package com.adventuretube.member.exceptions;
 
 import com.adventuretube.common.api.response.ServiceResponse;
+import com.adventuretube.common.exception.ErrorCode;
 import com.adventuretube.member.exceptions.code.MemberErrorCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -29,7 +30,7 @@ public class GlobalWebExceptionHandler {
         return buildErrorResponse(MemberErrorCode.UNKNOWN_EXCEPTION, "member-service");
     }
 
-    private ResponseEntity<ServiceResponse<?>> buildErrorResponse(MemberErrorCode code, String origin) {
+    private ResponseEntity<ServiceResponse<?>> buildErrorResponse(ErrorCode code, String origin) {
         ServiceResponse<?> response = ServiceResponse.builder()
                 .success(false)
                 .message(code.getMessage())
