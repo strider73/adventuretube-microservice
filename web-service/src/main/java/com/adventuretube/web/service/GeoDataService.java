@@ -51,4 +51,10 @@ public class GeoDataService {
         return serviceClient.<JsonNode>getReactive(BASE_URL, path,
                 new ParameterizedTypeReference<>() {}).block();
     }
+
+    public JsonNode getScreenshotStatus(String youtubeContentId) {
+        return serviceClient.<JsonNode>getReactive(BASE_URL, "/geo/data/screenshot-status/" +
+                        youtubeContentId,
+                new ParameterizedTypeReference<>() {}).block();
+    }
 }
