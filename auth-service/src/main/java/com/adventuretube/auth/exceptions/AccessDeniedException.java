@@ -7,4 +7,8 @@ public class AccessDeniedException extends BaseServiceException {
     public AccessDeniedException(AuthErrorCode errorCode) {
         super(errorCode);
     }
+
+    public AccessDeniedException(AuthErrorCode errorCode, Throwable cause) {
+        super(errorCode, cause);
+    }
 }

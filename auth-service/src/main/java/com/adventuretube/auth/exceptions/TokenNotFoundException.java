@@ -8,5 +8,9 @@ public class TokenNotFoundException extends BaseServiceException {
         super(errorCode);
     }
 
+    public TokenNotFoundException(AuthErrorCode errorCode, Throwable cause) {
+        super(errorCode, cause);
+    }
+
 
 }

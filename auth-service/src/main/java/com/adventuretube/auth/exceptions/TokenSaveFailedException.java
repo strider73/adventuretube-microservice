@@ -8,6 +8,10 @@ public class TokenSaveFailedException extends BaseServiceException {
         super(errorCode);
     }
 
+    public TokenSaveFailedException(AuthErrorCode errorCode, Throwable cause) {
+        super(errorCode, cause);
+    }
+
 
 
 }

@@ -8,4 +8,8 @@ public class UserNotFoundException extends BaseServiceException {
         super(errorCode);
     }
 
+    public UserNotFoundException(AuthErrorCode errorCode, Throwable cause) {
+        super(errorCode, cause);
+    }
+
 }

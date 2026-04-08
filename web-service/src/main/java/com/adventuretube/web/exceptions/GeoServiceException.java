@@ -7,4 +7,8 @@ public class GeoServiceException extends BaseServiceException {
     public GeoServiceException(WebErrorCode errorCode) {
         super(errorCode);
     }
+
+    public GeoServiceException(WebErrorCode errorCode, Throwable cause) {
+        super(errorCode, cause);
+    }
 }

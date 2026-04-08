@@ -8,4 +8,8 @@ public class TokenExpiredException extends BaseServiceException {
         super(errorCode);
     }
 
+    public TokenExpiredException(AuthErrorCode errorCode, Throwable cause) {
+        super(errorCode, cause);
+    }
+
 }

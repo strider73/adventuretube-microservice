@@ -7,4 +7,8 @@ public class MemberNotFoundException extends BaseServiceException {
     public MemberNotFoundException(MemberErrorCode errorCode) {
         super(errorCode);
     }
+
+    public MemberNotFoundException(MemberErrorCode errorCode, Throwable cause) {
+        super(errorCode, cause);
+    }
 }

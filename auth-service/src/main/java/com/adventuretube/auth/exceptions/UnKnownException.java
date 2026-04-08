@@ -8,6 +8,10 @@ public class UnKnownException  extends BaseServiceException {
         super(errorCode);
     }
 
+    public UnKnownException(AuthErrorCode errorCode, Throwable cause) {
+        super(errorCode, cause);
+    }
+
 
 
 }

@@ -8,4 +8,8 @@ public class MemberServiceException extends BaseServiceException {
         super(errorCode);
     }
 
+    public MemberServiceException(AuthErrorCode errorCode, Throwable cause) {
+        super(errorCode, cause);
+    }
+
 }
