@@ -2,9 +2,11 @@ package com.adventuretube.geospatial.controller;
 
 import com.adventuretube.common.api.response.ServiceResponse;
 import com.adventuretube.geospatial.kafka.story.StoryProducer;
+import com.adventuretube.geospatial.model.dto.ScreenshotJobStatusDTO;
 import com.adventuretube.geospatial.model.entity.jobstatus.StoryJobStatus;
 import com.adventuretube.geospatial.model.entity.adventuretube.AdventureTubeData;
 import com.adventuretube.geospatial.service.AdventureTubeDataService;
+import com.adventuretube.geospatial.service.jobstatus.ScreenshotJobStatusService;
 import com.adventuretube.geospatial.service.jobstatus.StoryJobStatusService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -31,6 +34,7 @@ public class AdventureTubeDataController {
 
     private final AdventureTubeDataService adventureTubeDataService;
     private final StoryJobStatusService storyJobStatusService;
+    private final ScreenshotJobStatusService screenshotJobStatusService;
     private final StoryProducer storyProducer;
 
     @Operation(summary = "Get all geospatial data")
@@ -177,4 +181,31 @@ public class AdventureTubeDataController {
         return ResponseEntity.accepted().body(response);
     }
 
+
+    @GetMapping("/data/screenshot-status/{youtubeContentId}")
+    public ResponseEntity<ServiceResponse<ScreenshotJobStatusDTO>> getScreenshotStatus(@PathVariable String youtubeContentId) {
+        //TODO: get the optional screenshot job status from service layer and return it after wrapping in a ServiceResponse
+
+
+
+        //2. wrap the optional value in a ServiceResponse
+        ServiceResponse<ScreenshotJobStatusDTO>   response  = screenshotJobStatusService
+                .getScreenshotStatusWithChapters(youtubeContentId)
+                //dto will get return with optional so map with orElseGet will be able to handle both cases
+                .map(dto -> ServiceResponse.<ScreenshotJobStatusDTO>builder()
+                        .success(true)
+                        .message("Screenshot status retrieved")
+                        .data(dto)
+                        .timestamp(LocalDateTime.now())
+                        .build())
+                .orElseGet(() -> ServiceResponse.<ScreenshotJobStatusDTO>builder()
+                       .success(true)
+                       .message("No screenshot job found")
+                       .timestamp(LocalDateTime.now())
+                       .build());
+
+        return ResponseEntity.ok().body(response);
+
+
+    }
 }

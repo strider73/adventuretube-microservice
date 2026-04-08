@@ -94,6 +94,13 @@ public class GeoDataController {
         return ResponseEntity.ok(wrapResponse("Geospatial data count retrieved", geoDataService.count()));
     }
 
+    @GetMapping("/data/screenshot-status/{youtubeContentId}")
+    public ResponseEntity<ServiceResponse<JsonNode>> getScreenshotStatus(@PathVariable String
+                                                                                 youtubeContentId) {
+        return ResponseEntity.ok(wrapResponse("Screenshot status retrieved",
+                geoDataService.getScreenshotStatus(youtubeContentId)));
+    }
+
     private ServiceResponse<JsonNode> wrapResponse(String message, JsonNode data) {
         return ServiceResponse.<JsonNode>builder()
                 .success(true)
