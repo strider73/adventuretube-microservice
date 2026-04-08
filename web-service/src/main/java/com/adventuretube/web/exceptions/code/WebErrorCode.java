@@ -1,10 +1,11 @@
 package com.adventuretube.web.exceptions.code;
 
+import com.adventuretube.common.exception.ErrorCode;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 @Getter
-public enum WebErrorCode {
+public enum WebErrorCode implements ErrorCode {
     DATA_NOT_FOUND("Data not found", HttpStatus.NOT_FOUND),
     DUPLICATE_KEY("Duplicate entry already exists", HttpStatus.CONFLICT),
     SERVER_NOT_AVAILABLE("Geospatial service is not available", HttpStatus.SERVICE_UNAVAILABLE),

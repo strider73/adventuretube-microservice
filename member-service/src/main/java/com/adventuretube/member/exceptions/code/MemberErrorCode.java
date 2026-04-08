@@ -1,10 +1,11 @@
 package com.adventuretube.member.exceptions.code;
 
+import com.adventuretube.common.exception.ErrorCode;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 @Getter
-public enum MemberErrorCode {
+public enum MemberErrorCode implements ErrorCode {
     ENV_FILE_NOT_FOUND("ENV_FILE_NOT_FOUND", HttpStatus.INTERNAL_SERVER_ERROR),
 
     USER_EMAIL_DUPLICATE("User already exists with the provided email", HttpStatus.CONFLICT),
