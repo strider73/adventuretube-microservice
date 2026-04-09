@@ -20,7 +20,7 @@ pipeline {
             steps {
                 sh """
                     ssh -i ${SSH_KEY} ${SSH_OPTS} strider@${PI2_HOST} \
-                        "cd ${REMOTE_DIR} && git checkout -- . && git checkout ${params.BRANCH} && git pull origin ${params.BRANCH}"
+                        "cd ${REMOTE_DIR} && git checkout -- . && git fetch origin && git checkout ${params.BRANCH} && git pull origin ${params.BRANCH}"
                 """
             }
         }
