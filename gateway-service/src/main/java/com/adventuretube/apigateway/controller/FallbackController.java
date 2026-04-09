@@ -41,9 +41,7 @@ public class FallbackController {
         } else {
             errorCode = "SERVICE_UNAVAILABLE";
             message = serviceName + " is temporarily unavailable, please try again later";
-            log.error("Gateway fallback for {}: {}",
-                    serviceName,
-                    exception != null ? exception.getMessage() : "unknown error");
+            log.error("Gateway fallback for {}", serviceName, exception);
         }
 
         ServiceResponse<?> response = ServiceResponse.builder()

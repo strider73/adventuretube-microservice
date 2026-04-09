@@ -70,14 +70,18 @@ public class AuthenticationFiter implements GatewayFilter {
                 log.info("User Role: {}", claims.get("role"));
 
             } catch (ExpiredJwtException e) {
+                log.warn("Expired JWT token for path {}", path, e);
                 return onError(exchange, HttpStatus.UNAUTHORIZED, "Expired JWT token: gateway-service", "TOKEN_EXPIRED");
             } catch (SignatureException e) {
+                log.warn("Invalid JWT signature for path {}", path, e);
                 return onError(exchange, HttpStatus.UNAUTHORIZED, "Invalid JWT signature: gateway-service",
                         "TOKEN_INVALID_SIGNATURE");
             } catch (MalformedJwtException e) {
+                log.warn("Malformed JWT token for path {}", path, e);
                 return onError(exchange, HttpStatus.UNAUTHORIZED, "Malformed JWT token: gateway-service",
                         "TOKEN_MALFORMED");
             } catch (Exception e) {
+                log.error("Unexpected error during JWT validation for path {}", path, e);
                 return onError(exchange, HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error: gateway-service",
                         "INTERNAL_ERROR");
             }
