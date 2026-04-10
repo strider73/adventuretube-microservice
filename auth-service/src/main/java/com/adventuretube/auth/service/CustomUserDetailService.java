@@ -37,7 +37,10 @@ public class CustomUserDetailService implements ReactiveUserDetailsService {
                         new ParameterizedTypeReference<ServiceResponse<MemberDTO>>() {}
                 )
                 .flatMap(response -> Mono.justOrEmpty(response.getData())
-                        .switchIfEmpty(Mono.error(new UserNotFoundException(AuthErrorCode.USER_NOT_FOUND)))
+                        .switchIfEmpty(Mono.defer(() -> {
+                            log.warn("User not found - no data in response for email: {}", email);
+                            return Mono.error(new UserNotFoundException(AuthErrorCode.USER_NOT_FOUND));
+                        }))
                         .flatMap(userFoundByEmail -> {
                             if (userFoundByEmail.getEmail() == null || userFoundByEmail.getPassword() == null) {
                                 log.warn("User details incomplete for email: {}", email);

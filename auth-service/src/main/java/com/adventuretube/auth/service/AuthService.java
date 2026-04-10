@@ -76,6 +76,7 @@ public class AuthService {
                     }
                     GoogleIdToken.Payload payload = idToken.getPayload();
                     if (!request.getEmail().equals(payload.getEmail())) {
+                        log.warn("Google email mismatch: request={}, payload={}", request.getEmail(), payload.getEmail());
                         throw new GoogleIdTokenInvalidException(AuthErrorCode.GOOGLE_EMAIL_MISMATCH);
                     }
                     return buildMemberDTO(payload);
@@ -94,6 +95,7 @@ public class AuthService {
                                 return Mono.error(new InternalServerException(AuthErrorCode.INTERNAL_ERROR));
                             }
                             if (Boolean.TRUE.equals(emailCheckResponse.getData())) {
+                                log.warn("Duplicate email during registration: {}", request.getEmail());
                                 return Mono.error(new DuplicateException(AuthErrorCode.USER_EMAIL_DUPLICATE));
                             }
                             // MARK:  Register Member
@@ -106,6 +108,7 @@ public class AuthService {
                         })
                         .flatMap(registerResponse -> {
                             if (registerResponse == null || !registerResponse.isSuccess()) {
+                                log.error("Member registration failed for email: {}", request.getEmail());
                                 return Mono.error(new InternalServerException(AuthErrorCode.INTERNAL_ERROR));
                             }
 
@@ -222,6 +225,7 @@ public class AuthService {
                     if (deleteTokenResponse == null
                             || !deleteTokenResponse.isSuccess()
                             || !Boolean.TRUE.equals(deleteTokenResponse.getData())) {
+                        log.warn("Token deletion failed for token: {}", token);
                         return Mono.error(new TokenDeletionException(AuthErrorCode.TOKEN_DELETION_FAILED));
                     }
                     logger.info("Token revoked successfully for token: {}", token);
@@ -256,6 +260,7 @@ public class AuthService {
                     if (findTokenResponse == null
                             || !findTokenResponse.isSuccess()
                             || !Boolean.TRUE.equals(findTokenResponse.getData())) {
+                        log.warn("Refresh token not found in DB");
                         return Mono.error(new TokenNotFoundException(AuthErrorCode.TOKEN_NOT_FOUND));
                     }
 
@@ -310,6 +315,7 @@ public class AuthService {
                     if (deleteResponse == null
                             || !deleteResponse.isSuccess()
                             || !Boolean.TRUE.equals(deleteResponse.getData())) {
+                        log.error("Member deletion failed for email: {}", email);
                         return Mono.error(new InternalServerException(AuthErrorCode.MEMBER_DELETION_FAILED));
                     }
                     logger.info("User deleted successfully: {}", email);

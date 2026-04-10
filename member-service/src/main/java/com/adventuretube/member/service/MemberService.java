@@ -30,6 +30,7 @@ public class MemberService {
     public Member registerMember(Member member) {
         Optional<Member> existing = memberRepository.findByEmail(member.getEmail());
         if (existing.isPresent()) {
+            log.warn("Duplicate email registration attempt: {}", member.getEmail());
             throw new DuplicateException(MemberErrorCode.USER_EMAIL_DUPLICATE);
         }
         return memberRepository.save(member);
@@ -113,7 +114,10 @@ public class MemberService {
     @Transactional
     public boolean deleteUser(String email) {
         Member member = memberRepository.findByEmail(email)
-                .orElseThrow(() -> new MemberNotFoundException(MemberErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> {
+                    log.warn("Member not found for deletion: {}", email);
+                    return new MemberNotFoundException(MemberErrorCode.USER_NOT_FOUND);
+                });
         tokenRepository.deleteByMemberId(member.getId());
         memberRepository.delete(member);
         return true;

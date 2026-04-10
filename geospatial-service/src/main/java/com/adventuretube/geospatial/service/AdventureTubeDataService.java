@@ -5,6 +5,7 @@ import com.adventuretube.geospatial.exceptions.code.GeoErrorCode;
 import com.adventuretube.geospatial.model.entity.adventuretube.AdventureTubeData;
 import com.adventuretube.geospatial.repository.AdventureTubeDataRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.geo.Box;
 import org.springframework.data.geo.Point;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AdventureTubeDataService {
@@ -76,6 +78,7 @@ public class AdventureTubeDataService {
                         "AdventureTubeData not found with youtubeContentID: " + youtubeContentId));
 
         if (!data.getOwnerEmail().equals(ownerEmail)) {
+            log.warn("Ownership mismatch: owner={}, requester={}, contentId={}", data.getOwnerEmail(), ownerEmail, youtubeContentId);
             throw new OwnershipMismatchException(GeoErrorCode.OWNERSHIP_MISMATCH);
         }
 

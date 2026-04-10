@@ -121,7 +121,10 @@ public class StoryConsumer {
                             throw new OwnershipMismatchException(GeoErrorCode.OWNERSHIP_MISMATCH);
                         }
                         return data;
-                    }).orElseThrow(() -> new DataNotFoundException(GeoErrorCode.DATA_NOT_FOUND));
+                    }).orElseThrow(() -> {
+                        logger.warn("Data not found for youtubeContentId: {}", youtubeContentId);
+                        return new DataNotFoundException(GeoErrorCode.DATA_NOT_FOUND);
+                    });
 
             //TODO: Deleting image from S3 need to be implemented from  youtube-service  completed at geospatial-service
 
