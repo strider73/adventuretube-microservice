@@ -40,6 +40,7 @@ public class CustomUserDetailService implements ReactiveUserDetailsService {
                         .switchIfEmpty(Mono.error(new UserNotFoundException(AuthErrorCode.USER_NOT_FOUND)))
                         .flatMap(userFoundByEmail -> {
                             if (userFoundByEmail.getEmail() == null || userFoundByEmail.getPassword() == null) {
+                                log.warn("User details incomplete for email: {}", email);
                                 return Mono.error(new BadCredentialsException("User details are incomplete: email: " + email));
                             }
 
@@ -56,7 +57,7 @@ public class CustomUserDetailService implements ReactiveUserDetailsService {
                         return e; // return 5XX propagate to the GlobalExceptionHandler as-is
                     }
                     if (e.getHttpStatus() == 404) {
-                        log.debug("User not found for email: {}", email);
+                        log.warn("User not found for email: {}", email);
                         return new UserNotFoundException(AuthErrorCode.USER_NOT_FOUND, e);
                     }
                     // Other 4XX — these are our bugs or auth/rate-limit issues, not "user not found"

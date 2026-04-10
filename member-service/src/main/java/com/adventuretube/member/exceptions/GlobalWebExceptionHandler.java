@@ -16,12 +16,12 @@ public class GlobalWebExceptionHandler {
 
     @ExceptionHandler(DuplicateException.class)
     public ResponseEntity<ServiceResponse<?>> handleDuplicateException(DuplicateException ex) {
-        return buildErrorResponse(ex.getErrorCode(), ex.getOrigin() + " : member-service");
+        return buildErrorResponse(ex.getErrorCode(), ex.getOriginMethod() + " : member-service");
     }
 
     @ExceptionHandler(MemberNotFoundException.class)
     public ResponseEntity<ServiceResponse<?>> handleMemberNotFoundException(MemberNotFoundException ex) {
-        return buildErrorResponse(ex.getErrorCode(), ex.getOrigin() + " : member-service");
+        return buildErrorResponse(ex.getErrorCode(), ex.getOriginMethod() + " : member-service");
     }
 
     @ExceptionHandler(Exception.class)

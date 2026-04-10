@@ -1,5 +1,6 @@
 package com.adventuretube.auth.config.security;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -15,6 +16,7 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+@Slf4j
 @Configuration
 @EnableWebFluxSecurity
 public class AuthServiceConfig {
@@ -50,8 +52,10 @@ public class AuthServiceConfig {
                                     .subscribeOn(Schedulers.boundedElastic()))
                     .map(userDetails -> (Authentication)
                             new UsernamePasswordAuthenticationToken(userDetails, password, userDetails.getAuthorities()))
-                    .switchIfEmpty(Mono.error(
-                            new BadCredentialsException("Invalid username or password")));
+                    .switchIfEmpty(Mono.defer(() -> {
+                        log.warn("Invalid credentials for email: {}", email);
+                        return Mono.error(new BadCredentialsException("Invalid username or password"));
+                    }));
         };
     }
 }

@@ -21,7 +21,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ServiceClientException.class)
     public ResponseEntity<ServiceResponse<?>> handleServiceClientException(ServiceClientException ex) {
-        log.error("Inter-service call failed: {}", ex.toString());
+        if (ex.isServerError()) {
+            log.error("Inter-service call failed [{}] {}", ex.getErrorCode(), ex.getMessage(), ex);
+        } else {
+            log.warn("Inter-service client error [{}] {}", ex.getErrorCode(), ex.getMessage());
+        }
         ServiceResponse<?> response = ServiceResponse.builder()
                 .success(false)
                 .message(ex.getMessage())
@@ -57,7 +61,7 @@ public class GlobalExceptionHandler {
                         .success(false)
                         .message(errorCode.getMessage())
                         .errorCode(errorCode.name())
-                        .data(ex.getOrigin() + " : web-service")
+                        .data(ex.getOriginMethod() + " : web-service")
                         .timestamp(java.time.LocalDateTime.now())
                         .build(),
                 errorCode.getHttpStatus()

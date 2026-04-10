@@ -21,12 +21,12 @@ package com.adventuretube.common.exception;
 public abstract class BaseServiceException extends RuntimeException {
 
     private final ErrorCode errorCode;
-    private final String origin;
+    private final String originMethod;
 
     protected BaseServiceException(ErrorCode errorCode) {
         super(errorCode.getMessage());
         this.errorCode = errorCode;
-        this.origin = captureOrigin();
+        this.originMethod = captureOrigin();
     }
 
     /**
@@ -37,15 +37,15 @@ public abstract class BaseServiceException extends RuntimeException {
     protected BaseServiceException(ErrorCode errorCode, Throwable cause) {
         super(errorCode.getMessage(), cause);
         this.errorCode = errorCode;
-        this.origin = captureOrigin();
+        this.originMethod = captureOrigin();
     }
 
     public ErrorCode getErrorCode() {
         return errorCode;
     }
 
-    public String getOrigin() {
-        return origin;
+    public String getOriginMethod() {
+        return originMethod;
     }
 
     private String captureOrigin() {

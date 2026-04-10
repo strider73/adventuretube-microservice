@@ -2,6 +2,7 @@ package com.adventuretube.geospatial.exceptions;
 
 import com.adventuretube.common.api.response.ServiceResponse;
 import com.adventuretube.geospatial.exceptions.code.GeoErrorCode;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
+@Slf4j
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -51,6 +53,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ServiceResponse<?>> handleIllegalArgumentException(IllegalArgumentException ex) {
+        log.error("Illegal argument", ex);
         ServiceResponse<?> response = ServiceResponse.builder()
                 .success(false)
                 .message(ex.getMessage())
@@ -63,6 +66,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ServiceResponse<?>> handleUnknownException(Exception ex) {
+        log.error("Unhandled exception: {} - {}", ex.getClass().getName(), ex.getMessage(), ex);
         ServiceResponse<?> response = ServiceResponse.builder()
                 .success(false)
                 .message(GeoErrorCode.UNKNOWN_EXCEPTION.getMessage() + ": geospatial-service")
