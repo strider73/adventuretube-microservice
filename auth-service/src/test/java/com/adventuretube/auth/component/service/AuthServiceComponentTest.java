@@ -43,6 +43,7 @@ import reactor.test.StepVerifier;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 
@@ -436,7 +437,7 @@ class AuthServiceComponentTest {
         }
 
         @Override
-        protected GoogleIdToken verifyGoogleIdToken(String googleIdToken) {
+        protected Optional<GoogleIdToken> verifyGoogleIdToken(String googleIdToken) {
             // Return a fake GoogleIdToken with test email and subject
             GoogleIdToken.Payload payload = new GoogleIdToken.Payload();
             payload.setEmail(TEST_EMAIL);
@@ -445,12 +446,12 @@ class AuthServiceComponentTest {
             payload.setExpirationTimeSeconds(System.currentTimeMillis() / 1000 + 3600);
             payload.setIssuedAtTimeSeconds(System.currentTimeMillis() / 1000);
 
-            return new GoogleIdToken(
+            return Optional.of(new GoogleIdToken(
                     new GoogleIdToken.Header(),
                     payload,
                     new byte[0],
                     new byte[0]
-            );
+            ));
         }
     }
 }

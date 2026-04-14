@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
 import java.util.Base64;
+import java.util.Optional;
 import com.fasterxml.jackson.databind.JsonNode;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -68,28 +69,42 @@ public class AuthService {
     public Mono<ServiceResponse<MemberRegisterResponse>> createUser(MemberRegisterRequest request) {
 
         // MARK: Validate Google ID token + build MemberDTO (both blocking — offloaded to boundedElastic)
-        return Mono.fromCallable(() -> {
-                    GoogleIdToken idToken = verifyGoogleIdToken(request.getGoogleIdToken());
-                    if (idToken == null) {
-                        log.error("Google idToken is null");
-                        throw new GoogleIdTokenInvalidException(AuthErrorCode.GOOGLE_TOKEN_INVALID);
-                    }
-                    GoogleIdToken.Payload payload = idToken.getPayload();
-                    if (!request.getEmail().equals(payload.getEmail())) {
-                        log.warn("Google email mismatch: request={}, payload={}", request.getEmail(), payload.getEmail());
-                        throw new GoogleIdTokenInvalidException(AuthErrorCode.GOOGLE_EMAIL_MISMATCH);
-                    }
-                    return buildMemberDTO(payload);
-                })
-                .subscribeOn(Schedulers.boundedElastic())
+        return Mono.fromCallable(() -> verifyGoogleIdToken(request.getGoogleIdToken())// return Optional<GoogleIdToken>
+                        .map(GoogleIdToken::getPayload)//it becomes Optional<GoogleIdToken.Payload>
+                        .orElseThrow(() -> {// it mean Google idToken is null
+                            log.error("Google idToken is null");
+                            return new GoogleIdTokenInvalidException(AuthErrorCode.GOOGLE_TOKEN_INVALID);
+                        }))
+                //from here not Optional because of orElseThrow and wrap by Mono  because  of Mono.fromCallable.
+                .subscribeOn(Schedulers.boundedElastic())//This method get called from  Mono<GoogleIdToken.Payload> object
+                // MARK: Validate email
+                .filter(payload -> request.getEmail().equals(payload.getEmail()))//Still get called from Mono<GoogleIdToken.Payload> object
+                .switchIfEmpty(Mono.defer(() -> {// failed filter produce empty Mono  not an error
+                    //that's why switchIfEmpty is triggered and produce proper Mono.error
+                    log.warn("Google email mismatch for request email: {}", request.getEmail());
+                    return Mono.error(new GoogleIdTokenInvalidException(AuthErrorCode.GOOGLE_EMAIL_MISMATCH));
+                }))
+                // MARK: if payload is valid, build MemberDTO
+                // passwordEncoder.encode is cpu intensive job so need to offload so now method will return Mono<MemberDTO>
+                .flatMap(this::buildMemberDTO)
                 // MARK:  Check Email duplication
-                .flatMap(memberDTO -> serviceClient.postReactive(
+                //flatMap took memberDTO and  serviceClient.postReactive returns Mono<ServiceResponse<Boolean>>
+                .flatMap(memberDTO -> serviceClient.postReactive(// flatMap get call from Mono<MemberDTO>
                                 memberServiceUrl,
                                 "/member/emailDuplicationCheck",
                                 memberDTO.getEmail(),
                                 new ParameterizedTypeReference<ServiceResponse<Boolean>>() {}
-                        )
-                        .<ServiceResponse<MemberDTO>>flatMap(emailCheckResponse -> {
+                )
+                 /*
+                        flatMap get called from Mono<ServiceResponse<Boolean>>
+                        but more important reason why flatMap is used here???
+                        It's because serviceClient.postReactive returns Mono<ServiceResponse<Boolean>>
+                        if we use maps it will return Mono<Mono<ServiceResponse<MemberDTO>>>
+
+                        So the main point is choosing a map or flatMap will be decided by return type
+                */
+                .flatMap(emailCheckResponse -> {
+
                             if (emailCheckResponse == null || !emailCheckResponse.isSuccess()) {
                                 logger.error("Failed to check email duplication");
                                 return Mono.error(new InternalServerException(AuthErrorCode.INTERNAL_ERROR));
@@ -99,70 +114,79 @@ public class AuthService {
                                 return Mono.error(new DuplicateException(AuthErrorCode.USER_EMAIL_DUPLICATE));
                             }
                             // MARK:  Register Member
+                            //This will return Mono<ServiceResponse<MemberDTO>>
                             return serviceClient.postReactive(
                                     memberServiceUrl,
                                     "/member/registerMember",
                                     memberDTO,
                                     new ParameterizedTypeReference<ServiceResponse<MemberDTO>>() {}
                             );
-                        })
-                        .flatMap(registerResponse -> {
-                            if (registerResponse == null || !registerResponse.isSuccess()) {
-                                log.error("Member registration failed for email: {}", request.getEmail());
-                                return Mono.error(new InternalServerException(AuthErrorCode.INTERNAL_ERROR));
-                            }
+                })//because of flatMap it will return Mono<ServiceResponse<MemberDTO>>
 
-                            // MARK:  create JWT token
-                            MemberDTO registeredUser = registerResponse.getData();
-                            String accessToken = jwtUtil.generate(registeredUser.getEmail(), registeredUser.getRole(), "ACCESS");
-                            String refreshToken = jwtUtil.generate(registeredUser.getEmail(), registeredUser.getRole(), "REFRESH");
+                        //MARK:  Register Member process validation and create token and store token to database
+                        //flatMap get called from Mono<ServiceResponse<MemberDTO>>
+                .flatMap(registerResponse -> {
+                    if (registerResponse == null || !registerResponse.isSuccess()) {
+                        log.error("Member registration failed for email: {}", request.getEmail());
+                        //because of flatMap has to return Mono
+                        return Mono.error(new InternalServerException(AuthErrorCode.INTERNAL_ERROR));
+                    }
 
-                            // MARK:  store token to database
-                            TokenDTO tokenToStore = TokenDTO.builder()
-                                    .memberDTO(registeredUser)
-                                    .expired(false)
-                                    .revoked(false)
-                                    .accessToken(accessToken)
-                                    .refreshToken(refreshToken)
-                                    .build();
+                    // MARK:  create JWT token
+                    // TODO:  this part need to update since this computation takes time and running in Netty's event loop  will block other process
+                    MemberDTO registeredUser = registerResponse.getData();//There is no computation here
+                    return Mono.fromCallable(
+                                    () -> {
+                                        String accessToken = jwtUtil.generate(registeredUser.getEmail(), registeredUser.getRole(), "ACCESS");
+                                        String refreshToken = jwtUtil.generate(registeredUser.getEmail(), registeredUser.getRole(), "REFRESH");
+                                        return TokenDTO.builder()
+                                                .memberDTO(registeredUser)
+                                                .expired(false)
+                                                .revoked(false)
+                                                .accessToken(accessToken)
+                                                .refreshToken(refreshToken)
+                                                .build();
+                                    }
+                            ).subscribeOn(Schedulers.boundedElastic())//This will return Mono<TokenDTO>
+                            .flatMap(tokenDTO -> {
+                                return serviceClient.postReactive(
+                                                memberServiceUrl,
+                                                "/member/storeTokens",
+                                                tokenDTO,
+                                                new ParameterizedTypeReference<ServiceResponse<Boolean>>() {}
+                                        )//validate token store and return Mono<ServiceResponse<Boolean>>
+                                        .flatMap(tokenStoredResponse -> {
+                                            if (tokenStoredResponse == null
+                                                    || !tokenStoredResponse.isSuccess()
+                                                    || !Boolean.TRUE.equals(tokenStoredResponse.getData())) {
+                                                log.error("Token store failed: {}", tokenStoredResponse != null ? tokenStoredResponse.getMessage() : "no response body");
+                                                return Mono.error(new TokenSaveFailedException(AuthErrorCode.TOKEN_SAVE_FAILED));
+                                            }
+                                            logger.info("Token stored successfully for user: {}", registeredUser.getEmail());
+                                            return Mono.just(ServiceResponse.<MemberRegisterResponse>builder()
+                                                    .success(true)
+                                                    .data(new MemberRegisterResponse(registeredUser.getId(), tokenDTO.accessToken, tokenDTO.refreshToken))
+                                                    .timestamp(java.time.LocalDateTime.now())
+                                                    .build());
+                                        });
+                            });//This will return Mono<ServiceResponse<MemberRegisterResponse>>
 
-                            return serviceClient.postReactive(
-                                            memberServiceUrl,
-                                            "/member/storeTokens",
-                                            tokenToStore,
-                                            new ParameterizedTypeReference<ServiceResponse<Boolean>>() {}
-                                    )
-                                    .flatMap(tokenStoredResponse -> {
-                                        if (tokenStoredResponse == null
-                                                || !tokenStoredResponse.isSuccess()
-                                                || !Boolean.TRUE.equals(tokenStoredResponse.getData())) {
-                                            log.error("Token store failed: {}", tokenStoredResponse != null ? tokenStoredResponse.getMessage() : "no response body");
-                                            return Mono.error(new TokenSaveFailedException(AuthErrorCode.TOKEN_SAVE_FAILED));
-                                        }
-                                        logger.info("Token stored successfully for user: {}", registeredUser.getEmail());
-                                        return Mono.just(ServiceResponse.<MemberRegisterResponse>builder()
-                                                .success(true)
-                                                .data(new MemberRegisterResponse(registeredUser.getId(), accessToken, refreshToken))
-                                                .timestamp(java.time.LocalDateTime.now())
-                                                .build());
-                                    });
-                        })
-                )
-;
-    }
+
+                })//end of  create token and store token to database
+        );//end of outer flatMap(memberDTO -> ...)
+
+    }//end of method createUser
 
 
     public Mono<ServiceResponse<MemberRegisterResponse>> issueToken(MemberLoginRequest request) {
 
         // MARK: STEP1 validate google IdToken (blocking — offloaded to boundedElastic)
-        return Mono.fromCallable(() -> {
-                    GoogleIdToken idToken = verifyGoogleIdToken(request.getGoogleIdToken());
-                    if (idToken == null) {
+        return Mono.fromCallable(() -> verifyGoogleIdToken(request.getGoogleIdToken())
+                    .orElseThrow(() -> {
                         log.error("Invalid Google ID token");
-                        throw new GoogleIdTokenInvalidException(AuthErrorCode.GOOGLE_TOKEN_INVALID);
-                    }
-                    return idToken;
-                })
+                        return new GoogleIdTokenInvalidException(AuthErrorCode.GOOGLE_TOKEN_INVALID);
+                    })
+                )
                 .subscribeOn(Schedulers.boundedElastic())
                 // MARK: STEP2 extract email and googleId from validated token
                 .flatMap(idToken -> {
@@ -324,7 +348,7 @@ public class AuthService {
 ;
     }
 
-    protected GoogleIdToken verifyGoogleIdToken(String googleIdToken) {
+    protected Optional<GoogleIdToken> verifyGoogleIdToken(String googleIdToken) {
         // First decode the token to check the audience claim
         try {
             String[] chunks = googleIdToken.split("\\.");
@@ -341,46 +365,51 @@ public class AuthService {
 
             if (!expectedClientId.equals(tokenAudience)) {
                 log.error("Client ID mismatch. Expected: {}, Got: {}", expectedClientId, tokenAudience);
-                return null;
+                return Optional.empty();
             }
 
         } catch (Exception e) {
             log.error("Error parsing token payload: {}", e.getMessage());
-            return null;
+            return Optional.empty();
         }
 
         GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), GsonFactory.getDefaultInstance())
                 .setAudience(Collections.singletonList(googleTokenCredentialProperties.getClientId())).build();
 
         try {
-            return verifier.verify(googleIdToken);
+            return Optional.ofNullable(verifier.verify(googleIdToken));
         } catch (GeneralSecurityException | IOException ex) {
             log.error("Google ID token verification failed: {}", ex.getMessage());
-            throw new RuntimeException(ex);
+            return Optional.empty();
         }
     }
 
-    private MemberDTO buildMemberDTO(GoogleIdToken.Payload payload) {
-        String email = payload.getEmail();
-        String googleId = payload.getSubject();
-        String username = (String) payload.get("name");
+    private Mono<MemberDTO> buildMemberDTO(GoogleIdToken.Payload payload) {
+       return  Mono.fromCallable( () -> {
+            String email = payload.getEmail();
+            String googleId = payload.getSubject();
+            String username = (String) payload.get("name");
+            if (username == null || username.isEmpty()) {
+                String givenName = (String) payload.get("given_name");
+                String familyName = (String) payload.get("family_name");
+                username = givenName + " " + familyName;
+            }
 
-        if (username == null || username.isEmpty()) {
-            String givenName = (String) payload.get("given_name");
-            String familyName = (String) payload.get("family_name");
-            username = givenName + " " + familyName;
-        }
+            return MemberDTO.builder()
+                    .email(email)
+                    .googleIdToken(payload.toString())
+                    .username(username)
+                    .password(passwordEncoder.encode(googleId))
+                    .googleIdTokenExp(payload.getExpirationTimeSeconds())
+                    .googleIdTokenIat(payload.getIssuedAtTimeSeconds())
+                    .googleIdTokenSub(googleId)
+                    .googleProfilePicture((String) payload.get("picture")).role("USER")
+                    .build();
 
-        return MemberDTO.builder()
-                .email(email)
-                .googleIdToken(payload.toString())
-                .username(username)
-                .password(passwordEncoder.encode(googleId))
-                .googleIdTokenExp(payload.getExpirationTimeSeconds())
-                .googleIdTokenIat(payload.getIssuedAtTimeSeconds())
-                .googleIdTokenSub(googleId)
-                .googleProfilePicture((String) payload.get("picture")).role("USER")
-                .build();
+        })
+        .subscribeOn(Schedulers.boundedElastic());
+
+
     }
 
 }
