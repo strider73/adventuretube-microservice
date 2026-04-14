@@ -186,9 +186,14 @@ public class AuthService {
                         log.error("Invalid Google ID token");
                         return new GoogleIdTokenInvalidException(AuthErrorCode.GOOGLE_TOKEN_INVALID);
                     })
-                )
+                )//it will return Mono<GoogleIdToken>
                 .subscribeOn(Schedulers.boundedElastic())
                 // MARK: STEP2 extract email and googleId from validated token
+                //1. flatMap get call from Mono<GoogleIdToken>
+                //2. it will take GoogleIdToken as parameter
+                //3. it will return Mono<ServiceResponse<MemberRegisterResponse>>
+
+                // first level flatMap start
                 .flatMap(idToken -> {
                     GoogleIdToken.Payload payload = idToken.getPayload();
                     String email = payload.getEmail();
@@ -196,47 +201,59 @@ public class AuthService {
 
                     // MARK: STEP3 authenticate and issue tokens
                     return reactiveAuthenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, googleId))
-                            .flatMap(authentication -> {
-                                UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-                                String accessToken = jwtUtil.generate(userDetails.getUsername(), userDetails.getAuthorities().toString(), "ACCESS");
-                                String refreshToken = jwtUtil.generate(userDetails.getUsername(), userDetails.getAuthorities().toString(), "REFRESH");
+                           .flatMap(authentication -> {// Second level flatMap start
 
-                                TokenDTO tokenToStore = TokenDTO.builder()
-                                        .memberDTO(memberMapper.userDetailToMemberDTO(userDetails))
-                                        .expired(false)
-                                        .revoked(false)
-                                        .accessToken(accessToken)
-                                        .refreshToken(refreshToken)
-                                        .build();
+                                //TODO: this is high cost computation area
+                            return Mono.fromCallable(() -> {
+                                    UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+                                    String accessToken = jwtUtil.generate(userDetails.getUsername(), userDetails.getAuthorities().toString(), "ACCESS");
+                                    String refreshToken = jwtUtil.generate(userDetails.getUsername(), userDetails.getAuthorities().toString(), "REFRESH");
 
-                                return serviceClient.postReactive(
-                                                memberServiceUrl,
-                                                "/member/storeTokens",
-                                                tokenToStore,
-                                                new ParameterizedTypeReference<ServiceResponse<Boolean>>() {}
-                                        )
-                                        .flatMap(tokenStoredResponse -> {
-                                            if (tokenStoredResponse == null
-                                                    || !tokenStoredResponse.isSuccess()
-                                                    || !Boolean.TRUE.equals(tokenStoredResponse.getData())) {
-                                                log.error("Token store failed: {}", tokenStoredResponse != null ? tokenStoredResponse.getMessage() : "no response body");
-                                                return Mono.error(new TokenSaveFailedException(AuthErrorCode.TOKEN_SAVE_FAILED));
-                                            }
-                                            logger.info("Token stored successfully for user: {}", email);
-                                            return Mono.just(ServiceResponse.<MemberRegisterResponse>builder()
-                                                    .success(true)
-                                                    .data(new MemberRegisterResponse(null, accessToken, refreshToken))
-                                                    .timestamp(java.time.LocalDateTime.now())
-                                                    .build());
-                                        });
-                            });
-                })
-;
-    }
+                                     return TokenDTO.builder()
+                                            .memberDTO(memberMapper.userDetailToMemberDTO(userDetails))
+                                            .expired(false)
+                                            .revoked(false)
+                                            .accessToken(accessToken)
+                                            .refreshToken(refreshToken)
+                                            .build();
+                                })//end of Mono.fromCallable
+                                .subscribeOn(Schedulers.boundedElastic())
+                                .flatMap(tokenDTO -> {//Third level flatMap start
+                                    return serviceClient.postReactive(
+                                                    memberServiceUrl,
+                                                    "/member/storeTokens",
+                                                    tokenDTO,
+                                                    new ParameterizedTypeReference<ServiceResponse<Boolean>>() {}
+                                            )//it will return Mono<ServiceResponse<Boolean>>
+
+                                            //Fourth level flatMap start and flatMap get call from Mono<ServiceResponse<Boolean>>
+                                            .flatMap(tokenStoredResponse -> {
+                                                if (tokenStoredResponse == null
+                                                        || !tokenStoredResponse.isSuccess()
+                                                        || !Boolean.TRUE.equals(tokenStoredResponse.getData())) {
+                                                    log.error("Token store failed: {}", tokenStoredResponse != null ? tokenStoredResponse.getMessage() : "no response body");
+                                                    return Mono.error(new TokenSaveFailedException(AuthErrorCode.TOKEN_SAVE_FAILED));
+                                                }
+                                                logger.info("Token stored successfully for user: {}", email);
+                                                return Mono.just(ServiceResponse.<MemberRegisterResponse>builder()
+                                                        .success(true)
+                                                        .data(new MemberRegisterResponse(null, tokenDTO.accessToken, tokenDTO.refreshToken))
+                                                        .timestamp(java.time.LocalDateTime.now())
+                                                        .build());//this will create Mono<ServiceResponse<MemberRegisterResponse>>
+                                            });//End of fourth level, it will return Mono<ServiceResponse<MemberRegisterResponse>>
+                                });//End of third level will return Mono<ServiceResponse<MemberRegisterResponse>>
+
+                           });//end of 2nd level flatMap
+
+                });//end of 1st level flatMap
+
+    }//end of method issueToken
 
 
     // JWT token is validated at Gateway (RouterValidator secures /auth/token/revoke)
     public Mono<ServiceResponse<Boolean>> revokeToken(String rawToken) {
+
+
         String token = TokenSanitizer.sanitize(rawToken);
 
         return serviceClient.postReactive(
@@ -244,24 +261,20 @@ public class AuthService {
                         "/member/deleteAllToken",
                         token,
                         new ParameterizedTypeReference<ServiceResponse<Boolean>>() {}
-                )
-                .flatMap(deleteTokenResponse -> {
+                )//return Mono<ServiceResponse<Boolean>>
+                .map(deleteTokenResponse -> {
                     if (deleteTokenResponse == null
-                            || !deleteTokenResponse.isSuccess()
-                            || !Boolean.TRUE.equals(deleteTokenResponse.getData())) {
+                            || !deleteTokenResponse.isSuccess() ){
                         log.warn("Token deletion failed for token: {}", token);
-                        return Mono.error(new TokenDeletionException(AuthErrorCode.TOKEN_DELETION_FAILED));
+                        throw new TokenDeletionException(AuthErrorCode.TOKEN_DELETION_FAILED);
                     }
-                    logger.info("Token revoked successfully for token: {}", token);
-                    ServiceResponse<Boolean> response = ServiceResponse.<Boolean>builder()
+                  return  ServiceResponse.<Boolean>builder()
                             .success(true)
                             .message("Logout has been successful")
                             .data(true)
                             .timestamp(java.time.LocalDateTime.now())
                             .build();
-                    return Mono.just(response);
-                })
-;
+                });
     }
 
     public Mono<ServiceResponse<MemberRegisterResponse>> refreshToken(String rawToken) {
@@ -274,12 +287,15 @@ public class AuthService {
         String token = TokenSanitizer.sanitize(rawToken);
         log.info(">>> refreshToken: validating refresh token against member-service");
 
+        //It need to return a Mono<ServiceResponse<MemberRegisterResponse>>
         return serviceClient.postReactive(
                         memberServiceUrl,
                         "/member/findToken",
                         token,
                         new ParameterizedTypeReference<ServiceResponse<Boolean>>() {}
-                )
+                )//This will return Mono<ServiceResponse<Boolean>>
+
+                //first flatMap and took ServiceResponse<Boolean> and need a return Mono<ServiceResponse<MemberRegisterResponse>> as final result
                 .flatMap(findTokenResponse -> {
                     if (findTokenResponse == null
                             || !findTokenResponse.isSuccess()
@@ -288,43 +304,52 @@ public class AuthService {
                         return Mono.error(new TokenNotFoundException(AuthErrorCode.TOKEN_NOT_FOUND));
                     }
 
-                    String userName = jwtUtil.extractUsername(token);
-                    String role = jwtUtil.extractUserRole(token);
-                    log.info(">>> refreshToken: token found in DB, issuing new tokens for user: {}", userName);
-                    String accessToken = jwtUtil.generate(userName, role, "ACCESS");
-                    String refreshToken = jwtUtil.generate(userName, role, "REFRESH");
+                    return Mono.fromCallable(() -> {
 
-                    MemberDTO memberDTO = MemberDTO.builder().username(userName).role(role).build();
-                    TokenDTO tokenToStore = TokenDTO.builder()
-                            .memberDTO(memberDTO)
-                            .expired(false)
-                            .revoked(false)
-                            .accessToken(accessToken)
-                            .refreshToken(refreshToken)
-                            .build();
+                                String userName = jwtUtil.extractUsername(token);
+                                String role = jwtUtil.extractUserRole(token);
+                                log.info(">>> refreshToken: token found in DB, issuing new tokens for user: {}", userName);
+                                String accessToken = jwtUtil.generate(userName, role, "ACCESS");
+                                String refreshToken = jwtUtil.generate(userName, role, "REFRESH");
 
-                    return serviceClient.postReactive(
-                                    memberServiceUrl,
-                                    "/member/storeTokens",
-                                    tokenToStore,
-                                    new ParameterizedTypeReference<ServiceResponse<Boolean>>() {}
-                            )
-                            .flatMap(tokenStoredResponse -> {
-                                if (tokenStoredResponse == null
-                                        || !tokenStoredResponse.isSuccess()
-                                        || !Boolean.TRUE.equals(tokenStoredResponse.getData())) {
-                                    log.error("Token store failed: {}", tokenStoredResponse != null ? tokenStoredResponse.getMessage() : "no response body");
-                                    return Mono.error(new TokenSaveFailedException(AuthErrorCode.TOKEN_SAVE_FAILED));
-                                }
-                                log.info(">>> refreshToken: new tokens issued and stored successfully for user: {}", userName);
-                                return Mono.just(ServiceResponse.<MemberRegisterResponse>builder()
-                                        .success(true)
-                                        .data(new MemberRegisterResponse(null, accessToken, refreshToken))
-                                        .timestamp(java.time.LocalDateTime.now())
-                                        .build());
-                            });
-                })
-;
+                                MemberDTO memberDTO = MemberDTO.builder().username(userName).role(role).build();
+                                return TokenDTO.builder()
+                                        .memberDTO(memberDTO)
+                                        .expired(false)
+                                        .revoked(false)
+                                        .accessToken(accessToken)
+                                        .refreshToken(refreshToken)
+                                        .build();
+
+
+                            })
+                            .subscribeOn(Schedulers.boundedElastic())
+                            .flatMap(tokenDTO -> {
+                                MemberDTO memberDTO = tokenDTO.getMemberDTO();
+                                return serviceClient.postReactive(
+                                                memberServiceUrl,
+                                                "/member/storeTokens",
+                                                tokenDTO,
+                                                new ParameterizedTypeReference<ServiceResponse<Boolean>>() {
+                                                }
+                                        )
+                                        .flatMap(tokenStoredResponse -> {
+                                            if (tokenStoredResponse == null
+                                                    || !tokenStoredResponse.isSuccess()
+                                                    || !Boolean.TRUE.equals(tokenStoredResponse.getData())) {
+                                                log.error("Token store failed: {}", tokenStoredResponse != null ? tokenStoredResponse.getMessage() : "no response body");
+                                                return Mono.error(new TokenSaveFailedException(AuthErrorCode.TOKEN_SAVE_FAILED));
+                                            }
+                                            log.info(">>> refreshToken: new tokens issued and stored successfully for user: {}", memberDTO.getUsername());
+                                            return Mono.just(ServiceResponse.<MemberRegisterResponse>builder()
+                                                    .success(true)
+                                                    .data(new MemberRegisterResponse(null, tokenDTO.accessToken, tokenDTO.refreshToken))
+                                                    .timestamp(java.time.LocalDateTime.now())
+                                                    .build());
+                                        });
+                            });//This will return a Mono<ServiceResponse<MemberRegisterResponse>> this will return again as a result of Mono.fromCallable
+
+                });//return a Mono<ServiceResponse<MemberRegisterResponse>>
     }
 
 
@@ -335,15 +360,15 @@ public class AuthService {
                         email,
                         new ParameterizedTypeReference<ServiceResponse<Boolean>>() {}
                 )
-                .flatMap(deleteResponse -> {
+                .map(deleteResponse -> {
                     if (deleteResponse == null
                             || !deleteResponse.isSuccess()
                             || !Boolean.TRUE.equals(deleteResponse.getData())) {
                         log.error("Member deletion failed for email: {}", email);
-                        return Mono.error(new InternalServerException(AuthErrorCode.MEMBER_DELETION_FAILED));
+                        throw new InternalServerException(AuthErrorCode.MEMBER_DELETION_FAILED);
                     }
                     logger.info("User deleted successfully: {}", email);
-                    return Mono.just(deleteResponse);
+                    return deleteResponse;
                 })
 ;
     }
