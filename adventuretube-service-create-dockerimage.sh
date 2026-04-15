@@ -1,67 +1,69 @@
 #!/bin/bash
+# Service image build script using nerdctl (writes directly into K3s containerd).
+#
+# Changes vs the docker version:
+#   - Maven: -T 1 (single-threaded) so 5 module compiles don't spike memory together
+#   - Docker replaced with: sudo nerdctl --address /run/k3s/containerd/containerd.sock --namespace k8s.io
+#   - Docker-compose build loop: one service at a time (sequential) to cap peak RAM
+#   - No more `docker save | k3s ctr images import` — nerdctl writes into K3s containerd directly
+#
+# Prereq: run scripts/install-nerdctl-pi2.sh once on PI2.
+#
+# Usage:
+#   ./adventuretube-service-create-dockerimage.sh pi2 main [module1,module2,...]
 
-# Step 1: Check if the environment argument is provided
-if [ -z "$1" ]; then
-    echo "Please specify the environment (pi or mac)."
+set -u
+
+if [ -z "${1:-}" ]; then
+    echo "Please specify the environment (pi, pi2, prod, or mac)."
     exit 1
 fi
 
-# Step 2: Pull the latest updates from the branch
 BRANCH="${2:-main}"
 echo "$(date) - Pulling latest updates from '${BRANCH}' branch..."
-git checkout ${BRANCH}
-git pull origin ${BRANCH}
-if [ $? -ne 0 ]; then
-    echo "$(date) - Failed to pull latest updates from '${BRANCH}' branch."
-    exit 1
-fi
+git checkout "${BRANCH}"
+git pull origin "${BRANCH}" || {
+    echo "$(date) - Failed to pull latest updates from '${BRANCH}' branch."; exit 1;
+}
 
-# Step 3: Set the environment file based on the argument
-if [ "$1" == "pi" ]; then
-    export ENV_FILE=env.pi
-    echo "$(date) - Using 'env.pi' configuration"
-elif [ "$1" == "pi2" ]; then
-    export ENV_FILE=env.pi2
-    echo "$(date) - Using 'env.pi2' configuration"
-elif [ "$1" == "prod" ]; then
-    export ENV_FILE=env.prod
-    echo "$(date) - Using 'env.prod' configuration"
-else
-    export ENV_FILE=env.mac
-    echo "$(date) - Using 'env.mac' configuration"
-fi
+case "$1" in
+    pi)   export ENV_FILE=env.pi   ;;
+    pi2)  export ENV_FILE=env.pi2  ;;
+    prod) export ENV_FILE=env.prod ;;
+    *)    export ENV_FILE=env.mac  ;;
+esac
+echo "$(date) - Using '${ENV_FILE}' configuration"
 
-# Step 3.5: Install parent pom and common module
+# K3s containerd config for nerdctl
+NERDCTL_ARGS="--address /run/k3s/containerd/containerd.sock --namespace k8s.io"
+
+# Parent pom + common-api (sequential by nature — single modules)
 echo "$(date) - Installing parent pom..."
-./mvnw -N install -DskipTests || {
-    echo "$(date) - Parent pom install failed."; exit 1;
-}
+./mvnw -N install -DskipTests || { echo "$(date) - Parent pom install failed."; exit 1; }
 echo "$(date) - Installing common-api module..."
-./mvnw clean install -pl common-api -DskipTests || {
-    echo "$(date) - common-api install failed."; exit 1;
-}
+./mvnw clean install -pl common-api -DskipTests || { echo "$(date) - common-api install failed."; exit 1; }
 
-# Step 4: Clean and build Maven project
-echo "$(date) - Cleaning and building Maven project..."
+# Maven build — single-threaded (-T 1) to avoid simultaneous JVM memory spikes
+echo "$(date) - Cleaning and building Maven project (single-threaded)..."
 MODULES=${3:-auth-service,member-service,web-service,geospatial-service,youtube-service}
-./mvnw clean package -DskipTests -pl $MODULES
-if [ $? -ne 0 ]; then
-    echo "$(date) - Maven build failed."
-    exit 1
-fi
+./mvnw -T 1 clean package -DskipTests -pl "$MODULES" || { echo "$(date) - Maven build failed."; exit 1; }
 
-# Step 5: Build Docker images
-echo "$(date) - Building Docker images..."
-docker compose --env-file $ENV_FILE -f docker-compose-adventuretubes.yml build
-if [ $? -ne 0 ]; then
-    echo "$(date) - Docker build failed."
-    exit 1
-fi
+# Nerdctl build — sequential, one service at a time, directly into K3s containerd
+echo "$(date) - Building images with nerdctl (sequential, into K3s containerd)..."
+IFS=',' read -ra SERVICES <<< "$MODULES"
+for SERVICE in "${SERVICES[@]}"; do
+    SERVICE=$(echo "$SERVICE" | xargs)  # trim whitespace
+    echo "$(date) - Building ${SERVICE}..."
+    sudo nerdctl ${NERDCTL_ARGS} compose --env-file "$ENV_FILE" -f docker-compose-adventuretubes.yml build "$SERVICE" || {
+        echo "$(date) - Nerdctl build failed for ${SERVICE}."; exit 1;
+    }
+done
 
-# Step 6: Prune old build cache (keep last 24h) to prevent disk fill-up on PI
-echo "$(date) - Pruning old Docker build cache (older than 24h)..."
-docker builder prune -f --filter "until=24h"
+# Prune buildkit cache (nerdctl 2.0.3 builder prune doesn't support --filter)
+# Use buildctl directly via the buildkit socket instead.
+echo "$(date) - Pruning buildkit cache (keep last 24h)..."
+sudo buildctl --addr unix:///run/buildkit/buildkitd.sock prune --keep-duration 24h || true
 
-# Completion message
-echo "$(date) - Docker images created successfully!"
-echo "$(date) - Images ready: auth-service, member-service, web-service, geospatial-service, youtube-service"
+echo "$(date) - Images built successfully into K3s containerd (namespace=k8s.io)!"
+echo "$(date) - Images ready: ${MODULES}"
+echo "$(date) - No import step needed — K3s can use them immediately."

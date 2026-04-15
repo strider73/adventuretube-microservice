@@ -1,4 +1,5 @@
-// Host-native pipeline: all heavy work runs on PI2 host via SSH
+// Host-native pipeline: all heavy work runs on PI2 host via SSH.
+// Images are built directly into K3s containerd via nerdctl (no save/import step).
 pipeline {
     agent {label 'jenkins-agent2'}
 
@@ -12,7 +13,6 @@ pipeline {
         SSH_KEY  = '/home/jenkins/.ssh/id_rsa'
         SSH_OPTS = '-o StrictHostKeyChecking=no'
         REMOTE_DIR = '/home/strider/adventuretube-microservice'
-        SERVICE_IMAGES = 'auth-service member-service web-service geospatial-service youtube-service'
     }
 
     stages {
@@ -39,29 +39,11 @@ pipeline {
             }
         }
 
-        stage('Build Maven & Docker Images') {
+        stage('Build Images with nerdctl') {
             steps {
                 sh """
                     ssh -i ${SSH_KEY} ${SSH_OPTS} strider@${PI2_HOST} \
                         "cd ${REMOTE_DIR} && ./adventuretube-service-create-dockerimage.sh pi2 ${params.BRANCH}"
-                """
-            }
-        }
-
-        stage('Import Images to K3s') {
-            steps {
-                sh """
-                    echo "Importing Docker images into K3s containerd on PI2..."
-                    for IMAGE in ${SERVICE_IMAGES}; do
-                        echo "  Importing adventuretube-microservice-\${IMAGE}:latest on PI2..."
-                        ssh -i ${SSH_KEY} ${SSH_OPTS} strider@${PI2_HOST} \
-                            "docker save adventuretube-microservice-\${IMAGE}:latest | sudo k3s ctr images import -"
-                        ssh -i ${SSH_KEY} ${SSH_OPTS} strider@${PI2_HOST} \
-                            "sync && echo 3 | sudo tee /proc/sys/vm/drop_caches > /dev/null"
-                    done
-
-                    # PI1 transfer skipped — pods pinned to PI2 via nodeSelector
-                    # Re-enable when PI2 has more RAM or Docker is replaced with nerdctl
                 """
             }
         }
