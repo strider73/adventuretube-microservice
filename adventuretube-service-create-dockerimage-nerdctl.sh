@@ -59,9 +59,10 @@ for SERVICE in "${SERVICES[@]}"; do
     }
 done
 
-# Prune old buildkit cache (keep last 24h)
-echo "$(date) - Pruning old buildkit cache (older than 24h)..."
-sudo nerdctl ${NERDCTL_ARGS} builder prune -f --filter "until=24h" || true
+# Prune buildkit cache (nerdctl 2.0.3 builder prune doesn't support --filter)
+# Use buildctl directly via the buildkit socket instead.
+echo "$(date) - Pruning buildkit cache (keep last 24h)..."
+sudo buildctl --addr unix:///run/buildkit/buildkitd.sock prune --keep-duration 24h || true
 
 echo "$(date) - Images built successfully into K3s containerd (namespace=k8s.io)!"
 echo "$(date) - Images ready: ${MODULES}"
