@@ -31,7 +31,7 @@ if [ ! -f "${TARBALL}" ]; then
 fi
 
 echo "Extracting to /usr/local..."
-sudo tar -Cxzvf /usr/local "${TARBALL}" > /dev/null
+sudo tar -xzf "${TARBALL}" -C /usr/local
 
 # 2. Create systemd unit for buildkitd pointed at K3s containerd
 echo "Creating buildkit systemd service..."
