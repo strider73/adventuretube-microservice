@@ -58,6 +58,10 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+# Step 6: Prune old build cache (keep last 24h) to prevent disk fill-up on PI
+echo "$(date) - Pruning old Docker build cache (older than 24h)..."
+docker builder prune -f --filter "until=24h"
+
 # Completion message
 echo "$(date) - Docker images created successfully!"
 echo "$(date) - Images ready: auth-service, member-service, web-service, geospatial-service, youtube-service"
