@@ -29,6 +29,10 @@ spec:
           value: "pi2"
         - name: ENV_TARGET
           value: "pi2"
+        - name: JAVA_TOOL_OPTIONS
+          value: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
+        - name: JAVA_DEBUG_PORT
+          value: "5005"
         - name: CONFIG_SERVER_URL
           value: "http://192.168.1.199:30297"
         readinessProbe:
@@ -95,6 +99,10 @@ spec:
           value: "pi2"
         - name: ENV_TARGET
           value: "pi2"
+        - name: JAVA_TOOL_OPTIONS
+          value: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5006"
+        - name: JAVA_DEBUG_PORT
+          value: "5006"
         - name: CONFIG_SERVER_URL
           value: "http://192.168.1.199:30297"
         readinessProbe:
@@ -161,6 +169,10 @@ spec:
           value: "pi2"
         - name: ENV_TARGET
           value: "pi2"
+        - name: JAVA_TOOL_OPTIONS
+          value: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5007"
+        - name: JAVA_DEBUG_PORT
+          value: "5007"
         - name: CONFIG_SERVER_URL
           value: "http://192.168.1.199:30297"
         readinessProbe:
@@ -227,6 +239,10 @@ spec:
           value: "pi2"
         - name: ENV_TARGET
           value: "pi2"
+        - name: JAVA_TOOL_OPTIONS
+          value: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5008"
+        - name: JAVA_DEBUG_PORT
+          value: "5008"
         - name: CONFIG_SERVER_URL
           value: "http://192.168.1.199:30297"
         readinessProbe:
@@ -293,6 +309,10 @@ spec:
           value: "pi2"
         - name: ENV_TARGET
           value: "pi2"
+        - name: JAVA_TOOL_OPTIONS
+          value: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5009"
+        - name: JAVA_DEBUG_PORT
+          value: "5009"
         - name: CONFIG_SERVER_URL
           value: "http://192.168.1.199:30297"
 ---
