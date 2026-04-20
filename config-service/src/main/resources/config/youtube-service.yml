@@ -33,14 +33,10 @@ spring:
         enable.idempotence: true
 
 eureka:
-  instance:
-    prefer-ip-address: true
   client:
-    service-url:
-      defaultZone: ${EUREKA_SERVER_URL}
-    fetch-registry: true
-    register-with-eureka: true
-    enabled: true
+    fetch-registry: false
+    register-with-eureka: false
+    enabled: false
 
 minio:
   endpoint: ${MINIO_ENDPOINT}

@@ -329,9 +329,6 @@ spec:
       - name: wait-for-config
         image: busybox
         command: ['sh', '-c', 'until wget -q -O- http://192.168.1.199:30297/actuator/health | grep -q "UP"; do echo "Waiting for config-service..."; sleep 5; done']
-      - name: wait-for-eureka
-        image: busybox
-        command: ['sh', '-c', 'until wget -q -O- http://192.168.1.199:30761/actuator/health | grep -q "UP"; do echo "Waiting for eureka-server..."; sleep 5; done']
       containers:
       - name: youtube-service
         image: docker.io/library/adventuretube-microservice-youtube-service:latest

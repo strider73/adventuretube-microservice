@@ -16,10 +16,8 @@ server:
   port: ${CONFIG_PORT}
 eureka:
   client:
-    fetch-registry: true
-    register-with-eureka: true
-    service-url:
-      defaultZone: ${EUREKA_SERVER_URL}
+    fetch-registry: false
+    register-with-eureka: false
 
 management:
   endpoints:
