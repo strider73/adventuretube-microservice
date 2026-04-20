@@ -20,7 +20,9 @@ public enum AuthErrorCode implements ErrorCode {
     TOKEN_EXPIRED("Token expired", HttpStatus.UNAUTHORIZED),
     TOKEN_DELETION_FAILED("Failed to delete token during logout", HttpStatus.UNAUTHORIZED),
     TOKEN_SAVE_FAILED("Failed to save token during login", HttpStatus.UNAUTHORIZED),
-    USER_EMAIL_DUPLICATE("User already exists with the provided email", HttpStatus.UNAUTHORIZED),
+
+    // --- 409 CONFLICT ---
+    USER_EMAIL_DUPLICATE("User already exists with the provided email", HttpStatus.CONFLICT),
 
     // --- 500 INTERNAL_SERVER_ERROR ---
     MEMBER_REGISTRATION_FAILED("Failed to register member", HttpStatus.INTERNAL_SERVER_ERROR),  // NOT USED — dead code, no reference

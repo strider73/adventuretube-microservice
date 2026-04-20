@@ -68,6 +68,8 @@ public class StoryJobStatusSSEController {
                 emitter.send(SseEmitter.event()
                         .name("job-status")
                         .data(jobStatus, MediaType.APPLICATION_JSON));
+                //This is where the terminal status is sent to the client not after return
+                //if job status is not pending but anything else.
                 emitter.complete();
                 log.info("SSE /geo/status/stream/{} completed", trackingId);
             } catch (IOException e) {
@@ -81,6 +83,7 @@ public class StoryJobStatusSSEController {
 
         // Send initial PENDING status
         try {
+            //here is where the initial PENDING status is sent to the client not after return
             emitter.send(SseEmitter.event()
                     .name("job-status")
                     .data(jobStatus, MediaType.APPLICATION_JSON));
@@ -88,7 +91,8 @@ public class StoryJobStatusSSEController {
         } catch (IOException e) {
             emitter.completeWithError(e);
         }
-
+        //connection to auth-service keep open until completed
+        //but there is still process from original save process that is registered from kafka 
         return emitter;
     }
 

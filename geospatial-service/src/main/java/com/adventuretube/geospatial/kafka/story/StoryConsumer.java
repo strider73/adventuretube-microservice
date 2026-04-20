@@ -74,6 +74,7 @@ public class StoryConsumer {
         }
 
         try {
+            //adventureTubeData get saved in here and return saved object
             AdventureTubeData saved = adventureTubeDataService.save(data);
             logger.info("Saved AdventureTubeData: youtubeContentID={}", saved.getYoutubeContentID());
             int chaptersCount = saved.getChapters() != null ? saved.getChapters().size() : 0;
@@ -81,8 +82,8 @@ public class StoryConsumer {
             storyJobStatusService.markCompleted(trackingId, chaptersCount, placesCount);
 
 
-            //trigger async screenshot generation  NO jobStatus created!!! iOS need a polling to check later
-            //create ScreenshotJobStatus here
+            // Trigger async screenshot generation.
+            // ScreenshotJobStatus is created here; iOS will need to poll for its progress separately.
             logger.info("############ScreenShot process for trackingId={}, and youtubeContentId={}  start###############",trackingId,data.getYoutubeContentID());
             screenshotJobStatusService.createPendingJob(trackingId, data.getYoutubeContentID());
 

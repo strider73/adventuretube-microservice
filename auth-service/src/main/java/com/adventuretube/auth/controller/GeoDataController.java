@@ -35,7 +35,7 @@ public class GeoDataController {
         log.info("SSE proxy /auth/geo/status/stream/{} requested", trackingId);
         return geoDataService.streamJobStatus(trackingId);
     }
-
+   //This end point get called and po
     @GetMapping("/status/{trackingId}")
     public Mono<ResponseEntity<String>> getJobStatus(
             @RequestHeader("Authorization") String authorization,
