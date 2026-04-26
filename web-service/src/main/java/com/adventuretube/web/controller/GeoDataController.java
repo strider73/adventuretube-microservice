@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
 
@@ -43,62 +44,67 @@ public class GeoDataController {
                                     """)))
     })
     @GetMapping("/data")
-    public ResponseEntity<ServiceResponse<JsonNode>> findAll() {
-        return ResponseEntity.ok(wrapResponse("Geospatial data retrieved", geoDataService.findAll()));
+    public Mono<ResponseEntity<ServiceResponse<JsonNode>>> findAll() {
+        return geoDataService.findAll()
+                        .map(data ->ResponseEntity.ok(wrapResponse("Geospatial data retrieved",data)));
     }
 
     @Operation(summary = "Get geospatial data by ID")
     @ApiResponse(responseCode = "200", description = "Data retrieved.")
     @GetMapping("/data/{id}")
-    public ResponseEntity<ServiceResponse<JsonNode>> findById(@PathVariable String id) {
-        return ResponseEntity.ok(wrapResponse("Geospatial data retrieved", geoDataService.findById(id)));
+    public Mono<ResponseEntity<ServiceResponse<JsonNode>>> findById(@PathVariable String id) {
+        return geoDataService.findById(id)
+                .map(data -> ResponseEntity.ok(wrapResponse("Geospatial data retrieved", data)));
     }
 
     @Operation(summary = "Get geospatial data by YouTube content ID")
     @ApiResponse(responseCode = "200", description = "Data retrieved.")
     @GetMapping("/data/youtube/{youtubeContentID}")
-    public ResponseEntity<ServiceResponse<JsonNode>> findByYoutubeContentID(@PathVariable String youtubeContentID) {
-        return ResponseEntity.ok(wrapResponse("Geospatial data retrieved", geoDataService.findByYoutubeContentID(youtubeContentID)));
+    public Mono<ResponseEntity<ServiceResponse<JsonNode>>> findByYoutubeContentID(@PathVariable String youtubeContentID) {
+        return geoDataService.findByYoutubeContentID(youtubeContentID)
+                .map(data -> ResponseEntity.ok(wrapResponse("Geospatial data retrieved", data)));
     }
 
     @Operation(summary = "Get geospatial data by content type")
     @ApiResponse(responseCode = "200", description = "Data retrieved.")
     @GetMapping("/data/type/{contentType}")
-    public ResponseEntity<ServiceResponse<JsonNode>> findByContentType(@PathVariable String contentType) {
-        return ResponseEntity.ok(wrapResponse("Geospatial data retrieved", geoDataService.findByContentType(contentType)));
+    public Mono<ResponseEntity<ServiceResponse<JsonNode>>> findByContentType(@PathVariable String contentType) {
+        return geoDataService.findByContentType(contentType)
+                .map(data -> ResponseEntity.ok(wrapResponse("Geospatial data retrieved", data)));
     }
 
     @Operation(summary = "Get geospatial data by category")
     @ApiResponse(responseCode = "200", description = "Data retrieved.")
     @GetMapping("/data/category/{category}")
-    public ResponseEntity<ServiceResponse<JsonNode>> findByCategory(@PathVariable String category) {
-        return ResponseEntity.ok(wrapResponse("Geospatial data retrieved", geoDataService.findByCategory(category)));
+    public Mono<ResponseEntity<ServiceResponse<JsonNode>>> findByCategory(@PathVariable String category) {
+        return geoDataService.findByCategory(category)
+                .map(data -> ResponseEntity.ok(wrapResponse("Geospatial data retrieved", data)));
     }
 
     @Operation(summary = "Get geospatial data within bounding box")
     @ApiResponse(responseCode = "200", description = "Data within bounds retrieved.")
     @GetMapping("/data/bounds")
-    public ResponseEntity<ServiceResponse<JsonNode>> findWithinBounds(
+    public Mono<ResponseEntity<ServiceResponse<JsonNode>>> findWithinBounds(
             @RequestParam double swLat,
             @RequestParam double swLng,
             @RequestParam double neLat,
             @RequestParam double neLng) {
-        return ResponseEntity.ok(wrapResponse("Geospatial data within bounds retrieved",
-                geoDataService.findWithinBounds(swLat, swLng, neLat, neLng)));
+        return geoDataService.findWithinBounds(swLat, swLng, neLat, neLng)
+                .map(data -> ResponseEntity.ok(wrapResponse("Geospatial data within bounds retrieved", data)));
     }
 
     @Operation(summary = "Get total count of geospatial data")
     @ApiResponse(responseCode = "200", description = "Count retrieved.")
     @GetMapping("/data/count")
-    public ResponseEntity<ServiceResponse<JsonNode>> count() {
-        return ResponseEntity.ok(wrapResponse("Geospatial data count retrieved", geoDataService.count()));
+    public Mono<ResponseEntity<ServiceResponse<JsonNode>>> count() {
+        return geoDataService.count()
+                .map(data -> ResponseEntity.ok(wrapResponse("Geospatial data count retrieved", data)));
     }
 
     @GetMapping("/data/screenshot-status/{youtubeContentId}")
-    public ResponseEntity<ServiceResponse<JsonNode>> getScreenshotStatus(@PathVariable String
-                                                                                 youtubeContentId) {
-        return ResponseEntity.ok(wrapResponse("Screenshot status retrieved",
-                geoDataService.getScreenshotStatus(youtubeContentId)));
+    public Mono<ResponseEntity<ServiceResponse<JsonNode>>> getScreenshotStatus(@PathVariable String youtubeContentId) {
+        return geoDataService.getScreenshotStatus(youtubeContentId)
+                .map(data -> ResponseEntity.ok(wrapResponse("Screenshot status retrieved", data)));
     }
 
     private ServiceResponse<JsonNode> wrapResponse(String message, JsonNode data) {
