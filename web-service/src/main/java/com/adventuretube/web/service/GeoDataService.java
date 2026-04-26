@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 @Slf4j
 @Service
@@ -15,46 +16,46 @@ public class GeoDataService {
     private static final String BASE_URL = "http://GEOSPATIAL-SERVICE";
     private final ServiceClient serviceClient;
 
-    public JsonNode findAll() {
+    public Mono<JsonNode> findAll() {
         return serviceClient.<JsonNode>getReactive(BASE_URL, "/geo/data",
-                new ParameterizedTypeReference<>() {}).block();
+                new ParameterizedTypeReference<>() {});
     }
 
-    public JsonNode findById(String id) {
+    public Mono<JsonNode> findById(String id) {
         return serviceClient.<JsonNode>getReactive(BASE_URL, "/geo/data/" + id,
-                new ParameterizedTypeReference<>() {}).block();
+                new ParameterizedTypeReference<>() {});
     }
 
-    public JsonNode findByYoutubeContentID(String youtubeContentID) {
+    public Mono<JsonNode> findByYoutubeContentID(String youtubeContentID) {
         return serviceClient.<JsonNode>getReactive(BASE_URL, "/geo/data/youtube/" + youtubeContentID,
-                new ParameterizedTypeReference<>() {}).block();
+                new ParameterizedTypeReference<>() {});
     }
 
-    public JsonNode findByContentType(String contentType) {
+    public Mono<JsonNode> findByContentType(String contentType) {
         return serviceClient.<JsonNode>getReactive(BASE_URL, "/geo/data/type/" + contentType,
-                new ParameterizedTypeReference<>() {}).block();
+                new ParameterizedTypeReference<>() {});
     }
 
-    public JsonNode findByCategory(String category) {
+    public Mono<JsonNode> findByCategory(String category) {
         return serviceClient.<JsonNode>getReactive(BASE_URL, "/geo/data/category/" + category,
-                new ParameterizedTypeReference<>() {}).block();
+                new ParameterizedTypeReference<>() {});
     }
 
-    public JsonNode count() {
+    public Mono<JsonNode> count() {
         return serviceClient.<JsonNode>getReactive(BASE_URL, "/geo/data/count",
-                new ParameterizedTypeReference<>() {}).block();
+                new ParameterizedTypeReference<>() {});
     }
 
-    public JsonNode findWithinBounds(double swLat, double swLng, double neLat, double neLng) {
+    public Mono<JsonNode> findWithinBounds(double swLat, double swLng, double neLat, double neLng) {
         String path = String.format("/geo/data/bounds?swLat=%s&swLng=%s&neLat=%s&neLng=%s",
                 swLat, swLng, neLat, neLng);
         return serviceClient.<JsonNode>getReactive(BASE_URL, path,
-                new ParameterizedTypeReference<>() {}).block();
+                new ParameterizedTypeReference<>() {});
     }
 
-    public JsonNode getScreenshotStatus(String youtubeContentId) {
+    public Mono<JsonNode> getScreenshotStatus(String youtubeContentId) {
         return serviceClient.<JsonNode>getReactive(BASE_URL, "/geo/data/screenshot-status/" +
                         youtubeContentId,
-                new ParameterizedTypeReference<>() {}).block();
+                new ParameterizedTypeReference<>() {});
     }
 }
