@@ -71,7 +71,7 @@ public class GatewayConfig {
         .route("youtube-service", r -> r.path("/youtube/**")
                 .filters(f -> f.filter(filter)
                         .circuitBreaker(c -> c
-                                .setName("gw-web-service")
+                                .setName("gw-youtube-service")
                                 .setFallbackUri("forward:/fallback/youtube-service")
                                 .addStatusCode("500").addStatusCode("502")
                                 .addStatusCode("503").addStatusCode("504")))
