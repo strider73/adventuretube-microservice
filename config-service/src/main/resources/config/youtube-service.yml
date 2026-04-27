@@ -13,6 +13,7 @@ spring:
         - docker*
         - veth*
         - br-*
+
   kafka:
     template:
       observation-enabled: true
@@ -33,7 +34,11 @@ spring:
         enable.idempotence: true
 
 eureka:
+  instance:
+    prefer-ip-address: true
   client:
+    service-url:
+      defaultZone: ${EUREKA_SERVER_URL}
     fetch-registry: false
     register-with-eureka: true
     enabled: true
