@@ -4,15 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a2d07b1e-3701-4ae0-a05d-ffdee57b581a" name="Changes" comment="Most of update is just update comment .&#10;AuthErrorCode.USER_EMAIL_DUPLICATE  has been changed from &#10;HttpStatus.UNAthorized to Conflict">
-      <change afterPath="$PROJECT_DIR$/web-service/src/main/java/com/adventuretube/web/controller/YoutubeDataController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/web-service/src/main/java/com/adventuretube/web/service/YoutubeDataService.java" afterDir="false" />
+    <list default="true" id="a2d07b1e-3701-4ae0-a05d-ffdee57b581a" name="Changes" comment="initial update for youtube service module to make youtube service as leaf instead of headless service.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config-service/src/main/resources/config/gateway-service.yml" beforeDir="false" afterPath="$PROJECT_DIR$/config-service/src/main/resources/config/gateway-service.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config-service/src/main/resources/config/youtube-service.yml" beforeDir="false" afterPath="$PROJECT_DIR$/config-service/src/main/resources/config/youtube-service.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gateway-service/src/main/java/com/adventuretube/apigateway/config/GatewayConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/gateway-service/src/main/java/com/adventuretube/apigateway/config/GatewayConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gateway-service/src/main/java/com/adventuretube/apigateway/config/RouterValidator.java" beforeDir="false" afterPath="$PROJECT_DIR$/gateway-service/src/main/java/com/adventuretube/apigateway/config/RouterValidator.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/youtube-service/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/youtube-service/pom.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -92,160 +85,163 @@
     <option name="showExcludedFiles" value="false" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Docker.AdventureTube-Clouds.executor": "Run",
-    "Docker.AdventureTube-Services.executor": "Run",
-    "Docker.Adventuretube-Kafka.executor": "Run",
-    "Docker.Adventuretube-Storage.executor": "Run",
-    "Docker.Dockerfile.mac builder.executor": "Run",
-    "Docker.auth-service/Dockerfile.executor": "Run",
-    "Docker.docker-compose-adventuretubes.yml: Compose Deployment.executor": "Run",
-    "Docker.docker-compose-clouds.yml: Compose Deployment.executor": "Run",
-    "Docker.docker-compose-kafka.yml: Compose Deployment.executor": "Run",
-    "Docker.docker-compose-storages.yml: Compose Deployment.executor": "Run",
-    "Docker.docker-compose.yml.auth-service: Compose Deployment.executor": "Run",
-    "Docker.docker-compose.yml.eureka-server: Compose Deployment.executor": "Run",
-    "Docker.docker-compose.yml.gateway-service: Compose Deployment.executor": "Run",
-    "Docker.docker-compose.yml: Compose Deployment.executor": "Run",
-    "Docker.kafka-service: Compose Deployment.executor": "Run",
-    "Docker.kafka/docker-compose.kafka.yml: Compose Deployment.executor": "Run",
-    "Docker.web-service/Dockerfile.executor": "Run",
-    "JUnit.AdventureTubeDataControllerTest.executor": "Run",
-    "JUnit.AdventureTubeDataFullStackIT.executor": "Run",
-    "JUnit.AdventureTubeDataRepositoryIT.executor": "Run",
-    "JUnit.AdventureTubeDataServiceTest.executor": "Run",
-    "JUnit.AuthControllerIT.executor": "Run",
-    "JUnit.AuthControllerIT.testLoginAfterRegistration.executor": "Debug",
-    "JUnit.AuthControllerIT.testLogout.executor": "Run",
-    "JUnit.AuthControllerIT.testRefreshToken.executor": "Run",
-    "JUnit.AuthControllerIT.testRegisterUser.executor": "Debug",
-    "JUnit.AuthControllerIntegrationTest.executor": "Run",
-    "JUnit.AuthControllerIntegrationTest.testLogin.executor": "Debug",
-    "JUnit.AuthControllerIntegrationTest.testLoginAfterRegistration.executor": "Debug",
-    "JUnit.AuthControllerIntegrationTest.testLogout.executor": "Run",
-    "JUnit.AuthControllerIntegrationTest.testRefreshToken.executor": "Run",
-    "JUnit.AuthControllerIntegrationTest.testRegisterUser.executor": "Debug",
-    "JUnit.AuthServiceComponentTest.executor": "Run",
-    "JUnit.AuthTokenRevocationIT.executor": "Run",
-    "JUnit.CustomUserDetailServiceIT.executor": "Run",
-    "JUnit.CustomUserDetailServiceSecurityIT.authenticateUser_shouldSucceed_whenValidCredentials.executor": "Run",
-    "JUnit.CustomUserDetailServiceSecurityIT.executor": "Debug",
-    "JUnit.GatewayJwtFilterIT.bearerPrefixOnly_returns401_tokenMissing.executor": "Run",
-    "JUnit.GatewayJwtFilterIT.executor": "Debug",
-    "JUnit.GatewaySecurityIT.executor": "Run",
-    "JUnit.GoogleRefreshTokenTest.executor": "Run",
-    "JUnit.GoogleRefreshTokenTest.testGoogleIdTokenUsingRefreshToken.executor": "Debug",
-    "JUnit.GoogleTokenTest.executor": "Run",
-    "JUnit.JwtWebFilterTest.executor": "Run",
-    "JUnit.LoginFlowGatewayIT.executor": "Run",
-    "JUnit.LoginFlowIT.executor": "Run",
-    "JUnit.LoginFlowIntegrationTest.executor": "Run",
-    "JUnit.LoginFlowModuleApiIT.executor": "Debug",
-    "JUnit.LoginFlowModuleApiIT.step2_registerUser.executor": "Debug",
-    "JUnit.LoginFlowModuleApiIT.step4_refreshToken.executor": "Run",
-    "JUnit.LoginFlowModuleApiIT.step5_logout.executor": "Debug",
-    "JUnit.LoginFlowModuleApiIT.testInvalidGoogleToken.executor": "Run",
-    "JUnit.LoginFlowModuleApiIT.testMissingAuthHeader.executor": "Run",
-    "JUnit.LogoutFlowIT.executor": "Run",
-    "JUnit.MemberMapperSpringTest (1).executor": "Run",
-    "JUnit.MemberMapperSpringTest.executor": "Run",
-    "JUnit.MemberMapperSpringTest.testMemberDTOtoMember.executor": "Debug",
-    "JUnit.MemberMapperSpringTest.testUserDetailToMemberDTO.executor": "Run",
-    "JUnit.ReactiveAuthenticationManagerIT.authenticateUser_shouldSucceed_whenValidCredentials.executor": "Debug",
-    "JUnit.ReactiveAuthenticationManagerTest (1).executor": "Run",
-    "JUnit.ReactiveAuthenticationManagerTest.authenticateUser_shouldSucceed_whenValidCredentials.executor": "Run",
-    "JUnit.ReactiveAuthenticationManagerTest.executor": "Run",
-    "JUnit.RegistrationFlowIT.executor": "Run",
-    "JUnit.SequentialFlowTestIT.executor": "Run",
-    "JUnit.StressTestIT.executor": "Run",
-    "JUnit.StressTestIT.stressTestLogin.executor": "Run",
-    "JUnit.StressTestIT.warmup.executor": "Run",
-    "Maven.adventuretube-microservice [clean].executor": "Run",
-    "Maven.adventuretube-microservice [compile].executor": "Run",
-    "Maven.adventuretube-microservice [install].executor": "Run",
-    "Maven.adventuretube-microservice [org.springframework.boot:spring-boot-maven-plugin:3.2.5:build-image].executor": "Run",
-    "Maven.adventuretube-microservice [package].executor": "Run",
-    "Maven.adventuretube-microservice [site].executor": "Run",
-    "Maven.adventuretube-microservice [test].executor": "Run",
-    "Maven.adventuretube-microservice [validate].executor": "Run",
-    "Maven.adventuretube-microservice [verify].executor": "Run",
-    "Maven.auth-service [clean].executor": "Run",
-    "Maven.auth-service [compile].executor": "Run",
-    "Maven.auth-service [org.springframework.boot:spring-boot-maven-plugin:3.2.5:build-image].executor": "Run",
-    "Maven.auth-service [package].executor": "Run",
-    "Maven.auth-service [test].executor": "Run",
-    "Maven.auth-service [validate].executor": "Run",
-    "Maven.common-domain [org.springframework.boot:spring-boot-maven-plugin:3.2.5:build-image].executor": "Run",
-    "Maven.config-service [org.springframework.boot:spring-boot-maven-plugin:3.2.5:build-image-no-fork].executor": "Run",
-    "Maven.config-service [org.springframework.boot:spring-boot-maven-plugin:3.2.5:build-image].executor": "Run",
-    "Maven.config-service [org.springframework.boot:spring-boot-maven-plugin:3.2.5:run].executor": "Run",
-    "Maven.config-service [org.springframework.boot:spring-boot-maven-plugin:3.2.5:start].executor": "Run",
-    "Maven.eureka-server [org.springframework.boot:spring-boot-maven-plugin:3.2.5:build-image].executor": "Run",
-    "Maven.member-service [clean].executor": "Run",
-    "Maven.member-service [compile].executor": "Run",
-    "Maven.member-service [install].executor": "Run",
-    "Maven.member-service [package].executor": "Run",
-    "Maven.member-service [test].executor": "Run",
-    "Remote JVM Debug.Unnamed.executor": "Debug",
-    "Remote JVM Debug.auth-debug.executor": "Debug",
-    "Remote JVM Debug.gateway-debug.executor": "Debug",
-    "Remote JVM Debug.geospatial-debug.executor": "Debug",
-    "Remote JVM Debug.member-debug.executor": "Debug",
-    "Remote JVM Debug.member-pi-debug.executor": "Debug",
-    "Remote JVM Debug.web-debug.executor": "Debug",
-    "RequestMappingsPanelOrder0": "0",
-    "RequestMappingsPanelOrder1": "1",
-    "RequestMappingsPanelWidth0": "75",
-    "RequestMappingsPanelWidth1": "75",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "SHELLCHECK.PATH": "/Users/chrislee/Library/Application Support/JetBrains/IntelliJIdea2024.1/plugins/Shell Script/shellcheck",
-    "Shell Script.adventuretube-cloud-redeploy.sh.executor": "Debug",
-    "Spring Boot.Adventuretube.executor": "Debug",
-    "Spring Boot.AuthServiceApplication.executor": "Run",
-    "Spring Boot.ConfigServiceApplication.executor": "Run",
-    "Spring Boot.EurekaServerApplication.executor": "Run",
-    "Spring Boot.GatewayApplication.executor": "Run",
-    "Spring Boot.GeospatialServiceApplication.executor": "Run",
-    "Spring Boot.MemberServiceApplication.executor": "Run",
-    "Spring Boot.WebServiceApplication.executor": "Run",
-    "Spring Boot.YoutubeServiceApplication.executor": "Run",
-    "Spring Boot.geospatial-service.executor": "Debug",
-    "TODO_SCOPE": "All Places",
-    "WebServerToolWindowFactoryState": "false",
-    "codeWithMe.voiceChat.enabledByDefault": "false",
-    "deletionFromPopupRequiresConfirmation": "false",
-    "git-widget-placeholder": "update/make-youtube-leaf-service",
-    "jdk.selected.JAVA_MODULE": "17",
-    "kotlin-language-version-configured": "true",
-    "last_directory_selection": "/Volumes/Programming HD/AdventureTube/adventuretube-microservice/common-api/src/main/java/com/adventuretube/common/api",
-    "last_opened_file_path": "/Volumes/Programming HD/AdventureTube/adventuretube-microservice",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "Modules",
-    "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.46896553",
-    "run.configurations.included.in.services": "true",
-    "service.view.auto.scroll.to.source": "true",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
-    "spring.configuration.checksum": "ba4180c424d1148c4a3c5976cb495d2f",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Docker.AdventureTube-Clouds.executor&quot;: &quot;Run&quot;,
+    &quot;Docker.AdventureTube-Services.executor&quot;: &quot;Run&quot;,
+    &quot;Docker.Adventuretube-Kafka.executor&quot;: &quot;Run&quot;,
+    &quot;Docker.Adventuretube-Storage.executor&quot;: &quot;Run&quot;,
+    &quot;Docker.Dockerfile.mac builder.executor&quot;: &quot;Run&quot;,
+    &quot;Docker.auth-service/Dockerfile.executor&quot;: &quot;Run&quot;,
+    &quot;Docker.docker-compose-adventuretubes.yml: Compose Deployment.executor&quot;: &quot;Run&quot;,
+    &quot;Docker.docker-compose-clouds.yml: Compose Deployment.executor&quot;: &quot;Run&quot;,
+    &quot;Docker.docker-compose-kafka.yml: Compose Deployment.executor&quot;: &quot;Run&quot;,
+    &quot;Docker.docker-compose-storages.yml: Compose Deployment.executor&quot;: &quot;Run&quot;,
+    &quot;Docker.docker-compose.yml.auth-service: Compose Deployment.executor&quot;: &quot;Run&quot;,
+    &quot;Docker.docker-compose.yml.eureka-server: Compose Deployment.executor&quot;: &quot;Run&quot;,
+    &quot;Docker.docker-compose.yml.gateway-service: Compose Deployment.executor&quot;: &quot;Run&quot;,
+    &quot;Docker.docker-compose.yml: Compose Deployment.executor&quot;: &quot;Run&quot;,
+    &quot;Docker.kafka-service: Compose Deployment.executor&quot;: &quot;Run&quot;,
+    &quot;Docker.kafka/docker-compose.kafka.yml: Compose Deployment.executor&quot;: &quot;Run&quot;,
+    &quot;Docker.web-service/Dockerfile.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.AdventureTubeDataControllerTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.AdventureTubeDataFullStackIT.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.AdventureTubeDataRepositoryIT.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.AdventureTubeDataServiceTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.AuthControllerIT.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.AuthControllerIT.testLoginAfterRegistration.executor&quot;: &quot;Debug&quot;,
+    &quot;JUnit.AuthControllerIT.testLogout.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.AuthControllerIT.testRefreshToken.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.AuthControllerIT.testRegisterUser.executor&quot;: &quot;Debug&quot;,
+    &quot;JUnit.AuthControllerIntegrationTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.AuthControllerIntegrationTest.testLogin.executor&quot;: &quot;Debug&quot;,
+    &quot;JUnit.AuthControllerIntegrationTest.testLoginAfterRegistration.executor&quot;: &quot;Debug&quot;,
+    &quot;JUnit.AuthControllerIntegrationTest.testLogout.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.AuthControllerIntegrationTest.testRefreshToken.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.AuthControllerIntegrationTest.testRegisterUser.executor&quot;: &quot;Debug&quot;,
+    &quot;JUnit.AuthServiceComponentTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.AuthTokenRevocationIT.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.CustomUserDetailServiceIT.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.CustomUserDetailServiceSecurityIT.authenticateUser_shouldSucceed_whenValidCredentials.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.CustomUserDetailServiceSecurityIT.executor&quot;: &quot;Debug&quot;,
+    &quot;JUnit.GatewayJwtFilterIT.bearerPrefixOnly_returns401_tokenMissing.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.GatewayJwtFilterIT.executor&quot;: &quot;Debug&quot;,
+    &quot;JUnit.GatewaySecurityIT.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.GoogleRefreshTokenTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.GoogleRefreshTokenTest.testGoogleIdTokenUsingRefreshToken.executor&quot;: &quot;Debug&quot;,
+    &quot;JUnit.GoogleTokenTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.JwtWebFilterTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.LoginFlowGatewayIT.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.LoginFlowIT.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.LoginFlowIntegrationTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.LoginFlowModuleApiIT.executor&quot;: &quot;Debug&quot;,
+    &quot;JUnit.LoginFlowModuleApiIT.step2_registerUser.executor&quot;: &quot;Debug&quot;,
+    &quot;JUnit.LoginFlowModuleApiIT.step4_refreshToken.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.LoginFlowModuleApiIT.step5_logout.executor&quot;: &quot;Debug&quot;,
+    &quot;JUnit.LoginFlowModuleApiIT.testInvalidGoogleToken.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.LoginFlowModuleApiIT.testMissingAuthHeader.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.LogoutFlowIT.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.MemberMapperSpringTest (1).executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.MemberMapperSpringTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.MemberMapperSpringTest.testMemberDTOtoMember.executor&quot;: &quot;Debug&quot;,
+    &quot;JUnit.MemberMapperSpringTest.testUserDetailToMemberDTO.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.ReactiveAuthenticationManagerIT.authenticateUser_shouldSucceed_whenValidCredentials.executor&quot;: &quot;Debug&quot;,
+    &quot;JUnit.ReactiveAuthenticationManagerTest (1).executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.ReactiveAuthenticationManagerTest.authenticateUser_shouldSucceed_whenValidCredentials.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.ReactiveAuthenticationManagerTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.RegistrationFlowIT.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.SequentialFlowTestIT.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.StressTestIT.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.StressTestIT.stressTestLogin.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.StressTestIT.warmup.executor&quot;: &quot;Run&quot;,
+    &quot;Maven.adventuretube-microservice [clean].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.adventuretube-microservice [compile].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.adventuretube-microservice [install].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.adventuretube-microservice [org.springframework.boot:spring-boot-maven-plugin:3.2.5:build-image].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.adventuretube-microservice [package].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.adventuretube-microservice [site].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.adventuretube-microservice [test].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.adventuretube-microservice [validate].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.adventuretube-microservice [verify].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.auth-service [clean].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.auth-service [compile].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.auth-service [org.springframework.boot:spring-boot-maven-plugin:3.2.5:build-image].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.auth-service [package].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.auth-service [test].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.auth-service [validate].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.common-domain [org.springframework.boot:spring-boot-maven-plugin:3.2.5:build-image].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.config-service [org.springframework.boot:spring-boot-maven-plugin:3.2.5:build-image-no-fork].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.config-service [org.springframework.boot:spring-boot-maven-plugin:3.2.5:build-image].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.config-service [org.springframework.boot:spring-boot-maven-plugin:3.2.5:run].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.config-service [org.springframework.boot:spring-boot-maven-plugin:3.2.5:start].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.eureka-server [org.springframework.boot:spring-boot-maven-plugin:3.2.5:build-image].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.member-service [clean].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.member-service [compile].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.member-service [install].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.member-service [package].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.member-service [test].executor&quot;: &quot;Run&quot;,
+    &quot;Remote JVM Debug.Unnamed.executor&quot;: &quot;Debug&quot;,
+    &quot;Remote JVM Debug.auth-debug.executor&quot;: &quot;Debug&quot;,
+    &quot;Remote JVM Debug.gateway-debug.executor&quot;: &quot;Debug&quot;,
+    &quot;Remote JVM Debug.geospatial-debug.executor&quot;: &quot;Debug&quot;,
+    &quot;Remote JVM Debug.member-debug.executor&quot;: &quot;Debug&quot;,
+    &quot;Remote JVM Debug.member-pi-debug.executor&quot;: &quot;Debug&quot;,
+    &quot;Remote JVM Debug.web-debug.executor&quot;: &quot;Debug&quot;,
+    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
+    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
+    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
+    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;SHELLCHECK.PATH&quot;: &quot;/Users/chrislee/Library/Application Support/JetBrains/IntelliJIdea2024.1/plugins/Shell Script/shellcheck&quot;,
+    &quot;Shell Script.adventuretube-cloud-redeploy.sh.executor&quot;: &quot;Debug&quot;,
+    &quot;Shell Script.k3s-stop-app-services.sh.executor&quot;: &quot;Run&quot;,
+    &quot;Shell Script.local-start-app-services.sh.executor&quot;: &quot;Run&quot;,
+    &quot;Shell Script.local-stop-app-services.sh.executor&quot;: &quot;Run&quot;,
+    &quot;Spring Boot.Adventuretube.executor&quot;: &quot;Debug&quot;,
+    &quot;Spring Boot.AuthServiceApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Spring Boot.ConfigServiceApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Spring Boot.EurekaServerApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Spring Boot.GatewayApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Spring Boot.GeospatialServiceApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Spring Boot.MemberServiceApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Spring Boot.WebServiceApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Spring Boot.YoutubeServiceApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Spring Boot.geospatial-service.executor&quot;: &quot;Debug&quot;,
+    &quot;TODO_SCOPE&quot;: &quot;All Places&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
+    &quot;deletionFromPopupRequiresConfirmation&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;update/make-youtube-leaf-service&quot;,
+    &quot;jdk.selected.JAVA_MODULE&quot;: &quot;17&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_directory_selection&quot;: &quot;/Volumes/Programming HD/AdventureTube/adventuretube-microservice/common-api/src/main/java/com/adventuretube/common/api&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Volumes/Programming HD/AdventureTube/adventuretube-microservice&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.46896553&quot;,
+    &quot;run.configurations.included.in.services&quot;: &quot;true&quot;,
+    &quot;service.view.auto.scroll.to.source&quot;: &quot;true&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;spring.configuration.checksum&quot;: &quot;ba4180c424d1148c4a3c5976cb495d2f&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
-  "keyToStringList": {
-    "DatabaseDriversLRU": [
-      "postgresql",
-      "documentdb",
-      "mongo"
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;postgresql&quot;,
+      &quot;documentdb&quot;,
+      &quot;mongo&quot;
     ]
   }
-}]]></component>
+}</component>
   <component name="Push.Settings">
     <force-push-targets>
       <force-push-target remote-path="origin" branch="main" />
@@ -306,22 +302,9 @@
         <option value="HttpClient.HttpRequestRunConfigurationType" />
       </set>
     </option>
-    <option name="configurationStatuses">
-      <map>
-        <entry key="SpringBootApplicationConfigurationType">
-          <value>
-            <map>
-              <entry key="AuthServiceApplication" value="STOPPED" />
-              <entry key="MemberServiceApplication" value="STOPPED" />
-              <entry key="WebServiceApplication" value="STOPPED" />
-            </map>
-          </value>
-        </entry>
-      </map>
-    </option>
     <option name="openRunningConfigInTab" value="true" />
   </component>
-  <component name="RunManager" selected="Remote JVM Debug.auth-debug">
+  <component name="RunManager" selected="Spring Boot.YoutubeServiceApplication">
     <configuration default="true" type="docker-deploy" factoryName="docker-compose.yml" temporary="true">
       <deployment type="docker-compose.yml">
         <settings />
@@ -356,13 +339,61 @@
       </RunnerSettings>
       <method v="2" />
     </configuration>
-    <configuration name="AuthServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+    <configuration name="k3s-stop-app-services.sh" type="ShConfigurationType" temporary="true">
+      <option name="SCRIPT_TEXT" value="" />
+      <option name="INDEPENDENT_SCRIPT_PATH" value="true" />
+      <option name="SCRIPT_PATH" value="$PROJECT_DIR$/scripts/k3s-stop-app-services.sh" />
+      <option name="SCRIPT_OPTIONS" value="" />
+      <option name="INDEPENDENT_SCRIPT_WORKING_DIRECTORY" value="true" />
+      <option name="SCRIPT_WORKING_DIRECTORY" value="$PROJECT_DIR$/scripts" />
+      <option name="INDEPENDENT_INTERPRETER_PATH" value="true" />
+      <option name="INTERPRETER_PATH" value="/bin/bash" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="EXECUTE_IN_TERMINAL" value="true" />
+      <option name="EXECUTE_SCRIPT_FILE" value="true" />
+      <envs />
+      <method v="2" />
+    </configuration>
+    <configuration name="local-start-app-services.sh" type="ShConfigurationType" temporary="true">
+      <option name="SCRIPT_TEXT" value="" />
+      <option name="INDEPENDENT_SCRIPT_PATH" value="true" />
+      <option name="SCRIPT_PATH" value="$PROJECT_DIR$/local-start-app-services.sh" />
+      <option name="SCRIPT_OPTIONS" value="" />
+      <option name="INDEPENDENT_SCRIPT_WORKING_DIRECTORY" value="true" />
+      <option name="SCRIPT_WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="INDEPENDENT_INTERPRETER_PATH" value="true" />
+      <option name="INTERPRETER_PATH" value="/bin/bash" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="EXECUTE_IN_TERMINAL" value="true" />
+      <option name="EXECUTE_SCRIPT_FILE" value="true" />
+      <envs />
+      <method v="2" />
+    </configuration>
+    <configuration name="local-stop-app-services.sh" type="ShConfigurationType" temporary="true">
+      <option name="SCRIPT_TEXT" value="" />
+      <option name="INDEPENDENT_SCRIPT_PATH" value="true" />
+      <option name="SCRIPT_PATH" value="$PROJECT_DIR$/local-stop-app-services.sh" />
+      <option name="SCRIPT_OPTIONS" value="" />
+      <option name="INDEPENDENT_SCRIPT_WORKING_DIRECTORY" value="true" />
+      <option name="SCRIPT_WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="INDEPENDENT_INTERPRETER_PATH" value="true" />
+      <option name="INTERPRETER_PATH" value="/bin/bash" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="EXECUTE_IN_TERMINAL" value="true" />
+      <option name="EXECUTE_SCRIPT_FILE" value="true" />
+      <envs />
+      <method v="2" />
+    </configuration>
+    <configuration name="AuthServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" activateToolWindowBeforeRun="false" nameIsGenerated="true">
       <option name="ACTIVE_PROFILES" value="mac" />
       <envs>
-        <env name="CONFIG_SERVER_URL" value="http://192.168.1.105:9297" />
         <env name="ENV_TARGET" value="mac" />
       </envs>
+      <option name="envFilePaths">
+        <option value="$PROJECT_DIR$/env.mac" />
+      </option>
       <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UpdateClassesAndResources" />
+      <option name="INCLUDE_PROVIDED_SCOPE" value="false" />
       <module name="auth-service" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="com.adventuretube.auth.AuthServiceApplication" />
       <extension name="net.ashald.envfile">
@@ -385,12 +416,36 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="GeospatialServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" activateToolWindowBeforeRun="false" temporary="true" nameIsGenerated="true">
+      <option name="ACTIVE_PROFILES" value="mac" />
+      <envs>
+        <env name="ENV_TARGET" value="mac" />
+      </envs>
+      <option name="envFilePaths">
+        <option value="$PROJECT_DIR$/env.mac" />
+      </option>
+      <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UnknownPolicyInFreeMode" />
+      <option name="INCLUDE_PROVIDED_SCOPE" value="false" />
+      <module name="geospatial-service" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.adventuretube.geospatial.GeospatialServiceApplication" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.adventuretube.geospatial.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="MemberServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <option name="ACTIVE_PROFILES" value="mac" />
       <envs>
-        <env name="CONFIG_SERVER_URL" value="http://192.168.1.105:9297" />
         <env name="ENV_TARGET" value="mac" />
       </envs>
+      <option name="envFilePaths">
+        <option value="$PROJECT_DIR$/env.mac" />
+      </option>
       <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UpdateClassesAndResources" />
       <module name="member-service" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="com.adventuretube.member.MemberServiceApplication" />
@@ -423,9 +478,11 @@
     <configuration name="WebServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <option name="ACTIVE_PROFILES" value="mac" />
       <envs>
-        <env name="CONFIG_SERVER_URL" value="http://192.168.1.105:9297" />
         <env name="ENV_TARGET" value="mac" />
       </envs>
+      <option name="envFilePaths">
+        <option value="$PROJECT_DIR$/env.mac" />
+      </option>
       <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UpdateClassesAndResources" />
       <module name="web-service" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="com.adventuretube.web.WebServiceApplication" />
@@ -435,6 +492,37 @@
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
+      <extension name="net.ashald.envfile">
+        <option name="IS_ENABLED" value="true" />
+        <option name="IS_SUBST" value="false" />
+        <option name="IS_PATH_MACRO_SUPPORTED" value="false" />
+        <option name="IS_IGNORE_MISSING_FILES" value="false" />
+        <option name="IS_ENABLE_EXPERIMENTAL_INTEGRATIONS" value="false" />
+        <ENTRIES>
+          <ENTRY IS_ENABLED="true" PARSER="runconfig" IS_EXECUTABLE="false" />
+          <ENTRY IS_ENABLED="true" PARSER="env" IS_EXECUTABLE="false" PATH="env.mac" />
+        </ENTRIES>
+      </extension>
+      <extension name="software.aws.toolkits.jetbrains.core.execution.JavaAwsConnectionExtension">
+        <option name="credential" />
+        <option name="region" />
+        <option name="useCurrentConnection" value="false" />
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="YoutubeServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <option name="ACTIVE_PROFILES" value="mac" />
+      <envs>
+        <env name="ENV_TARGET" value="mac" />
+      </envs>
+      <option name="envFilePaths">
+        <option value="$PROJECT_DIR$/env.mac" />
+      </option>
+      <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UpdateClassesAndResources" />
+      <module name="youtube-service" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.adventuretube.youtubeservice.YoutubeServiceApplication" />
       <extension name="net.ashald.envfile">
         <option name="IS_ENABLED" value="true" />
         <option name="IS_SUBST" value="false" />
@@ -520,10 +608,23 @@
       <item itemvalue="Docker.docker-compose-kafka.yml: Compose Deployment" />
       <item itemvalue="Remote JVM Debug.geospatial-debug" />
       <item itemvalue="Remote JVM Debug.auth-debug" />
+      <item itemvalue="Shell Script.k3s-stop-app-services.sh" />
+      <item itemvalue="Shell Script.local-start-app-services.sh" />
+      <item itemvalue="Shell Script.local-stop-app-services.sh" />
+      <item itemvalue="Spring Boot.YoutubeServiceApplication" />
       <item itemvalue="Spring Boot.AuthServiceApplication" />
       <item itemvalue="Spring Boot.MemberServiceApplication" />
       <item itemvalue="Spring Boot.WebServiceApplication" />
+      <item itemvalue="Spring Boot.GeospatialServiceApplication" />
     </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Spring Boot.GeospatialServiceApplication" />
+        <item itemvalue="Shell Script.local-stop-app-services.sh" />
+        <item itemvalue="Shell Script.local-start-app-services.sh" />
+        <item itemvalue="Shell Script.k3s-stop-app-services.sh" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
@@ -1180,7 +1281,7 @@
       <option name="project" value="LOCAL" />
       <updated>1721050371563</updated>
     </task>
-    <option name="localTasksCounter" value="515" />
+    <option name="localTasksCounter" value="516" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -1289,7 +1390,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="update docker-compose-kafka.yml" />
     <MESSAGE value="&#10;  1. Removes old Docker images specifically for your services (step 6.5)&#10;  2. Uses --no-cache flag to force fresh builds (step 7)&#10;  3. Adds --volumes --remove-orphans for complete cleanup (step 6)&#10;&#10;  This ensures:&#10;  - No cached Docker layers from previous builds&#10;  - Fresh compilation of your Java code changes&#10;  - Complete cleanup of old containers and volumes&#10;  - Prevention of &quot;stale cache&quot; issues&#10;&#10;  The script now provides a true clean rebuild every time you run it." />
     <MESSAGE value="remove &quot;--remove-orphans&quot;" />
     <MESSAGE value="  1. Decodes the JWT token to extract the payload&#10;  2. Compares the aud (audience) claim with your expected client ID&#10;  3. Logs both values for debugging&#10;  4. Returns null early if there's a mismatch&#10;  5. Only proceeds with Google's verifier if the client ID matches" />
@@ -1314,7 +1414,8 @@
     <MESSAGE value="make auth-service declarative from imperative pattern and offload some intense computation out of Natty's event pool." />
     <MESSAGE value="add debug for in k3s" />
     <MESSAGE value="Most of update is just update comment .&#10;AuthErrorCode.USER_EMAIL_DUPLICATE  has been changed from &#10;HttpStatus.UNAthorized to Conflict" />
-    <option name="LAST_COMMIT_MESSAGE" value="Most of update is just update comment .&#10;AuthErrorCode.USER_EMAIL_DUPLICATE  has been changed from &#10;HttpStatus.UNAthorized to Conflict" />
+    <MESSAGE value="initial update for youtube service module to make youtube service as leaf instead of headless service." />
+    <option name="LAST_COMMIT_MESSAGE" value="initial update for youtube service module to make youtube service as leaf instead of headless service." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
