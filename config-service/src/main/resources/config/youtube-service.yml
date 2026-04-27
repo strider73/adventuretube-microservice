@@ -36,7 +36,7 @@ eureka:
   client:
     fetch-registry: false
     register-with-eureka: true
-    enabled: false
+    enabled: true
 
 minio:
   endpoint: ${MINIO_ENDPOINT}
