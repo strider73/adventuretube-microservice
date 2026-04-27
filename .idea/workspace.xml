@@ -4,15 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a2d07b1e-3701-4ae0-a05d-ffdee57b581a" name="Changes" comment="Remove expiration logic using  &quot;.clockSkewSeconds(Integer.MAX_VALUE) &quot;&#10;because all Gateway will be the only place for expiration check">
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/auth-service/src/main/java/com/adventuretube/auth/controller/AuthController.java" beforeDir="false" afterPath="$PROJECT_DIR$/auth-service/src/main/java/com/adventuretube/auth/controller/AuthController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gateway-service/src/main/java/com/adventuretube/apigateway/config/TracingFilterConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/gateway-service/src/main/java/com/adventuretube/apigateway/config/TracingFilterConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/geospatial-service/src/main/java/com/adventuretube/geospatial/controller/AdventureTubeDataController.java" beforeDir="false" afterPath="$PROJECT_DIR$/geospatial-service/src/main/java/com/adventuretube/geospatial/controller/AdventureTubeDataController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/geospatial-service/src/main/java/com/adventuretube/geospatial/controller/JobStatusSSEController.java" beforeDir="false" afterPath="$PROJECT_DIR$/geospatial-service/src/main/java/com/adventuretube/geospatial/controller/JobStatusSSEController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/member-service/src/main/java/com/adventuretube/member/controller/MemberController.java" beforeDir="false" afterPath="$PROJECT_DIR$/member-service/src/main/java/com/adventuretube/member/controller/MemberController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web-service/src/main/java/com/adventuretube/web/controller/GeoDataController.java" beforeDir="false" afterPath="$PROJECT_DIR$/web-service/src/main/java/com/adventuretube/web/controller/GeoDataController.java" afterDir="false" />
+    <list default="true" id="a2d07b1e-3701-4ae0-a05d-ffdee57b581a" name="Changes" comment="Most of update is just update comment .&#10;AuthErrorCode.USER_EMAIL_DUPLICATE  has been changed from &#10;HttpStatus.UNAthorized to Conflict">
+      <change afterPath="$PROJECT_DIR$/web-service/src/main/java/com/adventuretube/web/controller/YoutubeDataController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/web-service/src/main/java/com/adventuretube/web/service/YoutubeDataService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config-service/src/main/resources/config/gateway-service.yml" beforeDir="false" afterPath="$PROJECT_DIR$/config-service/src/main/resources/config/gateway-service.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config-service/src/main/resources/config/youtube-service.yml" beforeDir="false" afterPath="$PROJECT_DIR$/config-service/src/main/resources/config/youtube-service.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gateway-service/src/main/java/com/adventuretube/apigateway/config/GatewayConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/gateway-service/src/main/java/com/adventuretube/apigateway/config/GatewayConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gateway-service/src/main/java/com/adventuretube/apigateway/config/RouterValidator.java" beforeDir="false" afterPath="$PROJECT_DIR$/gateway-service/src/main/java/com/adventuretube/apigateway/config/RouterValidator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/youtube-service/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/youtube-service/pom.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -29,6 +29,7 @@
         <option value="Dockerfile" />
         <option value="Enum" />
         <option value="Class" />
+        <option value="Interface" />
       </list>
     </option>
   </component>
@@ -36,7 +37,7 @@
     <option name="PUSH_AUTO_UPDATE" value="true" />
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="fix/JWT-validatation-adjust" />
+        <entry key="$PROJECT_DIR$" value="main" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -130,6 +131,7 @@
     "JUnit.CustomUserDetailServiceIT.executor": "Run",
     "JUnit.CustomUserDetailServiceSecurityIT.authenticateUser_shouldSucceed_whenValidCredentials.executor": "Run",
     "JUnit.CustomUserDetailServiceSecurityIT.executor": "Debug",
+    "JUnit.GatewayJwtFilterIT.bearerPrefixOnly_returns401_tokenMissing.executor": "Run",
     "JUnit.GatewayJwtFilterIT.executor": "Debug",
     "JUnit.GatewaySecurityIT.executor": "Run",
     "JUnit.GoogleRefreshTokenTest.executor": "Run",
@@ -152,6 +154,7 @@
     "JUnit.MemberMapperSpringTest.testUserDetailToMemberDTO.executor": "Run",
     "JUnit.ReactiveAuthenticationManagerIT.authenticateUser_shouldSucceed_whenValidCredentials.executor": "Debug",
     "JUnit.ReactiveAuthenticationManagerTest (1).executor": "Run",
+    "JUnit.ReactiveAuthenticationManagerTest.authenticateUser_shouldSucceed_whenValidCredentials.executor": "Run",
     "JUnit.ReactiveAuthenticationManagerTest.executor": "Run",
     "JUnit.RegistrationFlowIT.executor": "Run",
     "JUnit.SequentialFlowTestIT.executor": "Run",
@@ -199,6 +202,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "SHELLCHECK.PATH": "/Users/chrislee/Library/Application Support/JetBrains/IntelliJIdea2024.1/plugins/Shell Script/shellcheck",
     "Shell Script.adventuretube-cloud-redeploy.sh.executor": "Debug",
     "Spring Boot.Adventuretube.executor": "Debug",
@@ -209,21 +213,23 @@
     "Spring Boot.GeospatialServiceApplication.executor": "Run",
     "Spring Boot.MemberServiceApplication.executor": "Run",
     "Spring Boot.WebServiceApplication.executor": "Run",
+    "Spring Boot.YoutubeServiceApplication.executor": "Run",
     "Spring Boot.geospatial-service.executor": "Debug",
     "TODO_SCOPE": "All Places",
     "WebServerToolWindowFactoryState": "false",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
     "deletionFromPopupRequiresConfirmation": "false",
-    "git-widget-placeholder": "feature/auth/web-return-type-serviceresponse-only",
+    "git-widget-placeholder": "update/make-youtube-leaf-service",
     "jdk.selected.JAVA_MODULE": "17",
     "kotlin-language-version-configured": "true",
     "last_directory_selection": "/Volumes/Programming HD/AdventureTube/adventuretube-microservice/common-api/src/main/java/com/adventuretube/common/api",
-    "last_opened_file_path": "/Volumes/Programming HD/AdventureTube/adventuretube-microservice/.claude",
+    "last_opened_file_path": "/Volumes/Programming HD/AdventureTube/adventuretube-microservice",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "Project",
+    "project.structure.last.edited": "Modules",
     "project.structure.proportion": "0.15",
     "project.structure.side.proportion": "0.46896553",
     "run.configurations.included.in.services": "true",
@@ -234,9 +240,9 @@
   },
   "keyToStringList": {
     "DatabaseDriversLRU": [
+      "postgresql",
       "documentdb",
-      "mongo",
-      "postgresql"
+      "mongo"
     ]
   }
 }]]></component>
@@ -300,26 +306,12 @@
         <option value="HttpClient.HttpRequestRunConfigurationType" />
       </set>
     </option>
-    <option name="hiddenConfigurations">
-      <map>
-        <entry key="SpringBootApplicationConfigurationType">
-          <value>
-            <set>
-              <option value="ConfigServiceApplication" />
-              <option value="EurekaServerApplication" />
-              <option value="GatewayApplication" />
-            </set>
-          </value>
-        </entry>
-      </map>
-    </option>
     <option name="configurationStatuses">
       <map>
         <entry key="SpringBootApplicationConfigurationType">
           <value>
             <map>
               <entry key="AuthServiceApplication" value="STOPPED" />
-              <entry key="GeospatialServiceApplication" value="STOPPED" />
               <entry key="MemberServiceApplication" value="STOPPED" />
               <entry key="WebServiceApplication" value="STOPPED" />
             </map>
@@ -329,124 +321,11 @@
     </option>
     <option name="openRunningConfigInTab" value="true" />
   </component>
-  <component name="RunManager" selected="Spring Boot.AuthServiceApplication">
+  <component name="RunManager" selected="Remote JVM Debug.auth-debug">
     <configuration default="true" type="docker-deploy" factoryName="docker-compose.yml" temporary="true">
       <deployment type="docker-compose.yml">
         <settings />
       </deployment>
-      <method v="2" />
-    </configuration>
-    <configuration name="AdventureTubeDataControllerTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="geospatial-service" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="com.adventuretube.geospatial.controller.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="PACKAGE_NAME" value="com.adventuretube.geospatial.controller" />
-      <option name="MAIN_CLASS_NAME" value="com.adventuretube.geospatial.controller.AdventureTubeDataControllerTest" />
-      <option name="TEST_OBJECT" value="class" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="AdventureTubeDataFullStackIT" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="geospatial-service" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="com.adventuretube.geospatial.integration.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <extension name="net.ashald.envfile">
-        <option name="IS_ENABLED" value="true" />
-        <option name="IS_SUBST" value="false" />
-        <option name="IS_PATH_MACRO_SUPPORTED" value="false" />
-        <option name="IS_IGNORE_MISSING_FILES" value="false" />
-        <option name="IS_ENABLE_EXPERIMENTAL_INTEGRATIONS" value="false" />
-        <ENTRIES>
-          <ENTRY IS_ENABLED="true" PARSER="runconfig" IS_EXECUTABLE="false" />
-          <ENTRY IS_ENABLED="true" PARSER="env" IS_EXECUTABLE="false" PATH="env.mac" />
-        </ENTRIES>
-      </extension>
-      <option name="PACKAGE_NAME" value="com.adventuretube.geospatial.integration" />
-      <option name="MAIN_CLASS_NAME" value="com.adventuretube.geospatial.integration.AdventureTubeDataFullStackIT" />
-      <option name="METHOD_NAME" value="" />
-      <option name="TEST_OBJECT" value="class" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="AdventureTubeDataRepositoryIT" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="geospatial-service" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="com.adventuretube.geospatial.integration.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <extension name="net.ashald.envfile">
-        <option name="IS_ENABLED" value="true" />
-        <option name="IS_SUBST" value="false" />
-        <option name="IS_PATH_MACRO_SUPPORTED" value="false" />
-        <option name="IS_IGNORE_MISSING_FILES" value="false" />
-        <option name="IS_ENABLE_EXPERIMENTAL_INTEGRATIONS" value="false" />
-        <ENTRIES>
-          <ENTRY IS_ENABLED="true" PARSER="runconfig" IS_EXECUTABLE="false" />
-          <ENTRY IS_ENABLED="true" PARSER="env" IS_EXECUTABLE="false" PATH="env.mac" />
-        </ENTRIES>
-      </extension>
-      <option name="PACKAGE_NAME" value="com.adventuretube.geospatial.integration" />
-      <option name="MAIN_CLASS_NAME" value="com.adventuretube.geospatial.integration.AdventureTubeDataRepositoryIT" />
-      <option name="METHOD_NAME" value="" />
-      <option name="TEST_OBJECT" value="class" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="LoginFlowIT" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="auth-service" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="com.adventuretube.auth.integration.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="PACKAGE_NAME" value="com.adventuretube.auth.integration" />
-      <option name="MAIN_CLASS_NAME" value="com.adventuretube.auth.integration.LoginFlowIT" />
-      <option name="TEST_OBJECT" value="class" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="RegistrationFlowIT" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="auth-service" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="com.adventuretube.auth.integration.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="PACKAGE_NAME" value="com.adventuretube.auth.integration" />
-      <option name="MAIN_CLASS_NAME" value="com.adventuretube.auth.integration.RegistrationFlowIT" />
-      <option name="TEST_OBJECT" value="class" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="auth-debug" type="Remote">
-      <module name="auth-service" />
-      <option name="USE_SOCKET_TRANSPORT" value="true" />
-      <option name="SERVER_MODE" value="false" />
-      <option name="SHMEM_ADDRESS" />
-      <option name="HOST" value="adventuretube.net" />
-      <option name="PORT" value="5005" />
-      <option name="AUTO_RESTART" value="false" />
-      <RunnerSettings RunnerId="Debug">
-        <option name="DEBUG_PORT" value="5005" />
-        <option name="LOCAL" value="false" />
-      </RunnerSettings>
       <method v="2" />
     </configuration>
     <configuration name="auth-debug" type="Remote">
@@ -459,20 +338,6 @@
       <option name="AUTO_RESTART" value="false" />
       <RunnerSettings RunnerId="Debug">
         <option name="DEBUG_PORT" value="5005" />
-        <option name="LOCAL" value="false" />
-      </RunnerSettings>
-      <method v="2" />
-    </configuration>
-    <configuration name="gateway-debug" type="Remote">
-      <module name="gateway-service" />
-      <option name="USE_SOCKET_TRANSPORT" value="true" />
-      <option name="SERVER_MODE" value="false" />
-      <option name="SHMEM_ADDRESS" />
-      <option name="HOST" value="192.168.1.105" />
-      <option name="PORT" value="5004" />
-      <option name="AUTO_RESTART" value="false" />
-      <RunnerSettings RunnerId="Debug">
-        <option name="DEBUG_PORT" value="5004" />
         <option name="LOCAL" value="false" />
       </RunnerSettings>
       <method v="2" />
@@ -491,34 +356,6 @@
       </RunnerSettings>
       <method v="2" />
     </configuration>
-    <configuration name="member-debug" type="Remote">
-      <module name="member-service" />
-      <option name="USE_SOCKET_TRANSPORT" value="true" />
-      <option name="SERVER_MODE" value="false" />
-      <option name="SHMEM_ADDRESS" />
-      <option name="HOST" value="adventuretube.net" />
-      <option name="PORT" value="5006" />
-      <option name="AUTO_RESTART" value="false" />
-      <RunnerSettings RunnerId="Debug">
-        <option name="DEBUG_PORT" value="5006" />
-        <option name="LOCAL" value="false" />
-      </RunnerSettings>
-      <method v="2" />
-    </configuration>
-    <configuration name="web-debug" type="Remote">
-      <module name="web-service" />
-      <option name="USE_SOCKET_TRANSPORT" value="true" />
-      <option name="SERVER_MODE" value="false" />
-      <option name="SHMEM_ADDRESS" />
-      <option name="HOST" value="192.168.1.105" />
-      <option name="PORT" value="5007" />
-      <option name="AUTO_RESTART" value="false" />
-      <RunnerSettings RunnerId="Debug">
-        <option name="DEBUG_PORT" value="5007" />
-        <option name="LOCAL" value="false" />
-      </RunnerSettings>
-      <method v="2" />
-    </configuration>
     <configuration name="AuthServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <option name="ACTIVE_PROFILES" value="mac" />
       <envs>
@@ -529,82 +366,15 @@
       <module name="auth-service" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="com.adventuretube.auth.AuthServiceApplication" />
       <extension name="net.ashald.envfile">
-        <option name="IS_ENABLED" value="false" />
+        <option name="IS_ENABLED" value="true" />
         <option name="IS_SUBST" value="false" />
         <option name="IS_PATH_MACRO_SUPPORTED" value="false" />
         <option name="IS_IGNORE_MISSING_FILES" value="false" />
         <option name="IS_ENABLE_EXPERIMENTAL_INTEGRATIONS" value="false" />
         <ENTRIES>
           <ENTRY IS_ENABLED="true" PARSER="runconfig" IS_EXECUTABLE="false" />
+          <ENTRY IS_ENABLED="true" PARSER="env" IS_EXECUTABLE="false" PATH="env.mac" />
         </ENTRIES>
-      </extension>
-      <extension name="software.aws.toolkits.jetbrains.core.execution.JavaAwsConnectionExtension">
-        <option name="credential" />
-        <option name="region" />
-        <option name="useCurrentConnection" value="false" />
-      </extension>
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="ConfigServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
-      <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UpdateClassesAndResources" />
-      <module name="config-service" />
-      <option name="SPRING_BOOT_MAIN_CLASS" value="com.adventuretube.ConfigServiceApplication" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="EurekaServerApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
-      <module name="eureka-server" />
-      <option name="SPRING_BOOT_MAIN_CLASS" value="com.adventuretube.EurekaServerApplication" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="GatewayApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
-      <option name="ACTIVE_PROFILES" value="mac" />
-      <envs>
-        <env name="CONFIG_SERVER_URL" value="http://192.168.1.105:9297" />
-        <env name="ENV_TARGET" value="mac" />
-      </envs>
-      <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UpdateClassesAndResources" />
-      <module name="gateway-service" />
-      <option name="SPRING_BOOT_MAIN_CLASS" value="com.adventuretube.apigateway.GatewayApplication" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="com.adventuretube.apigateway.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <extension name="net.ashald.envfile">
-        <option name="IS_ENABLED" value="false" />
-        <option name="IS_SUBST" value="false" />
-        <option name="IS_PATH_MACRO_SUPPORTED" value="false" />
-        <option name="IS_IGNORE_MISSING_FILES" value="false" />
-        <option name="IS_ENABLE_EXPERIMENTAL_INTEGRATIONS" value="false" />
-        <ENTRIES>
-          <ENTRY IS_ENABLED="true" PARSER="runconfig" IS_EXECUTABLE="false" />
-        </ENTRIES>
-      </extension>
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="GeospatialServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
-      <option name="ACTIVE_PROFILES" value="mac" />
-      <envs>
-        <env name="CONFIG_SERVER_URL" value="http://192.168.1.105:9297" />
-        <env name="ENV_TARGET" value="mac" />
-      </envs>
-      <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UpdateClassesAndResources" />
-      <module name="geospatial-service" />
-      <option name="SPRING_BOOT_MAIN_CLASS" value="com.adventuretube.geospatial.GeospatialServiceApplication" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="com.adventuretube.geospatial.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
       </extension>
       <extension name="software.aws.toolkits.jetbrains.core.execution.JavaAwsConnectionExtension">
         <option name="credential" />
@@ -630,6 +400,17 @@
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
+      <extension name="net.ashald.envfile">
+        <option name="IS_ENABLED" value="true" />
+        <option name="IS_SUBST" value="false" />
+        <option name="IS_PATH_MACRO_SUPPORTED" value="false" />
+        <option name="IS_IGNORE_MISSING_FILES" value="false" />
+        <option name="IS_ENABLE_EXPERIMENTAL_INTEGRATIONS" value="false" />
+        <ENTRIES>
+          <ENTRY IS_ENABLED="true" PARSER="runconfig" IS_EXECUTABLE="false" />
+          <ENTRY IS_ENABLED="true" PARSER="env" IS_EXECUTABLE="false" PATH="env.mac" />
+        </ENTRIES>
+      </extension>
       <extension name="software.aws.toolkits.jetbrains.core.execution.JavaAwsConnectionExtension">
         <option name="credential" />
         <option name="region" />
@@ -654,6 +435,17 @@
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
+      <extension name="net.ashald.envfile">
+        <option name="IS_ENABLED" value="true" />
+        <option name="IS_SUBST" value="false" />
+        <option name="IS_PATH_MACRO_SUPPORTED" value="false" />
+        <option name="IS_IGNORE_MISSING_FILES" value="false" />
+        <option name="IS_ENABLE_EXPERIMENTAL_INTEGRATIONS" value="false" />
+        <ENTRIES>
+          <ENTRY IS_ENABLED="true" PARSER="runconfig" IS_EXECUTABLE="false" />
+          <ENTRY IS_ENABLED="true" PARSER="env" IS_EXECUTABLE="false" PATH="env.mac" />
+        </ENTRIES>
+      </extension>
       <extension name="software.aws.toolkits.jetbrains.core.execution.JavaAwsConnectionExtension">
         <option name="credential" />
         <option name="region" />
@@ -662,29 +454,6 @@
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
-    </configuration>
-    <configuration name="AdventureTube-Clouds" type="docker-deploy" factoryName="docker-compose.yml" server-name="Docker">
-      <deployment type="docker-compose.yml">
-        <settings>
-          <option name="envFilePath" value="" />
-          <option name="envFilePaths">
-            <list>
-              <option value="" />
-            </list>
-          </option>
-          <option name="envVars">
-            <list>
-              <DockerEnvVarImpl>
-                <option name="name" value="DOCKERFILE" />
-                <option name="value" value="Dockerfile" />
-              </DockerEnvVarImpl>
-            </list>
-          </option>
-          <option name="removeOrphansOnComposeDown" value="false" />
-          <option name="sourceFilePath" value="docker-compose-clouds.yml" />
-        </settings>
-      </deployment>
-      <method v="2" />
     </configuration>
     <configuration name="Adventuretube-Kafka" type="docker-deploy" factoryName="docker-compose.yml" server-name="Docker">
       <deployment type="docker-compose.yml">
@@ -701,39 +470,8 @@
       </deployment>
       <method v="2" />
     </configuration>
-    <configuration name="Adventuretube-Storage" type="docker-deploy" factoryName="docker-compose.yml" server-name="Docker">
-      <deployment type="docker-compose.yml">
-        <settings>
-          <option name="envFilePath" value="" />
-          <option name="envFilePaths">
-            <list>
-              <option value="" />
-            </list>
-          </option>
-          <option name="envVars">
-            <list>
-              <DockerEnvVarImpl>
-                <option name="name" value="DOCKERFILE" />
-                <option name="value" value="Docker" />
-              </DockerEnvVarImpl>
-            </list>
-          </option>
-          <option name="removeOrphansOnComposeDown" value="false" />
-          <option name="sourceFilePath" value="docker-compose-storages.yml" />
-        </settings>
-      </deployment>
-      <method v="2">
-        <option name="RunConfigurationTask" enabled="true" run_configuration_name="Adventuretube-Kafka" run_configuration_type="docker-deploy" />
-      </method>
-    </configuration>
     <configuration default="true" type="docker-deploy" factoryName="docker-compose.yml" temporary="true">
       <deployment type="docker-compose.yml">
-        <settings />
-      </deployment>
-      <method v="2" />
-    </configuration>
-    <configuration default="true" type="docker-deploy" factoryName="dockerfile" temporary="true">
-      <deployment type="dockerfile">
         <settings />
       </deployment>
       <method v="2" />
@@ -776,71 +514,22 @@
       </deployment>
       <method v="2" />
     </configuration>
-    <configuration name="docker-compose-storages.yml: Compose Deployment" type="docker-deploy" factoryName="docker-compose.yml" server-name="Docker">
-      <deployment type="docker-compose.yml">
-        <settings>
-          <option name="envFilePath" value="" />
-          <option name="envFilePaths">
-            <list>
-              <option value="" />
-            </list>
-          </option>
-          <option name="envVars">
-            <list>
-              <DockerEnvVarImpl>
-                <option name="name" value="DOCKERFILE" />
-                <option name="value" value="Docker" />
-              </DockerEnvVarImpl>
-            </list>
-          </option>
-          <option name="removeOrphansOnComposeDown" value="false" />
-          <option name="sourceFilePath" value="docker-compose-storages.yml" />
-        </settings>
-      </deployment>
-      <method v="2">
-        <option name="RunConfigurationTask" enabled="true" run_configuration_name="Adventuretube-Kafka" run_configuration_type="docker-deploy" />
-      </method>
-    </configuration>
     <list>
-      <item itemvalue="Docker.AdventureTube-Clouds" />
       <item itemvalue="Docker.Adventuretube-Kafka" />
-      <item itemvalue="Docker.Adventuretube-Storage" />
       <item itemvalue="Docker.docker-compose-clouds.yml: Compose Deployment" />
       <item itemvalue="Docker.docker-compose-kafka.yml: Compose Deployment" />
-      <item itemvalue="Docker.docker-compose-storages.yml: Compose Deployment" />
-      <item itemvalue="JUnit.AdventureTubeDataRepositoryIT" />
-      <item itemvalue="JUnit.AdventureTubeDataControllerTest" />
-      <item itemvalue="JUnit.AdventureTubeDataFullStackIT" />
-      <item itemvalue="JUnit.LoginFlowIT" />
-      <item itemvalue="JUnit.RegistrationFlowIT" />
       <item itemvalue="Remote JVM Debug.geospatial-debug" />
-      <item itemvalue="Remote JVM Debug.member-debug" />
-      <item itemvalue="Remote JVM Debug.web-debug" />
-      <item itemvalue="Remote JVM Debug.gateway-debug" />
       <item itemvalue="Remote JVM Debug.auth-debug" />
-      <item itemvalue="Spring Boot.ConfigServiceApplication" />
-      <item itemvalue="Spring Boot.EurekaServerApplication" />
-      <item itemvalue="Spring Boot.GatewayApplication" />
-      <item itemvalue="Spring Boot.GeospatialServiceApplication" />
+      <item itemvalue="Spring Boot.AuthServiceApplication" />
       <item itemvalue="Spring Boot.MemberServiceApplication" />
       <item itemvalue="Spring Boot.WebServiceApplication" />
-      <item itemvalue="Spring Boot.AuthServiceApplication" />
     </list>
-    <recent_temporary>
-      <list>
-        <item itemvalue="JUnit.RegistrationFlowIT" />
-        <item itemvalue="JUnit.LoginFlowIT" />
-        <item itemvalue="JUnit.AdventureTubeDataFullStackIT" />
-        <item itemvalue="JUnit.AdventureTubeDataControllerTest" />
-        <item itemvalue="JUnit.AdventureTubeDataRepositoryIT" />
-      </list>
-    </recent_temporary>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-9823dce3aa75-bf35d07a577b-intellij.indexing.shared.core-IU-252.23892.409" />
-        <option value="bundled-js-predefined-d6986cc7102b-e03c56caf84a-JavaScript-IU-252.23892.409" />
+        <option value="bundled-jdk-9f38398b9061-39b83d9b5494-intellij.indexing.shared.core-IU-241.18034.62" />
+        <option value="bundled-js-predefined-1d06a55b98c1-0b3e54e931b4-JavaScript-IU-241.18034.62" />
       </set>
     </attachedChunks>
   </component>
@@ -1135,6 +824,18 @@
       <workItem from="1774141255980" duration="1925000" />
       <workItem from="1774148511404" duration="7456000" />
       <workItem from="1774221571154" duration="2123000" />
+      <workItem from="1775729524672" duration="19941000" />
+      <workItem from="1775790792099" duration="110000" />
+      <workItem from="1775790906218" duration="84000" />
+      <workItem from="1775791028032" duration="55954000" />
+      <workItem from="1776154720126" duration="1981000" />
+      <workItem from="1776218510651" duration="1776000" />
+      <workItem from="1776221047258" duration="5854000" />
+      <workItem from="1776478310818" duration="17423000" />
+      <workItem from="1776640612971" duration="15813000" />
+      <workItem from="1776867478634" duration="36000" />
+      <workItem from="1776867524314" duration="36000" />
+      <workItem from="1776867595232" duration="34000" />
     </task>
     <task id="LOCAL-00060" summary="update jwt.expireation for access-token/refresh-token">
       <created>1718718153787</created>
@@ -1479,7 +1180,7 @@
       <option name="project" value="LOCAL" />
       <updated>1721050371563</updated>
     </task>
-    <option name="localTasksCounter" value="511" />
+    <option name="localTasksCounter" value="515" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -1515,6 +1216,11 @@
     </option>
   </component>
   <component name="Vcs.Log.Tabs.Properties">
+    <option name="OPEN_GENERIC_TABS">
+      <map>
+        <entry key="cdc30970-c4fc-4bb2-8f78-861523f89f0e" value="TOOL_WINDOW" />
+      </map>
+    </option>
     <option name="RECENT_FILTERS">
       <map>
         <entry key="Branch">
@@ -1560,7 +1266,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="feature/remove-internal-service-security" />
+                        <option value="update/make-youtube-leaf-service" />
                       </list>
                     </value>
                   </entry>
@@ -1574,14 +1280,15 @@
             </State>
           </value>
         </entry>
+        <entry key="cdc30970-c4fc-4bb2-8f78-861523f89f0e">
+          <value>
+            <State />
+          </value>
+        </entry>
       </map>
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="  What was changed:&#10;&#10;  - Removed unreachable code: No more if/else logic&#10;  - Simplified to success path only: Controller only handles successful deletion&#10;  - Exception delegation: When user not found, MemberNotFoundException flows to GlobalExceptionHandler&#10;&#10;  Now the flow is:&#10;&#10;  1. Success case: User exists → deleted → HTTP 200 OK&#10;  2. Failure case: User not found → MemberNotFoundException → GlobalExceptionHandler → HTTP 404 NOT_FOUND&#10;&#10;  This matches your documentation's Approach 2: GlobalExceptionHandler Delegation for business operations that require follow-up processing." />
-    <MESSAGE value="⏺ Add deployment script for complete service rebuild&#10;&#10;  - Created adventuretube-service-redeploy-for-current-branch.sh&#10;  - Automates Maven clean/package, Docker cleanup, and fresh deployment&#10;  - Includes error handling and status reporting for reliable rebuilds" />
-    <MESSAGE value="⏺ Fix deployment script environment and Docker Compose issues&#10;&#10;  - Add proper environment file parameter handling with validation&#10;  - Update all commands from docker-compose to docker compose&#10;  - Ensure consistent env file usage throughout script execution&#10;  - Add usage instructions for proper script invocation" />
-    <MESSAGE value="remove git pulling session" />
     <MESSAGE value="update docker-compose-kafka.yml" />
     <MESSAGE value="&#10;  1. Removes old Docker images specifically for your services (step 6.5)&#10;  2. Uses --no-cache flag to force fresh builds (step 7)&#10;  3. Adds --volumes --remove-orphans for complete cleanup (step 6)&#10;&#10;  This ensures:&#10;  - No cached Docker layers from previous builds&#10;  - Fresh compilation of your Java code changes&#10;  - Complete cleanup of old containers and volumes&#10;  - Prevention of &quot;stale cache&quot; issues&#10;&#10;  The script now provides a true clean rebuild every time you run it." />
     <MESSAGE value="remove &quot;--remove-orphans&quot;" />
@@ -1603,22 +1310,21 @@
     <MESSAGE value="update Jenkinsfile-cloud wrong syntax error" />
     <MESSAGE value="update gateway function for checking expiration day for both access and refresh" />
     <MESSAGE value="Remove expiration logic using  &quot;.clockSkewSeconds(Integer.MAX_VALUE) &quot;&#10;because all Gateway will be the only place for expiration check" />
-    <option name="LAST_COMMIT_MESSAGE" value="Remove expiration logic using  &quot;.clockSkewSeconds(Integer.MAX_VALUE) &quot;&#10;because all Gateway will be the only place for expiration check" />
+    <MESSAGE value="  Custom exceptions should be logged where they are created — not in                           &#10;  GlobalExceptionHandler — because the creation point has the real                             &#10;  context (email, token, contentId). GlobalExceptionHandler only                               &#10;  packages exceptions into ServiceResponse for the client.                                               &#10;                                                                                                            &#10;  Three logging categories applied:                                                                         &#10;  1. Custom exceptions (designed, expected) — log.warn at creation                             &#10;     point with context, no logging in GlobalExceptionHandler                                               &#10;  2. Non-custom expected (Spring/Java) — log.warn in GlobalExceptionHandler                                 &#10;     only if we don't control the throw site                                                                &#10;  3. Non-custom unexpected (catch-all Exception, IllegalStateException)                                     &#10;     — log.error with full stack trace in GlobalExceptionHandler                                            &#10;                                                                                                            &#10;  Files changed:                                                                                            &#10;  - auth-service: AuthService (7 creation points), CustomUserDetailService (1),                             &#10;    AuthServiceConfig (1 — BadCredentialsException)                                                         &#10;  - member-service: MemberService (2 creation points)                                                       &#10;  - geospatial-service: AdventureTubeDataService (1), StoryConsumer (1)" />
+    <MESSAGE value="make auth-service declarative from imperative pattern and offload some intense computation out of Natty's event pool." />
+    <MESSAGE value="add debug for in k3s" />
+    <MESSAGE value="Most of update is just update comment .&#10;AuthErrorCode.USER_EMAIL_DUPLICATE  has been changed from &#10;HttpStatus.UNAthorized to Conflict" />
+    <option name="LAST_COMMIT_MESSAGE" value="Most of update is just update comment .&#10;AuthErrorCode.USER_EMAIL_DUPLICATE  has been changed from &#10;HttpStatus.UNAthorized to Conflict" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint type="java-line">
-          <url>file://$PROJECT_DIR$/auth-service/src/main/java/com/adventuretube/auth/controller/AuthController.java</url>
-          <line>388</line>
-          <option name="timeStamp" value="285" />
-        </line-breakpoint>
-        <line-breakpoint type="java-line">
           <url>file://$PROJECT_DIR$/auth-service/src/test/java/com/adventuretube/auth/support/GoogleTokenUtil.java</url>
           <line>26</line>
           <option name="timeStamp" value="294" />
         </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
+        <line-breakpoint type="java-line">
           <url>file://$PROJECT_DIR$/gateway-service/src/test/java/com/adventuretube/apigateway/integration/GatewayJwtFilterIT.java</url>
           <line>128</line>
           <option name="timeStamp" value="297" />

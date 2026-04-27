@@ -61,6 +61,8 @@ springdoc:
         url: /web-service/v3/api-docs
       - name: Geospatial Service
         url: /geo-service/v3/api-docs
+      - name: Youtube Service
+        url: /youtube-service/v3/api-docs
 
 resilience4j:
   circuitbreaker:
@@ -97,6 +99,14 @@ resilience4j:
         failure-rate-threshold: 50
         wait-duration-in-open-state: 30s
         permitted-number-of-calls-in-half-open-state: 3
+      gw-youtube-service:
+        register-health-indicator: true
+        sliding-window-type: COUNT_BASED
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 30s
+        permitted-number-of-calls-in-half-open-state: 3
   timelimiter:
     instances:
       gw-auth-service:
@@ -107,3 +117,6 @@ resilience4j:
         timeout-duration: 10s
       gw-web-service:
         timeout-duration: 10s
+      gw-youtube-service:
+        timeout-duration: 10s
+

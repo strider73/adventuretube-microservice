@@ -13,6 +13,18 @@ spring:
         - docker*
         - veth*
         - br-*
+
+  eureka:
+    instance:
+      prefer-ip-address: true
+    client:
+      service-url:
+        defaultZone: ${EUREKA_SERVER_URL}
+      fetch-registry: false
+      register-with-eureka: true
+      enabled: true
+
+
   kafka:
     template:
       observation-enabled: true

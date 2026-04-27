@@ -30,6 +30,9 @@ public class GatewayConfig {
                 .route("geo-docs", r -> r.path("/geo-service/v3/api-docs")
                         .filters(f -> f.stripPrefix(1))// 👈 this removes "/geo-service"
                         .uri("lb://geospatial-service"))
+                .route("youtube-docs", r -> r.path("/youtube-service/v3/api-docs")
+                        .filters(f -> f.stripPrefix(1))// 👈 this removes "/geo-service"
+                        .uri("lb://youtube-service"))
 
 
                 // API routes (with auth filter + circuit breaker)
@@ -65,6 +68,14 @@ public class GatewayConfig {
                                 .addStatusCode("500").addStatusCode("502")
                                 .addStatusCode("503").addStatusCode("504")))
                 .uri("lb://web-service"))
+        .route("youtube-service", r -> r.path("/youtube/**")
+                .filters(f -> f.filter(filter)
+                        .circuitBreaker(c -> c
+                                .setName("gw-web-service")
+                                .setFallbackUri("forward:/fallback/youtube-service")
+                                .addStatusCode("500").addStatusCode("502")
+                                .addStatusCode("503").addStatusCode("504")))
+                .uri("lb://youtube-service"))
 
         .build();
     }

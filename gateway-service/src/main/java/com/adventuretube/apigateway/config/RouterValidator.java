@@ -52,7 +52,8 @@ public class RouterValidator {
             "^/auth-service/v3/api-docs.*",
             "^/member-service/v3/api-docs.*",
             "^/web-service/v3/api-docs.*",
-            "^/geo-service/v3/api-docs.*"
+            "^/geo-service/v3/api-docs.*",
+            "^/youtube-service/v3/api-docs.*"
     );
 
     // Predicate to check if request requires authentication
