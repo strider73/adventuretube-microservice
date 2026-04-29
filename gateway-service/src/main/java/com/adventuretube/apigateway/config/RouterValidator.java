@@ -41,7 +41,7 @@ public class RouterValidator {
             "^/auth/token$",               // POST: Login only (uses Google ID token to obtain JWT)
             // === Web Service (public geospatial read endpoints) ===
             "^/web/geo/.*",                // GET: Geospatial data read endpoints (no JWT required)
-
+            "^/web/chapter/.*",
             // === Health Checks ===
             "^/actuator/health.*",         // Spring Actuator health endpoint
             "^/healthcheck.*",             // Custom health check endpoint

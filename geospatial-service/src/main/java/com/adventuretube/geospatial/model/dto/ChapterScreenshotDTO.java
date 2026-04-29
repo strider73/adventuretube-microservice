@@ -12,7 +12,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ScreenshotJobStatusDTO {
+public class ChapterScreenshotDTO {
     private String youtubeContentID;
     private ScreenshotJobStatusEnum status;
     private int totalChapters;

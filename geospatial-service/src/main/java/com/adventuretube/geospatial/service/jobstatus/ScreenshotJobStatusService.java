@@ -3,7 +3,7 @@ package com.adventuretube.geospatial.service.jobstatus;
 
 import com.adventuretube.geospatial.exceptions.JobNotFoundException;
 import com.adventuretube.geospatial.exceptions.code.GeoErrorCode;
-import com.adventuretube.geospatial.model.dto.ScreenshotJobStatusDTO;
+import com.adventuretube.geospatial.model.dto.ChapterScreenshotDTO;
 import com.adventuretube.geospatial.model.entity.jobstatus.ScreenshotJobStatus;
 import com.adventuretube.geospatial.model.enums.ScreenshotJobStatusEnum;
 import com.adventuretube.geospatial.repository.AdventureTubeDataRepository;
@@ -53,7 +53,7 @@ public class ScreenshotJobStatusService {
     }
 
     private ScreenshotJobStatus updateStatus(String youtubeContentID, ScreenshotJobStatusEnum status,
-                                              String errorMessage) {
+                                             String errorMessage) {
         ScreenshotJobStatus jobStatus = screenshotJobStatusRepository.findByYoutubeContentID(youtubeContentID)
                 .orElseThrow(() -> new JobNotFoundException(GeoErrorCode.JOB_NOT_FOUND));
         jobStatus.setStatus(status);
@@ -66,30 +66,10 @@ public class ScreenshotJobStatusService {
         screenshotJobStatusRepository.deleteByYoutubeContentID(youtubeContentId);
     }
 
-    public Optional<ScreenshotJobStatusDTO> getScreenshotStatusWithChapters(String youtubeContentID) {
-        return screenshotJobStatusRepository.findByYoutubeContentID(youtubeContentID)
-                .map(jobStatus -> {
-                    List<ScreenshotJobStatusDTO.ChapterScreenshot> chapters =
-                            (jobStatus.getStatus() == ScreenshotJobStatusEnum.COMPLETED)
-                                    ? adventureTubeDataRepository.findByYoutubeContentID(youtubeContentID)//if job status is completed, get the chapters from adventure tube data
-                                    .map(data -> data.getChapters().stream()//create the stream from the capter and iterate over each chapter
-                                            .map(ch -> ScreenshotJobStatusDTO.ChapterScreenshot.builder()
-                                                    .youtubeTime(ch.getYoutubeTime())
-                                                    .screenshotUrl(ch.getScreenshotUrl())//to set the screenshot url
-                                                    .build())
-                                            .collect(Collectors.toList()))//collect the stream into a list
-                                    .orElse(Collections.emptyList())
-                                    : Collections.emptyList();//if job status is not completed, return empty list
-                    //chapters has been set based on the job status
-                    //create the ScreenshotJobStatusDTO  and set the chapters
-                    return ScreenshotJobStatusDTO.builder()
-                            .youtubeContentID(jobStatus.getYoutubeContentID())
-                            .status(jobStatus.getStatus())
-                            .totalChapters(jobStatus.getTotalChapters())
-                            .completedChapters(jobStatus.getCompletedChapters())
-                            .errorMessage(jobStatus.getErrorMessage())
-                            .chapters(chapters)//set the chapters
-                            .build();
-                });
+
+    public Optional<ScreenshotJobStatus> getScreenshotJobStatus(String youtubeContentID) {
+        return screenshotJobStatusRepository.findByYoutubeContentID(youtubeContentID);
     }
+
+
 }
