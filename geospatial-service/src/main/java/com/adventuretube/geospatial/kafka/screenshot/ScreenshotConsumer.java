@@ -4,7 +4,7 @@ package com.adventuretube.geospatial.kafka.screenshot;
 import com.adventuretube.geospatial.kafka.entity.KafkaMessage;
 import com.adventuretube.geospatial.model.entity.adventuretube.AdventureTubeData;
 import com.adventuretube.geospatial.service.AdventureTubeDataService;
-import com.adventuretube.geospatial.service.jobstatus.ScreenshotJobStatusService;
+import com.adventuretube.geospatial.service.jobstatus.ChapterScreenshotJobStatusService;
 import com.adventuretube.geospatial.service.jobstatus.StoryJobStatusService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -23,7 +23,7 @@ public class ScreenshotConsumer {
     private final AdventureTubeDataService adventureTubeDataService;
     private final ObjectMapper objectMapper;
     private final StoryJobStatusService storyJobStatusService;
-    private final ScreenshotJobStatusService screenshotJobStatusService;
+    private final ChapterScreenshotJobStatusService chapterScreenshotJobStatusService;
 
 
     @KafkaListener(topics = "adventuretube-screenshots-result", groupId = "${spring.kafka.consumer.group-id}")
@@ -64,7 +64,7 @@ public class ScreenshotConsumer {
         String youtubeContentId = kafkaMessage.getYoutubeContentId();
         if (data == null) {
             logger.error("SCREENSHOTS_COMPLETED but data is null, youtubeContentId={}", youtubeContentId);
-            screenshotJobStatusService.markFailed(youtubeContentId, "Screenshot result data is null");
+            chapterScreenshotJobStatusService.markFailed(youtubeContentId, "Screenshot result data is null");
             return;
         }
         try {
@@ -77,7 +77,7 @@ public class ScreenshotConsumer {
             int completedChapters = (int) data.getChapters().stream()
                     .filter(ch -> ch.getScreenshotUrl() != null)
                     .count();
-            screenshotJobStatusService.markCompleted(youtubeContentId, completedChapters);
+            chapterScreenshotJobStatusService.markCompleted(youtubeContentId, completedChapters);
             logger.info("Updated screenshot URLs and marked ScreenshotJobStatus COMPLETED: youtubeContentID={}, completedChapters={}",
                     youtubeContentId, completedChapters);
 
@@ -85,7 +85,7 @@ public class ScreenshotConsumer {
             logger.warn("Duplicate youtubeContentID={}, skipping", data.getYoutubeContentID());
         } catch (Exception e) {
             logger.error("Failed to save screenshot results: {}", e.getMessage(), e);
-            screenshotJobStatusService.markFailed(youtubeContentId, e.getMessage());
+            chapterScreenshotJobStatusService.markFailed(youtubeContentId, e.getMessage());
         }
     }
 

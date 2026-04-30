@@ -1,8 +1,8 @@
 package com.adventuretube.geospatial.controller;
 
 import com.adventuretube.geospatial.model.dto.ChapterScreenshotDTO;
-import com.adventuretube.geospatial.model.enums.ScreenshotJobStatusEnum;
-import com.adventuretube.geospatial.service.ScreenshotService;
+import com.adventuretube.geospatial.model.enums.ChapterScreenshotJobStatusEnum;
+import com.adventuretube.geospatial.service.ChapterScreenshotService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -17,22 +17,22 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(ScreenShotController.class)
+@WebMvcTest(ChapterScreenShotController.class)
 @ActiveProfiles("test")
-class ScreenShotControllerTest {
+class ChapterScreenShotControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
 
     @MockitoBean
-    private ScreenshotService screenshotService;
+    private ChapterScreenshotService chapterScreenshotService;
 
     @Test
     void getScreenshotStatus_shouldReturnCompletedWithThumbnails() throws Exception {
         ChapterScreenshotDTO dto = ChapterScreenshotDTO.builder()
                 .youtubeContentID("xlumX1Wtzrg")
-                .status(ScreenshotJobStatusEnum.COMPLETED)
+                .status(ChapterScreenshotJobStatusEnum.COMPLETED)
                 .totalChapters(4)
                 .completedChapters(4)
                 .chapters(List.of(
@@ -43,7 +43,7 @@ class ScreenShotControllerTest {
                 ))
                 .build();
 
-        when(screenshotService.getScreenshotWithStatus("xlumX1Wtzrg"))
+        when(chapterScreenshotService.getScreenshotWithStatus("xlumX1Wtzrg"))
                 .thenReturn(Optional.of(dto));
 
         mockMvc.perform(get("/geo/screenshot/xlumX1Wtzrg"))
@@ -59,13 +59,13 @@ class ScreenShotControllerTest {
     void getScreenshotStatus_shouldReturnPendingWithEmptyThumbnails() throws Exception {
         ChapterScreenshotDTO dto = ChapterScreenshotDTO.builder()
                 .youtubeContentID("xlumX1Wtzrg")
-                .status(ScreenshotJobStatusEnum.PENDING)
+                .status(ChapterScreenshotJobStatusEnum.PENDING)
                 .totalChapters(4)
                 .completedChapters(0)
                 .chapters(List.of())
                 .build();
 
-        when(screenshotService.getScreenshotWithStatus("xlumX1Wtzrg"))
+        when(chapterScreenshotService.getScreenshotWithStatus("xlumX1Wtzrg"))
                 .thenReturn(Optional.of(dto));
 
         mockMvc.perform(get("/geo/screenshot/xlumX1Wtzrg"))
@@ -79,14 +79,14 @@ class ScreenShotControllerTest {
     void getScreenshotStatus_shouldReturnFailedWithEmptyThumbnails() throws Exception {
         ChapterScreenshotDTO dto = ChapterScreenshotDTO.builder()
                 .youtubeContentID("xlumX1Wtzrg")
-                .status(ScreenshotJobStatusEnum.FAILED)
+                .status(ChapterScreenshotJobStatusEnum.FAILED)
                 .totalChapters(4)
                 .completedChapters(0)
                 .errorMessage("yt-dlp failed to download video")
                 .chapters(List.of())
                 .build();
 
-        when(screenshotService.getScreenshotWithStatus("xlumX1Wtzrg"))
+        when(chapterScreenshotService.getScreenshotWithStatus("xlumX1Wtzrg"))
                 .thenReturn(Optional.of(dto));
 
         mockMvc.perform(get("/geo/screenshot/xlumX1Wtzrg"))
@@ -99,7 +99,7 @@ class ScreenShotControllerTest {
 
     @Test
     void getScreenshotStatus_shouldReturnNoJobFound_whenJobDoesNotExist() throws Exception {
-        when(screenshotService.getScreenshotWithStatus("unknown-id"))
+        when(chapterScreenshotService.getScreenshotWithStatus("unknown-id"))
                 .thenReturn(Optional.empty());
 
         mockMvc.perform(get("/geo/screenshot/unknown-id"))

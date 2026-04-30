@@ -2,11 +2,10 @@ package com.adventuretube.geospatial.controller;
 
 import com.adventuretube.common.api.response.ServiceResponse;
 import com.adventuretube.geospatial.kafka.story.StoryProducer;
-import com.adventuretube.geospatial.model.dto.ChapterScreenshotDTO;
 import com.adventuretube.geospatial.model.entity.jobstatus.StoryJobStatus;
 import com.adventuretube.geospatial.model.entity.adventuretube.AdventureTubeData;
 import com.adventuretube.geospatial.service.AdventureTubeDataService;
-import com.adventuretube.geospatial.service.jobstatus.ScreenshotJobStatusService;
+import com.adventuretube.geospatial.service.jobstatus.ChapterScreenshotJobStatusService;
 import com.adventuretube.geospatial.service.jobstatus.StoryJobStatusService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -33,7 +32,7 @@ public class AdventureTubeDataController {
 
     private final AdventureTubeDataService adventureTubeDataService;
     private final StoryJobStatusService storyJobStatusService;
-    private final ScreenshotJobStatusService screenshotJobStatusService;
+    private final ChapterScreenshotJobStatusService chapterScreenshotJobStatusService;
     private final StoryProducer storyProducer;
 
     @Operation(summary = "Get all geospatial data")

@@ -22,16 +22,13 @@ import java.util.concurrent.TimeoutException;
 /**
  * Generic client for inter-service communication via WebClient.
  *
- * <p>All methods are built on reactive WebClient. Blocking services (Tomcat + virtual threads)
- * call {@code .block()} at the call site or use the reactive {@code Mono} directly.
+ * <p>All methods are reactive — return {@code Mono<T>} or {@code Flux<T>}.
+ * Both auth-service (Netty) and web-service (Netty/WebFlux) chain the reactive
+ * publisher directly through their controllers — no {@code .block()} calls.
  *
  * <h3>Method naming convention</h3>
  * <pre>
- *   {http-method} + Reactive
- *
- *   Reactive = returns Mono&lt;T&gt;
- *   Callers on Tomcat call .block() at the call site.
- *   Callers on Netty chain the Mono directly.
+ *   {http-method} + Reactive   →  returns Mono&lt;T&gt;
  * </pre>
  *
  * <h3>Error handling</h3>
@@ -42,17 +39,11 @@ import java.util.concurrent.TimeoutException;
  *   <li>Circuit breaker open: {@link ServiceClientException} with CIRCUIT_OPEN</li>
  * </ul>
  *
- * <h3>Usage examples</h3>
+ * <h3>Usage example</h3>
  * <pre>{@code
- * // Reactive (auth-service on Netty)
  * Mono<ServiceResponse<MemberDTO>> result = serviceClient.postReactive(
  *     "http://MEMBER-SERVICE", "/member/register", dto,
  *     new ParameterizedTypeReference<ServiceResponse<MemberDTO>>() {});
- *
- * // Blocking (web-service on Tomcat + virtual threads)
- * ServiceResponse<MemberDTO> result = serviceClient.postReactive(
- *     "http://MEMBER-SERVICE", "/member/register", dto,
- *     new ParameterizedTypeReference<ServiceResponse<MemberDTO>>() {}).block();
  * }</pre>
  */
 @Slf4j
@@ -71,12 +62,12 @@ public class ServiceClient {
     }
 
     // ════════════════════════════════════════════════════════════════════
-    //  Public API — reactive methods (callers .block() if needed)
+    //  Public API — reactive methods
     // ════════════════════════════════════════════════════════════════════
 
     /** Non-blocking POST. */
     public <T, R> Mono<T> postReactive(String baseUrl, String path, R body,
-                                        ParameterizedTypeReference<T> responseType) {
+                                       ParameterizedTypeReference<T> responseType) {
         String serviceName = extractServiceName(baseUrl);
         Mono<T> call = webClientBuilder.baseUrl(baseUrl).build()
                 .post()

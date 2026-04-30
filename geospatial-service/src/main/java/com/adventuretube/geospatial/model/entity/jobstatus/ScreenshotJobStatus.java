@@ -1,7 +1,7 @@
 package com.adventuretube.geospatial.model.entity.jobstatus;
 
 
-import com.adventuretube.geospatial.model.enums.ScreenshotJobStatusEnum;
+import com.adventuretube.geospatial.model.enums.ChapterScreenshotJobStatusEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,7 +24,7 @@ public class ScreenshotJobStatus implements JobStatus{
     //The unique index on youtubeContentID prevents duplicate screenshot jobs for the same video
     private String youtubeContentID;
     private String trackingId;
-    private ScreenshotJobStatusEnum status;
+    private ChapterScreenshotJobStatusEnum status;
 
     private int totalChapters;
     private int completedChapters;
@@ -39,7 +39,7 @@ public class ScreenshotJobStatus implements JobStatus{
 
 
     public boolean isTerminalState() {
-        return status != ScreenshotJobStatusEnum.PENDING;
+        return status != ChapterScreenshotJobStatusEnum.PENDING;
     }
 
 }

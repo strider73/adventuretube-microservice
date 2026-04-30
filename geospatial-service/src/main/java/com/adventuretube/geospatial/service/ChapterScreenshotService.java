@@ -3,9 +3,9 @@ package com.adventuretube.geospatial.service;
 import com.adventuretube.geospatial.kafka.screenshot.ScreenshotProducer;
 import com.adventuretube.geospatial.model.dto.ChapterScreenshotDTO;
 import com.adventuretube.geospatial.model.entity.adventuretube.AdventureTubeData;
-import com.adventuretube.geospatial.model.enums.ScreenshotJobStatusEnum;
+import com.adventuretube.geospatial.model.enums.ChapterScreenshotJobStatusEnum;
 import com.adventuretube.geospatial.repository.AdventureTubeDataRepository;
-import com.adventuretube.geospatial.service.jobstatus.ScreenshotJobStatusService;
+import com.adventuretube.geospatial.service.jobstatus.ChapterScreenshotJobStatusService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,9 +19,9 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ScreenshotService {
+public class ChapterScreenshotService {
     private final AdventureTubeDataRepository adventureTubeDataRepository;
-    private final ScreenshotJobStatusService screenshotJobStatusService;
+    private final ChapterScreenshotJobStatusService chapterScreenshotJobStatusService;
     private final ScreenshotProducer screenshotProducer;
 
 
@@ -40,10 +40,10 @@ public class ScreenshotService {
      * @return
      */
     public Optional<ChapterScreenshotDTO> getScreenshotWithStatus(String youtubeContentID) {
-        return screenshotJobStatusService.getScreenshotJobStatus(youtubeContentID)
+        return chapterScreenshotJobStatusService.getScreenshotJobStatus(youtubeContentID)
                 .map(jobStatus -> {
                     List<ChapterScreenshotDTO.ChapterScreenshot> chapters =
-                            (jobStatus.getStatus() == ScreenshotJobStatusEnum.COMPLETED)
+                            (jobStatus.getStatus() == ChapterScreenshotJobStatusEnum.COMPLETED)
                                     ? adventureTubeDataRepository.findByYoutubeContentID(youtubeContentID)//if job status is completed, get the chapters from adventure tube data
                                       .map(data -> data.getChapters().stream()//create the stream from the capter and iterate over each chapter
                                                    .map(ch -> ChapterScreenshotDTO.ChapterScreenshot.builder()

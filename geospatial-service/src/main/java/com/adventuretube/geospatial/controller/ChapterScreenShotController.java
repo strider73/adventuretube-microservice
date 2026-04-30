@@ -3,7 +3,7 @@ package com.adventuretube.geospatial.controller;
 
 import com.adventuretube.common.api.response.ServiceResponse;
 import com.adventuretube.geospatial.model.dto.ChapterScreenshotDTO;
-import com.adventuretube.geospatial.service.ScreenshotService;
+import com.adventuretube.geospatial.service.ChapterScreenshotService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -28,9 +28,9 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 @Tag(name = "Geo Screenshot Controller",
      description = "Internal endpoint for chapter screenshot job status and URLs. Reads ScreenshotJobStatus + AdventureTubeData.chapters[].screenshotUrl from MongoDB.")
-public class ScreenShotController {
+public class ChapterScreenShotController {
 
-    private final ScreenshotService screenshotService;
+    private final ChapterScreenshotService chapterScreenshotService;
 
 
     @Operation(
@@ -110,7 +110,7 @@ public class ScreenShotController {
             @Parameter(description = "YouTube content ID (e.g. `xlumX1Wtzrg`)", example = "xlumX1Wtzrg")
             @PathVariable String youtubeContentId) {
         //2. wrap the optional value in a ServiceResponse
-        ServiceResponse<ChapterScreenshotDTO>   response  = screenshotService.getScreenshotWithStatus(youtubeContentId)
+        ServiceResponse<ChapterScreenshotDTO>   response  = chapterScreenshotService.getScreenshotWithStatus(youtubeContentId)
                 //dto will get return with optional so map with orElseGet will be able to handle both cases
                 .map(dto -> ServiceResponse.<ChapterScreenshotDTO>builder()
                         .success(true)

@@ -1,6 +1,6 @@
 package com.adventuretube.geospatial.model.dto;
 
-import com.adventuretube.geospatial.model.enums.ScreenshotJobStatusEnum;
+import com.adventuretube.geospatial.model.enums.ChapterScreenshotJobStatusEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,7 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 public class ChapterScreenshotDTO {
     private String youtubeContentID;
-    private ScreenshotJobStatusEnum status;
+    private ChapterScreenshotJobStatusEnum status;
     private int totalChapters;
     private int completedChapters;
     private String errorMessage;

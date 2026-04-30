@@ -6,10 +6,9 @@ import com.adventuretube.geospatial.exceptions.code.GeoErrorCode;
 import com.adventuretube.geospatial.kafka.entity.KafkaMessage;
 import com.adventuretube.geospatial.kafka.screenshot.ScreenshotProducer;
 import com.adventuretube.geospatial.repository.ScreenshotJobStatusRepository;
-import com.adventuretube.geospatial.model.entity.jobstatus.ScreenshotJobStatus;
-import com.adventuretube.geospatial.service.jobstatus.ScreenshotJobStatusService;
+import com.adventuretube.geospatial.service.jobstatus.ChapterScreenshotJobStatusService;
 import com.adventuretube.geospatial.service.jobstatus.StoryJobStatusService;
-import com.adventuretube.geospatial.service.ScreenshotService;
+import com.adventuretube.geospatial.service.ChapterScreenshotService;
 import org.springframework.dao.DuplicateKeyException;
 import com.adventuretube.geospatial.model.entity.adventuretube.AdventureTubeData;
 import com.adventuretube.geospatial.service.AdventureTubeDataService;
@@ -27,14 +26,14 @@ public class StoryConsumer {
     private static final Logger logger = LoggerFactory.getLogger(StoryConsumer.class);
 
     private final AdventureTubeDataService adventureTubeDataService;
-    private final ScreenshotService screenshotService;
+    private final ChapterScreenshotService chapterScreenshotService;
     private final StoryJobStatusService storyJobStatusService;
     private final ScreenshotJobStatusRepository screenshotJobStatusRepository;
     private final ObjectMapper objectMapper;
 
     private final StoryProducer storyProducer;
     private final ScreenshotProducer screenshotProducer;
-    private final ScreenshotJobStatusService screenshotJobStatusService;
+    private final ChapterScreenshotJobStatusService chapterScreenshotJobStatusService;
 
     @KafkaListener(topics = "adventuretube-data", groupId = "${spring.kafka.consumer.group-id}")
     public void consume(String message) {
@@ -85,7 +84,7 @@ public class StoryConsumer {
             // Trigger async screenshot generation.
             // ScreenshotJobStatus is created here; iOS will need to poll for its progress separately.
             logger.info("############ScreenShot process for trackingId={}, and youtubeContentId={}  start###############",trackingId,data.getYoutubeContentID());
-            screenshotJobStatusService.createPendingJob(trackingId, data.getYoutubeContentID());
+            chapterScreenshotJobStatusService.createPendingJob(trackingId, data.getYoutubeContentID());
 
             screenshotProducer.sendScreenshotRequest(data.getYoutubeContentID(), trackingId, data);
 
@@ -130,7 +129,7 @@ public class StoryConsumer {
             //TODO: Deleting image from S3 need to be implemented from  youtube-service  completed at geospatial-service
 
             //This will be the request point to create producer for deleting request that will be listened from youtube-service
-            screenshotService.deleteScreenshots(youtubeContentId,trackingId,adventureTubeData );
+            chapterScreenshotService.deleteScreenshots(youtubeContentId,trackingId,adventureTubeData );
 
 
         } catch (Exception e) {

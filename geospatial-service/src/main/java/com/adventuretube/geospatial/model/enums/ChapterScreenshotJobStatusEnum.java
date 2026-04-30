@@ -1,6 +1,6 @@
 package com.adventuretube.geospatial.model.enums;
 
-public enum ScreenshotJobStatusEnum {
+public enum ChapterScreenshotJobStatusEnum {
     PENDING,
     COMPLETED,
     FAILED
