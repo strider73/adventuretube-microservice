@@ -21,6 +21,18 @@ public class GeoDataService {
                 new ParameterizedTypeReference<>() {});
     }
 
+    public Mono<JsonNode> findWithinBounds(double swLat, double swLng, double neLat, double neLng) {
+        String path = String.format("/geo/data/bounds?swLat=%s&swLng=%s&neLat=%s&neLng=%s",
+                swLat, swLng, neLat, neLng);
+        return serviceClient.<JsonNode>getReactive(BASE_URL, path,
+                new ParameterizedTypeReference<>() {});
+    }
+
+
+    //All of below is now used at the moment
+
+
+
     public Mono<JsonNode> findById(String id) {
         return serviceClient.<JsonNode>getReactive(BASE_URL, "/geo/data/" + id,
                 new ParameterizedTypeReference<>() {});
@@ -46,12 +58,6 @@ public class GeoDataService {
                 new ParameterizedTypeReference<>() {});
     }
 
-    public Mono<JsonNode> findWithinBounds(double swLat, double swLng, double neLat, double neLng) {
-        String path = String.format("/geo/data/bounds?swLat=%s&swLng=%s&neLat=%s&neLng=%s",
-                swLat, swLng, neLat, neLng);
-        return serviceClient.<JsonNode>getReactive(BASE_URL, path,
-                new ParameterizedTypeReference<>() {});
-    }
 
     public Mono<JsonNode> getScreenshotStatus(String youtubeContentId) {
         return serviceClient.<JsonNode>getReactive(BASE_URL, "/geo/data/screenshot-status/" +

@@ -108,8 +108,8 @@ class GeoDataServiceComponentTest {
 
         StepVerifier.create(geoDataService.saveWithOwnerEmail(authorization, body))
                 .assertNext(result -> {
-                    assertThat(result).contains("trackingId");
-                    assertThat(result).contains("PENDING");
+                    assertThat(result.getTrackingId()).contains("trackingId");
+                    assertThat(result.getStatus()).contains("PENDING");
                 })
                 .verifyComplete();
 
@@ -134,8 +134,8 @@ class GeoDataServiceComponentTest {
 
         StepVerifier.create(geoDataService.getJobStatus("abc-123"))
                 .assertNext(result -> {
-                    assertThat(result).contains("COMPLETED");
-                    assertThat(result).contains("chaptersCount");
+                    assertThat(result.getStatus()).contains("COMPLETED");
+                    assertThat(result.getChaptersCount()).contains("chaptersCount");
                 })
                 .verifyComplete();
     }
@@ -149,7 +149,7 @@ class GeoDataServiceComponentTest {
                 .addHeader("Content-Type", "application/json"));
 
         StepVerifier.create(geoDataService.getJobStatus("abc-456"))
-                .assertNext(result -> assertThat(result).contains("DUPLICATE"))
+                .assertNext(result -> assertThat(result.getStatus()).contains("DUPLICATE"))
                 .verifyComplete();
     }
 
@@ -179,7 +179,7 @@ class GeoDataServiceComponentTest {
         String authorization = "Bearer " + token;
 
         StepVerifier.create(geoDataService.deleteByYoutubeContentId(authorization, "yt-test-123"))
-                .assertNext(result -> assertThat(result).contains("deleted"))
+                .assertNext(result -> assertThat(result.getStatus()).contains("deleted"))
                 .verifyComplete();
 
         RecordedRequest request = mockWebServer.takeRequest();

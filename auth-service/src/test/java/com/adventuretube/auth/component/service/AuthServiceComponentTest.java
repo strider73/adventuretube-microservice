@@ -7,7 +7,6 @@ import com.adventuretube.auth.model.mapper.MemberMapper;
 import com.adventuretube.auth.model.mapper.MemberMapperImpl;
 import com.adventuretube.auth.model.request.MemberLoginRequest;
 import com.adventuretube.auth.model.request.MemberRegisterRequest;
-import com.adventuretube.auth.model.response.MemberRegisterResponse;
 import com.adventuretube.auth.service.AuthService;
 import com.adventuretube.auth.service.CustomUserDetailService;
 import com.adventuretube.auth.service.JwtUtil;
@@ -29,9 +28,6 @@ import org.springframework.cloud.client.circuitbreaker.ReactiveCircuitBreakerFac
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -42,7 +38,6 @@ import reactor.test.StepVerifier;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;

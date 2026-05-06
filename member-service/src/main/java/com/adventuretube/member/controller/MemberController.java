@@ -58,11 +58,11 @@ public class MemberController {
                                     """)))
     })
     @PostMapping("/registerMember")
-    public ResponseEntity<ServiceResponse<MemberDTO>> registerMember(@RequestBody MemberDTO memberDTO) {
+    public ResponseEntity<MemberDTO> registerMember(@RequestBody MemberDTO memberDTO) {
         log.info("new member registration {}", memberDTO);
         var registeredMember = memberService.registerMember(memberMapper.memberDTOtoMember(memberDTO));
         memberDTO.setId(registeredMember.getId());
-        return ResponseEntity.ok(buildResponse("Member registered successfully", memberDTO));
+        return ResponseEntity.ok(memberDTO);
     }
 
     @Operation(summary = "Check if email already exists")
@@ -70,21 +70,22 @@ public class MemberController {
             @ApiResponse(responseCode = "200", description = "Email check completed.")
     })
     @PostMapping("/emailDuplicationCheck")
-    public ResponseEntity<ServiceResponse<Boolean>> emailDuplicationCheck(@RequestBody String email) {
+    public ResponseEntity<Boolean> emailDuplicationCheck(@RequestBody String email) {
         boolean exists = memberService.findEmail(email).isPresent();
         String message = exists ? "Email already exists" : "Email is available";
-        return ResponseEntity.ok(buildResponse(message, exists));
+        return ResponseEntity.ok(exists);
     }
 
     @Operation(summary = "Find member by email address")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Member lookup completed. Data is null if not found.")
+            @ApiResponse(responseCode = "200", description = "Member found."),
+            @ApiResponse(responseCode = "404", description = "Member not found.")
     })
     @PostMapping("/findMemberByEmail")
-    public ResponseEntity<ServiceResponse<MemberDTO>> findMemberByEmail(@RequestBody String email) {
+    public ResponseEntity<MemberDTO> findMemberByEmail(@RequestBody String email) {
         return memberService.findEmail(email)
-                .map(member -> ResponseEntity.ok(buildResponse("Member found", memberMapper.memberToMemberDTO(member))))
-                .orElseGet(() -> ResponseEntity.ok(buildResponse("Member not found", (MemberDTO) null)));
+                .map(member -> ResponseEntity.ok(memberMapper.memberToMemberDTO(member)))
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @Operation(summary = "Store access and refresh tokens for a member")
@@ -92,9 +93,9 @@ public class MemberController {
             @ApiResponse(responseCode = "200", description = "Token stored successfully.")
     })
     @PostMapping("/storeTokens")
-    public ResponseEntity<ServiceResponse<Boolean>> storeToken(@RequestBody TokenDTO tokenDTO) {
+    public ResponseEntity<Boolean> storeToken(@RequestBody TokenDTO tokenDTO) {
         boolean result = memberService.storeToken(tokenDTO);
-        return ResponseEntity.ok(buildResponse("Token stored successfully", result));
+        return ResponseEntity.ok(result);
     }
 
     @Operation(summary = "Check if a token exists in the database")
@@ -102,10 +103,10 @@ public class MemberController {
             @ApiResponse(responseCode = "200", description = "Token lookup completed.")
     })
     @PostMapping("/findToken")
-    public ResponseEntity<ServiceResponse<Boolean>> findToken(@RequestBody String token) {
+    public ResponseEntity<Boolean> findToken(@RequestBody String token) {
         boolean found = memberService.findToken(token).isPresent();
         String message = found ? "Token found" : "Token not found";
-        return ResponseEntity.ok(buildResponse(message, found));
+        return ResponseEntity.ok(found);
     }
 
     @Operation(summary = "Delete all tokens associated with a refresh token")
@@ -113,10 +114,10 @@ public class MemberController {
             @ApiResponse(responseCode = "200", description = "Token deletion completed.")
     })
     @PostMapping("/deleteAllToken")
-    public ResponseEntity<ServiceResponse<Boolean>> deleteAllToken(@RequestBody String token) {
+    public ResponseEntity<Boolean> deleteAllToken(@RequestBody String token) {
         boolean deleted = memberService.deleteAllToken(token);
         String message = deleted ? "Token deleted successfully" : "Token not found";
-        return ResponseEntity.ok(buildResponse(message, deleted));
+        return ResponseEntity.ok( deleted);
     }
 
     @Operation(summary = "Delete a user and all associated tokens by email")
@@ -136,18 +137,10 @@ public class MemberController {
                                     """)))
     })
     @PostMapping("/deleteUser")
-    public ResponseEntity<ServiceResponse<Boolean>> deleteUser(@RequestBody String email) {
+    public ResponseEntity<Boolean> deleteUser(@RequestBody String email) {
         log.info("Deleting user with email: {}", email);
-        memberService.deleteUser(email);
-        return ResponseEntity.ok(buildResponse("User deleted successfully", true));
+        boolean isDeleteUser =  memberService.deleteUser(email);
+        return ResponseEntity.ok(isDeleteUser);
     }
 
-    private <T> ServiceResponse<T> buildResponse(String message, T data) {
-        return ServiceResponse.<T>builder()
-                .success(true)
-                .message(message)
-                .data(data)
-                .timestamp(LocalDateTime.now())
-                .build();
-    }
 }

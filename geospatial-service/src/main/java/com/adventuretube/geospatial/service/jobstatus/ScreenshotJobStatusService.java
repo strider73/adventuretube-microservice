@@ -67,12 +67,12 @@ public class ScreenshotJobStatusService {
     }
 
     public Optional<ScreenshotJobStatusDTO> getScreenshotStatusWithChapters(String youtubeContentID) {
-        return screenshotJobStatusRepository.findByYoutubeContentID(youtubeContentID)
+        return screenshotJobStatusRepository.findByYoutubeContentID(youtubeContentID)// return Optional<ScreenshotJobStatus>
                 .map(jobStatus -> {
                     List<ScreenshotJobStatusDTO.ChapterScreenshot> chapters =
                             (jobStatus.getStatus() == ScreenshotJobStatusEnum.COMPLETED)
-                                    ? adventureTubeDataRepository.findByYoutubeContentID(youtubeContentID)//if job status is completed, get the chapters from adventure tube data
-                                    .map(data -> data.getChapters().stream()//create the stream from the capter and iterate over each chapter
+                                    ? adventureTubeDataRepository.findByYoutubeContentID(youtubeContentID)//if job status is completed, get the adventuretube data
+                                    .map(data -> data.getChapters().stream()//create the stream from the chapter and iterate over each chapter
                                             .map(ch -> ScreenshotJobStatusDTO.ChapterScreenshot.builder()
                                                     .youtubeTime(ch.getYoutubeTime())
                                                     .screenshotUrl(ch.getScreenshotUrl())//to set the screenshot url

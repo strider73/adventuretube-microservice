@@ -1,6 +1,8 @@
 package com.adventuretube.geospatial.controller;
 
 import com.adventuretube.common.api.response.ServiceResponse;
+import com.adventuretube.geospatial.exceptions.JobNotFoundException;
+import com.adventuretube.geospatial.exceptions.code.GeoErrorCode;
 import com.adventuretube.geospatial.kafka.story.StoryProducer;
 import com.adventuretube.geospatial.model.dto.ScreenshotJobStatusDTO;
 import com.adventuretube.geospatial.model.entity.jobstatus.StoryJobStatus;
@@ -133,18 +135,12 @@ public class AdventureTubeDataController {
                                     """)))
     })
     @DeleteMapping("/data/delete/adventuretubedata")
-    public ResponseEntity<ServiceResponse<StoryJobStatus>> deleteByYoutubeContentID(@RequestParam String youtubeContentId, @RequestParam String ownerEmail) {
+    public ResponseEntity<StoryJobStatus> deleteByYoutubeContentID(@RequestParam String youtubeContentId, @RequestParam String ownerEmail) {
         log.info("DELETE /geo/data/delete/adventuretubedata youtubeContentId={}, ownerEmail={}", youtubeContentId, ownerEmail);
         String trackingId = UUID.randomUUID().toString();
-        StoryJobStatus pendingJob = storyJobStatusService.createPendingJob(trackingId,youtubeContentId);
+        StoryJobStatus pendingJob = storyJobStatusService.createPendingJob(trackingId, youtubeContentId);
         storyProducer.deleteAdventureTubeData(trackingId, youtubeContentId, ownerEmail);
-        ServiceResponse<StoryJobStatus> response = ServiceResponse.<StoryJobStatus>builder()
-                .success(true)
-                .message("Deletion accepted and processing")
-                .data(pendingJob)
-                .timestamp(LocalDateTime.now())
-                .build();
-        return ResponseEntity.ok().body(response);
+        return ResponseEntity.ok().body(pendingJob);
     }
 
     @Operation(summary = "Save geospatial data (async via Kafka)")
@@ -164,47 +160,26 @@ public class AdventureTubeDataController {
                                     """)))
     })
     @PostMapping("/save")
-    public ResponseEntity<ServiceResponse<StoryJobStatus>> save(@RequestBody AdventureTubeData data) {
+    public ResponseEntity<StoryJobStatus> save(@RequestBody AdventureTubeData data) {
         log.info("POST /geo/save received: youtubeContentID={}", data.getYoutubeContentID());
 
         String trackingId = UUID.randomUUID().toString();
         StoryJobStatus pendingJob = storyJobStatusService.createPendingJob(trackingId, data.getYoutubeContentID());
         storyProducer.sendAdventureTubeData(trackingId, data);
 
-        ServiceResponse<StoryJobStatus> response = ServiceResponse.<StoryJobStatus>builder()
-                .success(true)
-                .message("Data accepted and processing")
-                .data(pendingJob)
-                .timestamp(LocalDateTime.now())
-                .build();
-
-        return ResponseEntity.accepted().body(response);
+        return ResponseEntity.accepted().body(pendingJob);
     }
 
 
     @GetMapping("/data/screenshot-status/{youtubeContentId}")
-    public ResponseEntity<ServiceResponse<ScreenshotJobStatusDTO>> getScreenshotStatus(@PathVariable String youtubeContentId) {
-        //TODO: get the optional screenshot job status from service layer and return it after wrapping in a ServiceResponse
-
-
+    public ResponseEntity<ScreenshotJobStatusDTO> getScreenshotStatus(@PathVariable String youtubeContentId) {
 
         //2. wrap the optional value in a ServiceResponse
-        ServiceResponse<ScreenshotJobStatusDTO>   response  = screenshotJobStatusService
+        ScreenshotJobStatusDTO screenshotJobStatusDTO = screenshotJobStatusService
                 .getScreenshotStatusWithChapters(youtubeContentId)
-                //dto will get return with optional so map with orElseGet will be able to handle both cases
-                .map(dto -> ServiceResponse.<ScreenshotJobStatusDTO>builder()
-                        .success(true)
-                        .message("Screenshot status retrieved")
-                        .data(dto)
-                        .timestamp(LocalDateTime.now())
-                        .build())
-                .orElseGet(() -> ServiceResponse.<ScreenshotJobStatusDTO>builder()
-                       .success(true)
-                       .message("No screenshot job found")
-                       .timestamp(LocalDateTime.now())
-                       .build());
+                .orElseThrow(() -> new JobNotFoundException(GeoErrorCode.JOB_NOT_FOUND));
 
-        return ResponseEntity.ok().body(response);
+        return ResponseEntity.ok(screenshotJobStatusDTO);
 
 
     }

@@ -1,5 +1,6 @@
 package com.adventuretube.auth.service;
 
+import com.adventuretube.auth.model.response.jobstatus.StoryJobStatusResponse;
 import com.adventuretube.common.client.ServiceClient;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -26,7 +27,7 @@ public class GeoDataService {
         this.jwtUtil = jwtUtil;
     }
 
-    public Mono<String> saveWithOwnerEmail(String authorization, JsonNode body) {
+    public Mono<StoryJobStatusResponse> saveWithOwnerEmail(String authorization, JsonNode body) {
         return Mono.fromCallable(() -> {
                     String token = authorization.replace("Bearer ", "");
                     String email = jwtUtil.extractUsername(token);
@@ -35,23 +36,24 @@ public class GeoDataService {
                 })
                 .flatMap(enrichedBody -> serviceClient.postReactive(
                         geoServiceUrl, "/geo/save", enrichedBody,
-                        new ParameterizedTypeReference<String>() {}));
+                        new ParameterizedTypeReference<StoryJobStatusResponse>() {}));
     }
 
-    public Flux<ServerSentEvent<String>> streamJobStatus(String trackingId) {
+    public Flux<ServerSentEvent<StoryJobStatusResponse>> streamJobStatus(String trackingId) {
         return serviceClient.getSseStreamReactive(
                 geoServiceUrl,
-                "/geo/status/stream/" + trackingId);
+                "/geo/status/stream/" + trackingId,
+                new ParameterizedTypeReference<ServerSentEvent<StoryJobStatusResponse>>() {});
     }
 
-    public Mono<String> getJobStatus(String trackingId) {
+    public Mono<StoryJobStatusResponse> getJobStatus(String trackingId) {
         return serviceClient.getReactive(
                 geoServiceUrl,
                 "/geo/status/" + trackingId,
-                new ParameterizedTypeReference<String>() {});
+                new ParameterizedTypeReference<StoryJobStatusResponse>() {});
     }
 
-    public Mono<String> deleteByYoutubeContentId(String authorization, String youtubeContentId) {
+    public Mono<StoryJobStatusResponse> deleteByYoutubeContentId(String authorization, String youtubeContentId) {
         return Mono.fromCallable(() -> {
                     String token = authorization.replace("Bearer ", "");
                     return jwtUtil.extractUsername(token);
@@ -59,6 +61,6 @@ public class GeoDataService {
                 .flatMap(ownerEmail -> serviceClient.deleteReactive(
                         geoServiceUrl,
                         "/geo/data/delete/adventuretubedata?youtubeContentId=" + youtubeContentId + "&ownerEmail=" + ownerEmail,
-                        new ParameterizedTypeReference<String>() {}));
+                        new ParameterizedTypeReference<StoryJobStatusResponse>() {}));
     }
 }

@@ -113,17 +113,11 @@ public class StoryJobStatusSSEController {
                                     """)))
     })
     @GetMapping("/status/{trackingId}")
-    public ResponseEntity<ServiceResponse<StoryJobStatus>> getJobStatus(@PathVariable String trackingId) {
+    public ResponseEntity<StoryJobStatus> getJobStatus(@PathVariable String trackingId) {
         log.info("GET /geo/status/{} requested", trackingId);
         StoryJobStatus jobStatus = storyJobStatusService.findByTrackingId(trackingId)
                 .orElseThrow(() -> new JobNotFoundException(GeoErrorCode.JOB_NOT_FOUND));
 
-        ServiceResponse<StoryJobStatus> response = ServiceResponse.<StoryJobStatus>builder()
-                .success(true)
-                .message("Job status retrieved")
-                .data(jobStatus)
-                .timestamp(LocalDateTime.now())
-                .build();
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(jobStatus);
     }
 }

@@ -11,7 +11,7 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class MemberRegisterResponse {
+public class AuthTokenResponse {
     //private MemberDTO userDetails;
     private UUID userId;
     private String accessToken;

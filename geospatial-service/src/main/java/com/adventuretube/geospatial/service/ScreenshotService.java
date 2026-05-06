@@ -17,12 +17,9 @@ public class ScreenshotService {
     private final ScreenshotJobStatusRepository screenshotJobStatusRepository;
     private final ScreenshotProducer screenshotProducer;
 
-    public void deleteScreenshots(String youtubeContentID, String trackingId,AdventureTubeData adventureTubeData) {
-
+    public void deleteScreenshots(String youtubeContentID, String trackingId, AdventureTubeData adventureTubeData) {
         screenshotProducer.deleteScreenshotRequest(youtubeContentID, trackingId, adventureTubeData);
         log.info("All screenshots deleted reqeust has been sent for  {}", youtubeContentID);
-
-
     }
 
 }
