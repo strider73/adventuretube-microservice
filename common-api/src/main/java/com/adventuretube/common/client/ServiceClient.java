@@ -140,7 +140,9 @@ public class ServiceClient {
      * Used by auth-service to proxy SSE streams from downstream services.
      * No circuit breaker — CB is designed for request/response, not long-lived streams.
      */
-    public Flux<ServerSentEvent<String>> getSseStreamReactive(String baseUrl, String path) {
+    public <T> Flux<ServerSentEvent<T>> getSseStreamReactive(String baseUrl,
+                                                             String path,
+                                                              ParameterizedTypeReference<ServerSentEvent<T>> typeReference) {
         String serviceName = extractServiceName(baseUrl);
         return webClientBuilder.baseUrl(baseUrl).build()
                 .get()
@@ -148,7 +150,7 @@ public class ServiceClient {
                 .accept(MediaType.TEXT_EVENT_STREAM)
                 .retrieve()
                 .onStatus(HttpStatusCode::isError, response -> handleError(serviceName, response))
-                .bodyToFlux(new ParameterizedTypeReference<ServerSentEvent<String>>() {})
+                .bodyToFlux(typeReference)
                 .timeout(Duration.ofSeconds(35))
                 .onErrorMap(WebClientRequestException.class, ex -> networkError(serviceName, ex))
                 .onErrorMap(TimeoutException.class, ex -> timeoutError(serviceName, path, ex));

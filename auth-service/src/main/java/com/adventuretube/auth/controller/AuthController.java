@@ -1,14 +1,11 @@
 package com.adventuretube.auth.controller;
 
 
-import com.adventuretube.auth.exceptions.code.AuthErrorCode;
 import com.adventuretube.auth.model.request.MemberLoginRequest;
-import com.adventuretube.auth.model.response.MemberLoginResponse;
 import com.adventuretube.auth.model.request.MemberRegisterRequest;
-import com.adventuretube.auth.model.response.MemberRegisterResponse;
+import com.adventuretube.auth.model.response.AuthTokenResponse;
 import com.adventuretube.auth.service.AuthService;
 import com.adventuretube.common.api.response.ServiceResponse;
-import io.swagger.v3.core.util.Json;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -21,12 +18,10 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import java.net.URI;
 import java.time.LocalDateTime;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.util.JavaScriptUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
 
@@ -158,13 +153,20 @@ public class AuthController {
     })
     // This logic will be used when user logs in for the first time from the iOS application
     @PostMapping(value = "/users")
-    public Mono<ResponseEntity<?>> registerUser(@Valid @RequestBody MemberRegisterRequest request) {
+    public Mono<ResponseEntity<ServiceResponse<AuthTokenResponse>>> registerUser(@Valid @RequestBody MemberRegisterRequest request) {
         return authService.createUser(request)
-                .map(response -> ResponseEntity.created(
-                        UriComponentsBuilder.fromPath("/users/{id}")
-                                .buildAndExpand(response.getData().getUserId())
-                                .toUri()
-                ).body(response));
+                .map(memberResponse -> {
+                    ServiceResponse<AuthTokenResponse> response = ServiceResponse.<AuthTokenResponse>builder()
+                            .success(true)
+                            .data(memberResponse)
+                            .timestamp(LocalDateTime.now())
+                            .build();
+                    return ResponseEntity.created(
+                            UriComponentsBuilder.fromPath("/users/{id}")
+                                    .buildAndExpand(memberResponse.getUserId())
+                                    .toUri()
+                    ).body(response);
+                });
     }
 
     // =========================
@@ -283,9 +285,16 @@ public class AuthController {
             )
     })
     @PostMapping(value = "/token")
-    public Mono<ResponseEntity<?>> issueToken(@Valid @RequestBody MemberLoginRequest request) {
+    public Mono<ResponseEntity<ServiceResponse<AuthTokenResponse>>> issueToken(@Valid @RequestBody MemberLoginRequest request) {
         return authService.issueToken(request)
-                .map(response -> ResponseEntity.ok(response));
+                .map(memberResponse -> {
+                    ServiceResponse<AuthTokenResponse> response = ServiceResponse.<AuthTokenResponse>builder()
+                            .success(true)
+                            .data(memberResponse)
+                            .timestamp(LocalDateTime.now())
+                            .build();
+                    return ResponseEntity.ok(response);
+                });
     }
 
     // =========================
@@ -385,9 +394,16 @@ public class AuthController {
             )
     })
     @PostMapping(value = "/token/refresh")
-    public Mono<ResponseEntity<?>> refreshToken(@RequestHeader("Authorization") String authorization) {
+    public Mono<ResponseEntity<ServiceResponse<AuthTokenResponse>>> refreshToken(@RequestHeader("Authorization") String authorization) {
         return authService.refreshToken(authorization)
-                .map(response -> ResponseEntity.ok(response));
+                .map(memberResponse -> {
+                    ServiceResponse<AuthTokenResponse> response = ServiceResponse.<AuthTokenResponse>builder()
+                            .success(true)
+                            .data(memberResponse)
+                            .timestamp(LocalDateTime.now())
+                            .build();
+                    return ResponseEntity.ok(response);
+                });
     }
 
 
@@ -470,9 +486,17 @@ public class AuthController {
             )
     })
     @PostMapping(value = "/token/revoke")
-    public Mono<ResponseEntity<?>> revokeToken(@RequestHeader("Authorization") String authorization) {
+    public Mono<ResponseEntity<ServiceResponse<Boolean>>> revokeToken(@RequestHeader("Authorization") String authorization) {
         return authService.revokeToken(authorization)
-                .map(response -> ResponseEntity.ok(response));
+                .map(isRevoked -> {
+                    ServiceResponse<Boolean> response = ServiceResponse.<Boolean>builder()
+                            .success(true)
+                            .data(isRevoked)
+                            .message("Logout has been successful")
+                            .timestamp(LocalDateTime.now())
+                            .build();
+                    return ResponseEntity.ok(response);
+                });
     }
 
     // =========================
@@ -548,9 +572,17 @@ public class AuthController {
             )
     })
     @DeleteMapping(value = "/users")
-    public Mono<ResponseEntity<?>> deleteUser(@RequestBody String email) {
+    public Mono<ResponseEntity<ServiceResponse<Boolean>>> deleteUser(@RequestBody String email) {
         return authService.deleteUser(email)
-                .map(response -> ResponseEntity.ok(response));
+                .map(isDeleted -> {
+                    ServiceResponse<Boolean> response = ServiceResponse.<Boolean>builder()
+                            .success(true)
+                            .data(isDeleted)
+                            .message("User deleted successfully")
+                            .timestamp(LocalDateTime.now())
+                            .build();
+                    return ResponseEntity.ok(response);
+                });
     }
 
 
