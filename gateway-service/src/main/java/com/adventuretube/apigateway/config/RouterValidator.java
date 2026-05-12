@@ -59,7 +59,12 @@ public class RouterValidator {
     // Predicate to check if request requires authentication
     public Predicate<ServerHttpRequest> isSecured = request -> {
         String path = request.getURI().getRawPath();
-        System.out.println("🔍 Securing request path: " + path);
-        return openEndPoints.stream().noneMatch(pattern -> path.matches(pattern));
+        boolean secured = openEndPoints.stream().noneMatch(pattern -> path.matches(pattern));
+        if (secured) {
+            System.out.println("🔒 SECURED  (JWT required) → " + path);
+        } else {
+            System.out.println("🌐 OPEN     (no JWT)       → " + path);
+        }
+        return secured;
     };
 }

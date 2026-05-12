@@ -16,6 +16,8 @@ public class ChapterScreenShotService {
     private final ServiceClient serviceClient;
 
     public Mono<JsonNode> getScreenshotStatus(String youtubeContentId) {
-        return serviceClient.getReactive(BASE_URL , "/geo/screenshot/" + youtubeContentId, new ParameterizedTypeReference<>() {});
+        return serviceClient.getReactive(BASE_URL ,
+                                  "/geo/screenshot/" + youtubeContentId,
+                                        new ParameterizedTypeReference<>() {});
     }
 }

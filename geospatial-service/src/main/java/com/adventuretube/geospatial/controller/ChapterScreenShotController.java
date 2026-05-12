@@ -106,26 +106,12 @@ public class ChapterScreenShotController {
                             }))
     })
     @GetMapping("/{youtubeContentId}")
-    public ResponseEntity<ServiceResponse<ChapterScreenshotDTO>> getScreenshotStatus(
+    public ResponseEntity<ChapterScreenshotDTO> getScreenshotStatus(
             @Parameter(description = "YouTube content ID (e.g. `xlumX1Wtzrg`)", example = "xlumX1Wtzrg")
             @PathVariable String youtubeContentId) {
-        //2. wrap the optional value in a ServiceResponse
-        ServiceResponse<ChapterScreenshotDTO>   response  = chapterScreenshotService.getScreenshotWithStatus(youtubeContentId)
-                //dto will get return with optional so map with orElseGet will be able to handle both cases
-                .map(dto -> ServiceResponse.<ChapterScreenshotDTO>builder()
-                        .success(true)
-                        .message("Screenshot status retrieved")
-                        .data(dto)
-                        .timestamp(LocalDateTime.now())
-                        .build())
-                .orElseGet(() -> ServiceResponse.<ChapterScreenshotDTO>builder()
-                        .success(true)
-                        .message("No screenshot job found")
-                        .timestamp(LocalDateTime.now())
-                        .build());
-
-        return ResponseEntity.ok().body(response);
-
+        return  chapterScreenshotService.getScreenshotWithStatus(youtubeContentId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.<ChapterScreenshotDTO>notFound().build());
 
     }
 }

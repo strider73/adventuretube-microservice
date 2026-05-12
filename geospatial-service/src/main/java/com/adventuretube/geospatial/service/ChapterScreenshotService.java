@@ -41,10 +41,10 @@ public class ChapterScreenshotService {
      */
     public Optional<ChapterScreenshotDTO> getScreenshotWithStatus(String youtubeContentID) {
         return chapterScreenshotJobStatusService.getScreenshotJobStatus(youtubeContentID)
-                .map(jobStatus -> {
-                    List<ChapterScreenshotDTO.ChapterScreenshot> chapters =
+                .map(jobStatus -> { //get the screenshot jobstatus from the database
+                    List<ChapterScreenshotDTO.ChapterScreenshot> chapterScreenshots =
                             (jobStatus.getStatus() == ChapterScreenshotJobStatusEnum.COMPLETED)
-                                    ? adventureTubeDataRepository.findByYoutubeContentID(youtubeContentID)//if job status is completed, get the chapters from adventure tube data
+                                    ? adventureTubeDataRepository.findByYoutubeContentID(youtubeContentID)//if job status is completed, get the chapterScreenshots from adventure tube data
                                       .map(data -> data.getChapters().stream()//create the stream from the capter and iterate over each chapter
                                                    .map(ch -> ChapterScreenshotDTO.ChapterScreenshot.builder()
                                                               .youtubeTime(ch.getYoutubeTime())
@@ -53,15 +53,15 @@ public class ChapterScreenshotService {
                                                    .collect(Collectors.toList()))//collect the stream into a list
                                       .orElse(Collections.emptyList())
                                     : Collections.emptyList();//if job status is not completed, return empty list
-                    //chapters has been set based on the job status
-                    //create the ScreenshotJobStatusDTO  and set the chapters
+                    //chapterScreenshots has been set based on the job status
+                    //create the ScreenshotJobStatusDTO  and set the chapterScreenshots
                     return ChapterScreenshotDTO.builder()
                             .youtubeContentID(jobStatus.getYoutubeContentID())
                             .status(jobStatus.getStatus())
                             .totalChapters(jobStatus.getTotalChapters())
                             .completedChapters(jobStatus.getCompletedChapters())
                             .errorMessage(jobStatus.getErrorMessage())
-                            .chapters(chapters)//set the chapters
+                            .chapters(chapterScreenshots)//set the chapterScreenshots
                             .build();
                 });
     }

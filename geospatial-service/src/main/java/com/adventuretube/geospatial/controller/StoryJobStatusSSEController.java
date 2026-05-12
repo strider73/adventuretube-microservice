@@ -78,7 +78,7 @@ public class StoryJobStatusSSEController {
             return emitter;
         }
 
-        // Register for future updates
+        // Register for future
         SseEmitter emitter = sseEmitterManager.register(trackingId, 30_000L);
 
         // Send initial PENDING status

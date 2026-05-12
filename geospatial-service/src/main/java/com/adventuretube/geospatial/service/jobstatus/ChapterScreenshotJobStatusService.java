@@ -21,7 +21,11 @@ public class ChapterScreenshotJobStatusService {
     private final ScreenshotJobStatusRepository screenshotJobStatusRepository;
     private final AdventureTubeDataRepository adventureTubeDataRepository;
 
-    public ScreenshotJobStatus createPendingJob(String trackingId, String youtubeContentID) {
+    public ScreenshotJobStatus createPendingJob(String trackingId, String youtubeContentID, int totalChapters) {
+        if (totalChapters <= 0) {
+            throw new IllegalArgumentException("totalChapters must be greater than 0");
+        }
+        
         //TODO: check the exsiting job status records because youtubeContentID is not unique if already exist
         screenshotJobStatusRepository.findByYoutubeContentID(youtubeContentID).ifPresent(screenshotJobStatusRepository::delete);
 
@@ -29,6 +33,7 @@ public class ChapterScreenshotJobStatusService {
                 .trackingId(trackingId)
                 .youtubeContentID(youtubeContentID)
                 .status(ChapterScreenshotJobStatusEnum.PENDING)
+                .totalChapters(totalChapters)
                 .completedChapters(0)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())

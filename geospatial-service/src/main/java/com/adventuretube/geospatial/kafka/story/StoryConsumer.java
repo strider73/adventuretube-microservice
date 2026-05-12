@@ -84,7 +84,8 @@ public class StoryConsumer {
             // Trigger async screenshot generation.
             // ScreenshotJobStatus is created here; iOS will need to poll for its progress separately.
             logger.info("############ScreenShot process for trackingId={}, and youtubeContentId={}  start###############",trackingId,data.getYoutubeContentID());
-            chapterScreenshotJobStatusService.createPendingJob(trackingId, data.getYoutubeContentID());
+            int totalChapters = data.getChapters() != null ? data.getChapters().size() : 0;
+            chapterScreenshotJobStatusService.createPendingJob(trackingId, data.getYoutubeContentID(), totalChapters);
 
             screenshotProducer.sendScreenshotRequest(data.getYoutubeContentID(), trackingId, data);
 
